@@ -1,4 +1,4 @@
-;;; prelude-haskell.el --- Emacs Prelude: Nice config for Haskell programming.
+;;; prelude-company.el --- company-mode setup
 ;;
 ;; Copyright © 2011-2015 Bozhidar Batsov
 ;;
@@ -11,7 +11,7 @@
 
 ;;; Commentary:
 
-;; Nice config for Haskell programming.
+;; company-mode config.
 
 ;;; License:
 
@@ -31,23 +31,18 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+(prelude-require-packages '(company))
 
-(require 'prelude-programming)
-(prelude-require-packages '(haskell-mode))
+(require 'company)
 
-(eval-after-load 'haskell-mode
-  '(progn
-     (defun prelude-haskell-mode-defaults ()
-       (subword-mode +1)
-       (haskell-doc-mode)
-       (haskell-indentation-mode)
-       (interactive-haskell-mode +1))
+(setq company-idle-delay 0.5)
+(setq company-tooltip-limit 10)
+(setq company-minimum-prefix-length 2)
+;; invert the navigation direction if the the completion popup-isearch-match
+;; is displayed on top (happens near the bottom of windows)
+(setq company-tooltip-flip-when-above t)
 
-     (setq prelude-haskell-mode-hook 'prelude-haskell-mode-defaults)
+(global-company-mode 1)
 
-     (add-hook 'haskell-mode-hook (lambda ()
-                                    (run-hooks 'prelude-haskell-mode-hook)))))
-
-(provide 'prelude-haskell)
-
-;;; prelude-haskell.el ends here
+(provide 'prelude-company)
+;;; prelude-company.el ends here

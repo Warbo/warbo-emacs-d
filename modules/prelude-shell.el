@@ -1,4 +1,4 @@
-;;; prelude-haskell.el --- Emacs Prelude: Nice config for Haskell programming.
+;;; prelude-shell.el --- Emacs Prelude: sh-mode configuration.
 ;;
 ;; Copyright © 2011-2015 Bozhidar Batsov
 ;;
@@ -11,7 +11,7 @@
 
 ;;; Commentary:
 
-;; Nice config for Haskell programming.
+;; Some basic configuration for cc-mode and the modes derived from it.
 
 ;;; License:
 
@@ -32,22 +32,20 @@
 
 ;;; Code:
 
-(require 'prelude-programming)
-(prelude-require-packages '(haskell-mode))
+(require 'sh-script)
 
-(eval-after-load 'haskell-mode
-  '(progn
-     (defun prelude-haskell-mode-defaults ()
-       (subword-mode +1)
-       (haskell-doc-mode)
-       (haskell-indentation-mode)
-       (interactive-haskell-mode +1))
+;; recognize pretzo files as zsh scripts
+(defvar prelude-pretzo-files '("zlogin" "zlogin" "zlogout" "zpretzorc" "zprofile" "zshenv" "zshrc"))
 
-     (setq prelude-haskell-mode-hook 'prelude-haskell-mode-defaults)
+(mapc (lambda (file)
+        (add-to-list 'auto-mode-alist `(,(format "\\%s\\'" file) . sh-mode)))
+      prelude-pretzo-files)
 
-     (add-hook 'haskell-mode-hook (lambda ()
-                                    (run-hooks 'prelude-haskell-mode-hook)))))
+(add-hook 'sh-mode-hook
+          (lambda ()
+            (if (and buffer-file-name
+                     (member (file-name-nondirectory buffer-file-name) prelude-pretzo-files))
+                (sh-set-shell "zsh"))))
 
-(provide 'prelude-haskell)
-
-;;; prelude-haskell.el ends here
+(provide 'prelude-shell)
+;;; prelude-shell.el ends here

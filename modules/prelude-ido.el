@@ -1,4 +1,4 @@
-;;; prelude-haskell.el --- Emacs Prelude: Nice config for Haskell programming.
+;;; prelude-ido.el --- Ido setup
 ;;
 ;; Copyright © 2011-2015 Bozhidar Batsov
 ;;
@@ -11,7 +11,7 @@
 
 ;;; Commentary:
 
-;; Nice config for Haskell programming.
+;; Ido-related config.
 
 ;;; License:
 
@@ -31,23 +31,34 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+(prelude-require-packages '(flx-ido ido-ubiquitous smex))
 
-(require 'prelude-programming)
-(prelude-require-packages '(haskell-mode))
+(require 'ido)
+(require 'ido-ubiquitous)
+(require 'flx-ido)
 
-(eval-after-load 'haskell-mode
-  '(progn
-     (defun prelude-haskell-mode-defaults ()
-       (subword-mode +1)
-       (haskell-doc-mode)
-       (haskell-indentation-mode)
-       (interactive-haskell-mode +1))
+(setq ido-enable-prefix nil
+      ido-enable-flex-matching t
+      ido-create-new-buffer 'always
+      ido-use-filename-at-point 'guess
+      ido-max-prospects 10
+      ido-save-directory-list-file (expand-file-name "ido.hist" prelude-savefile-dir)
+      ido-default-file-method 'selected-window
+      ido-auto-merge-work-directories-length -1)
+(ido-mode +1)
+(ido-ubiquitous-mode +1)
 
-     (setq prelude-haskell-mode-hook 'prelude-haskell-mode-defaults)
+;;; smarter fuzzy matching for ido
+(flx-ido-mode +1)
+;; disable ido faces to see flx highlights
+(setq ido-use-faces nil)
 
-     (add-hook 'haskell-mode-hook (lambda ()
-                                    (run-hooks 'prelude-haskell-mode-hook)))))
+;;; smex, remember recently and most frequently used commands
+(require 'smex)
+(setq smex-save-file (expand-file-name ".smex-items" prelude-savefile-dir))
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex-major-mode-commands)
 
-(provide 'prelude-haskell)
-
-;;; prelude-haskell.el ends here
+(provide 'prelude-ido)
+;;; prelude-ido.el ends here
