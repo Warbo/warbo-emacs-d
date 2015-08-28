@@ -178,6 +178,9 @@ by Prelude.")
           (eval (setq message-sendmail-extra-arguments '("-a" "dd" "--read-envelope-from" "--read-recipients")))
           (user-mail-address "cmwarburton@dundee.ac.uk")))))
 
+;; Always show inboxes, even when empty
+(setq gnus-permanently-visible-groups "INBOX")
+
 ;; Discourage HTML emails
 (eval-after-load "gnus-sum"
   '(add-to-list
@@ -419,23 +422,25 @@ by Prelude.")
 (defun startup-shells ()
   "Useful buffers to open at startup"
   (mapcar 'shell-named-in
-          '(("writing"     "~/Writing")
-            ("blog"        "~/blog")
-            ("ml4hs"       "~/Programming/Haskell/ML4HS")
-            ("hs2ast"      "~/Programming/Haskell/HS2AST")
-            ("mlspec"      "~/Programming/Haskell/MLSpec")
-            ("haskell-te"  "~/System/Packages/haskell-te")
-            ("astplugin"   "~/Programming/Haskell/AstPlugin")
-            ("quickspec"   "~/Programming/Haskell/quickspec")
-            ("qs-measure"  "~/Programming/Haskell/QuickSpecMeasure")
-            ("utilities"   "~/warbo-utilities")
-            ("deleteme"    "~/DELETEME")
-            ("matrices"    "~/Programming/Haskell/Matrices")
-            ("tests"       "~/.tests")
-            ("nixpkgs"     "~/Programming/nixpkgs")
-            ("repos"       "~/Programming/repos")
-            (".nixpkgs"     "~/.nixpkgs")
-            ("home"        "~"))))
+          '(("writing"       "~/Writing")
+            ("blog"          "~/blog")
+            ("ml4hs"         "~/Programming/Haskell/ML4HS")
+            ("hs2ast"        "~/Programming/Haskell/HS2AST")
+            ("mlspec"        "~/Programming/Haskell/MLSpec")
+            ("tree-features" "~/Programming/Haskell/TreeFeatures")
+            ("haskell-te"    "~/System/Packages/haskell-te")
+            ("astplugin"     "~/Programming/Haskell/AstPlugin")
+            ("quickspec"     "~/Programming/Haskell/quickspec")
+            ("qs-measure"    "~/Programming/Haskell/QuickSpecMeasure")
+            ("utilities"     "~/warbo-utilities")
+            ("deleteme"      "~/DELETEME")
+            ("matrices"      "~/Programming/Haskell/Matrices")
+            ("tests"         "~/.tests")
+            ("nixpkgs"       "~/Programming/nixpkgs")
+            ("repos"         "~/Programming/repos")
+            (".nixpkgs"      "~/.nixpkgs")
+            ("documents"     "~/Documents")
+            ("home"          "~"))))
 
 (startup-shells)
 
@@ -545,3 +550,33 @@ by Prelude.")
 (add-hook 'eshell-mode-hook
           '(lambda()
              (local-set-key (kbd "C-l") 'eshell/clear)))
+
+;; From http://www.enigmacurry.com/2008/12/26/emacs-ansi-term-tricks/
+(require 'term)
+(defun visit-ansi-term ()
+  "If the current buffer is:
+     1) a running ansi-term named *ansi-term*, rename it.
+     2) a stopped ansi-term, kill it and create a new one.
+     3) a non ansi-term, go to an already running ansi-term
+        or start a new one while killing a defunt one"
+  (interactive)
+  (let ((is-term (string= "term-mode" major-mode))
+        (is-running (term-check-proc (buffer-name)))
+        (term-cmd "bash")
+        (anon-term (get-buffer "*ansi-term*")))
+    (if is-term
+        (if is-running
+            (if (string= "*ansi-term*" (buffer-name))
+                (call-interactively 'rename-buffer)
+              (if anon-term
+                  (switch-to-buffer "*ansi-term*")
+                (ansi-term term-cmd)))
+          (kill-buffer (buffer-name))
+          (ansi-term term-cmd))
+      (if anon-term
+          (if (term-check-proc "*ansi-term*")
+              (switch-to-buffer "*ansi-term*")
+            (kill-buffer "*ansi-term*")
+            (ansi-term term-cmd))
+        (ansi-term term-cmd)))))
+(global-set-key (kbd "<f2>") 'visit-ansi-term)
