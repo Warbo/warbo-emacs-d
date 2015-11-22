@@ -276,9 +276,6 @@ by Prelude.")
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "conkeror")
 
-;; Load GEBEN for debugging PHP via Xdebug
-(autoload 'geben "geben" "PHP Debugger on Emacs" t)
-
 ;; Set some repositories for the package manager
 (setq package-archives '(("gnu"       . "http://elpa.gnu.org/packages/")
                          ("marmalade" . "http://marmalade-repo.org/packages/")
@@ -419,30 +416,29 @@ by Prelude.")
     (if (get-buffer buf)
         (with-current-buffer buf (eval func)))))
 
-(defun startup-shells ()
-  "Useful buffers to open at startup"
-  (mapcar 'shell-named-in
-          '(("writing"       "~/Writing")
-            ("blog"          "~/blog")
-            ("ml4hs"         "~/Programming/Haskell/ML4HS")
-            ("hs2ast"        "~/Programming/Haskell/HS2AST")
-            ("mlspec"        "~/Programming/Haskell/MLSpec")
-            ("tree-features" "~/Programming/Haskell/TreeFeatures")
-            ("haskell-te"    "~/System/Packages/haskell-te")
-            ("astplugin"     "~/Programming/Haskell/AstPlugin")
-            ("quickspec"     "~/Programming/Haskell/quickspec")
-            ("qs-measure"    "~/Programming/Haskell/QuickSpecMeasure")
-            ("utilities"     "~/warbo-utilities")
-            ("deleteme"      "~/DELETEME")
-            ("matrices"      "~/Programming/Haskell/Matrices")
-            ("tests"         "~/.tests")
-            ("nixpkgs"       "~/Programming/nixpkgs")
-            ("repos"         "~/Programming/repos")
-            (".nixpkgs"      "~/.nixpkgs")
-            ("documents"     "~/Documents")
-            ("home"          "~"))))
+(defconst startup-shells
+  '(("writing"       "~/Writing")
+    ("blog"          "~/blog")
+    ("ml4hs"         "~/Programming/ML4HS")
+    ("hs2ast"        "~/Programming/Haskell/HS2AST")
+    ("mlspec"        "~/Programming/Haskell/MLSpec")
+    ("tree-features" "~/Programming/Haskell/TreeFeatures")
+    ("haskell-te"    "~/System/Packages/haskell-te")
+    ("astplugin"     "~/Programming/Haskell/AstPlugin")
+    ("quickspec"     "~/Programming/Haskell/quickspec")
+    ("qs-measure"    "~/Programming/Haskell/QuickSpecMeasure")
+    ("utilities"     "~/warbo-utilities")
+    ("deleteme"      "~/DELETEME")
+    ("matrices"      "~/Programming/Haskell/Matrices")
+    ("tests"         "~/System/Tests")
+    ("nixpkgs"       "~/Programming/nixpkgs")
+    ("repos"         "~/Programming/repos")
+    (".nixpkgs"      "~/.nixpkgs")
+    ("documents"     "~/Documents")
+    ("home"          "~"))
+  "Useful buffers to open at startup")
 
-(startup-shells)
+(mapcar 'shell-named-in startup-shells)
 
 (defun indent-and-align ()
   "Prettier indentation. Tries to align code nicely automatically."
@@ -465,9 +461,6 @@ by Prelude.")
 (setq org-confirm-babel-evaluate nil)
 
 (setq org-src-fontify-natively t)
-
-;; Syntax highlighting for Dash
-(eval-after-load "dash" '(dash-enable-font-lock))
 
 ;; Unit testing for ELisp
 (require 'ert)
@@ -580,3 +573,48 @@ by Prelude.")
             (ansi-term term-cmd))
         (ansi-term term-cmd)))))
 (global-set-key (kbd "<f2>") 'visit-ansi-term)
+
+;; From https://rtime.felk.cvut.cz/~sojka/blog/compile-on-save/
+(defun compile-on-save-start ()
+  (let ((buffer (compilation-find-buffer)))
+    (unless (get-buffer-process buffer)
+      (recompile))))
+
+(define-minor-mode compile-on-save-mode
+  "Minor mode to automatically call `recompile' whenever the
+current buffer is saved. When there is ongoing compilation,
+nothing happens."
+  :lighter " CoS"
+  (if compile-on-save-mode
+      (progn  (make-local-variable 'after-save-hook)
+              (add-hook 'after-save-hook 'compile-on-save-start nil t))
+    (kill-local-variable 'after-save-hook)))
+
+;; Useful for manual entry of PDF titles into BibTeX
+(defun take-name ()
+  ;; Find the next localfile key which doesn't have a title
+  (re-search-forward "^@misc{zzzzz.*,[\n][\t]localfile = \"[^\"]*\"[\n]")
+  (forward-line -1)
+  (beginning-of-line)
+  (re-search-forward "localfile = ")
+  ;; Copy the contents
+  (forward-char)  ;; Past "
+  (set-mark (point))
+  (end-of-line)
+  (backward-char) ;; Past "
+  ;; Open the file in a temporary doc-view buffer
+  (let ((selection (buffer-substring-no-properties (mark) (point)))
+        (title     ""))
+    (with-temp-buffer
+      (insert-file-contents selection)
+      (doc-view-mode)
+      (switch-to-buffer (current-buffer))
+      (sit-for 2)
+      (doc-view-fit-width-to-window)
+      ;; Query for the title
+      (setq title (read-from-minibuffer "Title: ")))
+    ;; Insert a title key into the BibTeX
+    (end-of-line)
+    (insert ",\n\ttitle = \"")
+    (insert title)
+    (insert "\"")))
