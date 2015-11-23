@@ -66,3 +66,5 @@
 
 ;; Spell checking. This relies on aspell.
 (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+
+(add-hook 'LaTeX-mode-hook (lambda () (whitespace-mode 0)))
