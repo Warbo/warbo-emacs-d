@@ -41,10 +41,14 @@
    (define-key org-mode-map
      (kbd "<f5>") 'org-export-and-preview)))
 
-;; Visual line wrapping in Org mode
-(add-hook
- 'org-mode-hook
- 'turn-on-visual-line-mode)
+;; Use AUCTeX
+(add-to-list 'auto-mode-alist '("\\.tex$" . LaTeX-mode))
+
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+
+;; Visual line wrapping in document modes
+(add-hook 'org-mode-hook 'turn-on-visual-line-mode)
 
 (add-hook
  'org-mode-hook
@@ -56,6 +60,9 @@
                                            whitespace-style))
    (whitespace-mode 1)))
 
-(add-hook
- 'markdown-mode-hook
- 'turn-on-visual-line-mode)
+(add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
+
+(add-hook 'LaTeX-mode-hook 'visual-line-mode)
+
+;; Spell checking. This relies on aspell.
+(add-hook 'LaTeX-mode-hook 'flyspell-mode)
