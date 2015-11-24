@@ -30,6 +30,20 @@
                    "mysql")
                  eshell-visual-commands))))
 
+(defun make-numbered-name (prefix n)
+  "Make strings of the form '*PREFIX-N*'"
+  (concat "*" prefix "-" (number-to-string n) "*"))
+
+(defun free-name-num (prefix)
+  "Return an unused buffer name, of the form '*PREFIX-1*'"
+  (let* ((n     1)
+         (name  (make-numbered-name prefix n))
+         (taken (mapcar 'buffer-name (buffer-list))))
+    (while (member name taken)
+      (setq n    (1+ n))
+      (setq name (make-numbered-name prefix n)))
+    name))
+
 ;; Auto-increment shell names. Get a new EShell with "M-x sh", get a new Shell
 ;; with "M-x bash"
 (setq sh-counter 1)

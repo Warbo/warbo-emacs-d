@@ -7,3 +7,9 @@
   "Startup shells are open"
   (dolist (pair startup-shells)
     (should (member (car pair) (mapcar 'buffer-name (buffer-list))))))
+
+(ert-deftest warbo-shell-unique ()
+  "Shell names don't overlap"
+  (with-temp-buffer
+    (rename-buffer "*test-buffer-1*")
+    (should (equal (free-name-num "test-buffer") "*test-buffer-2*"))))
