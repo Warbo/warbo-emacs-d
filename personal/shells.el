@@ -1,15 +1,15 @@
 ;; Swap cursor keys and C-p/C-n in EShell.
 ;; C-up/C-down still does history like Shell mode
 (defun m-eshell-hook ()
-                                        ; define control p, control n and the up/down arrow
+  ;; define control p, control n and the up/down arrow
   (define-key eshell-mode-map [(control p)]
     'eshell-previous-matching-input-from-input)
   (define-key eshell-mode-map [(control n)]
     'eshell-next-matching-input-from-input)
 
   (define-key eshell-mode-map [up] 'previous-line)
-  (define-key eshell-mode-map [down] 'next-line)
-  )
+  (define-key eshell-mode-map [down] 'next-line))
+
 (add-hook 'eshell-mode-hook 'm-eshell-hook)
 
 ;; Auto-complete should stop at the first ambiguity
@@ -133,6 +133,7 @@
     ("home"          "~"))
   "Useful buffers to open at startup")
 
+(mapcar 'shell-named-in startup-shells)
 
 ;; From http://stackoverflow.com/a/27908343/884682
 (defun eshell/clear ()
