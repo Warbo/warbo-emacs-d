@@ -46,23 +46,21 @@
 
 ;; Auto-increment shell names. Get a new EShell with "M-x sh", get a new Shell
 ;; with "M-x bash"
-(setq sh-counter 1)
 (defun sh ()
   "Start a new EShell"
   (interactive)
-  (setq sh-counter (+ sh-counter 1))
-  (let ((buf (concat "*eshell-" (number-to-string sh-counter) "*")))
+  (let ((buf (free-name-num "eshell")))
     (command-execute 'eshell)
     (rename-buffer buf)
     buf))
 
-(setq bash-counter 1)
 (defun bash ()
   "Start a bash shell"
   (interactive)
-  (setq bash-counter (+ bash-counter 1))
-  (let ((explicit-shell-file-name "bash"))
-    (shell (concat "*shell-" (number-to-string bash-counter) "*"))))
+  (let ((explicit-shell-file-name "bash")
+        (buf                      (free-name-num "shell")))
+    (shell buf)
+    buf))
 
 ;; "Refresh" an SSH shell after a connection dies
 (defun refresh-terminal ()
@@ -70,7 +68,7 @@
   (interactive)
   (let ((buf-name (buffer-name)))
     (progn (command-execute 'bash)
-           (kill-buffer buf-name)
+           (kill-buffer   buf-name)
            (rename-buffer buf-name))))
 
 (defun eshell/emacs (file)
