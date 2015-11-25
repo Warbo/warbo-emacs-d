@@ -20,3 +20,6 @@
 (ad-unadvise 'windmove-down)
 (ad-unadvise 'windmove-left)
 (ad-unadvise 'windmove-right)
+
+;; Start emacs server, so emacsclient works
+(defer 'server-start)
