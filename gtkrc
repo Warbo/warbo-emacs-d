@@ -1,0 +1,5 @@
+style "menufont"
+{
+    font_name = "Droid Sans Mono 11"  # Pango font name
+}
+widget "*emacs-menuitem*" style "menufont"
