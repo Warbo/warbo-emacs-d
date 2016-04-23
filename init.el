@@ -98,12 +98,25 @@ by Prelude.")
 (message "Loading Prelude's core...")
 
 ;; the core stuff
+(message "Loading prelude-packages")
 (require 'prelude-packages)
+(message "Loading prelude-custom")
 (require 'prelude-custom)  ;; Needs to be loaded before core, editor and ui
-(require 'prelude-ui)
+
+(unless noninteractive
+  (message "Loading prelude-ui")
+  (require 'prelude-ui))
+
+(message "Loading prelude-core")
 (require 'prelude-core)
+(message "Loading prelude-mode")
 (require 'prelude-mode)
-(require 'prelude-editor)
+
+(unless noninteractive
+  (message "Loading prelude-editor")
+  (require 'prelude-editor))
+
+(message "Loading prelude-global-keybindings")
 (require 'prelude-global-keybindings)
 
 ;; OSX specific settings

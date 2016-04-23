@@ -1,9 +1,9 @@
-;; Load init
+(message "Loading init.el")
 (load "~/.emacs.d/init.el")
 
-;; Load all *-tests.el files
+(message "Loading *-tests.el files")
 (let ((load-test `(lambda (f) (load  (concat "~/.emacs.d/tests/" f)))))
   (mapcar load-test (directory-files "." nil ".*-tests\.el")))
 
-;; Run all tests
+(message "Running tests")
 (ert-run-tests-batch-and-exit)
