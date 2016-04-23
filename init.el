@@ -111,11 +111,8 @@ by Prelude.")
 (require 'prelude-core)
 (message "Loading prelude-mode")
 (require 'prelude-mode)
-
-(unless noninteractive
-  (message "Loading prelude-editor")
-  (require 'prelude-editor))
-
+(message "Loading prelude-editor")
+(require 'prelude-editor)
 (message "Loading prelude-global-keybindings")
 (require 'prelude-global-keybindings)
 
