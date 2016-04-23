@@ -68,3 +68,14 @@
 (add-hook 'LaTeX-mode-hook 'flyspell-mode)
 
 (add-hook 'LaTeX-mode-hook (lambda () (whitespace-mode 0)))
+
+(defun compile-with-make ()
+  "Run COMPILE, without prompting for a command"
+  (interactive)
+  (let ((compilation-read-command nil))
+    (compile "make -k ")))
+
+(add-hook
+ 'LaTeX-mode-hook (lambda ()
+                    (define-key (current-local-map)
+                      (kbd "<f9>") 'compile-with-make)))

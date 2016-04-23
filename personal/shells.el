@@ -124,25 +124,28 @@
     name))
 
 (defconst startup-shells
-  '(("writing"       "~/Writing")
-    ("blog"          "~/blog")
-    ("ml4hs"         "~/Programming/ML4HS")
-    ("hs2ast"        "~/Programming/Haskell/HS2AST")
-    ("mlspec"        "~/Programming/Haskell/MLSpec")
-    ("tree-features" "~/Programming/Haskell/TreeFeatures")
-    ("haskell-te"    "~/System/Packages/haskell-te")
-    ("astplugin"     "~/Programming/Haskell/AstPlugin")
-    ("quickspec"     "~/Programming/Haskell/quickspec")
-    ("qs-measure"    "~/Programming/Haskell/QuickSpecMeasure")
-    ("utilities"     "~/warbo-utilities")
-    ("deleteme"      "~/DELETEME")
-    ("matrices"      "~/Programming/Haskell/Matrices")
-    ("tests"         "~/System/Tests")
-    ("nixpkgs"       "~/Programming/nixpkgs")
-    ("repos"         "~/Programming/repos")
-    (".nixpkgs"      "~/.nixpkgs")
-    ("documents"     "~/Documents")
-    ("home"          "~"))
+  '((".nixpkgs"             "~/.nixpkgs")
+    ("astplugin"            "~/Programming/Haskell/AstPlugin")
+    ("blog"                 "~/blog")
+    ("deleteme"             "~/DELETEME")
+    ("documents"            "~/Documents")
+    ("dotfiles"             "~/.dotfiles")
+    ("haskell-te"           "~/Programming/haskell-te")
+    ("hs2ast"               "~/Programming/Haskell/HS2AST")
+    ("home"                 "~")
+    ("ml4hsfe"              "~/Programming/Haskell/ML4HSFE")
+    ("mlspec"               "~/Programming/Haskell/MLSpec")
+    ("mlspec-bench"         "~/Programming/Haskell/MLSpecBench")
+    ("mlspec-helper"        "~/Programming/Haskell/mlspec-helper")
+    ("nixpkgs"              "~/System/Programs/nixpkgs-2")
+    ("nix-eval"             "~/Programming/Haskell/nix-eval")
+    ("order-deps"           "~/Programming/Haskell/order-deps")
+    ("quickspec"            "~/Programming/Haskell/quickspec")
+    ("reduce-equations"     "~/Programming/Haskell/ReduceEquations")
+    ("repos"                "~/Programming/repos")
+    ("tests"                "~/System/Tests")
+    ("utilities"            "~/warbo-utilities")
+    ("writing"              "~/Writing"))
   "Useful buffers to open at startup")
 
 (mapcar 'shell-named-in startup-shells)
@@ -189,3 +192,15 @@
                      (ansi-term term-cmd))
                  (ansi-term term-cmd)))))
          (global-set-key (kbd "<f2>") 'visit-ansi-term)))
+
+(custom-set-variables
+ '(comint-scroll-to-bottom-on-input nil)  ; allow inserting anywhere
+ '(comint-scroll-to-bottom-on-output nil) ; allow browsing while output arrives
+ '(comint-scroll-show-maximum-output t)   ; scroll to show max possible output
+ '(comint-completion-autolist t)          ; show completion list when ambiguous
+ '(comint-input-ignoredups t)             ; no duplicates in command history
+ '(comint-completion-addsuffix t)         ; insert space/slash after file completion
+ )
+
+; interpret and use ansi color codes in shell output windows
+(ansi-color-for-comint-mode-on)
