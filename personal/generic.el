@@ -21,5 +21,9 @@
 (ad-unadvise 'windmove-left)
 (ad-unadvise 'windmove-right)
 
+;; Disable expensive modes when long lines are found
+(when (require 'so-long nil :noerror)
+  (so-long-enable))
+
 ;; Start emacs server, so emacsclient works
 (defer 'server-start)
