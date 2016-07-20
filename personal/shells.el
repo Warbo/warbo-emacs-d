@@ -106,7 +106,7 @@
     (unless (get-buffer name)
       (with-current-buffer (shell-in dir)
         (rename-buffer name)))
-    name))
+    (get-buffer name)))
 
 (defun shell-from-buf (buf)
   "Switch to the given buffer then open a shell.
@@ -133,6 +133,7 @@
     ("haskell-te"           "~/Programming/haskell-te")
     ("hs2ast"               "~/Programming/Haskell/HS2AST")
     ("home"                 "~")
+    ("isaplanner-tip"       "~/Programming/Isabelle/IsaPlannerTip")
     ("ml4hsfe"              "~/Programming/Haskell/ML4HSFE")
     ("mlspec"               "~/Programming/Haskell/MLSpec")
     ("mlspec-bench"         "~/Programming/Haskell/MLSpecBench")
@@ -143,12 +144,33 @@
     ("quickspec"            "~/Programming/Haskell/quickspec")
     ("reduce-equations"     "~/Programming/Haskell/ReduceEquations")
     ("repos"                "~/Programming/repos")
+    ("te-benchmark"         "~/Programming/TheoryExplorationBenchmark")
     ("tests"                "~/System/Tests")
     ("utilities"            "~/warbo-utilities")
     ("writing"              "~/Writing"))
   "Useful buffers to open at startup")
 
 (mapcar 'shell-named-in startup-shells)
+
+(defun command-in-buffer (buf-dir-cmd)
+  "Poor man's comint. Start a shell in a dir, and run a command (e.g. a REPL)"
+  (let* ((name (nth 0 buf-dir-cmd))
+         (dir  (nth 1 buf-dir-cmd))
+         (cmd  (nth 2 buf-dir-cmd))
+         (buf  (get-buffer name)))
+    (unless buf
+      (with-current-buffer (shell-named-in (list name dir))
+        (goto-char (point-max))
+        (insert cmd)
+        (comint-send-input)))
+    (get-buffer name)))
+
+(defconst startup-programs
+  '(("ghci"     "~"          "ghci")
+    ("nix-repl" "~/.nixpkgs" "nix-repl"))
+  "Shell commands to run in particular buffers at startup")
+
+(mapcar 'command-in-buffer startup-programs)
 
 ;; From http://stackoverflow.com/a/27908343/884682
 (defun eshell/clear ()
