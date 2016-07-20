@@ -1,8 +1,10 @@
 (require 'gnus)
+
 (defun my-gnus-group-list-subscribed-groups ()
   "List all subscribed groups with or without un-read messages"
   (interactive)
   (gnus-group-list-all-groups 5))
+
 (add-hook 'gnus-group-mode-hook
           ;; List all the subscribed groups even they contain zero un-read
           ;; messages
@@ -61,3 +63,29 @@
     (goto-char (point-min))
     (message "Converting Atom to RSS... done")))
 (ad-activate 'mm-url-insert)
+
+;; Fetching news (e.g. RSS) can lead to duplicates. Gnus treats these as threads
+;; with 'replies', but we'd rather mark them as read automatically.
+(add-hook 'gnus-after-getting-new-news-hook
+          (lambda (&rest ignored)
+            (save-excursion
+              ;; Find "feeds" group
+              (goto-char (point-min))
+              (when (search-forward "nnmaildir+feeds:feeds" nil t)
+                ;; Open group with all articles. "gnus-large-newsgroup" prevents
+                ;; asking us how many to open.
+                (let ((gnus-large-newsgroup nil))
+                  (gnus-group-read-group t t))
+
+                ;; Loop through all 'threaded replies', which we spot by their
+                ;; indentation
+                (goto-char (point-min))
+                (while (re-search-forward "^ [ ]*<" nil t)
+
+                  ;; Mark each 'reply' as being read
+                  (gnus-summary-mark-as-read-forward 1))
+
+                (goto-char (point-min))
+                (while (re-search-forward "^ [ ]*. [ ]*<" nil t)
+                  (gnus-summary-mark-as-read-forward 1))
+                (gnus-summary-exit)))))
