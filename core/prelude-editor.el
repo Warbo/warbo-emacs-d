@@ -1,6 +1,6 @@
 ;;; prelude-editor.el --- Emacs Prelude: enhanced core editing experience.
 ;;
-;; Copyright © 2011-2015 Bozhidar Batsov
+;; Copyright © 2011-2016 Bozhidar Batsov
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: https://github.com/bbatsov/prelude
@@ -108,10 +108,12 @@
 (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
 
 ;; saveplace remembers your location in a file when saving files
-(require 'saveplace)
 (setq save-place-file (expand-file-name "saveplace" prelude-savefile-dir))
 ;; activate it for all buffers
-(setq-default save-place t)
+(if (< emacs-major-version 25)
+    (progn (require 'saveplace)
+           (setq-default save-place t))
+  (save-place-mode 1))
 
 ;; savehist keeps track of some history
 (require 'savehist)
@@ -183,6 +185,8 @@ The body of the advice is in BODY."
   "Set buffer major mode according to `auto-mode-alist'."
   (let* ((name (buffer-name buffer))
          (mode (assoc-default name auto-mode-alist 'string-match)))
+    (when (and mode (consp mode))
+      (setq mode (car mode)))
     (with-current-buffer buffer (if mode (funcall mode)))))
 
 ;; highlight the current line
@@ -194,12 +198,8 @@ The body of the advice is in BODY."
 
 ;; note - this should be after volatile-highlights is required
 ;; add the ability to cut the current line, without marking it
-(defadvice kill-region (before smart-cut activate compile)
-  "When called interactively with no active region, kill a single line instead."
-  (interactive
-   (if mark-active (list (region-beginning) (region-end))
-     (list (line-beginning-position)
-           (line-beginning-position 2)))))
+(require 'rect)
+(crux-with-region-or-line kill-region)
 
 ;; tramp, for sudo access
 (require 'tramp)
@@ -260,7 +260,6 @@ The body of the advice is in BODY."
 ;; avy allows us to effectively navigate to visible things
 (require 'avy)
 (setq avy-background t)
-(setq avy-style 'at-full)
 (setq avy-style 'at-full)
 
 ;; anzu-mode enhances isearch & query-replace by showing total matches and current match position
@@ -390,6 +389,7 @@ indent yanked text (with prefix arg don't indent)."
 ;; diff-hl
 (global-diff-hl-mode +1)
 (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+(add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
 
 ;; easy-kill
 (global-set-key [remap kill-ring-save] 'easy-kill)
