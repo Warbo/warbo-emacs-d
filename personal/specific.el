@@ -1,6 +1,9 @@
 ;; Make doc-view continuous
 (setq doc-view-continuous t)
 
+;; Intero Haskell IDE
+;(add-hook 'haskell-mode-hook 'intero-mode)
+
 ;; Proof General
 (defun init-pg ()
   (ignore-errors (load-file "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic/proof-site.el")))
@@ -39,3 +42,9 @@
     (setq flymake-allowed-file-name-masks
           (cons '("^/ssh:" (lambda () nil))
                 flymake-allowed-file-name-masks)))
+
+;; Try to prevent "undo-tree-mapc: Wrong type argument: listp, \.\.\."
+;; From http://defindit.com/readme_files/tom_emacs.html
+(when (file-exists-p ".emacs.desktop")
+  (setq desktop-path '("."))
+  (desktop-save-mode 1))

@@ -1,3 +1,112 @@
+;; Assumes we're running on NixOS with mu installed system-wide
+(add-to-list 'load-path "/run/current-system/sw/share/emacs/site-lisp/mu4e")
+(require 'mu4e)
+
+(setq mu4e-maildir "~/Mail")
+
+;; We use mbsync to fetch mail periodically, but it's still useful to have mu4e
+;; update its index periodically
+(setq mu4e-get-mail-command "true")
+(setq mu4e-update-interval 300)
+
+;; Apparently needed when using mbsync
+(setq mu4e-change-filenames-when-moving t)
+
+;; Prevents Emacs giving a "-f" (from) argument to msmtp, since we're reading it
+;; from the message headers instead
+(setq message-sendmail-f-is-evil 't)
+
+;; Home and work accounts
+(setq mu4e-contexts
+  `(,(make-mu4e-context
+      :name "Home"
+      :enter-func (lambda ()
+                    (mu4e-message "Switch to the Home context")
+                    (setq message-send-mail-function
+                          'message-send-mail-with-sendmail)
+                    (setq sendmail-program "msmtp")
+                    (setq message-sendmail-extra-arguments
+                          '("-a" "gmail"
+                            "--read-envelope-from" "--read-recipients"))
+                    (setq user-mail-address "chriswarbo@gmail.com"))
+      :leave-func (lambda ()
+                    ;; Try to prevent sending mail out of context
+                    (setq sendmail-program nil))
+      :match-func (lambda (msg)
+                    (when msg
+                      (mu4e-message-contact-field-matches
+                       msg :to "chriswarbo.*@gmail.com")))
+      :vars '((user-mail-address      . "chriswarbo@gmail.com"  )
+              (user-full-name         . "Chris Warburton" )
+              (mu4e-compose-signature . "Thanks,\nChris")))
+
+    ,(make-mu4e-context
+      :name "Dundee"
+      :enter-func (lambda ()
+                    (mu4e-message "Switch to the Dundee context")
+                    (setq message-send-mail-function
+                          'message-send-mail-with-sendmail)
+                    (setq sendmail-program "msmtp")
+                    (setq message-sendmail-extra-arguments
+                          '("-a" "dd"
+                            "--read-envelope-from" "--read-recipients"))
+                    (setq user-mail-address "cmwarburton@dundee.ac.uk"))
+      :leave-func (lambda ()
+                    ;; Try to prevent sending mail out of context
+                    (setq sendmail-program nil))
+      :match-func (lambda (msg)
+                    (when msg
+                      (mu4e-message-contact-field-matches
+                       msg :to ".*warburton@dundee.ac.uk")))
+      :vars '((user-mail-address      . "cmwarburton@dundee.ac.uk")
+              (user-full-name         . "Chris Warburton")
+              (mu4e-compose-signature . "Regards,\nChris Warburton")))))
+
+;; mu4e uses database queries rather than hierarchical structure, so we use
+;; "bookmarks" to create pseudo-folders
+(setq mu4e-bookmarks
+      `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX" "Inboxen"    ?i)
+        ("maildir:/feeds* AND flag:unread"               "News"       ?n)
+        ("flag:unread"                                   "All Unread" ?u)
+        ,(letrec ((f (lambda (xs)
+                       (if (cdr xs)
+                           (concat "maildir:/feeds/" (car xs)
+                                   " OR "
+                                   (funcall f (cdr xs)))
+                           (concat "maildir:/feeds/" (car xs))))))
+           (list (funcall f '("ComputingBritain"
+                              "FlyingColoursMaths"
+                              "InfiniteMonkeyCage"
+                              "InsideScience"
+                              "LifeScientific"
+                              "MathFactor"
+                              "MoreOrLess"
+                              "PuttingScienceToWork"
+                              "RutherfordAndFry"
+                              "ScienceStories"
+                              "TalkingMachines"
+                              "TypeTheory"))
+                 "Podcasts"
+                 ?p))))
+
+;; Nicer HTML->text conversion, preserving links
+(require 'mu4e-contrib)
+(setq mu4e-html2text-command 'mu4e-shr2text)
+
+;; Nice idea, but loses our position in the list so disable it for now
+(setq mu4e-headers-auto-update nil)
+
+;; set `mu4e-context-policy` and `mu4e-compose-policy` to tweak when mu4e should
+;; guess or ask the correct context, e.g.
+
+;; start with the first (default) context;
+;; default is to ask-if-none (ask when there's no context yet, and none match)
+;; (setq mu4e-context-policy 'pick-first)
+
+;; compose with the current context is no context matches;
+;; default is to ask
+;; '(setq mu4e-compose-context-policy nil)
+
 (require 'gnus)
 
 (defun my-gnus-group-list-subscribed-groups ()

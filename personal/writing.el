@@ -73,7 +73,11 @@
   "Run COMPILE, without prompting for a command"
   (interactive)
   (let ((compilation-read-command nil))
-    (compile "make -k ")))
+    (compile (cond
+              ((file-exists-p "render.sh")   "render.sh")
+              ((file-exists-p "Makefile")    "make -k ")
+              ((file-exists-p "default.nix") "nix-build")
+              (t (error "Couldn't find render.sh or Makefile"))))))
 
 (add-hook
  'LaTeX-mode-hook (lambda ()
