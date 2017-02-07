@@ -31,6 +31,11 @@
 
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
+(setenv "NIX_PATH" (replace-regexp-in-string
+                    (rx (* (any " \t\n")) eos)
+                    ""
+                    (shell-command-to-string
+                     "bash -l -c 'echo \"$NIX_PATH\"'")))
 
 ;; Set PATH
 (setenv "PATH"
