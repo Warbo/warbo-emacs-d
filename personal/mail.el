@@ -67,6 +67,7 @@
 (setq mu4e-bookmarks
       `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX" "Inboxen"    ?i)
         ("maildir:/feeds* AND flag:unread"               "News"       ?n)
+        ("from:joannelpayne*"                            "Jo"         ?j)
         ("flag:unread"                                   "All Unread" ?u)
         ,(letrec ((f (lambda (xs)
                        (if (cdr xs)
@@ -91,7 +92,8 @@
 
 ;; Nicer HTML->text conversion, preserving links
 (require 'mu4e-contrib)
-(setq mu4e-html2text-command 'mu4e-shr2text)
+;;(setq mu4e-html2text-command 'mu4e-shr2text)  ;; Slow, freezes Emacs
+(setq mu4e-html2text-command "w3m -T text/html")
 
 ;; Nice idea, but loses our position in the list so disable it for now
 (setq mu4e-headers-auto-update nil)

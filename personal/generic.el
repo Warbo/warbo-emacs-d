@@ -29,13 +29,39 @@
 (with-eval-after-load 'smartparens
   (show-smartparens-global-mode -1))
 
+;; Hovering tooltips are annoying
+(setq tooltip-use-echo-area t)
+(tooltip-mode nil)
+
+;; Flycheck builds a command to run, e.g. ("myCompiler" "check" "MyFile.ext"),
+;; but that assumes the executable (e.g. "myCompiler") is in PATH. We'd rather
+;; encapsulate such things as dependencies of a project's Nix derivation, which
+;; are then available if we run "nix-shell".
+;; Running nix-shell over and over can be slow, so we use functions from
+;; nix-sandbox which cache the environment (e.g. the PATH), which makes looking
+;; up the relevant executable much faster.
+(setq flycheck-command-wrapper-function (lambda (command)
+                                          (apply 'nix-shell-command
+                                                 (nix-current-sandbox)
+                                                 command))
+
+      flycheck-executable-find (lambda (command)
+                                 (nix-executable-find (nix-current-sandbox)
+                                                      command)))
+
+;; Compile using nix-build if there's a default.nix file
+(require 'dwim-compile)
+(add-to-list 'dwim-c/build-tool-alist
+             '(nix "\\`default\\.nix\\'" "nix-build"))
+
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
-(setenv "NIX_PATH" (replace-regexp-in-string
-                    (rx (* (any " \t\n")) eos)
-                    ""
-                    (shell-command-to-string
-                     "bash -l -c 'echo \"$NIX_PATH\"'")))
+(setenv "NIX_PATH"
+        (replace-regexp-in-string
+         (rx (* (any " \t\n")) eos)
+         ""
+         (shell-command-to-string
+          "/run/current-system/sw/bin/bash -l -c 'echo \"$NIX_PATH\"'")))
 
 ;; Set PATH
 (setenv "PATH"
@@ -77,7 +103,8 @@
                             (when (display-graphic-p)
                               (if (member desired-font (font-family-list))
                                   (set-face-attribute 'default nil
-                                                      :font desired-font)
+                                                      :font desired-font
+                                                      :height 80)
                                 (message "Font %S wasn't found" desired-font))
 
                               ;; While we're here, enable fci-mode globally too
