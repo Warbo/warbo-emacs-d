@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Mon, 12 Jun 2017 20:58:59 +0100
+Subject: Re: Ensure Artemis definitions get loaded
+Message-Id: <b43b0ff2c4ee095d-9c1706db870a14ef-artemis@nixos>
+References: <b43b0ff2c4ee095d-0-artemis@nixos>
+In-Reply-To: <b43b0ff2c4ee095d-0-artemis@nixos>
+
+Added tests. Turns out we weren't requiring flycheck before trying to
+mess with its variables, so specific.el was bailing out and it never got
+as far as our Artemis definitions.

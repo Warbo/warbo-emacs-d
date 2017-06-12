@@ -85,8 +85,10 @@
 ;; Wrap the display of long lines, without altering the text itself
 (global-visual-line-mode)
 
-;; Start emacs server, so emacsclient works
-(defer 'server-start)
+;; Start emacs server, so emacsclient works. We can only run one emacs server at
+;; a time, so skip this if this emacs instance is just for running tests.
+(unless (getenv "EMACS_UNDER_TEST")
+  (defer 'server-start))
 
 ;; Force font. This does nothing in terminal mode, so we poll until there's a
 ;; graphical display, set the font, then cancel the polling

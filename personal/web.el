@@ -1,4 +1,5 @@
 ;; From https://github.com/GriffinSchneider/emacs-config eww-customizations.el
+(require 'eww)
 
 (defvar gcs-shr-width 110)
 

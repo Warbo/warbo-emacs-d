@@ -77,6 +77,7 @@
 (setq projectile-mode-line "Projectile")
 
 ;; Flycheck all the things
+(require 'flycheck)
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-to-list 'flycheck-checkers 'nix)
 
@@ -100,3 +101,10 @@
   (set-syntax-table artemis-mode-syntax-table))
 
 (provide 'artemis-mode)
+
+(defun switch-to-artemis (filename)
+  "Look for a buffer with the given filename and switch it to artemis-mode."
+  (let ((buf (find-buffer-visiting filename)))
+    (when buf
+      (with-current-buffer buf
+        (artemis-mode)))))
