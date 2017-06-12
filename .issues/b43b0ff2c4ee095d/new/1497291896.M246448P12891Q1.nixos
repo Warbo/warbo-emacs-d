@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Mon, 12 Jun 2017 19:24:04 +0100
+State: new
+Subject: Ensure Artemis definitions get loaded
+Message-Id: <b43b0ff2c4ee095d-0-artemis@nixos>
+
+They're currently in personal/specific.el, but don't seem to be
+evaluated/made available when Emacs starts up.
+
+Maybe write some ElUnit tests to check these things?
