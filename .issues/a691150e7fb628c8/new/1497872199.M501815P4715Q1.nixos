@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Mon, 19 Jun 2017 12:36:10 +0100
+State: new
+Subject: Move desirable prelude stuff into personal
+Message-Id: <a691150e7fb628c8-0-artemis@nixos>
+
+Mostly separate packages, like beacon, etc.

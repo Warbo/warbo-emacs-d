@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 19 Jun 2017 12:36:42 +0100
+State: new
+Subject: Get rid of prelude
+Message-Id: <cb88a4998c5d08cd-0-artemis@nixos>
+
+Once we've got the bits we want, and everything's in use-package format,
+we don't need Prelude anymore.

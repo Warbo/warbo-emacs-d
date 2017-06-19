@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Mon, 19 Jun 2017 12:35:47 +0100
+State: new
+Subject: Migrate custom stuff to use-package
+Message-Id: <a5c287fca7821dd1-0-artemis@nixos>
+
+As per http://www.lunaryorn.com/posts/my-emacs-configuration-with-use-package
