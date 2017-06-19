@@ -77,7 +77,10 @@
 (setq-default fill-column 80)
 
 ;; Show '...' in place of long Nix hashes
-(pretty-sha-path-global-mode)
+(require 'use-package)
+(use-package pretty-sha-path
+  :ensure t
+  :config (pretty-sha-path-global-mode))
 
 ;; Allow invoked programs to use pulseaudio
 (setenv "PULSE_SERVER" "/run/user/1000/pulse/native")
