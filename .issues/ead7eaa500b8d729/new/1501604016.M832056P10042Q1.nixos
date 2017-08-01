@@ -1,0 +1,22 @@
+From: Chris Warburton
+Date: Tue, 01 Aug 2017 17:08:22 +0100
+State: new
+Subject: Only split shell lines which don't have newlines
+Message-Id: <ead7eaa500b8d729-0-artemis@nixos>
+
+We're splitting long lines outputted by shell commands, to prevent Emacs
+from hanging. We do this by taking 1000 character chunks of the input
+and putting newlines in between.
+
+This ignores the fact that these chunks might themselves contain
+newlines.
+
+We should check each chunk to see whether it contains any newlines; if
+not, we concat with a newline like we do at the moment. If it does
+contain a newline, then we just concat it as-is.
+
+The worst case scenario is when one chunk starts with a newline; in that
+case, there will be a 999 character run without any newlines, followed
+by another 1000-character chunk which may not contain any newlines. I
+think Emacs should cope with 1999 character lines like this; it's mostly
+when a line gets to several MB that things start to go wrong.
