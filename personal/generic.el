@@ -29,6 +29,9 @@
 (with-eval-after-load 'smartparens
   (show-smartparens-global-mode -1))
 
+;; Disable which-key, as it's slow and swallows keypresses
+(which-key-mode -1)
+
 ;; Hovering tooltips are annoying
 (setq tooltip-use-echo-area t)
 (tooltip-mode nil)

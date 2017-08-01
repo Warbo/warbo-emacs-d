@@ -149,25 +149,14 @@
 
 (defconst startup-shells
   '((".nixpkgs"             "~/.nixpkgs")
-    ("astplugin"            "~/Programming/Haskell/AstPlugin")
     ("benchmark-paper"      "~/Writing/benchmark2016")
     ("blog"                 "~/blog")
     ("deleteme"             "~/DELETEME")
-    ("documents"            "~/Documents")
     ("dotfiles"             "~/.dotfiles")
     ("haskell-te"           "~/Programming/haskell-te")
-    ("hs2ast"               "~/Programming/Haskell/HS2AST")
     ("home"                 "~")
     ("isaplanner-tip"       "~/Programming/Isabelle/IsaPlannerTip")
-    ("ml4hsfe"              "~/Programming/Haskell/ML4HSFE")
-    ("mlspec"               "~/Programming/Haskell/MLSpec")
-    ("mlspec-bench"         "~/Programming/Haskell/MLSpecBench")
-    ("mlspec-helper"        "~/Programming/Haskell/mlspec-helper")
     ("nixpkgs"              "~/System/Programs/nixpkgs-2")
-    ("nix-eval"             "~/Programming/Haskell/nix-eval")
-    ("quickspec"            "~/Programming/Haskell/quickspec")
-    ("reduce-equations"     "~/Programming/Haskell/ReduceEquations")
-    ("repos"                "~/Programming/repos")
     ("te-benchmark"         "~/Programming/TheoryExplorationBenchmark")
     ("tests"                "~/System/Tests")
     ("utilities"            "~/warbo-utilities")
@@ -190,9 +179,7 @@
     (get-buffer name)))
 
 (defconst startup-programs
-  '(("ghci"     "~"          "ghci")
-    ("nix-repl" "~/.nixpkgs" "nix-repl")
-    ("racket"   "~"          "racket"))
+  '()
   "Shell commands to run in particular buffers at startup")
 
 (mapcar 'command-in-buffer startup-programs)
