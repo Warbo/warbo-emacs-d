@@ -17,6 +17,25 @@
           (lambda ()
             (visual-line-mode -1)))
 
+;; Shells can easily cause Emacs to hang with large outputs; make sure lines are
+;; split at regular intervals to minimise this
+
+(defun split-lines-at (n str)
+  (let ((result     (seq-take str n))
+        (remaining  (seq-drop str n)))
+    (while (> (length remaining) 0)
+      (setq result    (concat result "\n" (seq-take remaining n)))
+      (setq remaining (seq-drop remaining n)))
+    result))
+
+(add-hook 'shell-mode-hook
+          (lambda ()
+            (add-hook 'comint-preoutput-filter-functions
+                      (lambda (string)
+                        (split-lines-at 1000 string))
+                      nil
+                      t)))
+
 ;; Auto-complete should stop at the first ambiguity
 (setq eshell-cmpl-cycle-completions nil)
 
