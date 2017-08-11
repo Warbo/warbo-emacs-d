@@ -57,14 +57,21 @@
     (let ((count 0))
       (goto-char (point-min))
       (while (< (point) (point-max))
-        ;; Lines should be split at 1000 characters, but we give some leeway for
-        ;; ANSI control characters and things. If our line-splitting's broken,
-        ;; we'll end up an order of magnitude too big, so this margin is fine.
+        ;; Lines should either be prompts or "AB"; if a line begins with "B"
+        ;; then some "AB" line must have been split inappropriately.
         (should-not (equal (char-after) ?B))
+
+        ;; Any line beginning with "A" should be "AB" (i.e. there are no
+        ;; inappropriately-split lines consisting of "A" and there are no
+        ;; missing newlines like "ABABABAB...")
         (when (equal (char-after) ?A)
+          ;; We count how many lines begin with "A" since this could be
+          ;; vacuously true
           (setq count (+ 1 count))
           (should (string-equal (buffer-substring (line-beginning-position)
                                                   (line-end-position))
                                 "AB")))
         (forward-line))
+
+      ;; Ensure we actually saw some output lines (i.e. our test isn't vacuous)
       (should (> count 1000)))))
