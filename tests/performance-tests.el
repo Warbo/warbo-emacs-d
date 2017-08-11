@@ -7,22 +7,23 @@
     (goto-char (point-max))
     name))
 
-(defun send-performance-commands (cmds)
+(defun send-performance-commands (cmds &optional given-time)
   ;; Grab the start time
   (let* ((name  (buffer-name))
          (proc  (get-buffer-process name))
-         (start (float-time)))
-
-    ;; Run each command
+         (start nil)
+         (time  (or given-time 3)))
     (dolist (cmd cmds)
+      ;; Run each command
+      (setq start (float-time))
       (comint-send-string name cmd)
-      (comint-send-input))
+      (comint-send-input)
 
-    ;; Wait for the result
-    (accept-process-output proc)
-    (redraw-display)
-    (while (< (- (float-time) start) 3)
-      (sleep-for 1))))
+      ;; Wait for the result
+      (accept-process-output proc)
+      (redraw-display)
+      (while (< (- (float-time) start) time)
+        (sleep-for 1)))))
 
 (ert-deftest warbo-performance-longlines ()
   "Navigating a buffer with long lines can hang Emacs at 100% CPU"
