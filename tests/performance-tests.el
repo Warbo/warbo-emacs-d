@@ -1,3 +1,29 @@
+(defun make-performance-shell (given-name)
+  (let ((name (concat "*test-performance-shell-" given-name "*")))
+    (rename-buffer name)
+    (refresh-terminal)
+    (should (equal name (buffer-name)))
+    (should (equal major-mode 'shell-mode))
+    (goto-char (point-max))
+    name))
+
+(defun send-performance-commands (cmds)
+  ;; Grab the start time
+  (let* ((name  (buffer-name))
+         (proc  (get-buffer-process name))
+         (start (float-time)))
+
+    ;; Run each command
+    (dolist (cmd cmds)
+      (comint-send-string name cmd)
+      (comint-send-input))
+
+    ;; Wait for the result
+    (accept-process-output proc)
+    (redraw-display)
+    (while (< (- (float-time) start) 3)
+      (sleep-for 1))))
+
 (ert-deftest warbo-performance-longlines ()
   "Navigating a buffer with long lines can hang Emacs at 100% CPU"
   (let ((name "*test-performance-shell*"))
