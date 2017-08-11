@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 01 Aug 2017 17:08:22 +0100
-State: new
+State: resolved
 Subject: Only split shell lines which don't have newlines
 Message-Id: <ead7eaa500b8d729-0-artemis@nixos>
+resolution: fixed
 
 We're splitting long lines outputted by shell commands, to prevent Emacs
 from hanging. We do this by taking 1000 character chunks of the input

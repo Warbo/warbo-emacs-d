@@ -21,10 +21,31 @@
 ;; split at regular intervals to minimise this
 
 (defun split-lines-at (n str)
-  (let ((result     (seq-take str n))
-        (remaining  (seq-drop str n)))
+  (let ((result     "")
+        (remaining  str)
+        (snip-at    0)
+        (found-nl   nil))
+
+    ;; Keep taking off chunks until nothing remains
     (while (> (length remaining) 0)
-      (setq result    (concat result "\n" (seq-take remaining n)))
+
+      ;; Look for a \n within the first n characters
+      (setq snip-at  0)
+      (setq found-nl nil)
+      (let ((len-rem (length remaining)))
+        (while (and (< snip-at (- n       1))
+                    (< snip-at (- len-rem 1))
+                    (not found-nl))
+          (setq snip-at  (+ 1 snip-at))
+          (setq found-nl (equal (elt remaining snip-at) ?\C-j))))
+
+      ;; Include the \n if found
+      (when found-nl
+        (setq snip-at (+ 1 snip-at)))
+
+      (setq result    (concat result
+                              (seq-take remaining n)
+                              (if found-nl "" "\n")))
       (setq remaining (seq-drop remaining n)))
     result))
 
@@ -149,7 +170,7 @@
 
 (defconst startup-shells
   '((".nixpkgs"             "~/.nixpkgs")
-    ("benchmark-paper"      "~/Writing/benchmark2016")
+    ("benchmark-paper"      "~/Writing/TEBenchmarkPaper")
     ("blog"                 "~/blog")
     ("deleteme"             "~/DELETEME")
     ("dotfiles"             "~/.dotfiles")
