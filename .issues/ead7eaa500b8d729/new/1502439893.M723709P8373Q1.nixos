@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Fri, 11 Aug 2017 09:24:25 +0100
+Subject: Re: Only split shell lines which don't have newlines
+Message-Id: <ead7eaa500b8d729-da68d6ff4d587f8d-artemis@nixos>
+References: <ead7eaa500b8d729-0-artemis@nixos>
+In-Reply-To: <ead7eaa500b8d729-0-artemis@nixos>
+
+We now scan through the string and split at \n or 1000, whichever occurs
+first.
