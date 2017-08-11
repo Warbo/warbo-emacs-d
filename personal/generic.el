@@ -43,14 +43,19 @@
 ;; Running nix-shell over and over can be slow, so we use functions from
 ;; nix-sandbox which cache the environment (e.g. the PATH), which makes looking
 ;; up the relevant executable much faster.
-(setq flycheck-command-wrapper-function (lambda (command)
-                                          (apply 'nix-shell-command
-                                                 (nix-current-sandbox)
-                                                 command))
+(setq flycheck-command-wrapper-function
+      (lambda (command)
+        (let ((sandbox (nix-current-sandbox)))
+          (if sandbox
+              (apply 'nix-shell-command sandbox command)
+              command)))
 
-      flycheck-executable-find (lambda (command)
-                                 (nix-executable-find (nix-current-sandbox)
-                                                      command)))
+      flycheck-executable-find
+      (lambda (command)
+        (let ((sandbox (nix-current-sandbox)))
+          (if sandbox
+              (nix-executable-find sandbox command)
+            (executable-find command)))))
 
 ;; Compile using nix-build if there's a default.nix file
 (require 'dwim-compile)
