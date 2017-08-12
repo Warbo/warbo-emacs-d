@@ -1,3 +1,9 @@
+(defun sleep-ensure (time)
+  "Keep calling (sleep-for 1) until TIME seconds have elapsed."
+  (let ((start (float-time)))
+    (while (< (- (float-time) time) start)
+      (sleep-for 1))))
+
 (defun make-performance-shell (given-name)
   "Create a shell buffer with the GIVEN-NAME."
   (let ((name (concat "*test-performance-shell-" given-name "*")))
@@ -5,6 +11,7 @@
     (refresh-terminal)
     (should (equal name (buffer-name)))
     (should (equal major-mode 'shell-mode))
+    (sleep-ensure 2)
     (goto-char (point-max))
     name))
 
@@ -24,8 +31,7 @@
       ;; Wait for the result
       (accept-process-output proc)
       (redraw-display)
-      (while (< (- (float-time) start) time)
-        (sleep-for 1)))))
+      (sleep-ensure time))))
 
 (ert-deftest warbo-performance-longlines ()
   "Navigating a buffer with long lines can hang Emacs at 100% CPU"
@@ -35,7 +41,8 @@
     (make-performance-shell "longlines")
     (send-performance-commands
      (list "for N in $(seq 1 10000); do printf '{[('; done;"
-           "for N in $(seq 1 10000); do printf ')]}'; done; echo"))
+           "for N in $(seq 1 10000); do printf ')]}'; done; echo")
+     2)
 
       ;; Make sure we don't have any long lines
     (goto-char (point-min))
