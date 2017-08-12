@@ -1,4 +1,5 @@
 (defun make-performance-shell (given-name)
+  "Create a shell buffer with the GIVEN-NAME."
   (let ((name (concat "*test-performance-shell-" given-name "*")))
     (rename-buffer name)
     (refresh-terminal)
@@ -8,6 +9,7 @@
     name))
 
 (defun send-performance-commands (cmds &optional given-time)
+  "Send each string in CMDS to the current buffer, with a delay of GIVEN-TIME."
   ;; Grab the start time
   (let* ((name  (buffer-name))
          (proc  (get-buffer-process name))

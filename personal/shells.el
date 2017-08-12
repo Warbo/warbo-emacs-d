@@ -21,6 +21,13 @@
 ;; split at regular intervals to minimise this
 
 (defun split-lines-at (n str)
+  "Limit lines to at most N characters in STR.
+
+Given a potentially long string STR, this will return an augmented version
+with newline characters inserted such that no line contains more than N
+characters.  This is useful for transforming shell command output before
+Emacs tries to display it, since commands may give out huge lines which makes
+Emacs churn."
   (let ((result     "")
         (remaining  str)
         (snip-at    0)
