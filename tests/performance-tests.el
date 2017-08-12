@@ -84,3 +84,48 @@
 
       ;; Ensure we actually saw some output lines (i.e. our test isn't vacuous)
       (should (> count 1000)))))
+
+(defun nonempty-line (start end str)
+  "Whether the line in STR between START and END is nonempty"
+  (not (equal start end)))
+(put 'nonempty-line 'ert-explainer 'show-context)
+
+(defun is-prompt (buf-str line)
+  ;; Reverse the given line
+  (let ((enil (reverse line)))
+    ;; Strip off leading spaces
+    (while (and (not (equal "" enil))
+                (equal (string (elt enil 0)) " "))
+      (setq enil (seq-drop enil 1)))
+
+    ;; The result should start with a $
+    (and (not (equal "" enil))
+         (equal (elt enil 0) ?$))))
+(put 'nonempty-line 'ert-explainer 'show-context)
+
+(ert-deftest warbo-performance-trailing-newlines ()
+  "Don't add trailing newline if output doesn't have one"
+  (with-temp-buffer
+    ;; Press enter a bunch of times, without writing any actual commands
+    (make-performance-shell "trailing-newlines")
+    (send-performance-commands (list "" "" "" "" "" "" "") 1)
+
+    ;; We should have a bunch of prompts, rather than empty lines
+    (let ((count 0))
+      (goto-char (point-min))
+      (while (< (point) (point-max))
+        (setq count (+ 1 count))
+
+        ;; Lines shouldn't be empty
+        (should (nonempty-line (line-beginning-position) (line-end-position)
+                               (buffer-raw)))
+
+        ;; Each line should be a shell prompt
+        (should (is-prompt (buffer-raw)
+                           (buffer-substring-no-properties
+                            (line-beginning-position)
+                            (line-end-position))))
+        (forward-line))
+
+      ;; Ensure we saw some prompts (i.e. our test isn't vacuous)
+      (should (> count 2)))))
