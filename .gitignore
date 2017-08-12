@@ -1,5 +1,6 @@
 *~
 *.elc
+abbrev_defs
 auto-save-list
 recentf
 savehist
@@ -7,6 +8,7 @@ saveplace
 eshell
 elpa
 el-get
+network-security.data
 semanticdb
 url
 ede-projects.el
