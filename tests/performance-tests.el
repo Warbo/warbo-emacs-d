@@ -4,6 +4,14 @@
     (while (< (- (float-time) time) start)
       (sleep-for 1))))
 
+(defun buffer-raw ()
+  "Unformatted buffer string."
+  (buffer-substring-no-properties (point-min) (point-max)))
+
+(defun show-context (&rest args)
+  "Take ARGS and format them all for output."
+  `(args  ,args))
+
 (defun make-performance-shell (given-name)
   "Create a shell buffer with the GIVEN-NAME."
   (let ((name (concat "*test-performance-shell-" given-name "*")))
@@ -11,7 +19,7 @@
     (refresh-terminal)
     (should (equal name (buffer-name)))
     (should (equal major-mode 'shell-mode))
-    (sleep-ensure 2)
+    (sleep-ensure 3)
     (goto-char (point-max))
     name))
 
@@ -33,6 +41,15 @@
       (redraw-display)
       (sleep-ensure time))))
 
+(ert-deftest warbo-performance-split-lines-at ()
+  (should (equal (split-lines-at 3 "hello world")   "hel\nlo \nwor\nld"))
+  (should (equal (split-lines-at 3 "\nhello world") "\nhello\n wo\nrld"))
+  (should (equal (split-lines-at 3 "ab\nc\ndef\ng") "ab\nc\ndef\ng")))
+
+(defun short-line (limit line &rest args)
+  (< (length line) limit))
+(put 'short-line 'ert-explainer 'show-context)
+
 (ert-deftest warbo-performance-longlines ()
   "Navigating a buffer with long lines can hang Emacs at 100% CPU"
   (with-temp-buffer
@@ -47,11 +64,16 @@
       ;; Make sure we don't have any long lines
     (goto-char (point-min))
     (while (< (point) (point-max))
-      ;; Lines should be split at 1000 characters, but we give some leeway
-      ;; for ANSI control characters and things. If our line-splitting's
-      ;; broken, we'll end up an order of magnitude too big, so this margin
-      ;; is fine.
-      (should (< (- (line-end-position) (line-beginning-position)) 1500))
+      ;; Newlines should be split every 1000 characters, except whenever those
+      ;; 1000-character chunks already contain newlines. In the worst case, we
+      ;; get a chunk starting with a newline, followed by 999 characters, which
+      ;; is appended straight on to the following 1000 character chunk, giving a
+      ;; line length of 1999. We bump this a bit to  give some leeway for ANSI
+      ;; control characters and things. If our line-splitting's broken, we'll
+      ;; end up an order of magnitude too big, so this margin is fine.
+      (should (short-line 2500 (buffer-substring-no-properties
+                                (line-beginning-position)
+                                (line-end-position))))
       (forward-line))))
 
 (ert-deftest warbo-performance-existing-newlines ()
@@ -77,8 +99,9 @@
           ;; We count how many lines begin with "A" since this could be
           ;; vacuously true
           (setq count (+ 1 count))
-          (should (string-equal (buffer-substring (line-beginning-position)
-                                                  (line-end-position))
+          (should (string-equal (buffer-substring-no-properties
+                                 (line-beginning-position)
+                                 (line-end-position))
                                 "AB")))
         (forward-line))
 
