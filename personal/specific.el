@@ -27,6 +27,11 @@
 (eval-after-load "haskell-cabal"
   '(define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-compile))
 
+;; Isabelle files
+(use-package isar-mode
+  :quelpa (isar-mode :fetcher github :repo "agomezl/simp-isar-mode")
+  :mode "\\.thm\\'")
+
 ;; Proof General
 (defun init-pg ()
   (ignore-errors (load-file "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic/proof-site.el")))
