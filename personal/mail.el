@@ -12,9 +12,26 @@
 ;; Apparently needed when using mbsync
 (setq mu4e-change-filenames-when-moving t)
 
-;; Don't leave sent mail buffers hanging around
+;; Convenience
 (setq message-kill-buffer-on-exit t)
 (setq mu4e-confirm-quit nil)
+
+;; Make M move to spaM
+(defun mu4e-headers-move-to-spam ()
+  "Move message at point to spam folder in mu4e header mode."
+  (interactive)
+  (unless (eq major-mode 'mu4e-headers-mode)
+    (mu4e-error "Must be in mu4e-headers-mode (%S)" major-mode))
+
+  (let* ((msg   (mu4e-message-at-point))
+         (docid (mu4e-message-field msg :docid)))
+    (if docid
+        (mu4e~proc-move docid
+                        (mu4e~mark-check-target "/gmail/[Google Mail]/.Spam")
+                        "-N")
+      (mu4e-error "No message at point"))))
+
+(define-key mu4e-headers-mode-map "M" 'mu4e-headers-move-to-spam)
 
 ;; Prevents Emacs giving a "-f" (from) argument to msmtp, since we're reading it
 ;; from the message headers instead
