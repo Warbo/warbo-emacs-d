@@ -12,6 +12,10 @@
 ;; Apparently needed when using mbsync
 (setq mu4e-change-filenames-when-moving t)
 
+;; Don't leave sent mail buffers hanging around
+(setq message-kill-buffer-on-exit t)
+(setq mu4e-confirm-quit nil)
+
 ;; Prevents Emacs giving a "-f" (from) argument to msmtp, since we're reading it
 ;; from the message headers instead
 (setq message-sendmail-f-is-evil 't)
@@ -21,14 +25,7 @@
   `(,(make-mu4e-context
       :name "Home"
       :enter-func (lambda ()
-                    (mu4e-message "Switch to the Home context")
-                    (setq message-send-mail-function
-                          'message-send-mail-with-sendmail)
-                    (setq sendmail-program "msmtp")
-                    (setq message-sendmail-extra-arguments
-                          '("-a" "gmail"
-                            "--read-envelope-from" "--read-recipients"))
-                    (setq user-mail-address "chriswarbo@gmail.com"))
+                    (mu4e-message "Switch to the Home context"))
       :leave-func (lambda ()
                     ;; Try to prevent sending mail out of context
                     (setq sendmail-program nil))
@@ -36,9 +33,21 @@
                     (when msg
                       (mu4e-message-contact-field-matches
                        msg :to "chriswarbo.*@gmail.com")))
-      :vars '((user-mail-address      . "chriswarbo@gmail.com"  )
-              (user-full-name         . "Chris Warburton" )
-              (mu4e-compose-signature . "Thanks,\nChris")))
+      :vars '((user-mail-address                . "chriswarbo@gmail.com"  )
+              (user-full-name                   . "Chris Warburton" )
+              (mu4e-compose-signature           . "Thanks,\nChris")
+              (message-send-mail-function       . message-send-mail-with-sendmail)
+              (sendmail-program                 . "msmtp")
+              (message-sendmail-extra-arguments . ("-a" "gmail"
+                                                   "--read-envelope-from"
+                                                   "--read-recipients"))
+              (mu4e-trash-folder                . "/gmail/[Google Mail]/.Trash")
+              (mu4e-drafts-folder               . "/gmail/[Google Mail]/.Drafts")
+              (mu4e-sent-folder                 . "/gmail/[Google Mail]/.Sent Mail")
+
+              ;; don't save message to Sent Messages, GMail/IMAP will take
+              ;; care of this
+              (mu4e-sent-messages-behavior      . delete)))
 
     ,(make-mu4e-context
       :name "Dundee"
@@ -50,7 +59,8 @@
                     (setq message-sendmail-extra-arguments
                           '("-a" "dd"
                             "--read-envelope-from" "--read-recipients"))
-                    (setq user-mail-address "cmwarburton@dundee.ac.uk"))
+                    (setq user-mail-address "cmwarburton@dundee.ac.uk")
+                    (setq mu4e-sent-messages-behavior 'sent))
       :leave-func (lambda ()
                     ;; Try to prevent sending mail out of context
                     (setq sendmail-program nil))
@@ -65,27 +75,40 @@
 ;; mu4e uses database queries rather than hierarchical structure, so we use
 ;; "bookmarks" to create pseudo-folders
 (setq mu4e-bookmarks
-      `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX" "Inboxen"    ?i)
-        ("maildir:/feeds* AND flag:unread"               "News"       ?n)
-        ("from:joannelpayne*"                            "Jo"         ?j)
-        ("flag:unread"                                   "All Unread" ?u)
+      `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX"   "Inboxen"    ?i)
+        ("maildir:/feeds* AND flag:unread"                 "News"       ?n)
+        ("maildir:/gmail/[Google Mail]/.* AND flag:unread" "New tagged" ?t)
+        ("flag:unread"                                     "All Unread" ?u)
         ,(letrec ((f (lambda (xs)
                        (if (cdr xs)
                            (concat "maildir:/feeds/" (car xs)
                                    " OR "
                                    (funcall f (cdr xs)))
                            (concat "maildir:/feeds/" (car xs))))))
-           (list (funcall f '("ComputingBritain"
+           (list (funcall f '("50Things"
+                              "BornSmart,Equal,Different"
+                              "CodePodcast"
+                              "ComputingBritain"
+                              "CrowdScience"
                               "FlyingColoursMaths"
+                              "FunctionalGeekery"
+                              "HaskellCast"
+                              "HiddenHistoriesOfTheInformationAge"
                               "InfiniteMonkeyCage"
+                              "InOurTimeScience"
                               "InsideScience"
                               "LifeScientific"
                               "MathFactor"
                               "MoreOrLess"
+                              "NaturalHistories"
                               "PuttingScienceToWork"
+                              "ReithLectures"
                               "RutherfordAndFry"
+                              "ScienceInAction"
                               "ScienceStories"
+                              "StronglyConnectedComponents"
                               "TalkingMachines"
+                              "TravelsInAMathWorld"
                               "TypeTheory"))
                  "Podcasts"
                  ?p))))
