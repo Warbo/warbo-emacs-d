@@ -16,6 +16,9 @@
 (setq message-kill-buffer-on-exit t)
 (setq mu4e-confirm-quit nil)
 
+;; Show us full addresses, like 'Bob <bob@example.com>', rather than just 'Bob'
+(setq mu4e-view-show-addresses t)
+
 ;; Make M move to spaM
 (defun mu4e-headers-move-to-spam ()
   "Move message at point to spam folder in mu4e header mode."
