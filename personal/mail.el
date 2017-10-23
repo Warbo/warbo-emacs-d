@@ -94,11 +94,23 @@
 
 ;; mu4e uses database queries rather than hierarchical structure, so we use
 ;; "bookmarks" to create pseudo-folders
+(require 'cl-lib)
 (setq mu4e-bookmarks
-      `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX"   "Inboxen"    ?i)
-        ("maildir:/feeds* AND flag:unread"                 "News"       ?n)
-        ("maildir:/gmail/[Google Mail]/.* AND flag:unread" "New tagged" ?t)
-        ("flag:unread"                                     "All Unread" ?u)
+      `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX"   "Inboxen"      ?i)
+        ("maildir:/feeds* AND flag:unread"                 "News"         ?n)
+        ("maildir:/gmail/[Google Mail]/.* AND flag:unread" "New tagged"   ?t)
+        ("flag:unread"                                     "All Unread"   ?u)
+        (,(letrec ((f (lambda (xs)
+                        (if (cdr xs)
+                            (concat "\"maildir:/gmail/[Google Mail]/."
+                                    (car xs)
+                                    "\" OR "
+                                    (funcall f (cdr xs)))
+                            (concat "\"maildir:/gmail/[Google Mail]/."
+                                    (car xs) "\" AND flag:unread")))))
+            (funcall f '("AGI" "Bugs" "Coq" "EFF" "FONC" "FSF" "HaskellCafe"
+                         "HoTT" "Idris" "Nix" "ORG" "Reprap" "Squeak")))
+         "MailingLists" ?l)
         ,(letrec ((f (lambda (xs)
                        (if (cdr xs)
                            (concat "maildir:/feeds/" (car xs)
