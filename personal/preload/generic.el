@@ -25,3 +25,6 @@
 ;; Turn off UI clutter
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
+
+;; Prevent later problems with magit
+(require 'magit)
