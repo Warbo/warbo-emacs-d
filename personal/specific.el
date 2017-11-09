@@ -1,3 +1,9 @@
+;;; warbo-emacs-d --- A collection of specific toggles, etc.
+
+;;; Commentary:
+
+;;; Code:
+
 ;; Make doc-view continuous
 (setq doc-view-continuous t)
 
@@ -34,11 +40,12 @@
 
 ;; Proof General
 (defun init-pg ()
+  "Load ProofGeneral from Nix location."
   (ignore-errors (load-file "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic/proof-site.el")))
 
 ;; Useful for manual entry of PDF titles into BibTeX
 (defun take-name ()
-  ;; Find the next localfile key which doesn't have a title
+  "Find the next localfile key which doesn't have a title."
   (re-search-forward "^@misc{zzzzz.*,[\n][\t]localfile = \"[^\"]*\"[\n]")
   (forward-line -1)
   (beginning-of-line)
@@ -89,7 +96,7 @@
 ;; Artemis uses maildirs for issue tracking. Use message-mode for editing these,
 ;; but augment it a little (e.g. save and close, rather than send).
 (defun artemis-save ()
-  "Saves and closes the buffer. Used for Artemis messages instead of 'send'."
+  "Save and close the buffer; used for Artemis messages instead of 'send'."
   (interactive)
   (save-some-buffers)
   (kill-buffer))
@@ -99,7 +106,7 @@
   (let ((map (make-keymap)))
     (define-key map (kbd "C-c C-c") 'artemis-save)
     map)
-  "Keymap for Artemis major mode")
+  "Keymap for Artemis major mode.")
 
 (define-derived-mode artemis-mode message-mode "Artemis"
   "Major mode for editing Artemis issues (which are maildir under the hood)."
@@ -108,7 +115,7 @@
 (provide 'artemis-mode)
 
 (defun switch-to-artemis (filename)
-  "Look for a buffer with the given filename and switch it to artemis-mode."
+  "Look for a buffer with the given FILENAME and switch it to artemis-mode."
   (let ((buf (find-buffer-visiting filename)))
     (when buf
       (with-current-buffer buf
