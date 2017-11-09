@@ -27,6 +27,8 @@
 (add-hook 'haskell-mode-hook 'flycheck-mode)
 ;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 
+(custom-set-variables '(haskell-stylish-on-save t))
+
 (eval-after-load "haskell-mode"
   '(define-key haskell-mode-map (kbd "C-c C-c") 'haskell-compile))
 
