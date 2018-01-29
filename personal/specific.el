@@ -38,7 +38,7 @@
 ;; Isabelle files
 (use-package isar-mode
   :quelpa (isar-mode :fetcher github :repo "agomezl/simp-isar-mode")
-  :mode "\\.thm\\'")
+  :mode "\\.thy\\'")
 
 ;; Proof General
 (defun init-pg ()
@@ -122,3 +122,6 @@
     (when buf
       (with-current-buffer buf
         (artemis-mode)))))
+
+;; Prevent Nix '.drv' filesf rom opening as LaTeX
+(add-to-list 'auto-mode-alist '("\\.drv\\'" . fundamental-mode))
