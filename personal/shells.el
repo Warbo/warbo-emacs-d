@@ -1,7 +1,7 @@
 ;; Swap cursor keys and C-p/C-n in EShell.
 ;; C-up/C-down still does history like Shell mode
 (defun m-eshell-hook ()
-  ;; define control p, control n and the up/down arrow
+  "Define control p, control n and the up/down arrow."
   (define-key eshell-mode-map [(control p)]
     'eshell-previous-matching-input-from-input)
   (define-key eshell-mode-map [(control n)]
@@ -173,21 +173,24 @@ Emacs churn."
     ("benchmark-paper"      "~/Writing/TEBenchmarkPaper")
     ("blog"                 "~/blog")
     ("deleteme"             "~/DELETEME")
+    ("desktop_scripts"      "~/desktop_scripts")
     ("dotfiles"             "~/.dotfiles")
+    ("ghc-base-asts"        "~/Programming/ghc-base-asts")
     ("haskell-te"           "~/Programming/haskell-te")
     ("home"                 "~")
     ("isaplanner-tip"       "~/Programming/Isabelle/IsaPlannerTip")
     ("nixpkgs"              "~/System/Programs/nixpkgs-2")
+    ("quickspec-profiling"  "~/Programming/NotMine/quickspec2/quickspec")
     ("te-benchmark"         "~/Programming/TheoryExplorationBenchmark")
     ("tests"                "~/System/Tests")
     ("utilities"            "~/warbo-utilities")
     ("writing"              "~/Writing"))
-  "Useful buffers to open at startup")
+  "Useful buffers to open at startup.")
 
-(mapcar 'shell-named-in startup-shells)
+(mapc 'shell-named-in startup-shells)
 
 (defun command-in-buffer (buf-dir-cmd)
-  "Poor man's comint. Start a shell in a dir, and run a command (e.g. a REPL)"
+  "Poor man's comint: BUF-DIR-CMD lists what to run where (e.g. a REPL)."
   (let* ((name (nth 0 buf-dir-cmd))
          (dir  (nth 1 buf-dir-cmd))
          (cmd  (nth 2 buf-dir-cmd))
@@ -201,13 +204,13 @@ Emacs churn."
 
 (defconst startup-programs
   '()
-  "Shell commands to run in particular buffers at startup")
+  "Shell commands to run in particular buffers at startup.")
 
-(mapcar 'command-in-buffer startup-programs)
+(mapc 'command-in-buffer startup-programs)
 
 ;; From http://stackoverflow.com/a/27908343/884682
 (defun eshell/clear ()
-  "Clear terminal"
+  "Clear terminal."
   (interactive)
   (let ((inhibit-read-only t))
     (erase-buffer)
