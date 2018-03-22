@@ -43,9 +43,74 @@
 ;; but that assumes the executable (e.g. "myCompiler") is in PATH. We'd rather
 ;; encapsulate such things as dependencies of a project's Nix derivation, which
 ;; are then available if we run "nix-shell".
+
 ;; Running nix-shell over and over can be slow, so we use functions from
 ;; nix-sandbox which cache the environment (e.g. the PATH), which makes looking
 ;; up the relevant executable much faster.
+
+;; The default behaviour of nix-sandbox isn't ideal, for two reasons: firstly we
+;; can spend a while waiting for a nix-shell to get built synchronously, just
+;; for some throwaway command like a syntax checker. Secondly, if we cancel the
+;; synchronous call (e.g. with C-g) then the sandbox will probably need to be
+;; rebuilt from scratch next time.
+
+;; To avoid this we augment nix-sandbox in the following way:
+;;  - We run nix-shell processes asynchronously, to avoid having to wait.
+;;  - We error-out immediately if the sandbox is still being built.
+
+;; This way, we can carry on working (without checkers) while builds are going
+;; on in the background, and the checkers will start working once the builds
+;; finish.
+
+;; Stores the builder processes
+(defvar nix-sandbox-builders-map (make-hash-table :test 'equal :size 100))
+
+(defun nix-sandbox-build-asynchronously (sandbox)
+  "Launch a process to build a nix-shell in SANDBOX.
+The build command is copypasta from nix-create-sandbox-rc."
+  (or (gethash sandbox nix-sandbox-builders-map)
+      (let* ((name (concat "nix-sandbox-builder-" sandbox))
+             (proc (puthash sandbox
+                            (start-process
+                             name name
+                             "nostderr" "nix-shell" "--run"
+                             "declare +x shellHook; declare -x; declare -xf")
+                            nix-sandbox-builders-map)))
+        (message "Starting nix-shell builder for dir %s\n" sandbox)
+
+        ;; Prevents 'Process foo finished' messages polluting the output buffer
+        (set-process-sentinel proc #'ignore)
+        proc)))
+
+(defun nix-create-sandbox-rc-async (sandbox)
+  "Replacement for nix-create-sandbox-rc.
+Looks up or creates a nix-shell process in the SANDBOX dir.  If the process is
+running (e.g. if it's newly created, or takes a while) then an interrupt is
+triggered, as if the user cancelled this operation.  If it's no longer running,
+we dump its output to a temp file and return it."
+  (let ((proc (nix-sandbox-build-asynchronously sandbox)))
+    ;; When we're not finished yet, pretend we cancelled with C-g
+    (when (process-live-p proc)
+      (keyboard-quit))
+
+    ;; Process is finished, remove it from cache.
+    (message "Found finished builder for nix-shell dir %s\n" sandbox)
+    (remhash sandbox nix-sandbox-builders-map)
+
+    ;; Write output to a file
+    (let ((filename (make-temp-file "nix-sandbox-rc-")))
+      (with-current-buffer (process-buffer proc)
+        (write-file filename)
+        (kill-buffer))
+
+      ;; Return filename, to use as our 'rc' file
+      filename)))
+
+;; Override nix-create-sandbox-rc. Using advice is inefficient, but will work
+;; even if nix-sandbox hasn't been loaded yet.
+(advice-add 'nix-create-sandbox-rc :override #'nix-create-sandbox-rc-async)
+
+;; Tell flycheck to look up commands in Nix sandboxes, if we're in one
 (setq flycheck-command-wrapper-function
       (lambda (command)
         (let ((sandbox (nix-current-sandbox)))
