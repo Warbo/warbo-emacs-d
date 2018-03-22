@@ -183,6 +183,7 @@ Emacs churn."
     ("quickspec-profiling"  "~/Programming/NotMine/quickspec2/quickspec")
     ("te-benchmark"         "~/Programming/TheoryExplorationBenchmark")
     ("tests"                "~/System/Tests")
+    ("thesis-shell"         "~/Writing/PhDThesis")
     ("utilities"            "~/warbo-utilities")
     ("writing"              "~/Writing"))
   "Useful buffers to open at startup.")

@@ -83,3 +83,6 @@
  'LaTeX-mode-hook (lambda ()
                     (define-key (current-local-map)
                       (kbd "<f9>") 'compile-with-make)))
+
+;; Buffers for writing
+(dired "~/Writing/PhDThesis")
