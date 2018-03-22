@@ -25,6 +25,9 @@
 (when (require 'so-long nil :noerror)
   (so-long-enable))
 
+;; Bi-directional text can slow down Emacs's processing
+(setq-default bidi-display-reordering nil)
+
 ;; Disable smartparens mode, as it's really slow
 (with-eval-after-load 'smartparens
   (show-smartparens-global-mode -1))
