@@ -172,6 +172,7 @@ Emacs churn."
   '((".nixpkgs"             "~/.nixpkgs")
     ("benchmark-paper"      "~/Writing/TEBenchmarkPaper")
     ("blog"                 "~/blog")
+    ("bucketing"            "~/Programming/bucketing-algorithms")
     ("deleteme"             "~/DELETEME")
     ("desktop_scripts"      "~/desktop_scripts")
     ("dotfiles"             "~/.dotfiles")
