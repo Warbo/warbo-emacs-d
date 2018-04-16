@@ -7,7 +7,7 @@
 ;; We use mbsync to fetch mail periodically, but it's still useful to have mu4e
 ;; update its index periodically
 (setq mu4e-get-mail-command "true")
-(setq mu4e-update-interval 300)
+(setq mu4e-update-interval nil)
 
 ;; Apparently needed when using mbsync
 (setq mu4e-change-filenames-when-moving t)
