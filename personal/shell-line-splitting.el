@@ -40,10 +40,12 @@ will split STR earlier, to prevent their concatenation being too long."
           (lambda ()
             (add-hook 'comint-preoutput-filter-functions
                       (lambda (string)
-                        (let* ((existing (buffer-substring-no-properties
-                                          (point-max)
-                                          (min 0 (- (point-max)
-                                                    shell-split-length)))))
+                        (let ((existing (buffer-substring-no-properties
+                                         (point-max)
+
+                                         ;; point starts at 1
+                                         (max 1 (- (point-max)
+                                                   shell-split-length)))))
                           (split-lines-at shell-split-length existing string)))
                       nil
                       t)))
@@ -122,7 +124,8 @@ will split STR earlier, to prevent their concatenation being too long."
 (require 'cl)
 (ert-deftest warbo-shell-splitter-runs ()
   "Try using bogus splitter and make sure it ran"
-  (cl-flet ((split-lines-at (size string)
+  ;; flycheck complains about flet, but cl-flet doesn't seem to work!
+  (flet ((split-lines-at (size existing string)
                          "x"))
     (let* ((lines    (try-splitting-long-lines 100))
            (combined (string-join lines))

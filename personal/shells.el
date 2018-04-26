@@ -17,46 +17,6 @@
           (lambda ()
             (visual-line-mode -1)))
 
-;; Shells can easily cause Emacs to hang with large outputs; make sure lines are
-;; split at regular intervals to minimise this
-
-(defun split-lines-at (n str)
-  "Limit lines to at most N characters in STR.
-
-Given a potentially long string STR, this will return an augmented version
-with newline characters inserted such that no line contains more than N
-characters.  This is useful for transforming shell command output before
-Emacs tries to display it, since commands may give out huge lines which makes
-Emacs churn."
-  (let ((result    "")
-        (remaining str)
-        (to-add    ""))
-
-    ;; Keep taking off chunks until nothing remains
-    (while (> (length remaining) 0)
-
-      ;; Pull off what we're going to add, but don't actually add it yet
-      (setq to-add    (seq-take remaining n))
-      (setq remaining (seq-drop remaining n))
-
-      ;; Now that `remaining` has been trimmed, we can decide whether a newline
-      ;; is needed or not: only add if to-add doesn't already have one, and
-      ;; don't add trailing newlines.
-      (setq result (concat result to-add
-                           (if (or (seq-position to-add ?\C-j)
-                                   (equal "" remaining))
-                               ""
-                               "\n"))))
-    result))
-
-(add-hook 'shell-mode-hook
-          (lambda ()
-            (add-hook 'comint-preoutput-filter-functions
-                      (lambda (string)
-                        (split-lines-at 500 string))
-                      nil
-                      t)))
-
 ;; Auto-complete should stop at the first ambiguity
 (setq eshell-cmpl-cycle-completions nil)
 
