@@ -77,7 +77,7 @@
               ((file-exists-p "render.sh")   "render.sh")
               ((file-exists-p "Makefile")    "make -k ")
               ((file-exists-p "default.nix") "nix-build && killall -HUP mupdf-x11")
-              (t (error "Couldn't find render.sh or Makefile"))))))
+              (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
 
 (add-hook
  'LaTeX-mode-hook (lambda ()
