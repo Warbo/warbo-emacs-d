@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Wed, 09 May 2018 13:16:00 +0100
+State: new
+Subject: Use ws-butler instead of trimming whitespace on save
+Message-Id: <c1dc1502a4424550-0-artemis@nixos>
+
+See https://github.com/lewang/ws-butler
