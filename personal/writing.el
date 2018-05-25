@@ -79,10 +79,11 @@
               ((file-exists-p "default.nix") "nix-build && killall -HUP mupdf-x11")
               (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
 
-(add-hook
- 'LaTeX-mode-hook (lambda ()
-                    (define-key (current-local-map)
-                      (kbd "<f9>") 'compile-with-make)))
+(let ((render-hook (lambda ()
+                     (define-key (current-local-map)
+                       (kbd "<f9>") 'compile-with-make))))
+  (add-hook    'LaTeX-mode-hook render-hook)
+  (add-hook 'markdown-mode-hook render-hook))
 
 ;; Buffers for writing
 (dired "~/Writing/PhDThesis")
