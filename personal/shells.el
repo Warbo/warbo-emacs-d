@@ -1,3 +1,18 @@
+;; Interpret and use ansi color codes in shell output windows. We use
+;; https://github.com/atomontage/xterm-color rather than Emacs's built-in ansi
+;; handling, e.g. (ansi-color-for-comint-mode-on), since that's SLOW
+(use-package xterm-color
+  :ensure t
+  :init
+  (setq comint-output-filter-functions
+        (remove 'ansi-color-process-output comint-output-filter-functions))
+
+  (add-hook 'shell-mode-hook
+            (lambda ()
+              (add-hook 'comint-preoutput-filter-functions
+                        'xterm-color-filter nil t)))
+  (setenv "TERM" "xterm-256color"))
+
 ;; Swap cursor keys and C-p/C-n in EShell.
 ;; C-up/C-down still does history like Shell mode
 (defun m-eshell-hook ()
@@ -221,6 +236,3 @@
  '(comint-input-ignoredups t)             ; no duplicates in command history
  '(comint-completion-addsuffix t)         ; insert space/slash after file completion
  )
-
-; interpret and use ansi color codes in shell output windows
-(ansi-color-for-comint-mode-on)
