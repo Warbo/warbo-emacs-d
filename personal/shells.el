@@ -51,11 +51,11 @@
                  eshell-visual-commands))))
 
 (defun make-numbered-name (prefix n)
-  "Make strings of the form '*PREFIX-N*'"
+  "For string PREFIX and number N, combine into '*PREFIX-N*'."
   (concat "*" prefix "-" (number-to-string n) "*"))
 
 (defun free-name-num (prefix)
-  "Return an unused buffer name, of the form '*PREFIX-1*'"
+  "For string PREFIX, return an unused buffer name of the form '*PREFIX-1*'."
   (let* ((n     1)
          (name  (make-numbered-name prefix n))
          (taken (mapcar 'buffer-name (buffer-list))))
@@ -67,7 +67,7 @@
 ;; Auto-increment shell names. Get a new EShell with "M-x sh", get a new Shell
 ;; with "M-x bash"
 (defun sh ()
-  "Start a new EShell"
+  "Start a new EShell."
   (interactive)
   (let ((buf (free-name-num "eshell")))
     (command-execute 'eshell)
@@ -75,7 +75,7 @@
     buf))
 
 (defun bash ()
-  "Start a bash shell"
+  "Start a shell-mode shell."
   (interactive)
   (let ((buf (free-name-num "shell"))
         ;; Stops shell-mode echoing our input, since the shell already does
@@ -85,7 +85,7 @@
 
 ;; "Refresh" an SSH shell after a connection dies
 (defun refresh-terminal ()
-  "Start a new shell, like the current"
+  "Start a new shell, like the current."
   (interactive)
   (let ((buf-name (buffer-name)))
     (progn (command-execute 'bash)
@@ -93,11 +93,11 @@
            (rename-buffer buf-name))))
 
 (defun eshell/emacs (file)
-  "Running 'emacs' in eshell should open a new buffer"
+  "Replace Emacs command in eshell, so FILE is opened in this instance."
   (find-file file))
 
 (defun eshell-in (dir)
-  "Launch a new eshell in the given directory"
+  "Launch a new eshell in directory DIR."
   (let ((buffer (sh)))
     (with-current-buffer buffer
       (eshell/cd dir)
@@ -105,7 +105,7 @@
     buffer))
 
 (defun eshell-named-in (namedir)
-  "Launch a new eshell with the given buffer name in the given directory"
+  "Launch eshell with buffer name and working directory taken from NAMEDIR."
   (let* ((name   (car namedir))
          (dir    (eval (cadr namedir))))
     (unless (get-buffer name)
@@ -114,14 +114,14 @@
     name))
 
 (defun shell-in (dir)
-  "Launch a new shell in the given directory"
+  "Launch a new shell in directory DIR."
   (let ((default-directory (if (equal "/" (substring dir -1))
                                dir
                              (concat dir "/"))))
     (bash)))
 
 (defun shell-named-in (namedir)
-  "Launch a new shell with the given buffer name in the given directory"
+  "Launch shell with buffer name and working directory taken from NAMEDIR."
   (let* ((name (car namedir))
          (dir  (eval (cadr namedir))))
     (unless (get-buffer name)
@@ -130,13 +130,12 @@
     (get-buffer name)))
 
 (defun shell-from-buf (buf)
-  "Switch to the given buffer then open a shell.
-   Useful for piggybacking on TRAMP."
+  "Switch to buffer BUF then open a shell.  Useful for piggybacking on TRAMP."
   (with-current-buffer buf
     (bash)))
 
 (defun shell-with-name-from-buf (namebuf)
-  "Switch to a given buffer, open a shell and rename it."
+  "Open a shell in a buffer and rename, with buffer and name given by NAMEBUF."
   (let* ((name (car namebuf))
          (buf  (eval (cadr namebuf))))
     (unless (get-buffer name)
