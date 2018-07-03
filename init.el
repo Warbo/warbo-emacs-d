@@ -97,6 +97,9 @@ by Prelude.")
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
 
+;; Ensure all of our custom code is byte-compiled, for speed
+(byte-recompile-directory (expand-file-name "~/.emacs.d/personal") 0)
+
 ;; preload the personal settings from `prelude-personal-preload-dir'
 (when (file-exists-p prelude-personal-preload-dir)
   (message "Loading personal configuration files in %s..." prelude-personal-preload-dir)
