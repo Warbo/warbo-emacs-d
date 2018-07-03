@@ -1,0 +1,16 @@
+From: Chris Warburton
+Date: Wed, 20 Jun 2018 12:07:36 +0100
+Subject: Re: Optimise line splitting in shell
+Message-Id: <8ed48d684a2c0675-c719e05d80b942a1-artemis@nixos>
+References: <8ed48d684a2c0675-0-artemis@nixos>
+In-Reply-To: <8ed48d684a2c0675-0-artemis@nixos>
+
+I've added a line to init.el to byte-compile everything in personal/,
+which has sped up the line-splitting so that it now only takes about a
+third as long as the xterm-color code (~20% CPU and ~60% CPU).
+
+It's still a memory hog, but I'm not sure how easy that would be to fix.
+Maybe we could prevent string copying by using integer offsets rather
+than substrings; for example, noting the positions that need a newline
+inserting, then allocating a string of length input+number of positions,
+then mutate that string in-place to set its contents?

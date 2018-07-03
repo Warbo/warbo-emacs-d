@@ -1,0 +1,30 @@
+From: Chris Warburton
+Date: Wed, 20 Jun 2018 11:45:19 +0100
+State: new
+Subject: Optimise line splitting in shell
+Message-Id: <8ed48d684a2c0675-0-artemis@nixos>
+
+We split long lines, but the way we're doing it is wasteful according to
+Emacs's profiler. Start profiling with:
+
+  M-x profiler-start
+
+Do some stuff in the terminal, then do:
+
+  M-x profiler-report
+
+It looks like our shells are mostly slow for 2 reasons: ANSI colour
+coding and line splitting. The ANSI colour coding was pretty bad, using
+Emacs's built-in functionality, so I've switched to xterm-color instead
+and it seems to be faster. Now there's about an equal amount of CPU
+spent on colouring and splitting. There's no need for splitting to be so
+slow.
+
+In particular, we might want to figure out what functions are written in
+C and what's Elisp. If we can e.g. check whether a string contains a
+newline using a C function, then we should probably use that on chunks.
+Yet if that function is Elisp, we might be better off just looping
+through the characters ourselves.
+
+Also watch out for Schlemiel the Painter algorithms, e.g. appending over
+and over when we should be using a 'builder'.
