@@ -77,8 +77,9 @@
 (defun bash ()
   "Start a bash shell"
   (interactive)
-  (let ((explicit-shell-file-name "bash")
-        (buf                      (free-name-num "shell")))
+  (let ((buf (free-name-num "shell"))
+        ;; Stops shell-mode echoing our input, since the shell already does
+        (comint-process-echoes t))
     (shell buf)
     buf))
 
