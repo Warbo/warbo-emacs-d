@@ -57,7 +57,7 @@
   (ignore-errors (load-file "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic/proof-site.el")))
 
 ;; Agda (requires agda binary in PATH, e.g. from haskellPackages.Agda)
-(require 'agda2)
+;;(require 'agda2)
 
 ;; Useful for manual entry of PDF titles into BibTeX
 (defun take-name ()
