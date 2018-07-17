@@ -144,7 +144,8 @@
     name))
 
 (defconst startup-shells
-  '((".nixpkgs"             "~/.nixpkgs")
+  '(("nix-config"           "~/Programming/Nix/nix-config")
+    ("nix-helpers"          "~/Programming/Nix/nix-helpers")
     ("benchmark-paper"      "~/Writing/TEBenchmarkPaper")
     ("blog"                 "~/blog")
     ("bucketing"            "~/Programming/bucketing-algorithms")
@@ -155,12 +156,14 @@
     ("haskell-te"           "~/Programming/haskell-te")
     ("home"                 "~")
     ("isaplanner-tip"       "~/Programming/Isabelle/IsaPlannerTip")
+    ("laminar"              "~/Programming/Laminar")
     ("nixpkgs"              "~/System/Programs/nixpkgs-2")
     ("quickspec-profiling"  "~/Programming/NotMine/quickspec2/quickspec")
     ("te-benchmark"         "~/Programming/TheoryExplorationBenchmark")
     ("tests"                "~/System/Tests")
     ("thesis-shell"         "~/Writing/PhDThesis")
-    ("utilities"            "~/warbo-utilities")
+    ("warbo-packages"       "~/Programming/Nix/warbo-packages")
+    ("warbo-utilities"      "~/warbo-utilities")
     ("writing"              "~/Writing"))
   "Useful buffers to open at startup.")
 
