@@ -20,3 +20,10 @@
   (setq gcs-shr-width  (- gcs-shr-width 10))
   (eww-reload))
 (define-key eww-mode-map (read-kbd-macro "-") 'eww-decrease-width)
+
+;; Browse with conkeror, since eww seems to barf on news fallback to conkeror
+;; with "&"
+;;(setq browse-url-browser-function 'eww-browse-url)
+(setq browse-url-browser-function 'browse-url-conkeror)
+(setq browse-url-generic-program (executable-find "conkeror")
+      shr-external-browser 'browse-url-generic)

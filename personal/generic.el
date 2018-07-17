@@ -39,6 +39,11 @@
 (setq tooltip-use-echo-area t)
 (tooltip-mode nil)
 
+;; Flycheck all the things
+(require 'flycheck)
+(add-hook 'after-init-hook #'global-flycheck-mode)
+(add-to-list 'flycheck-checkers 'nix)
+
 ;; Flycheck builds a command to run, e.g. ("myCompiler" "check" "MyFile.ext"),
 ;; but that assumes the executable (e.g. "myCompiler") is in PATH. We'd rather
 ;; encapsulate such things as dependencies of a project's Nix derivation, which
