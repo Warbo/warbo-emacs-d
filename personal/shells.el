@@ -10,8 +10,7 @@
   (add-hook 'shell-mode-hook
             (lambda ()
               (add-hook 'comint-preoutput-filter-functions
-                        'xterm-color-filter nil t)))
-  (setenv "TERM" "xterm-256color"))
+                        'xterm-color-filter nil t))))
 
 ;; Swap cursor keys and C-p/C-n in EShell.
 ;; C-up/C-down still does history like Shell mode
