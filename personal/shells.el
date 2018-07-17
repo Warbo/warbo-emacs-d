@@ -76,10 +76,11 @@
 (defun bash ()
   "Start a shell-mode shell."
   (interactive)
-  (let ((buf (free-name-num "shell"))
-        ;; Stops shell-mode echoing our input, since the shell already does
-        (comint-process-echoes t))
+  (let ((buf (free-name-num "shell")))
     (shell buf)
+    (with-current-buffer buf
+      ;; Stops shell-mode echoing our input, since the shell already does
+      (setq comint-process-echoes t))
     buf))
 
 ;; "Refresh" an SSH shell after a connection dies
