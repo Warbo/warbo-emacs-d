@@ -49,6 +49,28 @@
                    "mysql")
                  eshell-visual-commands))))
 
+;; Update window size (and hence COLUMNS) of shell buffers on window change
+
+(defun alert-shells-to-size-change ()
+  "Loop through buffers, telling any in shell-mode to check their size."
+  ;; Grab all buffers and loop through them
+  (let ((buffers (buffer-list)))
+    (while buffers
+      ;; Look for shell-mode buffers
+      (when (with-current-buffer (car buffers)
+              (string= "shell-mode" major-mode))
+        ;; Look for their associated process and (first) window (if any)
+        (let ((process (get-buffer-process (car buffers)))
+              (window  (get-buffer-window  (car buffers))))
+          (when (and  process window)
+            (set-process-window-size process
+                                     (window-total-height window)
+                                     (window-body-width   window)))))
+      ;; Iterate our loop
+      (setq buffers (cdr buffers)))))
+
+(add-hook 'window-configuration-change-hook 'alert-shells-to-size-change)
+
 (defun make-numbered-name (prefix n)
   "For string PREFIX and number N, combine into '*PREFIX-N*'."
   (concat "*" prefix "-" (number-to-string n) "*"))
