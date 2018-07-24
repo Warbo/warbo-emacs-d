@@ -83,6 +83,14 @@
       (setq comint-process-echoes t))
     buf))
 
+(defun bash-unwrapped ()
+  "Start a shell-mode shell, forcing 'bash' as the shell."
+  (interactive)
+  (let ((buf (free-name-num "shell"))
+        (explicit-shell-file-name "bash"))
+    (shell buf)
+    buf))
+
 ;; "Refresh" an SSH shell after a connection dies
 (defun refresh-terminal ()
   "Start a new shell, like the current."
