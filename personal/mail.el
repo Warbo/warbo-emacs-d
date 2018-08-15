@@ -95,55 +95,21 @@
 ;; mu4e uses database queries rather than hierarchical structure, so we use
 ;; "bookmarks" to create pseudo-folders
 (require 'cl-lib)
-(setq mu4e-bookmarks
-      `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX"   "Inboxen"      ?i)
-        ("maildir:/feeds* AND flag:unread"                 "News"         ?n)
-        ("maildir:/gmail/[Google Mail]/.* AND flag:unread" "New tagged"   ?t)
-        ("flag:unread"                                     "All Unread"   ?u)
-        (,(letrec ((f (lambda (xs)
-                        (if (cdr xs)
-                            (concat "\"maildir:/gmail/[Google Mail]/."
-                                    (car xs)
-                                    "\" OR "
-                                    (funcall f (cdr xs)))
-                            (concat "\"maildir:/gmail/[Google Mail]/."
-                                    (car xs) "\" AND flag:unread")))))
-            (funcall f '("AGI" "Bugs" "Coq" "EFF" "FONC" "FSF" "HaskellCafe"
-                         "HoTT" "Idris" "Nix" "ORG" "Reprap" "Squeak")))
-         "MailingLists" ?l)
-        ,(letrec ((f (lambda (xs)
-                       (if (cdr xs)
-                           (concat "maildir:/feeds/" (car xs)
-                                   " OR "
-                                   (funcall f (cdr xs)))
-                           (concat "maildir:/feeds/" (car xs))))))
-           (list (funcall f '("50Things"
-                              "BornSmart,Equal,Different"
-                              "CodePodcast"
-                              "ComputingBritain"
-                              "CrowdScience"
-                              "FlyingColoursMaths"
-                              "FunctionalGeekery"
-                              "HaskellCast"
-                              "HiddenHistoriesOfTheInformationAge"
-                              "InfiniteMonkeyCage"
-                              "InOurTimeScience"
-                              "InsideScience"
-                              "LifeScientific"
-                              "MathFactor"
-                              "MoreOrLess"
-                              "NaturalHistories"
-                              "PuttingScienceToWork"
-                              "ReithLectures"
-                              "RutherfordAndFry"
-                              "ScienceInAction"
-                              "ScienceStories"
-                              "StronglyConnectedComponents"
-                              "TalkingMachines"
-                              "TravelsInAMathWorld"
-                              "TypeTheory"))
-                 "Podcasts"
-                 ?p))))
+(let ((news-lists '("FSF" "Identica" "Nix" "AGI" "Coq" "GeekUp" "Idris" "No2ID"
+                    "Reprap" "Squeak" "Gnus" "iPlayer" "ORG" "Bugs" "EFF"
+                    "HaskellCafe" "KDE" "Societies" "FONC" "HoTT" "LambdaLounge"
+                    "People" "Sourceforge" "Uni")))
+  (setq mu4e-bookmarks
+        `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX"   "Inboxen"      ?i)
+          (,(format "(maildir:/feeds* OR %s) AND flag:unread"
+                    (mapconcat (lambda (dir)
+                                 (format "maildir:\"/gmail/[Google Mail]/.%s\""
+                                         dir))
+                               news-lists
+                               " OR "))                      "News"         ?n)
+          ("maildir:/gmail/[Google Mail]/.* AND flag:unread" "New tagged"   ?t)
+          ("flag:unread"                                     "All Unread"   ?u)
+          )))
 
 ;; Nicer HTML->text conversion, preserving links
 (require 'mu4e-contrib)
