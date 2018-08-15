@@ -157,6 +157,7 @@
     ("benchmark-paper"      "~/Writing/TEBenchmarkPaper")
     ("blog"                 "~/blog")
     ("bucketing"            "~/Programming/bucketing-algorithms")
+    ("bucketing-paper"      "~/Writing/Bucketing")
     ("deleteme"             "~/DELETEME")
     ("desktop_scripts"      "~/desktop_scripts")
     ("dotfiles"             "~/.dotfiles")
