@@ -166,6 +166,7 @@
     ("home"                 "~")
     ("isaplanner-tip"       "~/Programming/Isabelle/IsaPlannerTip")
     ("laminar"              "~/Programming/Laminar")
+    ("ML4HSFE"              "~/Programming/Haskell/ML4HSFE")
     ("music-scripts"        "~/Programming/music-scripts")
     ("nixpkgs"              "~/System/Programs/nixpkgs-2")
     ("quickspec-profiling"  "~/Programming/NotMine/quickspec2/quickspec")
