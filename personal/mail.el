@@ -95,10 +95,31 @@
 ;; mu4e uses database queries rather than hierarchical structure, so we use
 ;; "bookmarks" to create pseudo-folders
 (require 'cl-lib)
-(let ((news-lists '("FSF" "Identica" "Nix" "AGI" "Coq" "GeekUp" "Idris" "No2ID"
-                    "Reprap" "Squeak" "Gnus" "iPlayer" "ORG" "Bugs" "EFF"
-                    "HaskellCafe" "KDE" "Societies" "FONC" "HoTT" "LambdaLounge"
-                    "People" "Sourceforge" "Uni")))
+(let ((news-lists '("AGI"
+                    "Bugs"
+                    "CommentReplies"
+                    "Coq"
+                    "EFF"
+                    "FONC"
+                    "FSF"
+                    "GeekUp"
+                    "Gnus"
+                    "HaskellCafe"
+                    "HoTT"
+                    "Identica"
+                    "Idris"
+                    "iPlayer"
+                    "KDE"
+                    "LambdaLounge"
+                    "Nix"
+                    "No2ID"
+                    "ORG"
+                    "People"
+                    "Reprap"
+                    "Societies"
+                    "Sourceforge"
+                    "Squeak"
+                    "Uni")))
   (setq mu4e-bookmarks
         `(("maildir:/gmail/INBOX OR maildir:/dundee/INBOX"   "Inboxen"      ?i)
           (,(format "(maildir:/feeds* OR %s) AND flag:unread"
