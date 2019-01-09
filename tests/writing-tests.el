@@ -30,7 +30,12 @@
           (with-current-buffer "*Help*"
             (goto-char 0)
             (search-forward "<f9>")
-            (should (looking-at "\s*compile-with-make"))))))
+            (search-forward "c")
+            (backward-char)
+            (let ((binding (buffer-substring-no-properties
+                            (point)
+                            (+ (point) (length "compile-with-make")))))
+              (should (equal binding "compile-with-make")))))))
 
 (ert-deftest warbo-markdown-comfortable ()
   "Make sure the desired modes, etc. are activated for Markdown files."
