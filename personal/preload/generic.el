@@ -27,4 +27,5 @@
 (menu-bar-mode -1)
 
 ;; Prevent later problems with magit
-(require 'magit)
+(use-package magit
+  :ensure t)
