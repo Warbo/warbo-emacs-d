@@ -17,11 +17,12 @@
   :quelpa (metal-mercury-mode :fetcher github
                               :repo    "ahungry/metal-mercury-mode")
   :mode "\\.m\\'"
+  :defer t  ;; Don't access `metal-mercury-mode-map' until the mode's loaded
 
-  :bind ("<f9>" . compile-mercury)
-
-  :config (setq metal-mercury-mode-compile-function
-                (lambda (module-name)
-                  (cl-concatenate 'string
-                                  "nix-shell -p mercury "
-                                  "--run 'mmc --make " module-name "'"))))
+  :config
+  (setq metal-mercury-mode-compile-function
+        (lambda (module-name)
+          (cl-concatenate 'string
+                          "nix-shell -p mercury "
+                          "--run 'mmc --make " module-name "'")))
+  (bind-key "<f9>" 'compile-mercury metal-mercury-mode-map))
