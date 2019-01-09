@@ -87,4 +87,6 @@
   (add-hook 'markdown-mode-hook render-hook))
 
 ;; Buffers for writing
-(dired "~/Writing/PhDThesis")
+(dolist (dir '("~/Writing/PhDThesis"))
+  (when (file-directory-p dir)
+    (dired dir)))
