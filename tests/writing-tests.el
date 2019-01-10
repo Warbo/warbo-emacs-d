@@ -20,7 +20,7 @@
   "Make sure the desired modes, etc. are activated for TeX files."
   (with-test-file "tex"
         (set-auto-mode)
-        (should (equal major-mode 'latex-mode))
+        (should     (equal major-mode 'latex-mode))
         (should     visual-line-mode)
         (should     flyspell-mode)
         (should-not whitespace-mode)

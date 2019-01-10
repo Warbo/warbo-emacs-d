@@ -80,11 +80,14 @@
                "nix-build --show-trace && { killall -HUP mupdf-x11 || true; }")
               (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
 
-(let ((render-hook (lambda ()
-                     (define-key (current-local-map)
-                       (kbd "<f9>") 'compile-with-make))))
-  (add-hook    'LaTeX-mode-hook render-hook)
-  (add-hook 'markdown-mode-hook render-hook))
+(defun compile-with-make-setup-latex ()
+  (bind-key "<f9>" 'compile-with-make LaTeX-mode-map))
+
+(defun compile-with-make-setup-markdown ()
+  (bind-key "<f9>" 'compile-with-make markdown-mode-map))
+
+(add-hook 'LaTeX-mode-hook    'compile-with-make-setup-latex)
+(add-hook 'markdown-mode-hook 'compile-with-make-setup-markdown)
 
 ;; Buffers for writing
 (dolist (dir '("~/Writing/PhDThesis"))
