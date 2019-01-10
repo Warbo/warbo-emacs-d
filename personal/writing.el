@@ -81,10 +81,10 @@
               (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
 
 (defun compile-with-make-setup-latex ()
-  (bind-key "<f9>" 'compile-with-make LaTeX-mode-map))
+  (bind-key (kbd "<f9>") 'compile-with-make LaTeX-mode-map))
 
 (defun compile-with-make-setup-markdown ()
-  (bind-key "<f9>" 'compile-with-make markdown-mode-map))
+  (bind-key (kbd "<f9>") 'compile-with-make markdown-mode-map))
 
 (add-hook 'LaTeX-mode-hook    'compile-with-make-setup-latex)
 (add-hook 'markdown-mode-hook 'compile-with-make-setup-markdown)
