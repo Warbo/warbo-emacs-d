@@ -159,7 +159,6 @@
     ("bucketing"            "~/Programming/bucketing-algorithms")
     ("bucketing-paper"      "~/Writing/Bucketing")
     ("deleteme"             "~/DELETEME")
-    ("desktop_scripts"      "~/desktop_scripts")
     ("dotfiles"             "~/.dotfiles")
     ("ghc-base-asts"        "~/Programming/ghc-base-asts")
     ("haskell-te"           "~/Programming/haskell-te")
