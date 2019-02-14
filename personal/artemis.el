@@ -41,7 +41,8 @@ From https://stackoverflow.com/a/3034272/884682"
       (and
        (string-prefix-p "/tmp/tmp" f)
        (string-suffix-p ".txt"     f)
-       (buffer-contains-substring "Subject: brief description")))))
+       (or (buffer-contains-substring "Subject: brief description")
+           (buffer-contains-substring "Detailed description."))))))
 
 (defun server-visit-artemis-issue-hook ()
   "Invokes 'artemis-mode' if the current buffer is an artemis issue."
