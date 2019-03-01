@@ -152,8 +152,7 @@
     name))
 
 (defconst startup-shells
-  '(("nix-config"           "~/Programming/Nix/nix-config")
-    ("nix-helpers"          "~/Programming/Nix/nix-helpers")
+  '(("antiunification"      "~/Programming/Haskell/EquationalAntiUnification")
     ("benchmark-paper"      "~/Writing/TEBenchmarkPaper")
     ("blog"                 "~/blog")
     ("bucketing"            "~/Programming/bucketing-algorithms")
@@ -167,8 +166,11 @@
     ("laminar"              "~/Programming/Laminar")
     ("ML4HSFE"              "~/Programming/Haskell/ML4HSFE")
     ("music-scripts"        "~/Programming/music-scripts")
+    ("nix-config"           "~/Programming/Nix/nix-config")
+    ("nix-helpers"          "~/Programming/Nix/nix-helpers")
     ("nixpkgs"              "~/System/Programs/nixpkgs-2")
     ("quickspec-profiling"  "~/Programming/NotMine/quickspec2/quickspec")
+    ("quickspeccer"         "~/Programming/Haskell/QuickSpeccer")
     ("te-benchmark"         "~/Programming/TheoryExplorationBenchmark")
     ("tests"                "~/System/Tests")
     ("thesis-shell"         "~/Writing/PhDThesis")
