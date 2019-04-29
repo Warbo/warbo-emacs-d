@@ -92,4 +92,11 @@
 ;; Buffers for writing
 (dolist (dir '("~/Writing/PhDThesis"))
   (when (file-directory-p dir)
-    (dired dir)))
+    (unless (get-buffer "PhDThesis")
+      (save-excursion (dired dir)))))
+
+;; Open our master Bibtex file in ebib
+(setq ebib-hide-cursor nil)
+(defun bib ()
+  (interactive)
+  (ebib "~/Writing/Bibtex.bib"))
