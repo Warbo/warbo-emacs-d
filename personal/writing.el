@@ -97,6 +97,7 @@
 
 ;; Open our master Bibtex file in ebib
 (setq ebib-hide-cursor nil)
+(setq ebib-file-field "localfile")
 (defun bib ()
   (interactive)
   (ebib "~/Writing/Bibtex.bib"))
