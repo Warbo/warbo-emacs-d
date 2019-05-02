@@ -98,6 +98,7 @@
 ;; Open our master Bibtex file in ebib
 (setq ebib-hide-cursor nil)
 (setq ebib-file-field "localfile")
+(setq ebib-file-associations '(("pdf" . "mupdf-x11") ("ps" . "gv")))
 (defun bib ()
   (interactive)
   (ebib "~/Writing/Bibtex.bib"))
