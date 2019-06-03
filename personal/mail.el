@@ -41,56 +41,57 @@
 (setq message-sendmail-f-is-evil 't)
 
 ;; Home and work accounts
-(setq mu4e-contexts
-  `(,(make-mu4e-context
-      :name "Home"
-      :enter-func (lambda ()
-                    (mu4e-message "Switch to the Home context"))
-      :leave-func (lambda ()
-                    ;; Try to prevent sending mail out of context
-                    (setq sendmail-program nil))
-      :match-func (lambda (msg)
-                    (when msg
-                      (mu4e-message-contact-field-matches
-                       msg :to "chriswarbo.*@gmail.com")))
-      :vars '((user-mail-address                . "chriswarbo@gmail.com"  )
-              (user-full-name                   . "Chris Warburton" )
-              (mu4e-compose-signature           . "Thanks,\nChris")
-              (message-send-mail-function       . message-send-mail-with-sendmail)
-              (sendmail-program                 . "msmtp")
-              (message-sendmail-extra-arguments . ("-a" "gmail"
-                                                   "--read-envelope-from"
-                                                   "--read-recipients"))
-              (mu4e-trash-folder                . "/gmail/[Google Mail]/.Trash")
-              (mu4e-drafts-folder               . "/gmail/[Google Mail]/.Drafts")
-              (mu4e-sent-folder                 . "/gmail/[Google Mail]/.Sent Mail")
+(ignore-errors
+  (setq mu4e-contexts
+        `(,(make-mu4e-context
+            :name "Home"
+            :enter-func (lambda ()
+                          (mu4e-message "Switch to the Home context"))
+            :leave-func (lambda ()
+                          ;; Try to prevent sending mail out of context
+                          (setq sendmail-program nil))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches
+                             msg :to "chriswarbo.*@gmail.com")))
+            :vars '((user-mail-address                . "chriswarbo@gmail.com"  )
+                    (user-full-name                   . "Chris Warburton" )
+                    (mu4e-compose-signature           . "Thanks,\nChris")
+                    (message-send-mail-function       . message-send-mail-with-sendmail)
+                    (sendmail-program                 . "msmtp")
+                    (message-sendmail-extra-arguments . ("-a" "gmail"
+                                                         "--read-envelope-from"
+                                                         "--read-recipients"))
+                    (mu4e-trash-folder                . "/gmail/[Google Mail]/.Trash")
+                    (mu4e-drafts-folder               . "/gmail/[Google Mail]/.Drafts")
+                    (mu4e-sent-folder                 . "/gmail/[Google Mail]/.Sent Mail")
 
-              ;; don't save message to Sent Messages, GMail/IMAP will take
-              ;; care of this
-              (mu4e-sent-messages-behavior      . delete)))
+                    ;; don't save message to Sent Messages, GMail/IMAP will take
+                    ;; care of this
+                    (mu4e-sent-messages-behavior      . delete)))
 
-    ,(make-mu4e-context
-      :name "Dundee"
-      :enter-func (lambda ()
-                    (mu4e-message "Switch to the Dundee context")
-                    (setq message-send-mail-function
-                          'message-send-mail-with-sendmail)
-                    (setq sendmail-program "msmtp")
-                    (setq message-sendmail-extra-arguments
-                          '("-a" "dd"
-                            "--read-envelope-from" "--read-recipients"))
-                    (setq user-mail-address "cmwarburton@dundee.ac.uk")
-                    (setq mu4e-sent-messages-behavior 'sent))
-      :leave-func (lambda ()
-                    ;; Try to prevent sending mail out of context
-                    (setq sendmail-program nil))
-      :match-func (lambda (msg)
-                    (when msg
-                      (mu4e-message-contact-field-matches
-                       msg :to ".*warburton@dundee.ac.uk")))
-      :vars '((user-mail-address      . "cmwarburton@dundee.ac.uk")
-              (user-full-name         . "Chris Warburton")
-              (mu4e-compose-signature . "Regards,\nChris Warburton")))))
+          ,(make-mu4e-context
+            :name "Dundee"
+            :enter-func (lambda ()
+                          (mu4e-message "Switch to the Dundee context")
+                          (setq message-send-mail-function
+                                'message-send-mail-with-sendmail)
+                          (setq sendmail-program "msmtp")
+                          (setq message-sendmail-extra-arguments
+                                '("-a" "dd"
+                                  "--read-envelope-from" "--read-recipients"))
+                          (setq user-mail-address "cmwarburton@dundee.ac.uk")
+                          (setq mu4e-sent-messages-behavior 'sent))
+            :leave-func (lambda ()
+                          ;; Try to prevent sending mail out of context
+                          (setq sendmail-program nil))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches
+                             msg :to ".*warburton@dundee.ac.uk")))
+            :vars '((user-mail-address      . "cmwarburton@dundee.ac.uk")
+                    (user-full-name         . "Chris Warburton")
+                    (mu4e-compose-signature . "Regards,\nChris Warburton"))))))
 
 ;; mu4e uses database queries rather than hierarchical structure, so we use
 ;; "bookmarks" to create pseudo-folders
