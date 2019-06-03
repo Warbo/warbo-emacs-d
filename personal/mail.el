@@ -1,6 +1,7 @@
 ;; Assumes we're running on NixOS with mu installed system-wide
-(add-to-list 'load-path "/run/current-system/sw/share/emacs/site-lisp/mu4e")
-(require 'mu4e)
+(ignore-errors
+  (add-to-list 'load-path "/run/current-system/sw/share/emacs/site-lisp/mu4e")
+  (require 'mu4e))
 
 (setq mu4e-maildir "~/Mail")
 
