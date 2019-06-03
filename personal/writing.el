@@ -13,7 +13,7 @@
 
 ;; active Babel languages
 (org-babel-do-load-languages 'org-babel-load-languages '((haskell    . t)
-                                                         (sh         . t)
+                                                         (shell      . t)
                                                          (gnuplot    . t)
                                                          (dot        . t)))
 
