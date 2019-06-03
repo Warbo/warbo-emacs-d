@@ -27,3 +27,5 @@
 (setq browse-url-browser-function 'browse-url-conkeror)
 (setq browse-url-generic-program (executable-find "conkeror")
       shr-external-browser 'browse-url-generic)
+
+(setq w3m-search-default-engine "duckduckgo")
