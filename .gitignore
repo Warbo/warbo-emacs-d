@@ -26,3 +26,5 @@ tramp
 /var/pcache
 .emacs.desktop
 .emacs.desktop.lock
+games/tetris-scores
+nix-buffer/trusted-exprs
