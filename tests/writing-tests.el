@@ -25,17 +25,8 @@
         (should     flyspell-mode)
         (should-not whitespace-mode)
 
-        (save-excursion
-          (describe-bindings)
-          (with-current-buffer "*Help*"
-            (goto-char 0)
-            (search-forward "<f9>")
-            (search-forward "c")
-            (backward-char)
-            (let ((binding (buffer-substring-no-properties
-                            (point)
-                            (+ (point) (length "compile-with-make")))))
-              (should (equal binding "compile-with-make")))))))
+        (should (equal (local-key-binding (kbd "<f9>") t)
+                       'compile-with-make))))
 
 (ert-deftest warbo-markdown-comfortable ()
   "Make sure the desired modes, etc. are activated for Markdown files."
