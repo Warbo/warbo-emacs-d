@@ -1,3 +1,27 @@
+(defun compile-with-make ()
+  "Run COMPILE, without prompting for a command"
+  (interactive)
+  (let ((compilation-read-command nil))
+    (compile (cond
+              ((file-exists-p "render.sh")   "render.sh")
+              ((file-exists-p "Makefile")    "make -k ")
+              ((file-exists-p "default.nix")
+               "nix-build --show-trace && { killall -HUP mupdf-x11 || true; }")
+              (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
+
+(use-package latex
+  :ensure auctex
+  :mode ("\\.tex\\'" . latex-mode)
+  :bind
+  (:map LaTeX-mode-map
+        ("<f9>" . compile-with-make))
+  :config
+  (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+  (add-hook 'LaTeX-mode-hook 'flyspell-mode)  ;; Relies on aspell
+  (add-hook 'LaTeX-mode-hook (lambda () (whitespace-mode 0)))
+  (setq TeX-auto-save  t)
+  (setq TeX-parse-self t))
+
 ;; Don't clobber windmove bindings (this must run before ORG loads)
 ;; "(add-hook 'org-shiftup-final-hook 'windmove-up)", etc. don't seem to work
 ;; Default disputed keys remap so that windowmove commands aren't overridden
@@ -41,12 +65,6 @@
    (define-key org-mode-map
      (kbd "<f5>") 'org-export-and-preview)))
 
-;; Use AUCTeX
-(add-to-list 'auto-mode-alist '("\\.tex$" . LaTeX-mode))
-
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-
 ;; Visual line wrapping in document modes
 (add-hook 'org-mode-hook 'turn-on-visual-line-mode)
 
@@ -62,34 +80,10 @@
 
 (add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
 
-(add-hook 'LaTeX-mode-hook 'visual-line-mode)
-
-;; Spell checking. This relies on aspell.
-(add-hook 'LaTeX-mode-hook 'flyspell-mode)
-
-(add-hook 'LaTeX-mode-hook (lambda () (whitespace-mode 0)))
-
-(defun compile-with-make ()
-  "Run COMPILE, without prompting for a command"
-  (interactive)
-  (let ((compilation-read-command nil))
-    (compile (cond
-              ((file-exists-p "render.sh")   "render.sh")
-              ((file-exists-p "Makefile")    "make -k ")
-              ((file-exists-p "default.nix")
-               "nix-build --show-trace && { killall -HUP mupdf-x11 || true; }")
-              (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
-
-(defun compile-with-make-setup-latex ()
-  (bind-key (kbd "<f9>") 'compile-with-make    latex-mode-map)
-  (bind-key (kbd "<f9>") 'compile-with-make    LaTeX-mode-map))
-
 (defun compile-with-make-setup-markdown ()
   (bind-key (kbd "<f9>") 'compile-with-make markdown-mode-map))
 
-(add-hook    'latex-mode-hook 'compile-with-make-setup-latex)
-(add-hook    'LaTeX-mode-hook 'compile-with-make-setup-latex)
-(add-hook 'markdown-mode-hook 'compile-with-make-setup-markdown)
+(add-hook  'markdown-mode-hook 'compile-with-make-setup-markdown)
 
 ;; Buffers for writing
 (dolist (dir '("~/Writing/PhDThesis"))
