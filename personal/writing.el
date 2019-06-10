@@ -6,7 +6,7 @@
               ((file-exists-p "render.sh")   "render.sh")
               ((file-exists-p "Makefile")    "make -k ")
               ((file-exists-p "default.nix")
-               "nix-build --show-trace && { killall -HUP mupdf-x11 || true; }")
+               "nix-build --option sandbox false --show-trace && { killall -HUP mupdf-x11 || true; }")
               (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
 
 (use-package latex
