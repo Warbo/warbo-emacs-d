@@ -135,6 +135,45 @@ we dump its output to a temp file and return it."
 (add-to-list 'dwim-c/build-tool-alist
              '(nix "\\`default\\.nix\\'" "nix-build"))
 
+;; Look for line and column numbers when using find-file-at-point
+
+(define-minor-mode ffap-goto-line-mode
+  "Tells `find-file-at-point' to look for line and column numbers.
+
+  Toggling this minor mode lets us toggle the behaviour, without having to faff
+  around with things like 'unadvising'."
+  :global t :init-value t)
+
+(defun ffap-goto-line-advice (orig &rest args)
+  "Advice for `find-file-at-point' (it's bound to ORIG, with args in ARGS).
+
+   If `ffap-goto-line-mode' is non-nil, we'll scan ahead in the buffer to see if
+   there's a line number and column, separated by colons, e.g. if we've called
+   `ffap' when the point is on `/home/foo/bar.txt:12:34':
+
+    - We search forward and find the `:12:34'
+    - We parse this to get line 12 and column 34
+    - We call the original `ffap', which guesses filename `/home/foo/bar.txt'
+    - Once opened, we go to line 12 column 34
+
+   If only one colon-separated number is found, we assume it's the line number."
+  (let* ((have-col (and ffap-goto-line-mode
+                        (looking-at ".*:[0-9]+:[0-9]+")))
+         (col      (and ffap-goto-line-mode
+                        (looking-at ".*:[0-9]+:\\([0-9]+\\)")
+                        (string-to-number (match-string 1))))
+         (line     (if have-col
+                       (and (looking-at ".*:\\([0-9]+\\):[0-9]+")
+                            (string-to-number (match-string 1)))
+                     (and ffap-goto-line-mode
+                          (looking-at ".*:\\([0-9]+\\)")
+                          (string-to-number (match-string 1))))))
+    (apply orig args)
+    (and line (goto-line line))
+    (and col  (move-to-column col))))
+
+(advice-add 'find-file-at-point :around #'ffap-goto-line-advice)
+
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
 (setenv "NIX_PATH"
