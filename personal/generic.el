@@ -174,6 +174,11 @@ we dump its output to a temp file and return it."
 
 (advice-add 'find-file-at-point :around #'ffap-goto-line-advice)
 
+;; Also use find-file-at-point for C-x C-f instead of find-file (ffap will
+;; emulate find-file if it can't guess a filename)
+(require 'bind-key)
+(bind-key* "C-x C-f" 'find-file-at-point)
+
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
 (setenv "NIX_PATH"
