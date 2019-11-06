@@ -86,10 +86,8 @@
 (defun bash-unwrapped ()
   "Start a shell-mode shell, forcing 'bash' as the shell."
   (interactive)
-  (let ((buf (free-name-num "shell"))
-        (explicit-shell-file-name "bash"))
-    (shell buf)
-    buf))
+  (let ((explicit-shell-file-name "bash"))
+    (bash)))
 
 ;; "Refresh" an SSH shell after a connection dies
 (defun refresh-terminal ()
