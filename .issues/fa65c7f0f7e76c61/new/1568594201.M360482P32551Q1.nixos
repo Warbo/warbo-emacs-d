@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Mon, 16 Sep 2019 01:33:35 +0100
+State: new
+Subject: Makr config readable by emacs-overlay
+Message-Id: <fa65c7f0f7e76c61-0-artemis@nixos>
+
+The "emacs overlay" for nixpkgs can read use-package declarations from a config
+file, so we should make our config compatible with it. This lets us do
+declarative package management, with the advantages of use-package (i.e. that
+the definitions are Emacs-readable, and allow configuration, hooks, etc.) *and*
+the advantages of Nix (fixed inputs, reproducibility, arbitrary dependencies,
+etc.)
+
+See https://github.com/nix-community/emacs-overlay
