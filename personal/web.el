@@ -21,11 +21,11 @@
   (eww-reload))
 (define-key eww-mode-map (read-kbd-macro "-") 'eww-decrease-width)
 
-;; Browse with conkeror, since eww seems to barf on news fallback to conkeror
+;; Browse with Firefox, since eww seems to barf on news fallback to Firefox
 ;; with "&"
 ;;(setq browse-url-browser-function 'eww-browse-url)
-(setq browse-url-browser-function 'browse-url-conkeror)
-(setq browse-url-generic-program (executable-find "conkeror")
+(setq browse-url-browser-function 'browse-url-firefox)
+(setq browse-url-generic-program (executable-find "firefox")
       shr-external-browser 'browse-url-generic)
 
 (setq w3m-search-default-engine "duckduckgo")
