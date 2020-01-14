@@ -220,7 +220,10 @@ we dump its output to a temp file and return it."
 
 ;; Start emacs server, so emacsclient works. We can only run one emacs server at
 ;; a time, so skip this if this emacs instance is just for running tests.
-(unless (getenv "EMACS_UNDER_TEST")
+(unless (or (getenv "EMACS_UNDER_TEST")
+            ;; Also skip if we're already running a server (e.g. if we're
+            ;; reloading our config, and don't want to close existing frames)
+            server-clients)
   (defer 'server-start))
 
 ;; Force font. This does nothing in terminal mode, so we poll until there's a
