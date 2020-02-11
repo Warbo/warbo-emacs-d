@@ -201,7 +201,8 @@ we dump its output to a temp file and return it."
   :config (pretty-sha-path-global-mode))
 
 ;; Allow invoked programs to use pulseaudio
-(setenv "PULSE_SERVER" "/var/run/pulse/native")
+(thinkpad-only
+  (setenv "PULSE_SERVER" "/var/run/pulse/native"))
 
 ;; Wrap the display of long lines, without altering the text itself
 (global-visual-line-mode)
