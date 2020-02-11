@@ -118,14 +118,14 @@ we dump its output to a temp file and return it."
 ;; Tell flycheck to look up commands in Nix sandboxes, if we're in one
 (setq flycheck-command-wrapper-function
       (lambda (command)
-        (let ((sandbox (nix-current-sandbox)))
+        (let ((sandbox (thinkpad-only (nix-current-sandbox))))
           (if sandbox
               (apply 'nix-shell-command sandbox command)
               command)))
 
       flycheck-executable-find
       (lambda (command)
-        (let ((sandbox (nix-current-sandbox)))
+        (let ((sandbox (thinkpad-only (nix-current-sandbox))))
           (if sandbox
               (nix-executable-find sandbox command)
             (executable-find command)))))
