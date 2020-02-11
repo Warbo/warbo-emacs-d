@@ -17,7 +17,9 @@
 
 ;; haskell-tng is a minimalist alternative to intero, dante, HIE, etc. (since I
 ;; could never get those to work anyway)
-(use-package popup) ;; dependency of haskell-tng-hsinspect
+(thinkpad-only
+  (use-package popup) ;; dependency of haskell-tng-hsinspect
+  )
 
 (use-package haskell-tng-mode
   :ensure nil
