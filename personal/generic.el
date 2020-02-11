@@ -188,18 +188,6 @@ we dump its output to a temp file and return it."
          (shell-command-to-string
           "/run/current-system/sw/bin/bash -l -c 'echo \"$NIX_PATH\"'")))
 
-;; Set PATH
-(require 'subr-x)
-(setenv "PATH"
-        (string-join `(,(getenv "PATH")
-                       "/run/current-system/sw/bin"
-                       "/home/chris/.nix-profile/bin"
-                       "/home/chris/System/Programs/bin")
-                     ":"))
-(setq exec-path (append exec-path '("/run/current-system/sw/bin"
-                                    "/home/chris/.nix-profile/bin"
-                                    "/home/chris/System/Programs/bin")))
-
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers
 (setenv "COLUMNS" "80")
 
