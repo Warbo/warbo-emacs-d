@@ -183,6 +183,7 @@
    '(("home"           "~")
      ("dotfiles"       "~/repos/dotfiles")
      ("emacs.d"        "~/repos/warbo-emacs-d")
+     ("knowledge"      "~/repos/knowledge")
      ("nix-config"     "~/repos/nix-config")
      ("repos"          "~/repos")
      ("warbo-packages" "~/repos/warbo-packages"))
