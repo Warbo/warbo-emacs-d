@@ -78,7 +78,8 @@
 
 ;; (use-package ace-window)
 
-;; (use-package ag)
+(use-package ag
+  :ensure t)
 
 ;; (use-package ahg)
 
@@ -126,7 +127,8 @@
 
 ;; (use-package easy-kill)
 
-;; (use-package ebib)
+(use-package ebib
+  :ensure t)
 
 ;; (use-package elisp-slime-nav)
 
@@ -140,13 +142,15 @@
 
 ;; (use-package faceup)
 
-;; (use-package fill-column-indicator)
+(use-package fill-column-indicator
+  :ensure t)
 
 ;; (use-package flx)
 
 ;; (use-package flx-ido)
 
-;; (use-package flycheck)
+(use-package flycheck
+  :ensure t)
 
 ;; (use-package flycheck-haskell)
 
@@ -166,7 +170,8 @@
 
 ;; (use-package git-commit)
 
-;; (use-package git-timemachine)
+(use-package git-timemachine
+  :ensure t)
 
 ;; (use-package gitconfig-mode)
 
@@ -210,7 +215,8 @@
 
 ;; (use-package jabber)
 
-;; (use-package json-mode)
+(use-package json-mode
+  :ensure t)
 
 ;; (use-package json-reformat)
 
@@ -236,13 +242,13 @@
 
 ;; (use-package macrostep)
 
-;; (use-package magit)
-
-;; (use-package magit-popup)
+(use-package magit-popup
+  :ensure t)
 
 ;; (use-package makey)
 
-;; (use-package markdown-mode)
+(use-package markdown-mode
+  :ensure t)
 
 ;; (use-package marshal)
 
@@ -278,7 +284,8 @@
 
 ;; (use-package package-build)
 
-;; (use-package paredit)
+(use-package paredit
+  :ensure t)
 
 ;; (use-package parsebib)
 
@@ -288,23 +295,29 @@
 
 ;; (use-package pkg-info)
 
-;; (use-package popup)
+(use-package popup
+  :ensure t)
 
-;; (use-package pretty-sha-path)
+(use-package pretty-sha-path
+  :ensure t)
 
 ;; (use-package projectile)
 
 ;; (use-package prop-menu)
 
-;; (use-package quelpa)
+(use-package quelpa
+  :ensure t)
 
-;; (use-package quelpa-use-package)
+(use-package quelpa-use-package
+  :ensure t)
 
 ;; (use-package racket-mode)
 
-;; (use-package rainbow-delimiters)
+(use-package rainbow-delimiters
+  :ensure t)
 
-;; (use-package rainbow-mode)
+(use-package rainbow-mode
+  :ensure t)
 
 ;; (use-package realgud)
 
@@ -314,7 +327,8 @@
 
 ;; (use-package s)
 
-;; (use-package scala-mode)
+(use-package scala-mode
+  :ensure t)
 
 ;; (use-package seq)
 
@@ -322,9 +336,11 @@
 
 ;; (use-package slime)
 
-;; (use-package smart-mode-line)
+(use-package smart-mode-line
+  :ensure t)
 
-;; (use-package smartparens)
+(use-package smartparens
+  :ensure t)
 
 ;; (use-package smartrep)
 
@@ -338,13 +354,15 @@
 
 ;; (use-package tuareg)
 
-;; (use-package undo-tree)
+(use-package undo-tree
+  :ensure t)
 
 ;; (use-package use-package)
 
 ;; (use-package volatile-highlights)
 
-;; (use-package w3m)
+(use-package w3m
+  :ensure t)
 
 ;; (use-package wc-mode)
 
@@ -354,13 +372,16 @@
 
 ;; (use-package ws-butler)
 
-;; (use-package xterm-color)
+(use-package xterm-color
+  :ensure t)
 
-;; (use-package yaml-mode)
+(use-package yaml-mode
+  :ensure t)
 
 ;; (use-package yasnippet)
 
-;; (use-package zenburn-theme)
+(use-package zenburn-theme
+  :ensure t)
 
 ;; (use-package zop-to-char)
 
