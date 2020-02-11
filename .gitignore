@@ -23,6 +23,7 @@ projectile-bookmarks.eld
 session*
 .cask
 tramp
+transient
 /var/pcache
 .emacs.desktop
 .emacs.desktop.lock
