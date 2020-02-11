@@ -207,6 +207,9 @@ we dump its output to a temp file and return it."
 ;; Wrap the display of long lines, without altering the text itself
 (global-visual-line-mode)
 
+;; Highlight matching parentheses globally
+(show-paren-mode 1)
+
 ;; Start emacs server, so emacsclient works. We can only run one emacs server at
 ;; a time, so skip this if this emacs instance is just for running tests.
 (unless (or (getenv "EMACS_UNDER_TEST")
