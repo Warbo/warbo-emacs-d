@@ -2,13 +2,18 @@
   "Defer calling the function F until Emacs has finished initialising."
   (run-with-idle-timer 2 nil f))
 
+(defconst machine-id (cond
+                      ((file-directory-p "/Users/chris") 'mac)
+                      ((file-directory-p "/home/chris")  'thinkpad)
+                      (t                                 'unknown)))
+
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
-  `(when (file-directory-p "/Users/chris")
+  `(when (equal machine-id 'mac)
       ,@body))
 
 (defmacro thinkpad-only (&rest body)
-  `(when (file-directory-p "/home/chris")
+  `(when (equal machine-id 'thinkpad)
      ,@body))
 
 ;; Set PATH, so external commands will work (extra important if we're not on NixOS)
