@@ -13,6 +13,18 @@
                                               '(("(\\|)" . 'paren-face))))))
         '(emacs-lisp-mode-hook scheme-mode-hook racket-mode-hook))
 
+;; Force paredit mode in Lisp buffers
+(use-package paredit
+  :ensure t
+  :init
+  (dolist (hook '(emacs-lisp-mode-hook
+                     clojure-mode-hook
+                        lisp-mode-hook
+                      racket-mode-hook
+                      scheme-mode-hook))
+    (add-hook hook 'paredit-mode))
+  :diminish paredit-mode)
+
 ;; Unit testing for ELisp
 (defer (lambda ()
          (require 'ert)
