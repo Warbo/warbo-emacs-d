@@ -218,33 +218,34 @@ we dump its output to a temp file and return it."
             server-clients)
   (defer 'server-start))
 
-;; Force font. This does nothing in terminal mode, so we poll until there's a
-;; graphical display, set the font, then cancel the polling
+(thinkpad-only
+ ;; Force font. This does nothing in terminal mode, so we poll until there's a
+ ;; graphical display, set the font, then cancel the polling
 
-(defvar desired-font "Liberation Mono" "The font the use in graphical mode")
+ (defvar desired-font "Liberation Mono" "The font the use in graphical mode")
 
-;; We store the timer
-(when (boundp 'force-font-timer)
-  (cancel-timer force-font-timer)
-  (makunbound 'force-font-timer))
+ ;; We store the timer
+ (when (boundp 'force-font-timer)
+   (cancel-timer force-font-timer)
+   (makunbound 'force-font-timer))
 
-(setq force-font-timer
-      (run-with-timer 5 5 (lambda ()
-                            (when (display-graphic-p)
-                              (if (member desired-font (font-family-list))
-                                  (set-face-attribute 'default nil
-                                                      :font desired-font
-                                                      :height 80)
-                                (message "Font %S wasn't found" desired-font))
+ (setq force-font-timer
+       (run-with-timer 5 5 (lambda ()
+                             (when (display-graphic-p)
+                               (if (member desired-font (font-family-list))
+                                   (set-face-attribute 'default nil
+                                                       :font desired-font
+                                                       :height 80)
+                                 (message "Font %S wasn't found" desired-font))
 
-                              ;; While we're here, enable fci-mode globally too
-                              (require 'fill-column-indicator)
-                              (define-globalized-minor-mode
-                                my-global-fci-mode
-                                fci-mode
-                                (lambda ()
-                                  (when (buffer-file-name)
-                                    (turn-on-fci-mode))))
-                              (my-global-fci-mode 1)
+                               ;; While we're here, enable fci-mode globally too
+                               (require 'fill-column-indicator)
+                               (define-globalized-minor-mode
+                                 my-global-fci-mode
+                                 fci-mode
+                                 (lambda ()
+                                   (when (buffer-file-name)
+                                     (turn-on-fci-mode))))
+                               (my-global-fci-mode 1)
 
-                              (cancel-timer force-font-timer)))))
+                               (cancel-timer force-font-timer))))))
