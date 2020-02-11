@@ -2,6 +2,15 @@
   "Defer calling the function F until Emacs has finished initialising."
   (run-with-idle-timer 2 nil f))
 
+;; See which per-machine options we should enable
+(defmacro mac-only (&rest body)
+  `(when (file-directory-p "/Users/chris")
+      ,@body))
+
+(defmacro thinkpad-only (&rest body)
+  `(when (file-directory-p "/home/chris")
+     ,@body))
+
 ;; Set up packaging, first with Emacs's built-in "package.el" functionality
 (require 'package)
 (setq package-enable-at-startup nil)
