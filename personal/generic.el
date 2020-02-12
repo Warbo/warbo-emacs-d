@@ -210,6 +210,18 @@ we dump its output to a temp file and return it."
 ;; Highlight matching parentheses globally
 (show-paren-mode 1)
 
+;; Enable fill-column-indicator globally when the buffer is visiting a file
+(define-globalized-minor-mode
+  my-global-fci-mode
+  fci-mode
+  (lambda ()
+    (when (and (buffer-file-name)
+               ;; fci can have problems when Emacs daemon has GUI and CLI
+               ;; clients, so stick to only showing it in GUIs for now
+               (display-graphic-p))
+      (turn-on-fci-mode))))
+(my-global-fci-mode 1)
+
 ;; Start emacs server, so emacsclient works. We can only run one emacs server at
 ;; a time, so skip this if this emacs instance is just for running tests.
 (unless (or (getenv "EMACS_UNDER_TEST")
@@ -237,15 +249,5 @@ we dump its output to a temp file and return it."
                                                        :font desired-font
                                                        :height 80)
                                  (message "Font %S wasn't found" desired-font))
-
-                               ;; While we're here, enable fci-mode globally too
-                               (require 'fill-column-indicator)
-                               (define-globalized-minor-mode
-                                 my-global-fci-mode
-                                 fci-mode
-                                 (lambda ()
-                                   (when (buffer-file-name)
-                                     (turn-on-fci-mode))))
-                               (my-global-fci-mode 1)
 
                                (cancel-timer force-font-timer))))))
