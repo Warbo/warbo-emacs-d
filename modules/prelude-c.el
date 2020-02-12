@@ -44,14 +44,6 @@
 (add-hook 'c-mode-common-hook (lambda ()
                                 (run-hooks 'prelude-c-mode-common-hook)))
 
-(defun prelude-makefile-mode-defaults ()
-  (whitespace-toggle-options '(tabs))
-  (setq indent-tabs-mode t ))
-
-(setq prelude-makefile-mode-hook 'prelude-makefile-mode-defaults)
-
-(add-hook 'makefile-mode-hook (lambda ()
-                                (run-hooks 'prelude-makefile-mode-hook)))
 (provide 'prelude-c)
 
 ;;; prelude-c.el ends here

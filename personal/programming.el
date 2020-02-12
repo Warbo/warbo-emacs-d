@@ -25,6 +25,30 @@
 (use-package magit-popup
   :ensure t)
 
+(use-package make-mode
+  ;; makefile-mode is built-in, so doesn't need downloading
+  :init
+  (progn
+    (add-to-list 'auto-mode-alist '("\\Makefile\\'" . makefile-mode))
+    (add-to-list 'auto-mode-alist '("\\.mk\\'"      . makefile-mode))
+
+    (font-lock-add-keywords
+     'makefile-mode
+     '(("define" . font-lock-keyword-face)
+       ("endef"  . font-lock-keyword-face)
+       ("ifeq"   . font-lock-keyword-face)
+       ("ifneq"  . font-lock-keyword-face)
+       ("ifdef"  . font-lock-keyword-face)
+       ("ifndef" . font-lock-keyword-face)
+       ("else"   . font-lock-keyword-face)
+       ("endif"  . font-lock-keyword-face)))
+
+    (add-hook 'makefile-mode-hook 'linum-mode)
+    (add-hook 'makefile-mode-hook
+              (lambda ()
+                (setq whitespace-style '(face tab-mark trailing))
+                      indent-tabs-mode t))))
+
 (use-package nix-mode
   :ensure t)
 
