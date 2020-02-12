@@ -215,7 +215,7 @@ we dump its output to a temp file and return it."
 (unless (or (getenv "EMACS_UNDER_TEST")
             ;; Also skip if we're already running a server (e.g. if we're
             ;; reloading our config, and don't want to close existing frames)
-            server-clients)
+            (and (boundp 'server-clients) server-clients))
   (defer 'server-start))
 
 (thinkpad-only
