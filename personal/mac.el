@@ -1,16 +1,21 @@
 ;; Settings that only make sense on macOS
 (mac-only
 
- ;; On OS X Emacs doesn't use the shell PATH if it's not started from
- ;; the shell. Let's fix that:
- ;; FIXME: Don't use prelude
- (prelude-require-packages '(exec-path-from-shell))
-
- (require 'exec-path-from-shell)
- (exec-path-from-shell-initialize)
+ ;; On OS X Emacs doesn't inherit some env vars (especially PATH) if it's not
+ ;; started from the shell. We force this here. Note: this may cause surprising
+ ;; behaviour if you're trying to setenv elsewhere!
+ (use-package exec-path-from-shell
+   :ensure t
+   :if (memq window-system '(mac ns x))
+   :config
+   (setq exec-path-from-shell-variables '("PATH" "GOPATH" "NIX_PATH"))
+   (exec-path-from-shell-initialize))
 
  ;; exec-path-from-shell will overwrite PATH and exec-path, so we need to add
  ;; Nix paths on to the front again
+ ;; TODO: Is this still needed, now we're unsetting the
+ ;; __NIX_DARWIN_SET_ENVIRONMENT_DONE flag? We should check whether PATH (and
+ ;; NIX_PATH) remains sensible without this.
  (add-nix-to-path)
 
  (setq ns-function-modifier 'hyper)
@@ -40,7 +45,6 @@
  ;; Enable emoji, and stop the UI from freezing when trying to display them.
  (if (fboundp 'set-fontset-font)
      (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
-
 
   ;(define-key prelude-mode-map (kbd "C-c w") 'prelude-swap-meta-and-super)
   ;(define-key prelude-mode-map (kbd "s-/") 'hippie-expand)

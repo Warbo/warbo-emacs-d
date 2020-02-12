@@ -177,6 +177,7 @@ we dump its output to a temp file and return it."
 (bind-key* "C-a"     'back-to-indentation)
 
 ;; Allow commands to use Nix
+;; NOTE: See mac.el's usage of exec-path-from-shell, which does a similar job
 (setenv "NIX_REMOTE" "daemon")
 (thinkpad-only
  (setenv "NIX_PATH"
