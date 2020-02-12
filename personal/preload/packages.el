@@ -299,7 +299,7 @@
 (use-package whitespace
   :ensure t
   :diminish whitespace-mode
-  :defer
+  :config
   (progn
     (setq whitespace-style '(face
                              tabs
@@ -315,6 +315,8 @@
     (add-hook 'conf-mode-hook 'whitespace-mode)
     (add-hook 'prog-mode-hook 'whitespace-mode)
     (add-hook 'text-mode-hook 'whitespace-mode)
+
+    (whitespace-mode +1)
 
     ;; Strip trailing whitespace, etc. when saving files
     (add-hook 'before-save-hook 'whitespace-cleanup nil t)))
