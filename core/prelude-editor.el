@@ -213,12 +213,6 @@ The body of the advice is in BODY."
   (when (and prelude-flyspell (executable-find ispell-program-name))
     (flyspell-mode +1)))
 
-(defun prelude-enable-whitespace ()
-  "Enable `whitespace-mode' if `prelude-whitespace' is not nil."
-  (when prelude-whitespace
-    ;; keep the whitespace decent all the time (in this buffer)
-    (whitespace-mode +1)))
-
 (add-hook 'text-mode-hook 'prelude-enable-flyspell)
 
 ;; enable narrowing commands
