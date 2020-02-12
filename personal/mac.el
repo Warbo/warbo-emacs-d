@@ -12,7 +12,7 @@
  ;; exec-path-from-shell will overwrite PATH and exec-path, so we need to add
  ;; Nix paths on to the front again
  (add-nix-to-path)
- 
+
  (setq ns-function-modifier 'hyper)
 
  (defun prelude-swap-meta-and-super ()
@@ -28,6 +28,11 @@
        (setq mac-command-modifier 'super)
        (setq mac-option-modifier 'meta)
        (message "Command is now bound to SUPER and Option is bound to META."))))
+
+ ;; Fix Option-3 to give # on UK Mac keyboard. Emacs sees Option as Alt (AKA
+ ;; Meta AKA M) which Emacs will intercept and complain that it isn't a command
+ ;; Taken from https://stackoverflow.com/a/45648401
+ (define-key key-translation-map (kbd "M-3") (kbd "#"))
 
  ;; Use the global menu bar on macOS, since it auto-hides
  (menu-bar-mode +1)
