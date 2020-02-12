@@ -18,10 +18,6 @@
 (use-package quelpa-use-package
   :init (setq quelpa-update-melpa-p nil))
 
-;; Prevent later problems with magit
-(use-package magit
-  :ensure t)
-
 ;; (use-package ace-jump-mode)
 
 ;; (use-package ace-window)
@@ -163,9 +159,6 @@
 
 ;; (use-package jabber)
 
-(use-package json-mode
-  :ensure t)
-
 ;; (use-package json-reformat)
 
 ;; (use-package json-snatcher)
@@ -190,9 +183,6 @@
 
 ;; (use-package macrostep)
 
-(use-package magit-popup
-  :ensure t)
-
 ;; (use-package makey)
 
 (use-package markdown-mode
@@ -213,9 +203,6 @@
 ;; (use-package multiple-cursors)
 
 ;; (use-package nix-buffer)
-
-(use-package nix-mode
-  :ensure t)
 
 ;; (use-package nix-sandbox)
 
@@ -276,9 +263,6 @@
 
 ;; (use-package s)
 
-(use-package scala-mode
-  :ensure t)
-
 ;; (use-package seq)
 
 ;; (use-package shadchen)
@@ -286,9 +270,6 @@
 ;; (use-package slime)
 
 (use-package smart-mode-line
-  :ensure t)
-
-(use-package smartparens
   :ensure t)
 
 ;; (use-package smartrep)
