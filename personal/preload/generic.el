@@ -43,6 +43,18 @@ happen on macOS)."
 
 (add-nix-to-path)
 
+;; Nix does some environment fiddling in its default bashrc. The following flag
+;; gets set once it's configured, under the assumption that child processes will
+;; inherit the fixed env vars. Since Emacs on macOS seems to screw these up, we
+;; unset the flag, which causes our shells to re-do the fiddling.
+(mac-only
+ (setenv "__NIX_DARWIN_SET_ENVIRONMENT_DONE" ""))
+
+(mac-only
+ ;; Hackily hard-coded, but seems to work for now
+ ;; TODO: Would be nicer to string-join these from a list
+ (setenv "NIX_PATH" "darwin-config=/Users/chris/.nixpkgs/darwin-configuration.nix:/nix/var/nix/profiles/per-user/root/channels:/Users/chris/.nix-defexpr/channels"))
+
 ;; Turn off UI clutter
 (scroll-bar-mode -1)
 (menu-bar-mode -1)

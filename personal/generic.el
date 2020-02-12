@@ -175,15 +175,15 @@ we dump its output to a temp file and return it."
 
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
-(setenv "NIX_PATH"
-        (replace-regexp-in-string
-         (rx (* (any " \t\n")) eos)
-         ""
-         (shell-command-to-string
-          "/run/current-system/sw/bin/bash -l -c 'echo \"$NIX_PATH\"'")))
-
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers
 (setenv "COLUMNS" "80")
+(thinkpad-only
+ (setenv "NIX_PATH"
+         (replace-regexp-in-string
+          (rx (* (any " \t\n")) eos)
+          ""
+          (shell-command-to-string
+           "/run/current-system/sw/bin/bash -l -c 'echo \"$NIX_PATH\"'"))))
 
 ;; Enable fill-column-indicator when editing files
 (setq-default fill-column 80)
