@@ -175,8 +175,6 @@ we dump its output to a temp file and return it."
 
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
-;; Set a reasonable value for COLUMNS, e.g. for shell buffers
-(setenv "COLUMNS" "80")
 (thinkpad-only
  (setenv "NIX_PATH"
          (replace-regexp-in-string

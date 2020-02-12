@@ -50,6 +50,10 @@ happen on macOS)."
 (mac-only
  (setenv "__NIX_DARWIN_SET_ENVIRONMENT_DONE" ""))
 
+;; Set up other env vars early, so they're inherited by shells
+;; Set a reasonable value for COLUMNS, e.g. for shell buffers
+(setenv "COLUMNS" "80")
+
 (mac-only
  ;; Hackily hard-coded, but seems to work for now
  ;; TODO: Would be nicer to string-join these from a list
