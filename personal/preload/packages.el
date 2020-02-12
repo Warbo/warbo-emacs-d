@@ -2,7 +2,13 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+	     '("gnu"       . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+	     '("melpa"     . "https://melpa.org/packages/"))
+(add-to-list 'package-archives
+	     '("milkbox"   . "http://melpa.milkbox.net/packages/"))
 (package-initialize)
 
 ;; Next we use "package.el" to get "use-package", which simplifies packaging

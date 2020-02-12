@@ -1,9 +1,3 @@
-;; Set some repositories for the package manager
-(setq package-archives '(("gnu"       . "http://elpa.gnu.org/packages/")
-                         ("marmalade" . "http://marmalade-repo.org/packages/")
-                         ("melpa"     . "http://melpa.milkbox.net/packages/")
-                         ))
-
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
 (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
