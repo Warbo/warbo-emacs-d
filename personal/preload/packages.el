@@ -238,7 +238,8 @@
   :ensure t)
 
 (use-package pretty-sha-path
-  :ensure t)
+  :ensure t
+  :config (pretty-sha-path-global-mode))
 
 ;; (use-package projectile)
 

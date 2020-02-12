@@ -188,12 +188,6 @@ we dump its output to a temp file and return it."
 ;; Enable fill-column-indicator when editing files
 (setq-default fill-column 80)
 
-;; Show '...' in place of long Nix hashes
-(require 'use-package)
-(use-package pretty-sha-path
-  :ensure t
-  :config (pretty-sha-path-global-mode))
-
 ;; Allow invoked programs to use pulseaudio
 (thinkpad-only
   (setenv "PULSE_SERVER" "/var/run/pulse/native"))
