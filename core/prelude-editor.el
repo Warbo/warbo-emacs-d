@@ -213,16 +213,10 @@ The body of the advice is in BODY."
   (when (and prelude-flyspell (executable-find ispell-program-name))
     (flyspell-mode +1)))
 
-(defun prelude-cleanup-maybe ()
-  "Invoke `whitespace-cleanup' if `prelude-clean-whitespace-on-save' is not nil."
-  (when prelude-clean-whitespace-on-save
-    (whitespace-cleanup)))
-
 (defun prelude-enable-whitespace ()
   "Enable `whitespace-mode' if `prelude-whitespace' is not nil."
   (when prelude-whitespace
     ;; keep the whitespace decent all the time (in this buffer)
-    (add-hook 'before-save-hook 'prelude-cleanup-maybe nil t)
     (whitespace-mode +1)))
 
 (add-hook 'text-mode-hook 'prelude-enable-flyspell)

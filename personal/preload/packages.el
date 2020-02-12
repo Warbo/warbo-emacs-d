@@ -296,6 +296,28 @@
 
 ;; (use-package which-key)
 
+(use-package whitespace
+  :ensure t
+  :diminish whitespace-mode
+  :defer
+  (progn
+    (setq whitespace-style '(face
+                             tabs
+                             empty
+                             trailing
+                             lines-tail
+                             space-before-tab
+                             space-after-tab)
+          whitespace-indentation 'whitespace-trailing
+          whitespace-line-column 80)
+
+    ;; Any programming or config mode should highlight dodgy whitespace
+    (add-hook 'prog-mode-hook 'whitespace-mode)
+    (add-hook 'conf-mode-hook 'whitespace-mode)
+
+    ;; Strip trailing whitespace, etc. when saving files
+    (add-hook 'before-save-hook 'whitespace-cleanup nil t)))
+
 ;; (use-package with-editor)
 
 ;; (use-package ws-butler)
