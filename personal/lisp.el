@@ -25,6 +25,12 @@
     (add-hook hook 'paredit-mode))
   :diminish paredit-mode)
 
+(use-package rainbow-delimiters
+  :ensure t)
+
+(use-package rainbow-mode
+  :ensure t)
+
 ;; Unit testing for ELisp
 (defer (lambda ()
          (require 'ert)

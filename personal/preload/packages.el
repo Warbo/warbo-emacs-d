@@ -220,9 +220,6 @@
 
 ;; (use-package package-build)
 
-(use-package paredit
-  :ensure t)
-
 ;; (use-package parsebib)
 
 ;; (use-package pcache)
@@ -248,12 +245,6 @@
   :ensure t)
 
 ;; (use-package racket-mode)
-
-(use-package rainbow-delimiters
-  :ensure t)
-
-(use-package rainbow-mode
-  :ensure t)
 
 ;; (use-package realgud)
 
