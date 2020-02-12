@@ -65,7 +65,6 @@
     imenu-anywhere
     ov
     projectile
-    magit
     move-text
     operate-on-number
     smart-mode-line
