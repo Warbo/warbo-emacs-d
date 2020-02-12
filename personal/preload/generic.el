@@ -16,40 +16,32 @@
   `(when (equal machine-id 'thinkpad)
      ,@body))
 
-;; Set PATH, so external commands will work (extra important if we're not on NixOS)
 (require 'subr-x)
-(thinkpad-only
- (setenv "PATH"
-         (string-join `("/run/current-system/sw/bin"
-                        ,(getenv "PATH")
-                        "/home/chris/.nix-profile/bin"
-                        "/home/chris/System/Programs/bin")
-                      ":"))
- (setq exec-path (append '("/run/current-system/sw/bin")
-                         exec-path
-                         '("/home/chris/.nix-profile/bin"
-                           "/home/chris/System/Programs/bin"))))
-(mac-only
-   ;; The prelude-osx.el file will be run when we're on macOS, and that runs
-   ;; exec-path-from-shell to inherit env vars from the shell Emacs has been
-   ;; launched from (if any). This overrides our PATH fix, so we need to do it
-   ;; again after that's been run.
-  (defun add-nix-to-path ()
-    (message "Setting macOS PATH to use Nix")
-    (let ((pre-env (getenv "PATH"))
-          (pre-var exec-path))
-      (setenv "PATH"
-              (string-join `("/run/current-system/sw/bin"
-                             ,(getenv "PATH"))
-                           ":"))
-      (setq exec-path (append '("/run/current-system/sw/bin")
-                              exec-path))
-      (when (or (equal (getenv "PATH") pre-env)
-                (equal exec-path       pre-var))
-        (message "WARNING: Failed to update PATH"))))
-  (add-nix-to-path)
-  (defadvice exec-path-from-shell-initialize (after mac-path-fix)
-    (add-nix-to-path)))
+(defun add-nix-to-path ()
+  "Set PATH and 'exec-path', so external commands will work.
+This is extra important if we're not on NixOS.  Note that this needs to be run
+again if something else overwrites the PATH and 'exec-path' (e.g. this can
+happen on macOS)."
+  (thinkpad-only
+   (setenv "PATH"
+           (string-join `("/run/current-system/sw/bin"
+                          ,(getenv "PATH")
+                          "/home/chris/.nix-profile/bin"
+                          "/home/chris/System/Programs/bin")
+                        ":"))
+   (setq exec-path (append '("/run/current-system/sw/bin")
+                           exec-path
+                           '("/home/chris/.nix-profile/bin"
+                             "/home/chris/System/Programs/bin"))))
+  (mac-only
+   (setenv "PATH"
+           (string-join `("/run/current-system/sw/bin"
+                          ,(getenv "PATH"))
+                        ":"))
+   (setq exec-path (append '("/run/current-system/sw/bin")
+                           exec-path))))
+
+(add-nix-to-path)
 
 ;; Turn off UI clutter
 (scroll-bar-mode -1)

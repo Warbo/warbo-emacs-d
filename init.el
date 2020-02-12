@@ -127,10 +127,6 @@ by Prelude.")
 (message "Loading prelude-global-keybindings")
 (require 'prelude-global-keybindings)
 
-;; OSX specific settings
-(when (eq system-type 'darwin)
-  (require 'prelude-osx))
-
 (message "Loading Prelude's modules...")
 
 ;; the modules
