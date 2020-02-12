@@ -173,6 +173,9 @@ we dump its output to a temp file and return it."
 (require 'bind-key)
 (bind-key* "C-x C-f" 'find-file-at-point)
 
+;; We don't want C-a to go all of the way back; drop us on the actual code
+(bind-key* "C-a"     'back-to-indentation)
+
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
 (thinkpad-only
