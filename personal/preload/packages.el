@@ -214,7 +214,8 @@
 
 ;; (use-package nix-buffer)
 
-;; (use-package nix-mode)
+(use-package nix-mode
+  :ensure t)
 
 ;; (use-package nix-sandbox)
 
