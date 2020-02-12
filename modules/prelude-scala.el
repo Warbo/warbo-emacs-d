@@ -32,7 +32,6 @@
 
 ;;; Code:
 
-(require 'prelude-programming)
 (prelude-require-packages '(scala-mode ensime))
 
 (defun prelude-scala-mode-defaults ()

@@ -32,7 +32,6 @@
 
 ;;; Code:
 
-(require 'prelude-programming)
 (prelude-require-packages '(rainbow-delimiters))
 
 ;; Lisp configuration

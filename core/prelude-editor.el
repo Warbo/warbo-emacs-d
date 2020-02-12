@@ -220,7 +220,6 @@ The body of the advice is in BODY."
     (whitespace-mode +1)))
 
 (add-hook 'text-mode-hook 'prelude-enable-flyspell)
-(add-hook 'text-mode-hook 'prelude-enable-whitespace)
 
 ;; enable narrowing commands
 (put 'narrow-to-region 'disabled nil)
@@ -327,11 +326,6 @@ indent yanked text (with prefix arg don't indent)."
 
 ;; .zsh file is shell script too
 (add-to-list 'auto-mode-alist '("\\.zsh\\'" . shell-script-mode))
-
-;; whitespace-mode config
-(require 'whitespace)
-(setq whitespace-line-column 80) ;; limit line length
-(setq whitespace-style '(face tabs empty trailing lines-tail))
 
 ;; saner regex syntax
 (require 're-builder)

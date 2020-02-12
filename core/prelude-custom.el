@@ -43,22 +43,6 @@
   :type 'boolean
   :group 'prelude)
 
-(defcustom prelude-guru t
-  "Non-nil values enable `guru-mode'."
-  :type 'boolean
-  :group 'prelude)
-
-(defcustom prelude-whitespace t
-  "Non-nil values enable Prelude's whitespace visualization."
-  :type 'boolean
-  :group 'prelude)
-
-(defcustom prelude-clean-whitespace-on-save t
-  "Cleanup whitespace from file before it's saved.
-Will only occur if `prelude-whitespace' is also enabled."
-  :type 'boolean
-  :group 'prelude)
-
 (defcustom prelude-flyspell t
   "Non-nil values enable Prelude's flyspell support."
   :type 'boolean

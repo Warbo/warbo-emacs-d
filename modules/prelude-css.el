@@ -39,8 +39,7 @@
      (setq css-indent-offset 2)
 
      (defun prelude-css-mode-defaults ()
-       (rainbow-mode +1)
-       (run-hooks 'prelude-prog-mode-hook))
+       (rainbow-mode +1))
 
      (setq prelude-css-mode-hook 'prelude-css-mode-defaults)
 

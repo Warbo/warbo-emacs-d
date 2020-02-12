@@ -32,8 +32,6 @@
 
 ;;; Code:
 
-(require 'prelude-programming)
-
 (defun prelude-c-mode-common-defaults ()
   (setq c-default-style "k&r"
         c-basic-offset 4)

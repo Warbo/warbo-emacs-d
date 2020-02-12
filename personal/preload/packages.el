@@ -311,9 +311,10 @@
           whitespace-indentation 'whitespace-trailing
           whitespace-line-column 80)
 
-    ;; Any programming or config mode should highlight dodgy whitespace
-    (add-hook 'prog-mode-hook 'whitespace-mode)
+    ;; Any program, config file, etc. should highlight dodgy whitespace
     (add-hook 'conf-mode-hook 'whitespace-mode)
+    (add-hook 'prog-mode-hook 'whitespace-mode)
+    (add-hook 'text-mode-hook 'whitespace-mode)
 
     ;; Strip trailing whitespace, etc. when saving files
     (add-hook 'before-save-hook 'whitespace-cleanup nil t)))
@@ -349,7 +350,6 @@
 ;; "prelude-haskell"
 ;; "prelude-js"
 ;; "prelude-lisp"
-;; "prelude-programming"
 ;; "scala-mode2"
 ;; "simp-isar-mode"
 ;; "so-long"

@@ -40,7 +40,6 @@
   (add-to-list 'company-backends 'company-anaconda))
 
 (require 'electric)
-(require 'prelude-programming)
 
 ;; Copy pasted from ruby-mode.el
 (defun prelude-python--encoding-comment-required-p ()
