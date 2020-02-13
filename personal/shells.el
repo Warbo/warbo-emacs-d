@@ -181,10 +181,12 @@
 (mac-only
  (defconst startup-shells
    '(("home"           "~")
+     ("deleteme"       "~/DeleteMe")
      ("dotfiles"       "~/repos/dotfiles")
      ("emacs.d"        "~/repos/warbo-emacs-d")
      ("knowledge"      "~/repos/knowledge")
      ("nix-config"     "~/repos/nix-config")
+     ("nix-helpers"    "~/repos/nix-helpers")
      ("repos"          "~/repos")
      ("warbo-packages" "~/repos/warbo-packages"))
    "Useful buffers to open at startup"))
