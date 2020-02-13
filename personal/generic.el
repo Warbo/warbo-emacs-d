@@ -33,6 +33,30 @@
 (setq tooltip-use-echo-area t)
 (tooltip-mode nil)
 
+;; Highlight dodgy whitespace (tabs, trailing, otherwise-empty lines, etc.) in
+;; programs, config files, etc.
+(use-package whitespace
+  :ensure t
+  :demand t
+  :diminish whitespace-mode
+  :config
+  (progn
+    (setq whitespace-style '(face
+                             tabs
+                             empty
+                             trailing
+                             lines-tail
+                             space-before-tab
+                             space-after-tab)
+          whitespace-indentation 'whitespace-trailing
+          whitespace-line-column 80)
+
+    (add-hook 'conf-mode-hook 'whitespace-mode)
+    (add-hook 'prog-mode-hook 'whitespace-mode)
+    (add-hook 'text-mode-hook 'whitespace-mode)
+
+    (whitespace-mode +1)))
+
 ;; Flycheck all the things
 (require 'flycheck)
 (add-hook 'after-init-hook #'global-flycheck-mode)
