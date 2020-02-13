@@ -223,8 +223,6 @@
 
 ;; (use-package operate-on-number)
 
-;; (use-package org)
-
 ;; (use-package ov)
 
 ;; (use-package package-build)
