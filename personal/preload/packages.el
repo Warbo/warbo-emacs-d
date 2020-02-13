@@ -2,13 +2,16 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
-	     '("gnu"       . "http://elpa.gnu.org/packages/"))
+             '("gnu"       . "http://elpa.gnu.org/packages/"))
+;; Certificate expired?
+;; (add-to-list 'package-archives
+;;              '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives
-	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+             '("melpa"     . "https://melpa.org/packages/"))
 (add-to-list 'package-archives
-	     '("melpa"     . "https://melpa.org/packages/"))
+             '("milkbox"   . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives
-	     '("milkbox"   . "http://melpa.milkbox.net/packages/"))
+             '("org"       . "http://orgmode.org/elpa/"))
 (package-initialize)
 
 ;; Next we use "package.el" to get "use-package", which simplifies packaging
