@@ -24,14 +24,7 @@
 (use-package org
   :mode (("\\.org$" . org-mode))
   :ensure org-plus-contrib
-  :bind (("<f9>" . (lambda ()
-                     (let* ((pdf (replace-regexp-in-string "\.org$" ".pdf"
-                                                           (buffer-name)))
-                            (buf (get-buffer pdf)))
-                       (when buf (with-current-buffer buf (auto-revert-mode 1)))
-                       (save-buffer)
-                       (org-latex-export-to-pdf)
-                       (unless buf (find-file pdf))))))
+  :bind (("<f9>" . 'org-save-and-show-pdf))
   :init
   (progn
     ;; Don't clobber windmove bindings (this must run before ORG loads)
@@ -45,7 +38,16 @@
                               ([(meta return)] . [(control meta return)])
                               ([(control shift right)] . [(meta shift +)])
                               ([(control shift left)] . [(meta shift -)])))
-    (setq org-replace-disputed-keys t))
+    (setq org-replace-disputed-keys t)
+
+    (defun org-save-and-show ()
+      (let* ((pdf (replace-regexp-in-string "\.org$" ".pdf"
+                                            (buffer-name)))
+             (buf (get-buffer pdf)))
+        (when buf (with-current-buffer buf (auto-revert-mode 1)))
+        (save-buffer)
+        (org-latex-export-to-pdf)
+        (unless buf (find-file pdf)))))
   :config
   (progn
     ;; Active Babel languages
