@@ -21,6 +21,7 @@
   (add-hook 'LaTeX-mode-hook (lambda () (whitespace-mode 0)))
   (setq TeX-auto-save  t)
   (setq TeX-parse-self t))
+
 (use-package org
   :mode (("\\.org$" . org-mode))
   :ensure org-plus-contrib
@@ -60,6 +61,12 @@
     (setq org-confirm-babel-evaluate nil)
 
     (setq org-src-fontify-natively t)
+
+    ;; Make windmove work in Org mode:
+    (add-hook 'org-shiftup-final-hook    'windmove-up)
+    (add-hook 'org-shiftleft-final-hook  'windmove-left)
+    (add-hook 'org-shiftdown-final-hook  'windmove-down)
+    (add-hook 'org-shiftright-final-hook 'windmove-right)
 
     ;; Visual line wrapping in document modes
     (add-hook 'org-mode-hook 'turn-on-visual-line-mode)
