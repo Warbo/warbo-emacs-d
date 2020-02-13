@@ -57,6 +57,16 @@
 
     (whitespace-mode +1)))
 
+;; Strip trailing whitespace, etc. when saving files, but only if the file was
+;; "clean" when it was opened. This way, editing files which already contain
+;; dodgy whitespace won't cause all of that to be stripped (which would pollute
+;; diffs and git commits, for example)
+(use-package whitespace-cleanup-mode
+  :ensure t
+  :config
+  (progn
+    (global-whitespace-cleanup-mode)))
+
 ;; Flycheck all the things
 (require 'flycheck)
 (add-hook 'after-init-hook #'global-flycheck-mode)
