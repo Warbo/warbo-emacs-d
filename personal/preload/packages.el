@@ -290,9 +290,6 @@
 
 ;; (use-package volatile-highlights)
 
-(use-package w3m
-  :ensure t)
-
 ;; (use-package wc-mode)
 
 ;; (use-package which-key)

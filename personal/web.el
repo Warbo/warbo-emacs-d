@@ -28,4 +28,17 @@
 (setq browse-url-generic-program (executable-find "firefox")
       shr-external-browser 'browse-url-generic)
 
-(setq w3m-search-default-engine "duckduckgo")
+;; Set the default browser to Debian's default.
+;; W3M and Firefox are good choices.
+;(setq browse-url-browser-function 'w3m-browse-url)
+;(autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
+;; (setq browse-url-browser-function 'browse-url-generic
+;;       browse-url-generic-program "firefox")
+
+(use-package w3m
+  :ensure t
+  :config
+  (progn
+    (setq w3m-default-display-inline-images t
+          w3m-search-default-engine         "duckduckgo"
+          w3m-use-cookies           t)))
