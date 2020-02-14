@@ -54,11 +54,6 @@ happen on macOS)."
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers
 (setenv "COLUMNS" "80")
 
-(mac-only
- ;; Hackily hard-coded, but seems to work for now
- ;; TODO: Would be nicer to string-join these from a list
- (setenv "NIX_PATH" "darwin-config=/Users/chris/.nixpkgs/darwin-configuration.nix:/nix/var/nix/profiles/per-user/root/channels:/Users/chris/.nix-defexpr/channels"))
-
 ;; Turn off UI clutter
 (scroll-bar-mode -1)
 (menu-bar-mode -1)

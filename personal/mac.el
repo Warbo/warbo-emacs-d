@@ -8,15 +8,8 @@
    :ensure t
    :if (memq window-system '(mac ns x))
    :config
-   (setq exec-path-from-shell-variables '("PATH" "GOPATH" "NIX_PATH"))
+   (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
    (exec-path-from-shell-initialize))
-
- ;; exec-path-from-shell will overwrite PATH and exec-path, so we need to add
- ;; Nix paths on to the front again
- ;; TODO: Is this still needed, now we're unsetting the
- ;; __NIX_DARWIN_SET_ENVIRONMENT_DONE flag? We should check whether PATH (and
- ;; NIX_PATH) remains sensible without this.
- (add-nix-to-path)
 
  (setq ns-function-modifier 'hyper)
 
