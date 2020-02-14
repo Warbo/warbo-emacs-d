@@ -8,7 +8,7 @@
    :ensure t
    :if (memq window-system '(mac ns x))
    :config
-   (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+   (setq exec-path-from-shell-variables '("PATH" "GOPATH" "NIX_PATH"))
    (exec-path-from-shell-initialize))
 
  (setq ns-function-modifier 'hyper)
