@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 14 Feb 2020 19:14:27 +0000
-State: new
+State: resolved
 Subject: Loop through repos
 Message-Id: <de5a1245372439c0-0-artemis@Chriss-MacBook-Pro.local>
+resolution: fixed
 
 At least on macOS, we should loop through the entries in ~/repos and open a
 new shell for each one; rather than specifying all of them manually.

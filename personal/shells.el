@@ -180,19 +180,20 @@
    "Useful buffers to open at startup."))
 (mac-only
  (defconst startup-shells
-   '(("home"           "~")
-     ("deleteme"       "~/DeleteMe")
-     ("dotfiles"       "~/repos/dotfiles")
-     ("emacs.d"        "~/repos/warbo-emacs-d")
-     ("knowledge"      "~/repos/knowledge")
-     ("nix-config"     "~/repos/nix-config")
-     ("nix-helpers"    "~/repos/nix-helpers")
-     ("nixpkgs"        "~/repos/nixpkgs")
-     ("repos"          "~/repos")
-     ("warbo-packages" "~/repos/warbo-packages"))
+   '(("home"     "~")
+     ("deleteme" "~/DeleteMe")
+     ("repos"    "~/repos"))
    "Useful buffers to open at startup"))
 
 (mapc 'shell-named-in startup-shells)
+
+;; Open each entry in ~/repos in a new shell on Mac. We do this here rather than
+;; in mac.el to make sure shell-named-in is available.
+(mac-only
+ (mapc (lambda (d)
+         (unless (s-prefix? "." d)
+           (shell-named-in `(,d ,(format "%s/repos/%s" (getenv "HOME") d)))))
+       (directory-files "~/repos")))
 
 (defun command-in-buffer (buf-dir-cmd)
   "Poor man's comint: BUF-DIR-CMD lists what to run where (e.g. a REPL)."
