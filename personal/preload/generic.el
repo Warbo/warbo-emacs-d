@@ -16,37 +16,27 @@
   `(when (equal machine-id 'thinkpad)
      ,@body))
 
+;; Set PATH and 'exec-path', so external commands will work.
+;; TODO: Check if this is still needed, or if there's a cleaner approach
 (require 'subr-x)
-(defun add-nix-to-path ()
-  "Set PATH and 'exec-path', so external commands will work.
-This is extra important if we're not on NixOS.  Note that this needs to be run
-again if something else overwrites the PATH and 'exec-path' (e.g. this can
-happen on macOS)."
-  (thinkpad-only
-   (setenv "PATH"
-           (string-join `("/run/current-system/sw/bin"
-                          ,(getenv "PATH")
-                          "/home/chris/.nix-profile/bin"
-                          "/home/chris/System/Programs/bin")
-                        ":"))
-   (setq exec-path (append '("/run/current-system/sw/bin")
-                           exec-path
-                           '("/home/chris/.nix-profile/bin"
-                             "/home/chris/System/Programs/bin"))))
-  (mac-only
-   (setenv "PATH"
-           (string-join `("/run/current-system/sw/bin"
-                          ,(getenv "PATH"))
-                        ":"))
-   (setq exec-path (append '("/run/current-system/sw/bin")
-                           exec-path))))
-
-(add-nix-to-path)
+(thinkpad-only
+ (setenv "PATH"
+         (string-join `("/run/current-system/sw/bin"
+                        ,(getenv "PATH")
+                        "/home/chris/.nix-profile/bin"
+                        "/home/chris/System/Programs/bin")
+                      ":"))
+ (setq exec-path (append '("/run/current-system/sw/bin")
+                         exec-path
+                         '("/home/chris/.nix-profile/bin"
+                           "/home/chris/System/Programs/bin"))))
 
 ;; Nix does some environment fiddling in its default bashrc. The following flag
 ;; gets set once it's configured, under the assumption that child processes will
 ;; inherit the fixed env vars. Since Emacs on macOS seems to screw these up, we
 ;; unset the flag, which causes our shells to re-do the fiddling.
+;; NOTE: If you get Apple popups asking you to install developer tools for git,
+;; gcc, etc. then this variable is the culprit!
 (mac-only
  (setenv "__NIX_DARWIN_SET_ENVIRONMENT_DONE" ""))
 
