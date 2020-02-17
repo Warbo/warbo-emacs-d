@@ -7,6 +7,7 @@
 (use-package direnv
   :ensure t
   :config
+  (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))
 
 (use-package json-mode
