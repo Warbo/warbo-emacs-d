@@ -4,6 +4,11 @@
 
 ;;; Code:
 
+(use-package direnv
+  :ensure t
+  :config
+  (direnv-mode))
+
 (use-package json-mode
   :ensure t)
 
