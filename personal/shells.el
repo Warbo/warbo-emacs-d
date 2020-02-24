@@ -185,15 +185,17 @@
      ("repos"    "~/repos"))
    "Useful buffers to open at startup"))
 
-(mapc 'shell-named-in startup-shells)
+(defun open-startup-shells ()
+  (mapc 'shell-named-in startup-shells)
+  ;; Open each entry in ~/repos in a new shell on Mac. We do this here rather than
+  ;; in mac.el to make sure shell-named-in is available.
+  (mac-only
+   (mapc (lambda (d)
+           (unless (s-prefix? "." d)
+             (shell-named-in `(,d ,(format "%s/repos/%s" (getenv "HOME") d)))))
+         (directory-files "~/repos"))))
 
-;; Open each entry in ~/repos in a new shell on Mac. We do this here rather than
-;; in mac.el to make sure shell-named-in is available.
-(mac-only
- (mapc (lambda (d)
-         (unless (s-prefix? "." d)
-           (shell-named-in `(,d ,(format "%s/repos/%s" (getenv "HOME") d)))))
-       (directory-files "~/repos")))
+(open-startup-shells)
 
 (defun command-in-buffer (buf-dir-cmd)
   "Poor man's comint: BUF-DIR-CMD lists what to run where (e.g. a REPL)."
