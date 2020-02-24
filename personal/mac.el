@@ -35,6 +35,9 @@
  ;; Use the global menu bar on macOS, since it auto-hides
  (menu-bar-mode +1)
 
+ (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t   ))
+ (add-to-list 'default-frame-alist '(ns-appearance           . dark))
+
  ;; Enable emoji, and stop the UI from freezing when trying to display them.
  (if (fboundp 'set-fontset-font)
      (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
