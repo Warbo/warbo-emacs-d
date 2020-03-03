@@ -214,7 +214,7 @@ we dump its output to a temp file and return it."
 If point is already at the beginning of text, move it to the beginning of line."
   (interactive)
   (let ((pt (point)))
-    (beginning-of-line-text)
+    (back-to-indentation)
     (when (eq pt (point))
       (beginning-of-line))))
 (bind-key* "C-a"     'smart-line-beginning)
