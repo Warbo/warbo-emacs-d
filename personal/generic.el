@@ -208,7 +208,16 @@ we dump its output to a temp file and return it."
 (bind-key* "C-x C-f" 'find-file-at-point)
 
 ;; We don't want C-a to go all of the way back; drop us on the actual code
-(bind-key* "C-a"     'back-to-indentation)
+;; (Taken from https://stackoverflow.com/a/7250027/884682 )
+(defun smart-line-beginning ()
+  "Move point to the beginning of text on the current line.
+If point is already at the beginning of text, move it to the beginning of line."
+  (interactive)
+  (let ((pt (point)))
+    (beginning-of-line-text)
+    (when (eq pt (point))
+      (beginning-of-line))))
+(bind-key* "C-a"     'smart-line-beginning)
 
 ;; Allow commands to use Nix
 ;; NOTE: See mac.el's usage of exec-path-from-shell, which does a similar job
