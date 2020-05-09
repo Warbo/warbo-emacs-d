@@ -97,5 +97,8 @@
     (global-flycheck-mode +1)
   (add-hook 'prog-mode-hook 'flycheck-mode))
 
+(mac-only
+ (setq flycheck-global-modes '(not c-mode)))
+
 (provide 'programming)
 ;;; programming.el ends here
