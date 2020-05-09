@@ -33,6 +33,16 @@
 (setq tooltip-use-echo-area t)
 (tooltip-mode nil)
 
+(use-package company
+  :ensure t
+  :config
+  (setq company-idle-delay              nil
+        company-tooltip-flip-when-above t
+        company-minimum-prefix-length   1
+        company-show-numbers            t
+        company-tooltip-limit           20
+        company-dabrev-downcase         nil))
+
 ;; Highlight dodgy whitespace (tabs, trailing, otherwise-empty lines, etc.) in
 ;; programs, config files, etc.
 (use-package whitespace
