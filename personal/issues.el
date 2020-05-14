@@ -82,9 +82,34 @@
 
 (defun issue-comments (id)
   "Return a list of all comments on the issue with the given ID."
-  (let ((range (number-sequence 1 (issue-comment-count id)))
+  (cdr (issue-chain id)))
+
+(defun issue-chain-raw (id)
+  "Return a list of the issue with the given ID and each of its comments."
+  (let ((range (number-sequence 0 (issue-comment-count id)))
         (cmd   (lambda (index) (issue-get-comment id index))))
     (mapcar cmd range)))
+
+(defun issue-parse-comment (str)
+  "Pull details out of raw issue/comment text STR."
+  (let* ((lines (split-string str "\n"))
+         (get   (lambda (header)
+                  (let ((found (car (seq-filter
+                                     (lambda (line)
+                                       (string-prefix-p header line))
+                                     lines))))
+                    (if found
+                        (substring found (length header))
+                      nil))))
+         (date (parse-time-string (funcall get "Date: "))))
+    `(date        ,date
+      date-string ,(concat (number-to-string (nth 5 date)) "-"
+                           (format "%0.2d"   (nth 4 date)) "-"
+                           (format "%0.2d"   (nth 3 date))))))
+
+(defun issue-chain (issue)
+  "Return a list of details parsed from ISSUE and its comments."
+  (mapcar 'issue-parse-comment (issue-chain-raw issue)))
 
 (defun issue-details (id)
   "Return all details of the given issue ID."
