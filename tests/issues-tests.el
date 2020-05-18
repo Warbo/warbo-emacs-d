@@ -84,9 +84,9 @@ Done
   `(with-issue-comments
     warbo-issues-examples
     (with-issue-lines
-     '((id "id1" comment-count 3)
-       (id "id2" comment-count 2)
-       (id "id3" comment-count 0))
+     '((id "id1" comment-count 3 status "new"      description "Desc1")
+       (id "id2" comment-count 2 status "resolved" description "Desc2")
+       (id "id3" comment-count 0 status "new"      description "Desc3"))
      (progn ,@body))))
 
 (ert-deftest warbo-issues-comments-macro ()
@@ -104,6 +104,12 @@ Done
        (should (equal (mapcar get-date-string (issue-comments (car id-want)))
                       (cdr id-want)))))))
 
+(defmacro with-issue-files (data)
+  (pcase data
+    ((dir entries)
+     (flet ((issues-root-directory () dir)
+            (issues-read-file))))))
+
 ;; Test the top-level invocation
 
 (ert-deftest warbo-issues-defined ()
@@ -112,7 +118,6 @@ Done
 
 (ert-deftest warbo-issues-can-list-issues ()
   "Can invoke list-issues"
-  (with-issue-lines
-   '((id "id1" comment-count 0 status "stat" description "Desc"))
+  (with-examples
    (list-issues)))
 
