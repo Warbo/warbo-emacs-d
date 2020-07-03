@@ -38,61 +38,105 @@ Done
          (y-m-d  (mapcar (lambda (n) (nth n date)) '(5 4 3))))
     (should (equal y-m-d '(2020 2 14)))))
 
+(ert-deftest warbo-issues-format-timestamp ()
+  (should (equal "2020-06-07T01:02:03Z"
+                 (issues-timestamp-to-iso '(3 2 1 7 6 2020 nil nil nil)))))
+
+(ert-deftest warbo-issues-sort-key ()
+  (should (equal (issues-make-sort-key
+                  '(updated       (12 23 4 5 6 2020 nil nil nil)
+                    date          "2020-08-09"
+                    comment-count 3
+                    index         1))
+                 "2020-06-05T04:23:12Z02")))
+
 ;; Test functions which call shell commands by shadowing those shell invocations
 ;; with dynamic bindings
 
-(defmacro with-issue-lines (entries &rest body)
-  "Override 'artemis list' parsing to return ENTRIES when running BODY."
-  `(flet ((issue-artemis-lines () ,entries))
-     ,@body))
-
-(ert-deftest warbo-issues-lines-macro ()
-  (with-issue-lines
-   '(a b c)
-   (should (equal (issue-artemis-lines) '(a b c)))))
-
-(ert-deftest warbo-issues-can-list-ids ()
-  (with-issue-lines
-   '((id "id1") (id "id2"))
-   (should (equal (issue-list-ids) '("id1" "id2")))))
-
-(ert-deftest warbo-issues-can-lookup-details ()
-  (with-issue-lines
-   '((id "id1" foo "foo") (id "id2" foo "bar"))
-   (should (equal (issue-get-line "id2")
-                  '(id "id2" foo "bar")))))
-
-(defmacro with-issue-comments (comments &rest body)
-  "Take comments from the mapping COMMENTS when running BODY."
-  `(flet ((issue-get-comment (id index)
-                             (nth index
-                                  (lax-plist-get ,comments id))))
-     ,@body))
+(defun unlines (&rest lines)
+  "Join LINES with newlines."
+  (s-join "\n" lines))
 
 (defvar warbo-issues-examples
-  '("id1" ("Date: 2020-01-01\nSubject: issue1\nFirst post 1"
-           "Date: 2020-01-02\nSubject: issue1\nComment 1-1"
-           "Date: 2020-01-03\nSubject: issue1\nComment 1-2"
-           "Date: 2020-01-04\nSubject: issue1\nComment 1-3")
-    "id2" ("Date: 2020-02-01\nSubject: issue2\nFirst post 2"
-           "Date: 2020-02-02\nSubject: issue2\nComment 2-1"
-           "Date: 2020-02-03\nSubject: issue2\nComment 2-2")
-    "id3" ("Date: 2020-03-01\nSubject: issue3\nFirst post 3")))
+  `(lines ((id "id1" comment-count 3 status "new"      description "Desc1")
+           (id "id2" comment-count 2 status "resolved" description "Desc2")
+           (id "id3" comment-count 0 status "new"      description "Desc3"))
+
+    files ("id1" (,(unlines "Date: 2020-01-01 00:00:00 +0000"
+                            "Message-Id: <id1-0-artemis@example.com>"
+                            "Subject: issue1"
+                            "First post 1")
+                  ,(unlines "Date: 2020-01-02 00:00:00 +0000"
+                            "Message-Id: <id1-1-artemis@example.com>"
+                            "Subject: issue1"
+                            "Comment 1-1")
+                  ,(unlines "Date: 2020-01-03 00:00:00 +0000"
+                            "Message-Id: <id1-2-artemis@example.com>"
+                            "Subject: issue1"
+                            "Comment 1-2")
+                  ,(unlines "Date: 2020-01-04 00:00:00 +0000"
+                            "Message-Id: <id1-3-artemis@example.com>"
+                            "Subject: issue1"
+                            "Comment 1-3"))
+           "id2" (,(unlines "Date: 2020-02-01 00:00:00 +0000"
+                            "Message-Id: <id2-0-artemis@example.com>"
+                            "Subject: issue2"
+                            "First post 2")
+                  ,(unlines "Date: 2020-02-02 00:00:00 +0000"
+                            "Message-Id: <id2-1-artemis@example.com>"
+                            "Subject: issue2"
+                            "Comment 2-1")
+                  ,(unlines "Date: 2020-02-03 00:00:00 +0000"
+                            "Message-Id: <id2-2-artemis@example.com>"
+                            "Subject: issue2"
+                            "Comment 2-2"))
+           "id3" (,(unlines "Date: 2020-03-01 00:00:00 +0000"
+                            "Message-Id: <id3-0-artemis@example.com>"
+                            "Subject: issue3"
+                            "First post 3")))))
+
+(defmacro inject-examples (examples &rest body)
+  "Replace effectful procedures by returning EXAMPLES, when running BODY."
+  `(flet ((issue-artemis-lines ()
+                               (plist-get ,examples 'lines))
+          (issue-get-comment   (id index)
+                               (nth index (lax-plist-get
+                                           (plist-get ,examples 'files)
+                                           id)))
+          (issues-issue-files  (issue)
+                               (let ((files (lax-plist-get
+                                             (plist-get examples 'files)
+                                             issue)))
+                                 (mapcar (lambda (index)
+                                           (list (concat
+                                                  issue "/"
+                                                  (number-to-string index))
+                                                 (nth index files)))
+                                         (range 0 (length files))))))
+     ,@body))
 
 (defmacro with-examples (&rest body)
   "Run BODY with some example issues."
-  `(with-issue-comments
-    warbo-issues-examples
-    (with-issue-lines
-     '((id "id1" comment-count 3 status "new"      description "Desc1")
-       (id "id2" comment-count 2 status "resolved" description "Desc2")
-       (id "id3" comment-count 0 status "new"      description "Desc3"))
-     (progn ,@body))))
+  `(inject-examples warbo-issues-examples
+    (progn ,@body)))
 
-(ert-deftest warbo-issues-comments-macro ()
+(ert-deftest warbo-issues-can-list-ids ()
+  (with-examples
+   (should (equal (issue-list-ids) '("id1" "id2" "id3")))))
+
+(ert-deftest warbo-issues-can-lookup-details ()
+  (with-examples
+   (should (equal (issue-get-line "id2")
+                  '(id            "id2"
+                    comment-count 2
+                    status        "resolved"
+                    description   "Desc2")))))
+
+(ert-deftest warbo-issues-can-get-comment ()
   (with-examples
    (should (equal (issue-get-comment "id1" 2)
-                  (nth 2 (lax-plist-get warbo-issues-examples "id1"))))))
+                  (nth 2 (lax-plist-get (plist-get warbo-issues-examples 'files)
+                                        "id1"))))))
 
 (ert-deftest warbo-issues-can-lookup-comments ()
   (with-examples
@@ -101,14 +145,26 @@ Done
          (id-want '(("id1" . ("2020-01-02" "2020-01-03" "2020-01-04"))
                     ("id2" . ("2020-02-02" "2020-02-03"))
                     ("id3" . nil)))
-       (should (equal (mapcar get-date-string (issue-comments (car id-want)))
+       (should (equal (mapcar get-date-string
+                              (mapcar 'cadr
+                                      (issue-comments (car id-want))))
                       (cdr id-want)))))))
 
-(defmacro with-issue-files (data)
-  (pcase data
-    ((dir entries)
-     (flet ((issues-root-directory () dir)
-            (issues-read-file))))))
+(ert-deftest warbo-issues-includes-comments-in-list ()
+  (with-examples
+   (let ((details (issue-all-details)))
+     ;; TODO: Calculate desired length from warbo-issues-examples
+     (should (equal (length details) (+ 4 3 1))))))
+
+(ert-deftest warbo-issues-shows-fields-when-listing ()
+  (with-examples
+   (dolist (line (issue-all-details))
+     (should (plist-get line 'id         ))
+     (should (plist-get line 'index      ))
+     (should (plist-get line 'status     ))
+     (should (plist-get line 'date       ))
+     (should (plist-get line 'sort-key   ))
+     (should (plist-get line 'description)))))
 
 ;; Test the top-level invocation
 
@@ -120,4 +176,3 @@ Done
   "Can invoke list-issues"
   (with-examples
    (list-issues)))
-
