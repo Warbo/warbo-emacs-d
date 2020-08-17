@@ -1,16 +1,6 @@
 ;; Settings that only make sense on macOS
 (mac-only
 
- ;; On OS X Emacs doesn't inherit some env vars (especially PATH) if it's not
- ;; started from the shell. We force this here. Note: this may cause surprising
- ;; behaviour if you're trying to setenv elsewhere!
- (use-package exec-path-from-shell
-   :ensure t
-   :if (memq window-system '(mac ns x))
-   :config
-   (setq exec-path-from-shell-variables '("PATH" "GOPATH" "NIX_PATH"))
-   (exec-path-from-shell-initialize))
-
  (setq ns-function-modifier 'hyper)
 
  (defun prelude-swap-meta-and-super ()

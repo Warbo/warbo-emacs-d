@@ -230,7 +230,6 @@ If point is already at the beginning of text, move it to the beginning of line."
 (bind-key* "C-a"     'smart-line-beginning)
 
 ;; Allow commands to use Nix
-;; NOTE: See mac.el's usage of exec-path-from-shell, which does a similar job
 (setenv "NIX_REMOTE" "daemon")
 (thinkpad-only
  (setenv "NIX_PATH"
