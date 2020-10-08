@@ -24,5 +24,7 @@
 ;;;
 ;;; Code:
 
+(use-package warbo-windows)
+
 (provide 'warbo)
 ;;; warbo ends here
