@@ -4,6 +4,10 @@
 (global-set-key (kbd "S-C-<down>")  'shrink-window)
 (global-set-key (kbd "S-C-<up>")    'enlarge-window)
 
+(use-package zygospore
+  :ensure t
+  :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
+
 ;; When TRAMP connections die, auto-save can hang
 (setq auto-save-default t)
 
