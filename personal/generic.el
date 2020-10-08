@@ -34,6 +34,11 @@
   (which-key-mode -1)
   )
 
+(use-package smartparens
+  :ensure t
+  :config
+  ;; Disable smartparens mode, as it's really slow
+  (show-smartparens-global-mode -1))
 
 ;; Hovering tooltips are annoying
 (setq tooltip-use-echo-area t)
