@@ -10,6 +10,15 @@
   (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))
 
+(use-package js2-mode
+  :ensure t)
+
+(use-package js2-refactor
+  :ensure t)
+
+(use-package xref-js2
+  :ensure t)
+
 (use-package json-mode
   :ensure t)
 
@@ -58,9 +67,6 @@
 (use-package nix-mode
   :ensure t)
 
-(use-package scala-mode
-  :ensure t)
-
 (use-package smartparens
   :ensure t)
 
@@ -73,6 +79,65 @@
     ;; TODO: Check elisp, haskell, scala, JS, python, etc.
     ;(setq which-func-modes nil)
     (which-function-mode 1)))
+
+;; Enable nice rendering of diagnostics like compile errors.
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
+(use-package lsp-mode
+  :quelpa (lsp-mode :fetcher github
+                    :repo    "emacs-lsp/lsp-mode")
+  :ensure t
+  ;:defer  t
+  ;; Optional - enable lsp-mode automatically in scala files
+  :hook  (scala-mode . lsp)
+  (lsp-mode . lsp-lens-mode)
+  :config (progn
+            (setq lsp-prefer-flymake nil)
+            (setq lsp-restart 'auto-restart)))
+
+;; Enable nice rendering of documentation on hover
+(use-package lsp-ui
+  :ensure t
+  :defer  t)
+
+;; lsp-mode supports snippets, but in order for them to work you need to use
+;; yasnippet. If you don't want to use snippets set lsp-enable-snippet to nil in
+;; your lsp-mode settings to avoid odd behavior with snippets and indentation
+(use-package yasnippet
+  :ensure t)
+
+;; Add company-lsp backend for metals
+(use-package company-lsp
+  :ensure t
+  :defer  t)
+
+;; Posframe is a pop-up tool that must be manually installed for dap-mode
+(use-package posframe
+  :ensure t)
+
+;; Use the Debug Adapter Protocol for running tests and debugging
+(use-package lsp-java
+  :ensure t
+  :defer  t)
+
+(use-package dap-mode
+  :ensure t
+  :defer  t
+  :hook
+  (lsp-mode . dap-mode)
+  (lsp-mode . dap-ui-mode))
+
+;; Use the Tree View Protocol for viewing the project structure and triggering
+;; compilation
+(use-package lsp-treemacs
+  :ensure t
+  :defer  t
+  :config
+  (lsp-metals-treeview-enable t)
+  (setq lsp-metals-treeview-show-when-views-received t))
+
 
 ;; We can hook into prog-mode to affect any programming-related buffer
 (add-hook 'prog-mode-hook
