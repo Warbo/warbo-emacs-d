@@ -178,10 +178,19 @@
                 (apply 'nix-shell-command sandbox command)
               command)))
 
-;; Compile using nix-build if there's a default.nix file
-(require 'dwim-compile)
-(add-to-list 'dwim-c/build-tool-alist
-             '(nix "\\`default\\.nix\\'" "nix-build"))
+        flycheck-executable-find
+        (lambda (command)
+          (let ((sandbox (thinkpad-only (nix-current-sandbox))))
+            (if sandbox
+                (nix-executable-find sandbox command)
+              (executable-find command))))))
+
+(use-package dwim-compile
+  :ensure t
+  :config
+  ;; Compile using nix-build if there's a default.nix file
+  (add-to-list 'dwim-c/build-tool-alist
+               '(nix "\\`default\\.nix\\'" "nix-build")))
 
 ;; Look for line and column numbers when using find-file-at-point
 
