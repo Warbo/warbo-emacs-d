@@ -138,10 +138,22 @@ by Prelude.")
 ;; config changes made through the customize UI will be store here
 (setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
 
-;; load the personal settings (this includes `custom-file')
+(message  "Loading personal settings (including `custom-file')")
+(add-to-list 'load-path prelude-personal-dir)
+
+;; TODO: We want to migrate everything to use-package going forwards. See the
+;; commentary in personal/warbo.el for more info.
+(use-package warbo)
 (when (file-exists-p prelude-personal-dir)
-  (message "Loading personal configuration files in %s..." prelude-personal-dir)
-  (mapc 'load (directory-files prelude-personal-dir 't "^[^#].*el$")))
+  (mapc 'load
+        ;; Load all personal/*.el files except if they begin with "warbo"
+        (seq-filter (lambda (f)
+                      (not (string-equal
+                            "warbo"
+                            (substring (car (last (split-string f "/"))) 0 5))))
+                    (directory-files prelude-personal-dir
+                                     't
+                                     "^[^#].*el$"))))
 
 (message "Prelude is ready to do thy bidding, Master %s!" current-user)
 
