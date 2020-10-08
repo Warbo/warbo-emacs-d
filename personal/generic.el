@@ -41,8 +41,8 @@
   (show-smartparens-global-mode -1))
 
 ;; Hovering tooltips are annoying
-(setq tooltip-use-echo-area t)
-(tooltip-mode nil)
+;(setq tooltip-use-echo-area t)
+;(tooltip-mode nil)
 
 (use-package company
   :ensure t
