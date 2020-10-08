@@ -20,18 +20,20 @@
 (ad-unadvise 'windmove-right)
 
 ;; Disable expensive modes when long lines are found
-(when (require 'so-long nil :noerror)
-  (so-long-enable))
+(use-package so-long
+  :ensure t
+  :config
+  (global-so-long-mode)
 
-;; Bi-directional text can slow down Emacs's processing
-(setq-default bidi-display-reordering nil)
+  ;; Bi-directional text can slow down Emacs's processing
+  (setq-default bidi-display-reordering nil)
 
-;; Disable smartparens mode, as it's really slow
-(with-eval-after-load 'smartparens
-  (show-smartparens-global-mode -1))
 
-;; Disable which-key, as it's slow and swallows keypresses
-(which-key-mode -1)
+
+  ;; Disable which-key, as it's slow and swallows keypresses
+  (which-key-mode -1)
+  )
+
 
 ;; Hovering tooltips are annoying
 (setq tooltip-use-echo-area t)
