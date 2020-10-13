@@ -186,6 +186,7 @@
    "Useful buffers to open at startup"))
 
 (defun open-startup-shells ()
+  (interactive)
   (mapc 'shell-named-in startup-shells)
   ;; Open each entry in ~/repos in a new shell on Mac. We do this here rather than
   ;; in mac.el to make sure shell-named-in is available.
