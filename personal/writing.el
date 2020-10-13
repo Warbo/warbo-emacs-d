@@ -34,50 +34,48 @@
          ("S-<left>"  . nil)
          ("S-<right>" . nil))
   :init
-  (progn
   (setq org-disputed-keys '(([(meta return)] . [(control meta return)])
                             ([(control shift right)] . [(meta shift +)])
                             ([(control shift left)] . [(meta shift -)])))
   (setq org-replace-disputed-keys t)
 
-    (defun org-save-and-show ()
-      (let* ((pdf (replace-regexp-in-string "\.org$" ".pdf"
-                                            (buffer-name)))
-             (buf (get-buffer pdf)))
-        (when buf (with-current-buffer buf (auto-revert-mode 1)))
-        (save-buffer)
-        (org-latex-export-to-pdf)
-        (unless buf (find-file pdf)))))
+  (defun org-save-and-show ()
+    (let* ((pdf (replace-regexp-in-string "\.org$" ".pdf"
+                                          (buffer-name)))
+           (buf (get-buffer pdf)))
+      (when buf (with-current-buffer buf (auto-revert-mode 1)))
+      (save-buffer)
+      (org-latex-export-to-pdf)
+      (unless buf (find-file pdf))))
+
   :config
-  (progn
-    ;; Active Babel languages
-    (org-babel-do-load-languages 'org-babel-load-languages '((haskell    . t)
-                                                             (shell      . t)
-                                                             (gnuplot    . t)
-                                                             (dot        . t)))
+  ;; Active Babel languages
+  (org-babel-do-load-languages 'org-babel-load-languages '((haskell    . t)
+                                                           (shell      . t)
+                                                           (gnuplot    . t)
+                                                           (dot        . t)))
 
-    ;; Don't ask whether we can run code every time
-    (setq org-confirm-babel-evaluate nil)
+  ;; Don't ask whether we can run code every time
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-fontify-natively   t)
 
-    (setq org-src-fontify-natively t)
-
-    ;; Make windmove work in Org mode:
-    (add-hook 'org-shiftup-final-hook    'windmove-up)
-    (add-hook 'org-shiftleft-final-hook  'windmove-left)
-    (add-hook 'org-shiftdown-final-hook  'windmove-down)
-    (add-hook 'org-shiftright-final-hook 'windmove-right)
+  ;; Make windmove work in Org mode:
+  (add-hook 'org-shiftup-final-hook    'windmove-up)
+  (add-hook 'org-shiftleft-final-hook  'windmove-left)
+  (add-hook 'org-shiftdown-final-hook  'windmove-down)
+  (add-hook 'org-shiftright-final-hook 'windmove-right)
 
     ;; Visual line wrapping in document modes
-    (add-hook 'org-mode-hook 'turn-on-visual-line-mode)
+  (add-hook 'org-mode-hook 'turn-on-visual-line-mode)
 
-    (add-hook 'org-mode-hook (lambda ()
-                               (whitespace-mode 0)
-                               (setq-local whitespace-style
-                                           (remove-if (lambda (x)
-                                                        (member x '(lines-tail
-                                                                    lines)))
-                                                      whitespace-style))
-                               (whitespace-mode 1)))))
+  (add-hook 'org-mode-hook (lambda ()
+                             (whitespace-mode 0)
+                             (setq-local whitespace-style
+                                         (remove-if (lambda (x)
+                                                      (member x '(lines-tail
+                                                                  lines)))
+                                                    whitespace-style))
+                             (whitespace-mode 1))))
 
 (add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
 
