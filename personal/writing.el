@@ -33,6 +33,19 @@
          ("S-<down>"  . nil)
          ("S-<left>"  . nil)
          ("S-<right>" . nil))
+
+  :hook
+  ((org-mode-hook . turn-on-visual-line-mode)  ;; Use VLM in 'document' modes
+
+   (org-mode-hook . (lambda ()
+                      (whitespace-mode 0)
+                      (setq-local whitespace-style
+                                  (remove-if (lambda (x)
+                                               (member x '(lines-tail
+                                                           lines)))
+                                             whitespace-style))
+                      (whitespace-mode 1))))
+
   :init
   (setq org-disputed-keys '(([(meta return)] . [(control meta return)])
                             ([(control shift right)] . [(meta shift +)])
@@ -57,25 +70,7 @@
 
   ;; Don't ask whether we can run code every time
   (setq org-confirm-babel-evaluate nil)
-  (setq org-src-fontify-natively   t)
-
-  ;; Make windmove work in Org mode:
-  (add-hook 'org-shiftup-final-hook    'windmove-up)
-  (add-hook 'org-shiftleft-final-hook  'windmove-left)
-  (add-hook 'org-shiftdown-final-hook  'windmove-down)
-  (add-hook 'org-shiftright-final-hook 'windmove-right)
-
-    ;; Visual line wrapping in document modes
-  (add-hook 'org-mode-hook 'turn-on-visual-line-mode)
-
-  (add-hook 'org-mode-hook (lambda ()
-                             (whitespace-mode 0)
-                             (setq-local whitespace-style
-                                         (remove-if (lambda (x)
-                                                      (member x '(lines-tail
-                                                                  lines)))
-                                                    whitespace-style))
-                             (whitespace-mode 1))))
+  (setq org-src-fontify-natively   t))
 
 (add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
 
