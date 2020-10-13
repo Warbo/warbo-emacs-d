@@ -25,21 +25,20 @@
 (use-package org
   :mode (("\\.org$" . org-mode))
   :ensure org-plus-contrib
-  :bind (("<f9>" . 'org-save-and-show-pdf))
+  :bind (("<f9>" . 'org-save-and-show-pdf)
+
+         ;; Don't clobber windmove bindings
+         :map org-mode-map
+         ("S-<up>"    . nil)
+         ("S-<down>"  . nil)
+         ("S-<left>"  . nil)
+         ("S-<right>" . nil))
   :init
   (progn
-    ;; Don't clobber windmove bindings (this must run before ORG loads)
-    ;; "(add-hook 'org-shiftup-final-hook 'windmove-up)", etc. don't seem to
-    ;; work. Default disputed keys remap so that windowmove commands aren't
-    ;; overridden.
-    (setq org-disputed-keys '(([(shift up)] . [(meta p)])
-                              ([(shift down)] . [(meta n)])
-                              ([(shift left)] . [(meta -)])
-                              ([(shift right)] . [(meta +)])
-                              ([(meta return)] . [(control meta return)])
-                              ([(control shift right)] . [(meta shift +)])
-                              ([(control shift left)] . [(meta shift -)])))
-    (setq org-replace-disputed-keys t)
+  (setq org-disputed-keys '(([(meta return)] . [(control meta return)])
+                            ([(control shift right)] . [(meta shift +)])
+                            ([(control shift left)] . [(meta shift -)])))
+  (setq org-replace-disputed-keys t)
 
     (defun org-save-and-show ()
       (let* ((pdf (replace-regexp-in-string "\.org$" ".pdf"
