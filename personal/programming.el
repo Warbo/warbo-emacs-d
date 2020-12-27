@@ -138,6 +138,10 @@
   (lsp-metals-treeview-enable t)
   (setq lsp-metals-treeview-show-when-views-received t))
 
+(use-package typescript-mode
+  :ensure t
+  :mode (("\\.ts\\'"  . typescript-mode)
+         ("\\.tsx\\'" . typescript-mode)))
 
 ;; We can hook into prog-mode to affect any programming-related buffer
 (add-hook 'prog-mode-hook
