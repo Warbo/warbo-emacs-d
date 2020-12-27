@@ -248,6 +248,10 @@ If point is already at the beginning of text, move it to the beginning of line."
       (beginning-of-line))))
 (bind-key* "C-a"     'smart-line-beginning)
 
+;; Home and End should stick to the current line
+(global-set-key (kbd "<home>") 'smart-line-beginning)
+(global-set-key (kbd "<end>" ) 'end-of-line)
+
 ;; Allow commands to use Nix
 (setenv "NIX_REMOTE" "daemon")
 (thinkpad-only
