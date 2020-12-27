@@ -67,7 +67,7 @@
     projectile
     move-text
     operate-on-number
-    smart-mode-line
+    ;;smart-mode-line
     smartparens
     smartrep
     undo-tree
