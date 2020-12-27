@@ -1,8 +1,14 @@
 ;; Settings that only make sense on macOS
 (mac-only
 
- (setq ns-function-modifier 'hyper)
+ ;; Set our modifier keys. Note that our Karabiner config turns the left Ctrl
+ ;; key into a Command key; this is useful in most programs but not Emacs, so
+ ;; we switch it back here (I don't think we ever need a Command modifier in
+ ;; Emacs, so this should be safe).
 
+ (setq ns-function-modifier 'hyper  )  ;; Fn key awkwardly placed in bottom left
+ (setq mac-command-modifier 'control)  ;; Turn Ctrl key back into Control
+ (setq mac-option-modifier  'meta   )  ;; Left Option/Alt should always be Meta
 
  ;; Fix Option-3 to give # on UK Mac keyboard. Emacs sees Option as Alt (AKA
  ;; Meta AKA M) which Emacs will intercept and complain that it isn't a command
