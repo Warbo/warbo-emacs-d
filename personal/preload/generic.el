@@ -49,7 +49,9 @@
                 "/bin"
                 "/sbin")))
    (setenv "PATH" (string-join (append extra (list (getenv "PATH"))) ":"))
-   (setq exec-path (append extra exec-path))))
+   (setq exec-path (append extra exec-path)))
+
+ (setq explicit-shell-file-name "wrappedShell"))
 
 ;; Set up other env vars early, so they're inherited by shells
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers
