@@ -97,6 +97,14 @@
 (defun refresh-terminal ()
   "Start a new shell, like the current."
   (interactive)
+  (let ((buf-name (buffer-name)))
+    (progn (command-execute 'bash)
+           (kill-buffer   buf-name)
+           (rename-buffer buf-name))))
+
+(defun refresh-terminal-unbuffered ()
+  "Start a new shell, like the current.  Avoids buffering the bash shell."
+  (interactive)
   (let ((buf-name                 (buffer-name))
         (explicit-shell-file-name "bash"))
     (progn (command-execute 'bash)
