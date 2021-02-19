@@ -26,10 +26,14 @@
 
 (add-hook 'eshell-mode-hook 'm-eshell-hook)
 
-;; Shells should wrap at the edge of the screen, not at the last whitespace
 (add-hook 'shell-mode-hook
           (lambda ()
-            (visual-line-mode -1)))
+            ;; Wrap at the edge of the screen, not at the last whitespace
+            (visual-line-mode -1)
+
+            ;; Avoid overriding prompt colours
+            ;; https://stackoverflow.com/a/50776528/884682
+            (face-remap-set-base 'comint-highlight-prompt :inherit nil)))
 
 ;; Auto-complete should stop at the first ambiguity
 (setq eshell-cmpl-cycle-completions nil)
