@@ -95,6 +95,11 @@
   (lsp-mode . lsp-lens-mode)
   :config (progn
             (setq lsp-prefer-flymake nil)
+            ;; Avoids the following error:
+            ;; Error running timer ‘lsp--on-idle’:
+            ;; (error "The connected server(s) does not support method
+            ;; textDocument/documentHighlight.
+            (setq lsp-enable-links nil)
             (setq lsp-restart 'auto-restart)))
 
 ;; Enable nice rendering of documentation on hover
