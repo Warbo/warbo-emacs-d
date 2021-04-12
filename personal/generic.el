@@ -295,11 +295,11 @@ If point is already at the beginning of text, move it to the beginning of line."
             (and (boundp 'server-clients) server-clients))
   (defer 'server-start))
 
+(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
+
 (thinkpad-only
  ;; Force font. This does nothing in terminal mode, so we poll until there's a
  ;; graphical display, set the font, then cancel the polling
-
- (defvar desired-font "Liberation Mono" "The font the use in graphical mode")
 
  ;; We store the timer
  (when (boundp 'force-font-timer)
