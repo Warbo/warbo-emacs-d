@@ -4,6 +4,7 @@
 
 (use-package sbt-mode
   :ensure t
+  :pin melpa-stable
   :commands sbt-start sbt-command
   :config
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
