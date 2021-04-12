@@ -100,7 +100,11 @@
             ;; (error "The connected server(s) does not support method
             ;; textDocument/documentHighlight.
             (setq lsp-enable-links nil)
-            (setq lsp-restart 'auto-restart)))
+            (setq lsp-restart 'auto-restart)
+            ;; Better performance than 4k default
+            (setq read-process-output-max (* 1024 1024))
+            ;; Useful for debugging, but ver slow otherwise
+            (setq lsp-log-io nil)))
 
 ;; Enable nice rendering of documentation on hover
 (use-package lsp-ui
