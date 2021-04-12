@@ -316,3 +316,10 @@ If point is already at the beginning of text, move it to the beginning of line."
                                  (message "Font %S wasn't found" desired-font))
 
                                (cancel-timer force-font-timer))))))
+
+(mac-only
+ (if (member desired-font (font-family-list))
+     (set-face-attribute 'default nil
+                         :font desired-font
+                         :height 100)
+   (message "Font %S wasn't found" desired-font)))
