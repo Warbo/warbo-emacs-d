@@ -9,7 +9,7 @@
 (add-to-list 'package-archives
              '("melpa"     . "https://melpa.org/packages/"))
 (add-to-list 'package-archives
-             '("milkbox"   . "http://melpa.milkbox.net/packages/"))
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives
              '("org"       . "http://orgmode.org/elpa/"))
 (package-initialize)
