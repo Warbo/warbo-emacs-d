@@ -292,7 +292,8 @@ Version 2017-09-01"
 (global-set-key (kbd "C-M-w" ) 'xah-copy-file-path)
 
 ;; Allow commands to use Nix
-(setenv "NIX_REMOTE" "daemon")
+(when (file-exists-p "/nix/var/nix/daemon-socket/socket")
+ (setenv "NIX_REMOTE" "daemon"))
 (thinkpad-only
  (setenv "NIX_PATH"
          (replace-regexp-in-string
