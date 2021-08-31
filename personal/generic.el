@@ -34,6 +34,11 @@
   (which-key-mode -1)
   )
 
+(use-package unicode-fonts
+  :ensure t
+  :config
+  (unicode-fonts-setup))
+
 (use-package smartparens
   :ensure t
   :config
