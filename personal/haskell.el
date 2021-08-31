@@ -25,6 +25,9 @@
 (use-package company   :ensure t)
 (use-package yasnippet :ensure t)
 
+(use-package haskell-mode
+  :ensure t)
+
 (use-package haskell-tng-mode
   :ensure nil
   :load-path "/run/current-system/sw/share/emacs/site-lisp/haskell-tng.el"
