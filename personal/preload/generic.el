@@ -3,9 +3,9 @@
   (run-with-idle-timer 2 nil f))
 
 (defconst machine-id (cond
-                      ((file-directory-p "/Users/chris") 'mac)
-                      ((file-directory-p "/home/chris")  'thinkpad)
-                      (t                                 'unknown)))
+                      ((file-directory-p "/Users"     ) 'mac)
+                      ((file-directory-p "/home/chris") 'thinkpad)
+                      (t                                'unknown)))
 
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
@@ -40,7 +40,8 @@
  ;; gcc, etc. then this variable is the culprit!
  (setenv "__NIX_DARWIN_SET_ENVIRONMENT_DONE" "")
 
- (let ((extra '("/Users/chris/.nix-profile/bin"
+ (let ((extra `(,(concat (getenv "HOME") "/.nix-profile/bin")
+                ,(concat (getenv "HOME") "/repos/dotfiles/nixpkgs/result/bin")
                 "/run/current-system/sw/bin"
                 "/nix/var/nix/profiles/default/bin"
                 "/usr/local/bin"
