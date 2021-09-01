@@ -155,6 +155,11 @@ by Prelude.")
                                      't
                                      "^[^#].*el$"))))
 
+(let ((work-dir (expand-file-name "work" prelude-dir)))
+  (when (file-exists-p work-dir)
+    ;; Load all work/*.el files
+    (mapc 'load (directory-files work-dir 't "^[^#].*el$"))))
+
 (message "Prelude is ready to do thy bidding, Master %s!" current-user)
 
 (prelude-eval-after-init
