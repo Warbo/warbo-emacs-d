@@ -10,6 +10,12 @@
   (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))
 
+(use-package cue
+  :ensure t
+  :quelpa (cue-mode :fetcher github
+                    :repo    "russell/cue-mode")
+  :mode (("\\.cue\\'"  . cue-mode)))
+
 (use-package js2-mode
   :ensure t)
 
