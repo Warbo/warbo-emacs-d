@@ -16,7 +16,6 @@ Inspired by https://emacs.stackexchange.com/a/42174/5391"
     (run-hooks hook)
     (shell-command-sentinel process signal)))
 
-
 (defun run-test-script-then-hook (prefix cmd sentinel)
   "Run CMD asynchronously, then call HOOK when it's finished.
 The process buffer name will contain PREFIX,"
@@ -27,6 +26,43 @@ The process buffer name will contain PREFIX,"
     (if (process-live-p proc)
         (set-process-sentinel  proc sentinel)
       (message "Tests finished immediately"))))
+
+
+(defun github-backup-notify ()
+  "Alert when GitHub Backup test script finishes."
+  (shell-command "say 'github backup tests finished'"))
+
+(defvar github-backup-after-test-hook nil
+  "Hook called after github-backup-test.")
+
+(add-hook 'github-backup-after-test-hook #'github-backup-notify)
+
+(defun github-backup-sentinel (process signal)
+  "PROCESS sentinel for test script exit SIGNAL."
+  (run-hooks-when-finished 'github-backup-after-test-hook process signal))
+
+(defun github-backup-test ()
+  "Run test script for GitHub Backup.
+Must be called when cwd is somewhere in GitHub Backup repo."
+  (interactive)
+  (run-test-script-then-hook
+   "github-backup"
+   (let* ((dir "$(git rev-parse --show-toplevel)")
+          (cd  (concat "pushd " dir " > /dev/null"))
+          (tst "./test.sh"))
+     (concat cd " && " tst))
+   #'github-backup-sentinel))
+
+(makunbound  'github-backup-mode-map)
+(fmakunbound 'github-backup-mode-map)
+(define-minor-mode github-backup-mode
+  "Minor mode for Zipabout's GitHub Backups.
+In particular, defines a keymap for shortcuts like running tests"
+  nil
+  :global nil
+  :group 'zipabout
+  :keymap (list (cons (kbd "C-c c") 'github-backup-test)))
+
 
 (defun image-service-notify ()
   "Alert when Image Service test script finishes."
@@ -63,6 +99,8 @@ In particular, defines a keymap for shortcuts like running tests"
   :group 'zipabout
   :keymap (list (cons (kbd "C-c c") 'image-service-test)))
 
+
+
 (defun nix-helpers-finished-notify ()
   "Alert when nix-helpers test script has finished."
   (shell-command "say 'nix helpers tests finished'"))
@@ -98,10 +136,46 @@ common shortcuts, like running tests."
   :group 'zipabout
   :keymap (list (cons (kbd "C-c c") 'nix-helpers-test)))
 
+(defun zoning-finished-notify ()
+  "Alert when zoning test script has finished."
+  (shell-command "say 'nix helpers tests finished'"))
+
+(defvar zoning-after-test-hook nil
+  "Hook called after zoning-test.")
+
+(add-hook 'zoning-after-test-hook #'zoning-finished-notify)
+
+(defun zoning-sentinel (process signal)
+  "PROCESS sentinel for test script exit SIGNAL."
+  (run-hooks-when-finished 'zoning-after-test-hook process signal))
+
+(defun zoning-test ()
+  "Run test script for Zipabout's zoning.
+Must be called when current working directory is somewhere in zoning repo."
+  (interactive)
+  (run-test-script-then-hook
+   "zoning"
+   (let* ((dir "$(git rev-parse --show-toplevel)")
+          (cd  (concat "pushd " dir " > /dev/null"))
+          (tst "nix-build"))
+     (concat cd " && " tst))
+   #'zoning-sentinel))
+
+(ignore-errors
+  (makunbound  'zoning-mode-map)
+  (fmakunbound 'zoning-mode-map))
+(define-minor-mode zoning-mode
+  "Minor mode for files in zoning. In particular, we create a keymap for
+common shortcuts, like running tests."
+  nil
+  :global nil
+  :group 'zipabout
+  :keymap (list (cons (kbd "C-c c") 'zoning-test)))
+
+
 (dir-locals-set-class-variables
  'github-backup
- '((nil . ((eval . ((lambda ()
-                      (message "Entered github-backup"))))))))
+ '((nil . ((eval . ((lambda () (github-backup-mode t))))))))
 
 (dir-locals-set-class-variables
  'image-service
@@ -111,14 +185,19 @@ common shortcuts, like running tests."
  'nix-helpers
  '((nil . ((eval . ((lambda () (nix-helpers-mode t))))))))
 
+(dir-locals-set-class-variables
+ 'zoning
+ '((nil . ((eval . ((lambda () (zoning-mode t))))))))
+
 ;; Apply the above classes to their relevant project directories
 (mapc (lambda (pair)
         (dir-locals-set-directory-class
          (concat (getenv "HOME") "/repos/" (car pair))
          (cdr pair)))
-      '(("github-backup" . github-backup)
-        ("image-service" . image-service)
-        ("nix-helpers"   . nix-helpers)))
+      '(("github-backup"   . github-backup)
+        ("image-service"   . image-service)
+        ("nix-helpers"     . nix-helpers)
+        ("platform-zoning" . zoning)))
 
 (provide 'warbo-dir-locals)
 ;;; warbo-dir-locals.el ends here
