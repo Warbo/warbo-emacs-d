@@ -12,6 +12,9 @@
               (add-hook 'comint-preoutput-filter-functions
                         'xterm-color-filter nil t))))
 
+(use-package shx
+  :ensure t)
+
 ;; Swap cursor keys and C-p/C-n in EShell.
 ;; C-up/C-down still does history like Shell mode
 (defun m-eshell-hook ()
@@ -81,7 +84,7 @@
   "Start a shell-mode shell."
   (interactive)
   (let ((buf (free-name-num "shell")))
-    (shell buf)
+    (shx buf)
     (with-current-buffer buf
       ;; Stops shell-mode echoing our input, since the shell already does
       (setq comint-process-echoes t))
