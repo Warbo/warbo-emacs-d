@@ -53,6 +53,10 @@
    (setq exec-path (append extra exec-path)))
 
  (setq explicit-shell-file-name "wrappedShell"))
+ (unless (getenv "SSL_CERT_FILE")
+   (setenv "SSL_CERT_FILE"
+           (concat (getenv "HOME")
+                   "/.nix-profile/etc/ssl/certs/ca-bundle.crt"))))
 
 ;; Set up other env vars early, so they're inherited by shells
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers
