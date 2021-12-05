@@ -52,7 +52,8 @@
    (setenv "PATH" (string-join (append extra (list (getenv "PATH"))) ":"))
    (setq exec-path (append extra exec-path)))
 
- (setq explicit-shell-file-name "wrappedShell"))
+ (setq explicit-shell-file-name (executable-find "wrappedShell"))
+
  (unless (getenv "SSL_CERT_FILE")
    (setenv "SSL_CERT_FILE"
            (concat (getenv "HOME")
