@@ -14,8 +14,9 @@
                                  'xterm-color-filter nil t))))
 
 (use-package shx
-  :ensure t)
-
+  :ensure t
+  :custom
+  (shx-leader "#" "Use '#ssh', '#view', etc. since : conflicts with REPLs"))
 
 (use-package shell
   :hook
