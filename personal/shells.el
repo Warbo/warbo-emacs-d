@@ -3,58 +3,55 @@
 ;; handling, e.g. (ansi-color-for-comint-mode-on), since that's SLOW
 (use-package xterm-color
   :ensure t
-  :init
-  (setq comint-output-filter-functions
-        (remove 'ansi-color-process-output comint-output-filter-functions))
-
-  (add-hook 'shell-mode-hook
-            (lambda ()
-              (add-hook 'comint-preoutput-filter-functions
-                        'xterm-color-filter nil t))))
+  :custom
+  (comint-output-filter-functions
+   (remove 'ansi-color-process-output comint-output-filter-functions)
+   "Remove built-in handling of ANSI colour codes")
+  :hook
+  (shell-mode-hook . (lambda ()
+                       ;; Add xterm-color's handler for ANSI colour codes
+                       (add-hook 'comint-preoutput-filter-functions
+                                 'xterm-color-filter nil t))))
 
 (use-package shx
   :ensure t)
 
-;; Swap cursor keys and C-p/C-n in EShell.
-;; C-up/C-down still does history like Shell mode
-(defun m-eshell-hook ()
-  "Define control p, control n and the up/down arrow."
-  (define-key eshell-mode-map [(control p)]
-    'eshell-previous-matching-input-from-input)
-  (define-key eshell-mode-map [(control n)]
-    'eshell-next-matching-input-from-input)
 
-  (define-key eshell-mode-map [up] 'previous-line)
-  (define-key eshell-mode-map [down] 'next-line))
+(use-package shell
+  :hook
+  (shell-mode . (lambda ()
+                  ;; Wrap at edge of the screen, not at last whitespace
+                  (visual-line-mode -1)
 
-(add-hook 'eshell-mode-hook 'm-eshell-hook)
+                  ;; Avoid overriding prompt colours
+                  ;; https://stackoverflow.com/a/50776528/884682
+                  (face-remap-set-base 'comint-highlight-prompt :inherit nil))))
 
-(add-hook 'shell-mode-hook
-          (lambda ()
-            ;; Wrap at the edge of the screen, not at the last whitespace
-            (visual-line-mode -1)
-
-            ;; Avoid overriding prompt colours
-            ;; https://stackoverflow.com/a/50776528/884682
-            (face-remap-set-base 'comint-highlight-prompt :inherit nil)))
-
-;; Auto-complete should stop at the first ambiguity
-(setq eshell-cmpl-cycle-completions nil)
-
-;; Use ansi-term for these commands
-(add-hook
- 'eshell-first-time-mode-hook
- (lambda ()
-   (setq eshell-visual-commands
-         (append '("mutt"
-                   "vim"
-                   "screen"
-                   "lftp"
-                   "ipython"
-                   "telnet"
-                   "ssh"
-                   "mysql")
-                 eshell-visual-commands))))
+(defvar eshell-mode-map)
+(defvar eshell-visual-commands)
+(use-package eshell
+  :commands eshell
+  :custom
+  (eshell-cmpl-cycle-completions nil "Stop auto-complete at first ambiguity")
+  ;; Use ansi-term for these commands
+  (eshell-visual-commands
+        (append '("mutt"
+                  "vim"
+                  "screen"
+                  "lftp"
+                  "ipython"
+                  "telnet"
+                  "ssh"
+                  "mysql")
+                eshell-visual-commands))
+  :bind
+  (:map eshell-mode-map
+        ;; Swap cursor keys and C-p/C-n in EShell.
+        ;; C-up/C-down still does history like Shell mode
+        ("C-p"    . eshell-previous-matching-input-from-input)
+        ("C-n"    . eshell-next-matching-input-from-input)
+        ("<up>"   . previous-line)
+        ("<down>" . next-line)))
 
 (defun make-numbered-name (prefix n)
   "For string PREFIX and number N, combine into '*PREFIX-N*'."
