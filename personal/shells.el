@@ -7,11 +7,10 @@
   (comint-output-filter-functions
    (remove 'ansi-color-process-output comint-output-filter-functions)
    "Remove built-in handling of ANSI colour codes")
-  :hook
-  (shell-mode-hook . (lambda ()
-                       ;; Add xterm-color's handler for ANSI colour codes
-                       (add-hook 'comint-preoutput-filter-functions
-                                 'xterm-color-filter nil t))))
+  (comint-preoutput-filter-functions
+   (cons 'xterm-color-filter
+         (remove 'xterm-color-filter comint-preoutput-filter-functions))
+   "Ensure xterm-color's preoutput handler is in place"))
 
 (use-package shx
   :ensure t
@@ -21,6 +20,8 @@
 (use-package shell
   :hook
   (shell-mode . (lambda ()
+                  (unless shx-mode (shx-mode 1))
+
                   ;; Wrap at edge of the screen, not at last whitespace
                   (visual-line-mode -1)
 
@@ -82,7 +83,7 @@
   "Start a shell-mode shell."
   (interactive)
   (let ((buf (free-name-num "shell")))
-    (shx buf)
+    (shell buf)
     (with-current-buffer buf
       ;; Stops shell-mode echoing our input, since the shell already does
       (setq comint-process-echoes t))

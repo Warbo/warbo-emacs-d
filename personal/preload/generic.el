@@ -41,7 +41,6 @@
  (setenv "__NIX_DARWIN_SET_ENVIRONMENT_DONE" "")
 
  (let ((extra `(,(concat (getenv "HOME") "/.nix-profile/bin")
-                ,(concat (getenv "HOME") "/repos/dotfiles/nixpkgs/result/bin")
                 "/run/current-system/sw/bin"
                 "/nix/var/nix/profiles/default/bin"
                 "/usr/local/bin"
@@ -55,9 +54,18 @@
  (setq explicit-shell-file-name (executable-find "wrappedShell"))
 
  (unless (getenv "SSL_CERT_FILE")
-   (setenv "SSL_CERT_FILE"
-           (concat (getenv "HOME")
-                   "/.nix-profile/etc/ssl/certs/ca-bundle.crt"))))
+   (require 'seq)
+   (seq-do (lambda (path) (setenv "SSL_CERT_FILE" path))
+           (seq-take
+            (seq-filter
+             'file-exists-p
+             '("/run/current-system/etc/ssl/certs/ca-certificates.crt"
+               "/run/current-system/etc/ssl/certs/ca-bundle.crt"
+               "/nix/var/nix/profiles/default/etc/ssl/certs/ca-certificates.crt"
+               "/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt"
+               "~/.nix-profile/etc/ssl//certs/ca-certificates.crt"
+               "~/.nix-profile/etc/ssl//certs/ca-bundle.crt"))
+            1))))
 
 ;; Set up other env vars early, so they're inherited by shells
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers
