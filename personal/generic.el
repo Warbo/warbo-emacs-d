@@ -49,6 +49,12 @@
 ;(setq tooltip-use-echo-area t)
 ;(tooltip-mode nil)
 
+;; Honour .editorconfig file settings
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+
 (use-package company
   :ensure t
   :config
