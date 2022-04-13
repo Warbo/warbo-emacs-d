@@ -108,28 +108,64 @@
 (use-package lsp-mode
   :quelpa (lsp-mode :fetcher github
                     :repo    "emacs-lsp/lsp-mode")
+  :after (dash dap-mode)  ; lsp-mode uses functions defined by dash
+  :disabled
   :ensure t
   ;:defer  t
   ;; Optional - enable lsp-mode automatically in scala files
-  :hook  (scala-mode . lsp)
+  :hook  ((scala-mode       ; metals?
+           python-mode      ; spyder IDE python-lsp-server?
+           haskell-mode     ; haskell-language-server
+           js-mode          ; ts-ls (tsserver wrapper)
+           typescript-mode  ; ts-ls (tsserver wrapper)
+           java-mode        ; eclipse-jdtls
+           web-mode         ; ts-ls/HTML/CSS
+           ) . lsp-deferred)
   (lsp-mode . lsp-lens-mode)
-  :config (progn
-            (setq lsp-prefer-flymake nil)
-            ;; Avoids the following error:
-            ;; Error running timer ‘lsp--on-idle’:
-            ;; (error "The connected server(s) does not support method
-            ;; textDocument/documentHighlight.
-            (setq lsp-enable-links nil)
-            (setq lsp-restart 'auto-restart)
-            ;; Better performance than 4k default
-            (setq read-process-output-max (* 1024 1024))
-            ;; Useful for debugging, but ver slow otherwise
-            (setq lsp-log-io nil)))
+  :commands lsp
+  :config
+  (setq lsp-auto-guess-root t)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-signature-render-documentation nil)
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-semantic-tokens-enable nil)
+  (setq lsp-enable-folding nil)
+  (setq lsp-enable-imenu nil)
+  (setq lsp-enable-snippet nil)
+  (setq lsp-idle-delay 0.5)
+  (setq lsp-prefer-flymake nil)
+  (setq lsp-restart 'auto-restart)
+
+  ;; Avoids the following error:
+  ;; Error running timer ‘lsp--on-idle’:
+  ;; (error "The connected server(s) does not support method
+  ;; textDocument/documentHighlight.
+  (setq lsp-enable-links nil)
+
+  ;; Better performance than 4k default
+  (setq read-process-output-max (* 1024 1024))
+
+  ;; Useful for debugging, but ver slow otherwise
+  (setq lsp-log-io nil))
 
 ;; Enable nice rendering of documentation on hover
 (use-package lsp-ui
+  :disabled
   :ensure t
-  :defer  t)
+  :defer  t
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-doc-header t)
+  (setq lsp-ui-doc-include-signature t)
+  (setq lsp-ui-doc-border (face-foreground 'default))
+  (setq lsp-ui-sideline-show-code-actions t)
+  (setq lsp-ui-sideline-delay 0.05))
 
 ;; lsp-mode supports snippets, but in order for them to work you need to use
 ;; yasnippet. If you don't want to use snippets set lsp-enable-snippet to nil in
@@ -139,6 +175,7 @@
 
 ;; Add company-lsp backend for metals
 (use-package company-lsp
+  :disabled
   :ensure t
   :defer  t)
 
@@ -148,23 +185,28 @@
 
 ;; Use the Debug Adapter Protocol for running tests and debugging
 (use-package lsp-java
+  ;; Includes dap-java
   :ensure t
   :defer  t)
 
 (use-package dap-mode
+  ;; Includes dap-python
+  :disabled
   :ensure t
   :defer  t
   :hook
   (lsp-mode . dap-mode)
-  (lsp-mode . dap-ui-mode))
+  (lsp-mode . dap-ui-mode)
+  :config
+  (require 'dap-ui))
 
 ;; Use the Tree View Protocol for viewing the project structure and triggering
 ;; compilation
 (use-package lsp-treemacs
+  :disabled
   :ensure t
   :defer  t
   :config
-  (lsp-metals-treeview-enable t)
   (setq lsp-metals-treeview-show-when-views-received t))
 
 (use-package typescript-mode
