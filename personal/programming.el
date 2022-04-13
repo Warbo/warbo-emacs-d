@@ -214,6 +214,22 @@
   :mode (("\\.ts\\'"  . typescript-mode)
          ("\\.tsx\\'" . typescript-mode)))
 
+(use-package nxml-mode
+  :no-require t
+  :mode
+  ("\\.xml$" . nxml-mode)
+  ("\\.pom$" . nxml-mode)
+  :commands (pretty-print-xml-region)
+  :init
+  ;; Mapping xml to nxml
+  (fset 'xml-mode 'nxml-mode)
+
+  :config
+  (setq nxml-child-indent 2
+        ;nxml-auto-insert-xml-declaration-flag t
+        nxml-slash-auto-complete-flag t
+        nxml-bind-meta-tab-to-complete-flag t))
+
 ;; We can hook into prog-mode to affect any programming-related buffer
 (add-hook 'prog-mode-hook
           (lambda ()
