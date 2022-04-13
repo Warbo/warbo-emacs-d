@@ -10,7 +10,7 @@
   (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))
 
-(use-package cue
+(use-package cue-mode
   :ensure t
   :quelpa (cue-mode :fetcher github
                     :repo    "russell/cue-mode")
