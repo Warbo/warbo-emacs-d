@@ -28,6 +28,10 @@
 (use-package json-mode
   :ensure t)
 
+(use-package jq-mode
+  :ensure t
+  :mode ("\\.jq" . jq-mode))
+
 ;; Unset some conflicting keybindings before binding them to magit
 (global-unset-key (kbd "s-m"))
 
