@@ -95,6 +95,16 @@
   :ensure t
   :init (global-flycheck-mode))
 
+(use-package dash
+  :defer t)
+
+(use-package f
+  :commands f-join  ;; add autoload for f-join
+  :defer t)
+
+(use-package s
+  :defer t)
+
 (use-package lsp-mode
   :quelpa (lsp-mode :fetcher github
                     :repo    "emacs-lsp/lsp-mode")
