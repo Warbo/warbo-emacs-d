@@ -15,7 +15,18 @@
 (use-package shx
   :ensure t
   :custom
-  (shx-leader "#" "Use '#ssh', '#view', etc. since : conflicts with REPLs"))
+  (shx-leader "#" "Use '#ssh', '#view', etc. since : conflicts with REPLs")
+  :config
+  (define-advice shx-cmd-ssh
+      (:around (f host) ssh-default-to-bash)
+    "Assume remote hosts will be using /bin/bash, rather than wrappedShell"
+    ;; TODO: Would be even better if we check whether the remote command exists,
+    ;; before falling back to a default (similar to shx--shell-command, but we
+    ;; need to use 'host' rather than 'default-directory'
+    (let ((explicit-shell-file-name
+           (cond ((string= "" host) explicit-shell-file-name)
+                 (t "/bin/bash"))))
+     (apply f (list host)))))
 
 (use-package shell
   :hook
