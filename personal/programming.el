@@ -230,6 +230,30 @@
         nxml-slash-auto-complete-flag t
         nxml-bind-meta-tab-to-complete-flag t))
 
+(define-derived-mode nix-derivation-mode json-mode "nix-derivation-mode"
+  "Custom major mode, which runs Nix .drv files through 'nix show-derivation'.
+   The result is JSON, so we derive from json-mode."
+  (setq major-mode 'nix-derivation-mode)
+  (setq mode-name "DRV")
+
+  ;; /nix/store files are read-only, so Emacs makes their buffers read-only too
+  (read-only-mode -1)
+
+  ;; Clear the buffer and replace with 'nix show-derivation' run on the file
+  (erase-buffer)
+  (shell-command
+   (concat "nix show-derivation " (buffer-file-name))
+   (buffer-name))
+
+  ;; Don't prompt to save our changed content (we can't, since it's read-only!)
+  (set-buffer-modified-p nil)
+
+  ;; Avoid any further modifications (since they can't be saved)
+  (read-only-mode 1)
+
+  (run-hooks 'nix-derivation-mode-hook))
+(add-to-list 'auto-mode-alist '("/nix/store/.*\\.drv" . nix-derivation-mode))
+
 ;; We can hook into prog-mode to affect any programming-related buffer
 (add-hook 'prog-mode-hook
           (lambda ()
