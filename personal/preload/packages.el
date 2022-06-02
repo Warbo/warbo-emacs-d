@@ -12,7 +12,7 @@
              '("milkbox"   . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives
              '("org"       . "http://orgmode.org/elpa/"))
-(package-initialize)
+;(package-initialize)
 
 ;; Next we use "package.el" to get "use-package", which simplifies packaging
 (unless (package-installed-p 'use-package)
