@@ -297,11 +297,14 @@
         nxml-slash-auto-complete-flag t
         nxml-bind-meta-tab-to-complete-flag t))
 
-(define-derived-mode nix-derivation-mode json-mode "nix-derivation-mode"
+(define-derived-mode nix-derivation-mode prog-mode "nix-derivation-mode"
   "Custom major mode, which runs Nix .drv files through 'nix show-derivation'.
    The result is JSON, so we derive from json-mode."
   (setq major-mode 'nix-derivation-mode)
   (setq mode-name "DRV")
+
+  ;; Hide all of the Nix store hashes
+  (pretty-sha-path-mode 1)
 
   ;; /nix/store files are read-only, so Emacs makes their buffers read-only too
   (read-only-mode -1)
