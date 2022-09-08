@@ -17,6 +17,14 @@
   :custom
   (shx-leader "#" "Use '#ssh', '#view', etc. since : conflicts with REPLs")
   :config
+  ;; One of the nice things about shell-mode is that we can edit the buffer
+  ;; contents, e.g. to retroactively format previous output, or to build up new
+  ;; commands in preparation for copy/pasting them to the prompt. Annoyingly,
+  ;; shx-mode takes over the SPC key, for some magic which I don't actually
+  ;; use, but nevertheless prevents inserting a space at the point. Hence we
+  ;; remove this binding here, to allow typing spaces like normal shell-mode.
+  (define-key shx-mode-map (kbd "SPC") nil)
+
   (define-advice shx-cmd-ssh
       (:around (f host) ssh-default-to-bash)
     "Assume remote hosts will be using /bin/bash, rather than wrappedShell"
