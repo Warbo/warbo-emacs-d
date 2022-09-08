@@ -33,6 +33,9 @@
   :program "yamlfix"
   :args '("-"))
 
+;; These modes are built-in, so we don't need use-package to run add-hook
+(add-hook 'sh-mode-hook 'sh-format-on-save-mode)
+
 (use-package direnv
   :ensure t
   :config
