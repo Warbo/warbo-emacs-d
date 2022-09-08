@@ -123,6 +123,11 @@
 (use-package smartparens
   :ensure t)
 
+(use-package yaml-mode
+  :ensure t
+  :config
+  (add-hook 'yaml-mode-hook 'yamlfix-format-on-save-mode))
+
 ;; Use the modeline to show the definition of the function at point
 (use-package which-func
   :config

@@ -313,9 +313,6 @@
 (use-package xterm-color
   :ensure t)
 
-(use-package yaml-mode
-  :ensure t)
-
 ;; (use-package yasnippet)
 
 (use-package zenburn-theme
