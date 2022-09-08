@@ -172,8 +172,8 @@
 (use-package lsp-mode
   :quelpa (lsp-mode :fetcher github
                     :repo    "emacs-lsp/lsp-mode")
-  :after (dash dap-mode)  ; lsp-mode uses functions defined by dash
-  :disabled
+  :after (dash dap-mode direnv)  ; lsp-mode uses functions defined by dash
+  ;:disabled
   :ensure t
   ;:defer  t
   ;; Optional - enable lsp-mode automatically in scala files
@@ -188,17 +188,19 @@
   (lsp-mode . lsp-lens-mode)
   :commands lsp
   :config
+  (advice-add 'lsp :before #'direnv-update-environment)
   (setq lsp-auto-guess-root t)
   (setq lsp-enable-symbol-highlighting nil)
   (setq lsp-enable-on-type-formatting nil)
-  (setq lsp-signature-auto-activate nil)
-  (setq lsp-signature-render-documentation nil)
+  (setq lsp-signature-auto-activate t)
+  (setq lsp-signature-render-documentation t)
   (setq lsp-eldoc-hook nil)
+  (setq lsp-eldoc-enable-hover t)
   (setq lsp-modeline-code-actions-enable nil)
   (setq lsp-modeline-diagnostics-enable nil)
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-semantic-tokens-enable nil)
-  (setq lsp-enable-folding nil)
+  ;(setq lsp-enable-folding nil)
   (setq lsp-enable-imenu nil)
   (setq lsp-enable-snippet nil)
   (setq lsp-idle-delay 0.5)
@@ -214,22 +216,24 @@
   ;; Better performance than 4k default
   (setq read-process-output-max (* 1024 1024))
 
-  ;; Useful for debugging, but ver slow otherwise
+  ;; Useful for debugging, but very slow otherwise
   (setq lsp-log-io nil))
 
 ;; Enable nice rendering of documentation on hover
 (use-package lsp-ui
-  :disabled
   :ensure t
   :defer  t
   :commands lsp-ui-mode
   :config
   (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-doc-show-with-cursor nil)
   (setq lsp-ui-doc-header t)
   (setq lsp-ui-doc-include-signature t)
   (setq lsp-ui-doc-border (face-foreground 'default))
-  (setq lsp-ui-sideline-show-code-actions t)
-  (setq lsp-ui-sideline-delay 0.05))
+  (setq lsp-ui-sideline-show-diagnostics nil)
+  (setq lsp-ui-sideline-show-code-actions nil)
+  (setq lsp-ui-sideline-delay 0.05)
+  (setq lsp-ui-flycheck t))
 
 ;; lsp-mode supports snippets, but in order for them to work you need to use
 ;; yasnippet. If you don't want to use snippets set lsp-enable-snippet to nil in
@@ -239,7 +243,6 @@
 
 ;; Add company-lsp backend for metals
 (use-package company-lsp
-  :disabled
   :ensure t
   :defer  t)
 
