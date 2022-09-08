@@ -111,7 +111,10 @@
                       indent-tabs-mode t))))
 
 (use-package nix-mode
-  :ensure t)
+  :ensure t
+  :config
+  (add-hook 'nix-mode-hook 'nix-format-on-save-mode))
+
 
 (use-package smartparens
   :ensure t)
