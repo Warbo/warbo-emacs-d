@@ -32,3 +32,4 @@ nix-buffer/trusted-exprs
 elpy
 .dap-breakpoints
 .lsp-session-v1
+/.cache
