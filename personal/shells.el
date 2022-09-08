@@ -259,6 +259,14 @@
           '(lambda()
              (local-set-key (kbd "C-l") 'eshell/clear)))
 
+(defadvice shell-command
+    (after shell-in-new-buffer (command &optional output-buffer error-buffer))
+  "From https://stackoverflow.com/a/6895517/884682 ."
+  (when (get-buffer "*Async Shell Command*")
+    (with-current-buffer "*Async Shell Command*"
+      (rename-uniquely))))
+(ad-activate 'shell-command)
+
 ;; From http://www.enigmacurry.com/2008/12/26/emacs-ansi-term-tricks/
 (defer (lambda ()
          (require 'term)
