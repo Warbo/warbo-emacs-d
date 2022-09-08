@@ -153,6 +153,22 @@
 (use-package s
   :defer t)
 
+(use-package diminish
+  :config
+  (mapcar 'diminish '(editorconfig-mode
+                      whitespace-cleanup-mode
+                      flyspell-mode
+                      company-mode
+                      projectile-mode
+                      eldoc-mode
+                      visual-line-mode
+                      smartparens-mode
+                      prelude-mode
+                      flycheck-mode
+                      lsp-lens-mode
+                      beacon-mode
+                      pretty-sha-path-mode)))
+
 (use-package lsp-mode
   :quelpa (lsp-mode :fetcher github
                     :repo    "emacs-lsp/lsp-mode")
