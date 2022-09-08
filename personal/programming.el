@@ -115,6 +115,10 @@
   :config
   (add-hook 'nix-mode-hook 'nix-format-on-save-mode))
 
+(use-package scala-mode
+  :ensure t
+  :config
+  (add-hook 'scala-mode-hook 'scala-format-on-save-mode))
 
 (use-package smartparens
   :ensure t)
