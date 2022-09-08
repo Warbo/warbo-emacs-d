@@ -48,6 +48,8 @@
 
 (use-package direnv
   :ensure t
+  :init
+  (add-hook 'prog-mode-hook #'direnv-update-environment)
   :config
   (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))
