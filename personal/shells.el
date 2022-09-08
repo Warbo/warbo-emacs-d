@@ -219,15 +219,12 @@
    "Useful buffers to open at startup"))
 
 (defun open-startup-shells ()
+  "Open a new shell for each entry in startup-shells."
   (interactive)
-  (mapc 'shell-named-in startup-shells)
-  ;; Open each entry in ~/repos in a new shell on Mac. We do this here rather than
-  ;; in mac.el to make sure shell-named-in is available.
-  (mac-only
-   (mapc (lambda (d)
-           (unless (s-prefix? "." d)
-             (shell-named-in `(,d ,(format "%s/repos/%s" (getenv "HOME") d)))))
-         (directory-files "~/repos"))))
+  (mapc 'shell-named-in startup-shells))
+
+;; TODO: Start each buffer as empty, but with a local function that starts the
+;; shell if switched-to (window-buffer-change-functions could do this)
 
 (open-startup-shells)
 
