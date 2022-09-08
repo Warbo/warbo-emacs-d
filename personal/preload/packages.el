@@ -289,7 +289,14 @@
 ;; (use-package tuareg)
 
 (use-package undo-tree
-  :ensure t)
+  :ensure t
+  :config
+  (progn
+    (setq undo-tree-visualizer-timestamps t
+          undo-tree-history-directory-alist (quote (("" . "~/.emacs.d/.appdata/.undo-tree-history")))
+          undo-tree-auto-save-history nil  ;; Freezes Emacs on big XML files
+          undo-tree-visualizer-lazy-drawing 1000)
+    (global-undo-tree-mode)))
 
 ;; (use-package use-package)
 
