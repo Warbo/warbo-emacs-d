@@ -36,17 +36,21 @@
 ;; These modes are built-in, so we don't need use-package to run add-hook
 (add-hook 'sh-mode-hook 'sh-format-on-save-mode)
 
+;; Put as much as possible in use-package expressions; roughly alphabetically
+
+(use-package cue-mode
+  :ensure t  :after reformatter
+  :quelpa (cue-mode :fetcher github
+                    :repo    "russell/cue-mode")
+  :mode (("\\.cue\\'"  . cue-mode))
+  :config
+  (add-hook 'cue-mode-hook 'cue-format-on-save-mode))
+
 (use-package direnv
   :ensure t
   :config
   (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))
-
-(use-package cue-mode
-  :ensure t
-  :quelpa (cue-mode :fetcher github
-                    :repo    "russell/cue-mode")
-  :mode (("\\.cue\\'"  . cue-mode)))
 
 (use-package js2-mode
   :ensure t)
