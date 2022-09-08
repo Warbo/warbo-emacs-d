@@ -34,6 +34,9 @@
   (which-key-mode -1)
   )
 
+(use-package nhexl-mode
+  :ensure t)
+
 (use-package unicode-fonts
   :ensure t
   :config
