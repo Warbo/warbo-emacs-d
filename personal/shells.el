@@ -64,7 +64,8 @@
                   "telnet"
                   "ssh"
                   "mysql")
-                eshell-visual-commands))
+                (and  (boundp 'eshell-visual-commands)
+                      eshell-visual-commands)))
   :bind
   (:map eshell-mode-map
         ;; Swap cursor keys and C-p/C-n in EShell.
