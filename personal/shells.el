@@ -48,8 +48,7 @@
                   ;; https://stackoverflow.com/a/50776528/884682
                   (face-remap-set-base 'comint-highlight-prompt :inherit nil))))
 
-(defvar eshell-mode-map)
-(defvar eshell-visual-commands)
+(require 'esh-mode)
 (use-package eshell
   :commands eshell
   :custom
