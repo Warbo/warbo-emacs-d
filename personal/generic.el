@@ -200,6 +200,7 @@
               (executable-find command))))))
 
 (use-package dwim-compile
+  :disabled
   :ensure t
   :config
   ;; Compile using nix-build if there's a default.nix file
