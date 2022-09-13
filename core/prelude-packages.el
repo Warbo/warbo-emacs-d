@@ -34,9 +34,8 @@
 ;;; Code:
 (require 'cl)
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
+
+;; TODO: Switch all this to use-package!
 
 (defvar prelude-packages
   '(ace-window
