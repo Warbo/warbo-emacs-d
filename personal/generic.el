@@ -56,7 +56,11 @@
 (use-package editorconfig
   :ensure t
   :config
-  (editorconfig-mode 1))
+  (setq editorconfig-exclude-regexps
+        '(".*/recentf$"
+          ".*\.zip$"))
+  (add-hook 'prog-mode-hook 'editorconfig-mode)
+  )
 
 (use-package company
   :ensure t
