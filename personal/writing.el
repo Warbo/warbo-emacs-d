@@ -66,7 +66,8 @@
   (org-babel-do-load-languages 'org-babel-load-languages '((haskell    . t)
                                                            (shell      . t)
                                                            (gnuplot    . t)
-                                                           (dot        . t)))
+                                                           (dot        . t)
+                                                           (ditaa      . t)))
 
   ;; Don't ask whether we can run code every time
   (setq org-confirm-babel-evaluate nil)
