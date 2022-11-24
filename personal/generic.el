@@ -313,6 +313,15 @@ Version 2017-09-01"
          $fpath )))))
 (global-set-key (kbd "C-M-w" ) 'xah-copy-file-path)
 
+;; https://www.blogbyben.com/2022/05/gotcha-emacs-on-mac-os-too-many-files.html
+(defun file-notify-rm-all-watches ()
+  "Remove all existing file notification watches from Emacs."
+  (interactive)
+  (maphash
+   (lambda (key _value)
+     (file-notify-rm-watch key))
+   file-notify-descriptors))
+
 ;; Allow commands to use Nix
 (when (file-exists-p "/nix/var/nix/daemon-socket/socket")
  (setenv "NIX_REMOTE" "daemon"))
