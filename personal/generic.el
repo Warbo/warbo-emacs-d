@@ -72,6 +72,9 @@
         company-tooltip-limit           20
         company-dabrev-downcase         nil))
 
+;; See https://www.masteringemacs.org/article/whats-new-in-emacs-28-1
+(setq completions-detailed t)
+
 ;; Highlight dodgy whitespace (tabs, trailing, otherwise-empty lines, etc.) in
 ;; programs, config files, etc.
 (use-package whitespace
@@ -265,11 +268,14 @@ If point is already at the beginning of text, move it to the beginning of line."
     (back-to-indentation)
     (when (eq pt (point))
       (beginning-of-line))))
-(bind-key* "C-a"     'smart-line-beginning)
+(bind-key* "C-a" 'smart-line-beginning)
 
 ;; Home and End should stick to the current line
 (global-set-key (kbd "<home>") 'smart-line-beginning)
 (global-set-key (kbd "<end>" ) 'end-of-line)
+
+;; Turn URLs into buttons
+(global-goto-address-mode 1)
 
 (defun xah-copy-file-path (&optional @dir-path-only-p)
   "Copy the current buffer's file path or dired path to `kill-ring'.
