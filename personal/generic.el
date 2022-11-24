@@ -274,6 +274,8 @@ If point is already at the beginning of text, move it to the beginning of line."
 (global-set-key (kbd "<home>") 'smart-line-beginning)
 (global-set-key (kbd "<end>" ) 'end-of-line)
 
+(global-set-key (kbd "C-x t TAB") 'tab-switcher)
+
 ;; Turn URLs into buttons
 (global-goto-address-mode 1)
 
