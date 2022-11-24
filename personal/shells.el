@@ -218,6 +218,9 @@
      ("repos"    "~/repos"))
    "Useful buffers to open at startup"))
 
+;; Avoid complaints from 'less' about terminal not being fully functional
+(setq process-environment (cons "PAGER=cat" process-environment))
+
 (defun open-startup-shells ()
   "Open a new shell for each entry in startup-shells."
   (interactive)
