@@ -74,3 +74,18 @@
 ;; Turn off UI clutter
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
+
+;; I actually like tab-bar-mode, since:
+;;  - Each tab can contain multiple windows, just like a frame
+;;  - The tabs show their current buffer name
+;; My old workflow was to create a frame for each task/project I was currently
+;; working on, e.g. if I'm waiting for some command to finish in ProjectA, I can
+;; leave its frame open, and work on ProjectB in another frame (on another
+;; desktop) in the mean time.
+;; The downside of using frames is they're hard to distinguish visually; so it
+;; might require a few desktop switches to find the one I want. This is less of
+;; an issue with tabs, since they show the buffer names :)
+(tab-bar-mode 1)
+
+(provide 'generic)
+;;; generic.el ends here
