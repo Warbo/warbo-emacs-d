@@ -3,9 +3,11 @@
   (run-with-idle-timer 2 nil f))
 
 (defconst machine-id (cond
-                      ((file-directory-p "/Users/chris") 'mac)
-                      ((file-directory-p "/home/chris")  'thinkpad)
-                      (t                                 'unknown)))
+                      ((file-directory-p "/Users/chris")  'mac)
+                      ((file-directory-p "/Users/chrisw") 'mac)
+                      ((file-directory-p "/home/chris")   'thinkpad)
+                      ((file-directory-p "/home/manjaro") 'manjaro)
+                      (t                                  'unknown)))
 
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
@@ -13,7 +15,13 @@
       ,@body))
 
 (defmacro thinkpad-only (&rest body)
+  "Only evaluate BODY iff on thinkpad."
   `(when (equal machine-id 'thinkpad)
+     ,@body))
+
+(defmacro manjaro-only (&rest body)
+  "Only tevaluate BODY iff on manjaro."
+  `(when (equal machine-id 'manjaro)
      ,@body))
 
 ;; Set PATH and 'exec-path', so external commands will work.

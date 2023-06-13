@@ -150,6 +150,9 @@
         (rename-buffer name)))
     name))
 
+(defconst startup-shells
+  '(("home" "~")))
+
 (thinkpad-only
  (defconst startup-shells
    '(("antiunification"      "~/Programming/Haskell/EquationalAntiUnification")

@@ -38,8 +38,8 @@
   :ensure t)
 
 ;; Add company-lsp backend for metals
-(use-package company-lsp
-  :ensure t)
+;; (use-package company-lsp
+;;   :ensure t)
 
 ;; Posframe is a pop-up tool that must be manually installed for dap-mode
 (use-package posframe
@@ -57,5 +57,6 @@
 (use-package lsp-treemacs
   :ensure t
   :config
-  (lsp-metals-treeview-enable t)
-  (setq lsp-metals-treeview-show-when-views-received t))
+  ;(lsp-metals-treeview-enable t)
+  ;(setq lsp-metals-treeview-show-when-views-received t)
+  )
