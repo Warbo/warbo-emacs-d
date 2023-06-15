@@ -369,31 +369,9 @@ Version 2017-09-01"
             (and (boundp 'server-clients) server-clients))
   (defer 'server-start))
 
-(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
+;;(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
+(manjaro-only
+ (set-frame-font  "Iosevka"))
 
-(thinkpad-only
- ;; Force font. This does nothing in terminal mode, so we poll until there's a
- ;; graphical display, set the font, then cancel the polling
-
- ;; We store the timer
- (when (boundp 'force-font-timer)
-   (cancel-timer force-font-timer)
-   (makunbound 'force-font-timer))
-
- (setq force-font-timer
-       (run-with-timer 5 5 (lambda ()
-                             (when (display-graphic-p)
-                               (if (member desired-font (font-family-list))
-                                   (set-face-attribute 'default nil
-                                                       :font desired-font
-                                                       :height 80)
-                                 (message "Font %S wasn't found" desired-font))
-
-                               (cancel-timer force-font-timer))))))
-
-(mac-only
- (if (member desired-font (font-family-list))
-     (set-face-attribute 'default nil
-                         :font desired-font
-                         :height 100)
-   (message "Font %S wasn't found" desired-font)))
+(provide 'generic)
+;;; generic.el ends here
