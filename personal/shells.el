@@ -3,51 +3,76 @@
 ;; handling, e.g. (ansi-color-for-comint-mode-on), since that's SLOW
 (use-package xterm-color
   :ensure t
-  :init
-  (setq comint-output-filter-functions
-        (remove 'ansi-color-process-output comint-output-filter-functions))
+  :custom
+  (comint-output-filter-functions
+   (remove 'ansi-color-process-output comint-output-filter-functions)
+   "Remove built-in handling of ANSI colour codes")
+  (comint-preoutput-filter-functions
+   (cons 'xterm-color-filter
+         (remove 'xterm-color-filter comint-preoutput-filter-functions))
+   "Ensure xterm-color's preoutput handler is in place"))
 
-  (add-hook 'shell-mode-hook
-            (lambda ()
-              (add-hook 'comint-preoutput-filter-functions
-                        'xterm-color-filter nil t))))
+(use-package shx
+  :ensure t
+  :custom
+  (shx-leader "#" "Use '#ssh', '#view', etc. since : conflicts with REPLs")
+  :config
+  ;; One of the nice things about shell-mode is that we can edit the buffer
+  ;; contents, e.g. to retroactively format previous output, or to build up new
+  ;; commands in preparation for copy/pasting them to the prompt. Annoyingly,
+  ;; shx-mode takes over the SPC key, for some magic which I don't actually
+  ;; use, but nevertheless prevents inserting a space at the point. Hence we
+  ;; remove this binding here, to allow typing spaces like normal shell-mode.
+  (define-key shx-mode-map (kbd "SPC") nil)
 
-;; Swap cursor keys and C-p/C-n in EShell.
-;; C-up/C-down still does history like Shell mode
-(defun m-eshell-hook ()
-  "Define control p, control n and the up/down arrow."
-  (define-key eshell-mode-map [(control p)]
-    'eshell-previous-matching-input-from-input)
-  (define-key eshell-mode-map [(control n)]
-    'eshell-next-matching-input-from-input)
+  (define-advice shx-cmd-ssh
+      (:around (f host) ssh-default-to-bash)
+    "Assume remote hosts will be using /bin/bash, rather than wrappedShell"
+    ;; TODO: Would be even better if we check whether the remote command exists,
+    ;; before falling back to a default (similar to shx--shell-command, but we
+    ;; need to use 'host' rather than 'default-directory'
+    (let ((explicit-shell-file-name
+           (cond ((string= "" host) explicit-shell-file-name)
+                 (t "/bin/bash"))))
+     (apply f (list host)))))
 
-  (define-key eshell-mode-map [up] 'previous-line)
-  (define-key eshell-mode-map [down] 'next-line))
+(use-package shell
+  :hook
+  (shell-mode . (lambda ()
+                  (unless shx-mode (shx-mode 1))
 
-(add-hook 'eshell-mode-hook 'm-eshell-hook)
+                  ;; Wrap at edge of the screen, not at last whitespace
+                  (visual-line-mode -1)
 
-;; Shells should wrap at the edge of the screen, not at the last whitespace
-(add-hook 'shell-mode-hook
-          (lambda ()
-            (visual-line-mode -1)))
+                  ;; Avoid overriding prompt colours
+                  ;; https://stackoverflow.com/a/50776528/884682
+                  (face-remap-set-base 'comint-highlight-prompt :inherit nil))))
 
-;; Auto-complete should stop at the first ambiguity
-(setq eshell-cmpl-cycle-completions nil)
-
-;; Use ansi-term for these commands
-(add-hook
- 'eshell-first-time-mode-hook
- (lambda ()
-   (setq eshell-visual-commands
-         (append '("mutt"
-                   "vim"
-                   "screen"
-                   "lftp"
-                   "ipython"
-                   "telnet"
-                   "ssh"
-                   "mysql")
-                 eshell-visual-commands))))
+(require 'esh-mode)
+(use-package eshell
+  :commands eshell
+  :custom
+  (eshell-cmpl-cycle-completions nil "Stop auto-complete at first ambiguity")
+  ;; Use ansi-term for these commands
+  (eshell-visual-commands
+        (append '("mutt"
+                  "vim"
+                  "screen"
+                  "lftp"
+                  "ipython"
+                  "telnet"
+                  "ssh"
+                  "mysql")
+                (and  (boundp 'eshell-visual-commands)
+                      eshell-visual-commands)))
+  :bind
+  (:map eshell-mode-map
+        ;; Swap cursor keys and C-p/C-n in EShell.
+        ;; C-up/C-down still does history like Shell mode
+        ("C-p"    . eshell-previous-matching-input-from-input)
+        ("C-n"    . eshell-next-matching-input-from-input)
+        ("<up>"   . previous-line)
+        ("<down>" . next-line)))
 
 (defun make-numbered-name (prefix n)
   "For string PREFIX and number N, combine into '*PREFIX-N*'."
@@ -92,6 +117,14 @@
 ;; "Refresh" an SSH shell after a connection dies
 (defun refresh-terminal ()
   "Start a new shell, like the current."
+  (interactive)
+  (let ((buf-name (buffer-name)))
+    (progn (command-execute 'bash)
+           (kill-buffer   buf-name)
+           (rename-buffer buf-name))))
+
+(defun refresh-terminal-unbuffered ()
+  "Start a new shell, like the current.  Avoids buffering the bash shell."
   (interactive)
   (let ((buf-name                 (buffer-name))
         (explicit-shell-file-name "bash"))
@@ -188,15 +221,16 @@
      ("repos"    "~/repos"))
    "Useful buffers to open at startup"))
 
+;; Avoid complaints from 'less' about terminal not being fully functional
+(setq process-environment (cons "PAGER=cat" process-environment))
+
 (defun open-startup-shells ()
-  (mapc 'shell-named-in startup-shells)
-  ;; Open each entry in ~/repos in a new shell on Mac. We do this here rather than
-  ;; in mac.el to make sure shell-named-in is available.
-  (mac-only
-   (mapc (lambda (d)
-           (unless (s-prefix? "." d)
-             (shell-named-in `(,d ,(format "%s/repos/%s" (getenv "HOME") d)))))
-         (directory-files "~/repos"))))
+  "Open a new shell for each entry in startup-shells."
+  (interactive)
+  (mapc 'shell-named-in startup-shells))
+
+;; TODO: Start each buffer as empty, but with a local function that starts the
+;; shell if switched-to (window-buffer-change-functions could do this)
 
 (open-startup-shells)
 
@@ -230,6 +264,14 @@
 (add-hook 'eshell-mode-hook
           '(lambda()
              (local-set-key (kbd "C-l") 'eshell/clear)))
+
+(defadvice shell-command
+    (after shell-in-new-buffer (command &optional output-buffer error-buffer))
+  "From https://stackoverflow.com/a/6895517/884682 ."
+  (when (get-buffer "*Async Shell Command*")
+    (with-current-buffer "*Async Shell Command*"
+      (rename-uniquely))))
+(ad-activate 'shell-command)
 
 ;; From http://www.enigmacurry.com/2008/12/26/emacs-ansi-term-tricks/
 (defer (lambda ()

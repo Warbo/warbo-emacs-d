@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Thu, 24 Nov 2022 12:26:46 +0000
+State: new
+Subject: Use shell-mode CWD in uniquify-buffer-name-style
+Message-Id: <8377fbfa9d77f37d-0-artemis@zipabout-spare.lan>
+
+Emacs recently allows uniquify-buffer-name-style to be a function, which can
+return a unique buffer name in the desired format. For example, instead of
+'*shell*<3>' we can use this function to spot shell-mode, get the CWD and return
+'my-dir', 'my-dir<2>', etc. instead. Saves a lot of manual renaming.
+
+Also, can be called at any time via rename-uniquely (C-x x u), e.g. once we've
+cd'd to a different directory!

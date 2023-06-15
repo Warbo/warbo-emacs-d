@@ -1,3 +1,7 @@
+;;; warbo-emacs-packages --- Load packages at startup
+;;; Commentary:
+;;; Code:
+
 ;; Set up packaging, first with Emacs's built-in "package.el" functionality
 (require 'package)
 (setq package-enable-at-startup nil)
@@ -269,7 +273,12 @@
 ;; (use-package slime)
 
 (use-package smart-mode-line
-  :ensure t)
+  :disabled
+  :ensure t
+  :init
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/theme nil)
+  (add-hook 'after-init-hook #'sml/setup))
 
 ;; (use-package smartrep)
 
@@ -284,7 +293,14 @@
 ;; (use-package tuareg)
 
 (use-package undo-tree
-  :ensure t)
+  :ensure t
+  :config
+  (progn
+    (setq undo-tree-visualizer-timestamps t
+          undo-tree-history-directory-alist (quote (("" . "~/.emacs.d/.appdata/.undo-tree-history")))
+          undo-tree-auto-save-history nil  ;; Freezes Emacs on big XML files
+          undo-tree-visualizer-lazy-drawing 1000)
+    (global-undo-tree-mode)))
 
 ;; (use-package use-package)
 
@@ -299,9 +315,6 @@
 ;; (use-package ws-butler)
 
 (use-package xterm-color
-  :ensure t)
-
-(use-package yaml-mode
   :ensure t)
 
 ;; (use-package yasnippet)

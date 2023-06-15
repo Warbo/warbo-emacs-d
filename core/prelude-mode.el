@@ -35,8 +35,8 @@
 (require 'imenu-anywhere)
 (require 'crux)
 
-;; (defvar prelude-mode-map
-;;   (let ((map (make-sparse-keymap)))
+ (defvar prelude-mode-map
+   (let ((map (make-sparse-keymap)))
 ;;     (define-key map (kbd "C-c o") 'crux-open-with)
 ;;     (define-key map (kbd "C-c g") 'prelude-google)
 ;;     (define-key map (kbd "C-c G") 'prelude-github)
@@ -60,7 +60,7 @@
 ;;     (define-key map (kbd "C-c D") 'crux-delete-file-and-buffer)
 ;;     (define-key map (kbd "C-c d") 'crux-duplicate-current-line-or-region)
 ;;     (define-key map (kbd "C-c M-d") 'crux-duplicate-and-comment-current-line-or-region)
-;;     (define-key map (kbd "C-c r") 'crux-rename-buffer-and-file)
+     (define-key map (kbd "C-c r") 'crux-rename-buffer-and-file)
 ;;     (define-key map (kbd "C-c t") 'crux-visit-term-buffer)
 ;;     (define-key map (kbd "C-c k") 'crux-kill-other-buffers)
 ;;     (define-key map (kbd "C-c TAB") 'crux-indent-rigidly-and-copy-to-clipboard)
@@ -76,8 +76,8 @@
 ;;     (define-key map (kbd "s-k") 'crux-kill-whole-line)
 ;;     (define-key map (kbd "s-o") 'crux-smart-open-line-above)
 
-;;     map)
-;;   "Keymap for Prelude mode.")
+     map)
+   "Keymap for Prelude mode.")
 
 (defun prelude-mode-add-menu ()
   "Add a menu entry for `prelude-mode' under Tools."

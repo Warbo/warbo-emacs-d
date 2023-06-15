@@ -1,31 +1,14 @@
 ;; Settings that only make sense on macOS
 (mac-only
 
- ;; On OS X Emacs doesn't inherit some env vars (especially PATH) if it's not
- ;; started from the shell. We force this here. Note: this may cause surprising
- ;; behaviour if you're trying to setenv elsewhere!
- (use-package exec-path-from-shell
-   :ensure t
-   :if (memq window-system '(mac ns x))
-   :config
-   (setq exec-path-from-shell-variables '("PATH" "GOPATH" "NIX_PATH"))
-   (exec-path-from-shell-initialize))
+ ;; Set our modifier keys. Note that our Karabiner config turns the left Ctrl
+ ;; key into a Command key; this is useful in most programs but not Emacs, so
+ ;; we switch it back here (I don't think we ever need a Command modifier in
+ ;; Emacs, so this should be safe).
 
- (setq ns-function-modifier 'hyper)
-
- (defun prelude-swap-meta-and-super ()
-   "Swap the mapping of Meta and Super. Very useful for people using their Mac
-    with a Windows external keyboard from time to time."
-   (interactive)
-   (if (eq mac-command-modifier 'super)
-       (progn
-         (setq mac-command-modifier 'meta)
-         (setq mac-option-modifier 'super)
-         (message "Command is now bound to META and Option is bound to SUPER."))
-     (progn
-       (setq mac-command-modifier 'super)
-       (setq mac-option-modifier 'meta)
-       (message "Command is now bound to SUPER and Option is bound to META."))))
+ (setq ns-function-modifier 'hyper  )  ;; Fn key awkwardly placed in bottom left
+ (setq mac-command-modifier 'control)  ;; Turn Ctrl key back into Control
+ (setq mac-option-modifier  'meta   )  ;; Left Option/Alt should always be Meta
 
  ;; Fix Option-3 to give # on UK Mac keyboard. Emacs sees Option as Alt (AKA
  ;; Meta AKA M) which Emacs will intercept and complain that it isn't a command
@@ -42,6 +25,5 @@
  (if (fboundp 'set-fontset-font)
      (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
 
-  ;(define-key prelude-mode-map (kbd "C-c w") 'prelude-swap-meta-and-super)
   ;(define-key prelude-mode-map (kbd "s-/") 'hippie-expand)
  )

@@ -29,3 +29,7 @@ transient
 .emacs.desktop.lock
 games/tetris-scores
 nix-buffer/trusted-exprs
+elpy
+.dap-breakpoints
+.lsp-session-v1
+/.cache

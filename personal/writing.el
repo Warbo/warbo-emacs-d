@@ -25,60 +25,53 @@
 (use-package org
   :mode (("\\.org$" . org-mode))
   :ensure org-plus-contrib
-  :bind (("<f9>" . 'org-save-and-show-pdf))
+  :bind (("<f9>" . 'org-save-and-show-pdf)
+
+         ;; Don't clobber windmove bindings
+         :map org-mode-map
+         ("S-<up>"    . nil)
+         ("S-<down>"  . nil)
+         ("S-<left>"  . nil)
+         ("S-<right>" . nil))
+
+  :hook
+  ((org-mode-hook . turn-on-visual-line-mode)  ;; Use VLM in 'document' modes
+
+   (org-mode-hook . (lambda ()
+                      (whitespace-mode 0)
+                      (setq-local whitespace-style
+                                  (remove-if (lambda (x)
+                                               (member x '(lines-tail
+                                                           lines)))
+                                             whitespace-style))
+                      (whitespace-mode 1))))
+
   :init
-  (progn
-    ;; Don't clobber windmove bindings (this must run before ORG loads)
-    ;; "(add-hook 'org-shiftup-final-hook 'windmove-up)", etc. don't seem to
-    ;; work. Default disputed keys remap so that windowmove commands aren't
-    ;; overridden.
-    (setq org-disputed-keys '(([(shift up)] . [(meta p)])
-                              ([(shift down)] . [(meta n)])
-                              ([(shift left)] . [(meta -)])
-                              ([(shift right)] . [(meta +)])
-                              ([(meta return)] . [(control meta return)])
-                              ([(control shift right)] . [(meta shift +)])
-                              ([(control shift left)] . [(meta shift -)])))
-    (setq org-replace-disputed-keys t)
+  (setq org-disputed-keys '(([(meta return)] . [(control meta return)])
+                            ([(control shift right)] . [(meta shift +)])
+                            ([(control shift left)] . [(meta shift -)])))
+  (setq org-replace-disputed-keys t)
 
-    (defun org-save-and-show ()
-      (let* ((pdf (replace-regexp-in-string "\.org$" ".pdf"
-                                            (buffer-name)))
-             (buf (get-buffer pdf)))
-        (when buf (with-current-buffer buf (auto-revert-mode 1)))
-        (save-buffer)
-        (org-latex-export-to-pdf)
-        (unless buf (find-file pdf)))))
+  (defun org-save-and-show ()
+    (let* ((pdf (replace-regexp-in-string "\.org$" ".pdf"
+                                          (buffer-name)))
+           (buf (get-buffer pdf)))
+      (when buf (with-current-buffer buf (auto-revert-mode 1)))
+      (save-buffer)
+      (org-latex-export-to-pdf)
+      (unless buf (find-file pdf))))
+
   :config
-  (progn
-    ;; Active Babel languages
-    (org-babel-do-load-languages 'org-babel-load-languages '((haskell    . t)
-                                                             (shell      . t)
-                                                             (gnuplot    . t)
-                                                             (dot        . t)))
+  ;; Active Babel languages
+  (org-babel-do-load-languages 'org-babel-load-languages '((haskell    . t)
+                                                           (shell      . t)
+                                                           (gnuplot    . t)
+                                                           (dot        . t)
+                                                           (ditaa      . t)))
 
-    ;; Don't ask whether we can run code every time
-    (setq org-confirm-babel-evaluate nil)
-
-    (setq org-src-fontify-natively t)
-
-    ;; Make windmove work in Org mode:
-    (add-hook 'org-shiftup-final-hook    'windmove-up)
-    (add-hook 'org-shiftleft-final-hook  'windmove-left)
-    (add-hook 'org-shiftdown-final-hook  'windmove-down)
-    (add-hook 'org-shiftright-final-hook 'windmove-right)
-
-    ;; Visual line wrapping in document modes
-    (add-hook 'org-mode-hook 'turn-on-visual-line-mode)
-
-    (add-hook 'org-mode-hook (lambda ()
-                               (whitespace-mode 0)
-                               (setq-local whitespace-style
-                                           (remove-if (lambda (x)
-                                                        (member x '(lines-tail
-                                                                    lines)))
-                                                      whitespace-style))
-                               (whitespace-mode 1)))))
+  ;; Don't ask whether we can run code every time
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-fontify-natively   t))
 
 (add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
 
@@ -100,3 +93,31 @@
 (defun bib ()
   (interactive)
   (ebib "~/Writing/Bibtex.bib"))
+
+(use-package epresent
+  :ensure t
+  :config
+  (add-hook 'epresent-mode-hook
+            (lambda ()
+              (setq show-trailing-whitespace nil)
+              (fci-mode -1)
+              (set-frame-font "Noto Sans Mono")
+              (whitespace-mode -1))))
+
+(use-package org-present
+  :ensure t
+  :config
+  (with-eval-after-load 'org-present
+    (add-hook 'org-present-mode-hook (lambda ()
+                                       (org-present-big)
+  ;;               (org-display-inline-images)
+  ;;               (org-present-hide-cursor)
+  ;;               (org-present-read-only)
+                                       ))
+     (add-hook 'org-present-mode-quit-hook (lambda ()
+                                             (org-present-small)
+  ;;               (org-remove-inline-images)
+  ;;               (org-present-show-cursor)
+  ;;               (org-present-read-write)
+                                             ))
+     ))

@@ -1,9 +1,11 @@
 (use-package scala-mode
   :ensure t
-  :mode "\\.s\\(cala\\|bt\\)$")
+  :mode "\\.s\\(cala\\|bt\\)$"
+  :bind (("C-c C-c" . sbt-run-previous-command)))
 
 (use-package sbt-mode
   :ensure t
+  :pin melpa-stable
   :commands sbt-start sbt-command
   :config
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
@@ -12,9 +14,15 @@
    'minibuffer-complete-word
    'self-insert-command
    minibuffer-local-completion-map)
-  ;; sbt-supershell kills sbt-mode:  https://github.com/hvesalai/emacs-sbt-mode/issues/152
-  (setq sbt:program-options '("-Dsbt.supershell=false")))
-
+  (setq sbt:default-command "test")
+  (setq sbt:program-options
+        '("-Dsbt.color=always"
+          "-Dsbt.log.noformat=false"
+          ;; See https://github.com/hvesalai/emacs-sbt-mode/issues/139
+          "-Djline.terminal=auto"
+          ;; See https://github.com/hvesalai/emacs-sbt-mode/issues/152
+          "-Dsbt.supershell=false"
+          )))
 ;; Enable nice rendering of diagnostics like compile errors.
 (use-package flycheck
   :ensure t
@@ -60,3 +68,8 @@
   ;(lsp-metals-treeview-enable t)
   ;(setq lsp-metals-treeview-show-when-views-received t)
   )
+
+(use-package lsp-metals
+    :quelpa (lsp-metals :fetcher github
+                        :repo    "emacs-lsp/lsp-metals")
+    :ensure t)

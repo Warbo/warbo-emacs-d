@@ -4,6 +4,13 @@
 (global-set-key (kbd "S-C-<down>")  'shrink-window)
 (global-set-key (kbd "S-C-<up>")    'enlarge-window)
 
+;; Easily toggle truncation; helps on narrow phone screens
+(global-set-key (kbd "C-c C-t") 'toggle-truncate-lines)
+
+(use-package zygospore
+  :ensure t
+  :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
+
 ;; When TRAMP connections die, auto-save can hang
 (setq auto-save-default t)
 
@@ -16,22 +23,60 @@
 (ad-unadvise 'windmove-right)
 
 ;; Disable expensive modes when long lines are found
-(when (require 'so-long nil :noerror)
-  (so-long-enable))
+(use-package so-long
+  :ensure t
+  :config
+  (global-so-long-mode)
 
-;; Bi-directional text can slow down Emacs's processing
-(setq-default bidi-display-reordering nil)
+  ;; Bi-directional text can slow down Emacs's processing
+  (setq-default bidi-display-reordering nil)
 
-;; Disable smartparens mode, as it's really slow
-(with-eval-after-load 'smartparens
+
+
+  ;; Disable which-key, as it's slow and swallows keypresses
+  (which-key-mode -1)
+  )
+
+(use-package nhexl-mode
+  :ensure t)
+
+(use-package unicode-fonts
+  :ensure t
+  :config
+  (unicode-fonts-setup))
+
+(use-package smartparens
+  :ensure t
+  :config
+  ;; Disable smartparens mode, as it's really slow
   (show-smartparens-global-mode -1))
 
-;; Disable which-key, as it's slow and swallows keypresses
-(which-key-mode -1)
-
 ;; Hovering tooltips are annoying
-(setq tooltip-use-echo-area t)
-(tooltip-mode nil)
+;(setq tooltip-use-echo-area t)
+;(tooltip-mode nil)
+
+;; Honour .editorconfig file settings
+(use-package editorconfig
+  :ensure t
+  :config
+  (setq editorconfig-exclude-regexps
+        '(".*/recentf$"
+          ".*\.zip$"))
+  (add-hook 'prog-mode-hook 'editorconfig-mode)
+  )
+
+(use-package company
+  :ensure t
+  :config
+  (setq company-idle-delay              nil
+        company-tooltip-flip-when-above t
+        company-minimum-prefix-length   1
+        company-show-numbers            t
+        company-tooltip-limit           20
+        company-dabrev-downcase         nil))
+
+;; See https://www.masteringemacs.org/article/whats-new-in-emacs-28-1
+(setq completions-detailed t)
 
 ;; Highlight dodgy whitespace (tabs, trailing, otherwise-empty lines, etc.) in
 ;; programs, config files, etc.
@@ -68,100 +113,109 @@
     (global-whitespace-cleanup-mode)))
 
 ;; Flycheck all the things
-(require 'flycheck)
-(add-hook 'after-init-hook #'global-flycheck-mode)
-(add-to-list 'flycheck-checkers 'nix)
+(use-package flycheck
+  :ensure t
+  :hook ((after-init . global-flycheck-mode))
+  :config
+  (add-to-list 'flycheck-checkers 'nix)
 
-;; Flycheck builds a command to run, e.g. ("myCompiler" "check" "MyFile.ext"),
-;; but that assumes the executable (e.g. "myCompiler") is in PATH. We'd rather
-;; encapsulate such things as dependencies of a project's Nix derivation, which
-;; are then available if we run "nix-shell".
+  ;; Flycheck builds a command to run, e.g. ("myCompiler" "check" "MyFile.ext"),
+  ;; but that assumes the executable (e.g. "myCompiler") is in PATH. We'd rather
+  ;; encapsulate such things as dependencies of a project's Nix derivation,
+  ;; which are then available if we run "nix-shell".
 
-;; Running nix-shell over and over can be slow, so we use functions from
-;; nix-sandbox which cache the environment (e.g. the PATH), which makes looking
-;; up the relevant executable much faster.
+  ;; Running nix-shell over and over can be slow, so we use functions from
+  ;; nix-sandbox which cache the environment (e.g. the PATH), which makes
+  ;; looking up the relevant executable much faster.
 
-;; The default behaviour of nix-sandbox isn't ideal, for two reasons: firstly we
-;; can spend a while waiting for a nix-shell to get built synchronously, just
-;; for some throwaway command like a syntax checker. Secondly, if we cancel the
-;; synchronous call (e.g. with C-g) then the sandbox will probably need to be
-;; rebuilt from scratch next time.
+  ;; The default behaviour of nix-sandbox isn't ideal, for two reasons: firstly
+  ;; we can spend a while waiting for a nix-shell to get built synchronously,
+  ;; just for some throwaway command like a syntax checker. Secondly, if we
+  ;; cancel the synchronous call (e.g. with C-g) then the sandbox will probably
+  ;; need to be rebuilt from scratch next time.
 
-;; To avoid this we augment nix-sandbox in the following way:
-;;  - We run nix-shell processes asynchronously, to avoid having to wait.
-;;  - We error-out immediately if the sandbox is still being built.
+  ;; To avoid this we augment nix-sandbox in the following way:
+  ;;  - Run nix-shell processes asynchronously, to avoid having to wait.
+  ;;  - Error-out immediately if the sandbox is still being built.
 
-;; This way, we can carry on working (without checkers) while builds are going
-;; on in the background, and the checkers will start working once the builds
-;; finish.
+  ;; This way, we can carry on working (without checkers) while builds are going
+  ;; on in the background, and the checkers will start working once the builds
+  ;; finish.
 
-;; Stores the builder processes
-(defvar nix-sandbox-builders-map (make-hash-table :test 'equal :size 100))
+  (defvar nix-sandbox-builders-map
+    (make-hash-table :test 'equal :size 100)
+    "Stores the builder processes")
 
-(defun nix-sandbox-build-asynchronously (sandbox)
-  "Launch a process to build a nix-shell in SANDBOX.
-The build command is copypasta from nix-create-sandbox-rc."
-  (or (gethash sandbox nix-sandbox-builders-map)
-      (let* ((name (concat "nix-sandbox-builder-" sandbox))
-             (proc (puthash sandbox
-                            (start-process
-                             name name
-                             "nostderr" "nix-shell" "--run"
-                             "declare +x shellHook; declare -x; declare -xf")
-                            nix-sandbox-builders-map)))
-        (message "Starting nix-shell builder for dir %s\n" sandbox)
+  (defun nix-sandbox-build-asynchronously (sandbox)
+    "Launch a process to build a nix-shell in SANDBOX.
+     The build command is copypasta from nix-create-sandbox-rc."
+    (or (gethash sandbox nix-sandbox-builders-map)
+        (let* ((name (concat "nix-sandbox-builder-" sandbox))
+               (proc (puthash
+                      sandbox
+                      (start-process
+                       name name
+                       "nostderr" "nix-shell" "--run"
+                       "declare +x shellHook; declare -x; declare -xf")
+                      nix-sandbox-builders-map)))
+          (message "Starting nix-shell builder for dir %s\n" sandbox)
 
-        ;; Prevents 'Process foo finished' messages polluting the output buffer
-        (set-process-sentinel proc #'ignore)
-        proc)))
+          ;; Prevents 'Process foo finished' messages polluting output buffer
+          (set-process-sentinel proc #'ignore)
+          proc)))
 
-(defun nix-create-sandbox-rc-async (sandbox)
-  "Replacement for nix-create-sandbox-rc.
-Looks up or creates a nix-shell process in the SANDBOX dir.  If the process is
-running (e.g. if it's newly created, or takes a while) then an interrupt is
-triggered, as if the user cancelled this operation.  If it's no longer running,
-we dump its output to a temp file and return it."
-  (let ((proc (nix-sandbox-build-asynchronously sandbox)))
-    ;; When we're not finished yet, pretend we cancelled with C-g
-    (when (process-live-p proc)
-      (keyboard-quit))
+  (defun nix-create-sandbox-rc-async (sandbox)
+    "Replacement for nix-create-sandbox-rc.
+     Looks up or creates a nix-shell process in the SANDBOX dir. If the process
+     is running (e.g. if it's newly created, or takes a while) then an interrupt
+     is triggered, as if the user cancelled this operation. If it's no longer
+     running, we dump its output to a temp file and return it."
+    (let ((proc (nix-sandbox-build-asynchronously sandbox)))
+      ;; When we're not finished yet, pretend we cancelled with C-g
+      (when (process-live-p proc)
+        (keyboard-quit))
 
-    ;; Process is finished, remove it from cache.
-    (message "Found finished builder for nix-shell dir %s\n" sandbox)
-    (remhash sandbox nix-sandbox-builders-map)
+      ;; Process is finished, remove it from cache.
+      (message "Found finished builder for nix-shell dir %s\n" sandbox)
+      (remhash sandbox nix-sandbox-builders-map)
 
-    ;; Write output to a file
-    (let ((filename (make-temp-file "nix-sandbox-rc-")))
-      (with-current-buffer (process-buffer proc)
-        (write-file filename)
-        (kill-buffer))
+      ;; Write output to a file
+      (let ((filename (make-temp-file "nix-sandbox-rc-")))
+        (with-current-buffer (process-buffer proc)
+          (write-file filename)
+          (kill-buffer))
 
-      ;; Return filename, to use as our 'rc' file
-      filename)))
+        ;; Return filename, to use as our 'rc' file
+        filename)))
 
-;; Override nix-create-sandbox-rc. Using advice is inefficient, but will work
-;; even if nix-sandbox hasn't been loaded yet.
-(advice-add 'nix-create-sandbox-rc :override #'nix-create-sandbox-rc-async)
+          ;; Override nix-create-sandbox-rc. Using advice is inefficient, but
+          ;; will work even if nix-sandbox hasn't been loaded yet.
 
-;; Tell flycheck to look up commands in Nix sandboxes, if we're in one
-(setq flycheck-command-wrapper-function
-      (lambda (command)
-        (let ((sandbox (thinkpad-only (nix-current-sandbox))))
-          (if sandbox
-              (apply 'nix-shell-command sandbox command)
+  (advice-add 'nix-create-sandbox-rc
+              :override #'nix-create-sandbox-rc-async)
+
+  ;; Tell flycheck to look up commands in Nix sandboxes, if we're in one
+  (setq flycheck-command-wrapper-function
+        (lambda (command)
+          (let ((sandbox (thinkpad-only (nix-current-sandbox))))
+            (if sandbox
+                (apply 'nix-shell-command sandbox command)
               command)))
 
-      flycheck-executable-find
-      (lambda (command)
-        (let ((sandbox (thinkpad-only (nix-current-sandbox))))
-          (if sandbox
-              (nix-executable-find sandbox command)
-            (executable-find command)))))
+        flycheck-executable-find
+        (lambda (command)
+          (let ((sandbox (thinkpad-only (nix-current-sandbox))))
+            (if sandbox
+                (nix-executable-find sandbox command)
+              (executable-find command))))))
 
-;; Compile using nix-build if there's a default.nix file
-(require 'dwim-compile)
-(add-to-list 'dwim-c/build-tool-alist
-             '(nix "\\`default\\.nix\\'" "nix-build"))
+(use-package dwim-compile
+  :disabled
+  :ensure t
+  :config
+  ;; Compile using nix-build if there's a default.nix file
+  (add-to-list 'dwim-c/build-tool-alist
+               '(nix "\\`default\\.nix\\'" "nix-build")))
 
 ;; Look for line and column numbers when using find-file-at-point
 
@@ -217,11 +271,63 @@ If point is already at the beginning of text, move it to the beginning of line."
     (back-to-indentation)
     (when (eq pt (point))
       (beginning-of-line))))
-(bind-key* "C-a"     'smart-line-beginning)
+(bind-key* "C-a" 'smart-line-beginning)
+
+;; Home and End should stick to the current line
+(global-set-key (kbd "<home>") 'smart-line-beginning)
+(global-set-key (kbd "<end>" ) 'end-of-line)
+
+(global-set-key (kbd "C-x t TAB") 'tab-switcher)
+
+;; Turn URLs into buttons
+(global-goto-address-mode 1)
+
+(defun xah-copy-file-path (&optional @dir-path-only-p)
+  "Copy the current buffer's file path or dired path to `kill-ring'.
+Result is full path.
+If `universal-argument' is called first, copy only the dir path.
+
+If in dired, copy the file/dir cursor is on, or marked files.
+
+If a buffer is not file and not dired, copy value of `default-directory'
+ (which is usually the “current” dir when that buffer was created)
+
+URL `http://ergoemacs.org/emacs/emacs_copy_file_path.html'
+Version 2017-09-01"
+  (interactive "P")
+  (let (($fpath
+         (if (string-equal major-mode 'dired-mode)
+             (progn
+               (let (($result (mapconcat 'identity
+                                         (dired-get-marked-files) "\n")))
+                 (if (equal (length $result) 0)
+                     (progn default-directory )
+                   (progn $result))))
+           (if (buffer-file-name)
+               (buffer-file-name)
+             (expand-file-name default-directory)))))
+    (kill-new
+     (if @dir-path-only-p
+         (progn
+           (message "Directory path copied: 「%s」" (file-name-directory $fpath))
+           (file-name-directory $fpath))
+       (progn
+         (message "File path copied: 「%s」" $fpath)
+         $fpath )))))
+(global-set-key (kbd "C-M-w" ) 'xah-copy-file-path)
+
+;; https://www.blogbyben.com/2022/05/gotcha-emacs-on-mac-os-too-many-files.html
+(defun file-notify-rm-all-watches ()
+  "Remove all existing file notification watches from Emacs."
+  (interactive)
+  (maphash
+   (lambda (key _value)
+     (file-notify-rm-watch key))
+   file-notify-descriptors))
 
 ;; Allow commands to use Nix
-;; NOTE: See mac.el's usage of exec-path-from-shell, which does a similar job
-(setenv "NIX_REMOTE" "daemon")
+(when (file-exists-p "/nix/var/nix/daemon-socket/socket")
+ (setenv "NIX_REMOTE" "daemon"))
 (thinkpad-only
  (setenv "NIX_PATH"
          (replace-regexp-in-string
@@ -263,11 +369,11 @@ If point is already at the beginning of text, move it to the beginning of line."
             (and (boundp 'server-clients) server-clients))
   (defer 'server-start))
 
+(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
+
 (thinkpad-only
  ;; Force font. This does nothing in terminal mode, so we poll until there's a
  ;; graphical display, set the font, then cancel the polling
-
- (defvar desired-font "Liberation Mono" "The font the use in graphical mode")
 
  ;; We store the timer
  (when (boundp 'force-font-timer)
@@ -284,3 +390,10 @@ If point is already at the beginning of text, move it to the beginning of line."
                                  (message "Font %S wasn't found" desired-font))
 
                                (cancel-timer force-font-timer))))))
+
+(mac-only
+ (if (member desired-font (font-family-list))
+     (set-face-attribute 'default nil
+                         :font desired-font
+                         :height 100)
+   (message "Font %S wasn't found" desired-font)))

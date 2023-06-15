@@ -34,11 +34,8 @@
 ;;; Code:
 (require 'cl)
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-;; set package-user-dir to be relative to Prelude install path
-(setq package-user-dir (expand-file-name "elpa" prelude-dir))
-;(package-initialize)
+
+;; TODO: Switch all this to use-package!
 
 (defvar prelude-packages
   '(ace-window
@@ -65,7 +62,7 @@
     projectile
     move-text
     operate-on-number
-    smart-mode-line
+    ;;smart-mode-line
     smartparens
     smartrep
     undo-tree
@@ -90,8 +87,6 @@
   "Ensure PACKAGES are installed.
 Missing packages are installed automatically."
   (mapc #'prelude-require-package packages))
-
-;(define-obsolete-function-alias 'prelude-ensure-module-deps 'prelude-require-packages)
 
 (defun prelude-install-packages ()
   "Install all packages listed in `prelude-packages'."
