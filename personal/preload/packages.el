@@ -4,12 +4,12 @@
 
 ;; Use "package.el" to get "use-package", which simplifies packaging
 (unless (package-installed-p 'use-package)
-  (package-refresh-contents)
+  ;(package-refresh-contents)
   (package-install 'use-package))
 
 ;; Get quelpa-use-package, which allows 'packages' to come from arbitrary places
 (unless (package-installed-p 'quelpa-use-package)
-  (package-refresh-contents)
+  ;(package-refresh-contents)
   (package-install 'quelpa-use-package))
 
 (use-package quelpa-use-package

@@ -93,7 +93,7 @@ Missing packages are installed automatically."
   (unless (prelude-packages-installed-p)
     ;; check for new packages (package versions)
     (message "%s" "Emacs Prelude is now refreshing its package database...")
-    (package-refresh-contents)
+    ;(package-refresh-contents)
     (message "%s" " done.")
     ;; install the missing packages
     (prelude-require-packages prelude-packages)))
