@@ -222,11 +222,18 @@
      ("warbo-utilities"      "~/warbo-utilities")
      ("writing"              "~/Writing"))
    "Useful buffers to open at startup."))
-(mac-only
+(manjaro-only
  (defconst startup-shells
-   '(("home"     "~")
-     ("deleteme" "~/DeleteMe")
-     ("repos"    "~/repos"))
+   '(("blog"                 "~/repos/chriswarbo-net")
+                                        ;("deleteme" "~/DeleteMe")
+     ("dotfiles"             "~/repos/warbo-dotfiles")
+     ("home"     "~")
+     ("nix-config"           "~/repos/nix-config")
+     ("nix-helpers"          "~/repos/nix-helpers")
+     ("repos"    "~/repos")
+     ("warbo-packages"       "~/repos/warbo-packages")
+     ("warbo-utilities"      "~/repos/warbo-utilities")
+     )
    "Useful buffers to open at startup"))
 
 ;; Avoid complaints from 'less' about terminal not being fully functional

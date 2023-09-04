@@ -9,6 +9,8 @@
                       ((file-directory-p "/home/manjaro") 'manjaro)
                       (t                                  'unknown)))
 
+(defconst manjaro-p (equal machine-id 'manjaro))
+
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
   `(when (equal machine-id 'mac)
@@ -21,7 +23,7 @@
 
 (defmacro manjaro-only (&rest body)
   "Only tevaluate BODY iff on manjaro."
-  `(when (equal machine-id 'manjaro)
+  `(when manjaro-p
      ,@body))
 
 ;; Set PATH and 'exec-path', so external commands will work.
