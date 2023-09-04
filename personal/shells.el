@@ -109,9 +109,11 @@
   (interactive)
   (let ((buf (free-name-num "shell")))
     (shell buf)
-    (with-current-buffer buf
-      ;; Stops shell-mode echoing our input, since the shell already does
-      (setq comint-process-echoes t))
+    ;; (with-current-buffer buf
+    ;;   ;; Stops shell-mode echoing our input, since the shell already does
+    ;;   ;; NOTE: Commented-out, since only seems to be needed when wrapping
+    ;;   ;; bash in fold (via expect)!
+    ;;   (setq comint-process-echoes t))
     buf))
 
 (defun bash-unwrapped ()
