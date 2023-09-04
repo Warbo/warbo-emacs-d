@@ -1,5 +1,6 @@
 *~
 *.elc
+eln-cache
 abbrev_defs
 auto-save-list
 recentf
