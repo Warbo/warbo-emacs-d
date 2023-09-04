@@ -371,7 +371,12 @@ Version 2017-09-01"
 
 ;;(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
 (manjaro-only
- (set-frame-font  "Iosevka"))
+ ;; Iosevka is narrow enough to fit two 80 column buffers side-by-side.
+ ;; We want a setup that is readable and compact, both on mobile and when
+ ;; plugged in to a monitor. Size 11 works well, in combination with GTK text
+ ;; scaling, e.g. x0.75 when plugged in (nice and compact), x1.33 when mobile
+ ;; (easier to hit the buttons)
+ (set-frame-font  "Iosevka 11"))
 
 (provide 'generic)
 ;;; generic.el ends here
