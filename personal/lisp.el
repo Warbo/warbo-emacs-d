@@ -1,17 +1,17 @@
 ;; Make parentheses dimmer when editing LISP
-(defface paren-face
-  '((((class color) (background dark))
-     (:foreground "grey30"))
-    (((class color) (background light))
-     (:foreground "grey30")))
-  "Face used to dim parentheses.")
+;; (defface paren-face
+;;   '((((class color) (background dark))
+;;      (:foreground "grey30"))
+;;     (((class color) (background light))
+;;      (:foreground "grey30")))
+;;   "Face used to dim parentheses.")
 
-(mapcar (lambda (mode)
-          (add-hook mode
-                    (lambda ()
-                      (font-lock-add-keywords nil
-                                              '(("(\\|)" . 'paren-face))))))
-        '(emacs-lisp-mode-hook scheme-mode-hook racket-mode-hook))
+;; (mapcar (lambda (mode)
+;;           (add-hook mode
+;;                     (lambda ()
+;;                       (font-lock-add-keywords nil
+;;                                               '(("(\\|)" . 'paren-face))))))
+;;         '(emacs-lisp-mode-hook scheme-mode-hook racket-mode-hook))
 
 ;; Force paredit mode in Lisp buffers
 (use-package paredit
@@ -26,7 +26,9 @@
   :diminish paredit-mode)
 
 (use-package rainbow-delimiters
-  :ensure t)
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 (use-package rainbow-mode
   :ensure t)
