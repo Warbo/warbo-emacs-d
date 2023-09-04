@@ -71,7 +71,7 @@
   (setq company-idle-delay              nil
         company-tooltip-flip-when-above t
         company-minimum-prefix-length   1
-        company-show-numbers            t
+        company-show-quick-access       t
         company-tooltip-limit           20
         company-dabrev-downcase         nil))
 
