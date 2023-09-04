@@ -2,23 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-;; Set up packaging, first with Emacs's built-in "package.el" functionality
-(require 'package)
-(setq package-enable-at-startup nil)
-(add-to-list 'package-archives
-             '("gnu"       . "http://elpa.gnu.org/packages/"))
-;; Certificate expired?
-;; (add-to-list 'package-archives
-;;              '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives
-             '("melpa"     . "https://melpa.org/packages/"))
-(add-to-list 'package-archives
-             '("milkbox"   . "http://melpa.milkbox.net/packages/"))
-(add-to-list 'package-archives
-             '("org"       . "http://orgmode.org/elpa/"))
-;(package-initialize)
-
-;; Next we use "package.el" to get "use-package", which simplifies packaging
+;; Use "package.el" to get "use-package", which simplifies packaging
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
