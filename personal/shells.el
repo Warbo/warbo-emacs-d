@@ -44,9 +44,15 @@
                   ;; Wrap at edge of the screen, not at last whitespace
                   (visual-line-mode -1)
 
+                  (company-mode 1)
+
                   ;; Avoid overriding prompt colours
                   ;; https://stackoverflow.com/a/50776528/884682
-                  (face-remap-set-base 'comint-highlight-prompt :inherit nil))))
+                  (face-remap-set-base 'comint-highlight-prompt :inherit nil)))
+  :bind
+  (:map shell-mode-map
+        ;; Use Company's drop-down completions, rather than a separate window
+        ("TAB" . 'company-manual-begin)))
 
 (require 'esh-mode)
 (use-package eshell
