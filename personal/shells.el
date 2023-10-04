@@ -49,10 +49,11 @@
                   ;; Avoid overriding prompt colours
                   ;; https://stackoverflow.com/a/50776528/884682
                   (face-remap-set-base 'comint-highlight-prompt :inherit nil)))
-  :bind
-  (:map shell-mode-map
-        ;; Use Company's drop-down completions, rather than a separate window
-        ("TAB" . 'company-manual-begin)))
+  ;; :bind
+  ;; (:map shell-mode-map
+  ;;       ;; Use Company's drop-down completions, rather than a separate window
+  ;;       ("TAB" . 'company-manual-begin))
+  )
 
 (require 'esh-mode)
 (use-package eshell

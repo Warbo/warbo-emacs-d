@@ -73,7 +73,8 @@
         company-minimum-prefix-length   1
         company-show-quick-access       t
         company-tooltip-limit           20
-        company-dabrev-downcase         nil))
+        company-dabrev-downcase         nil)
+  :bind  ("TAB" . 'company-indent-or-complete-common))
 
 ;; See https://www.masteringemacs.org/article/whats-new-in-emacs-28-1
 (setq completions-detailed t)
