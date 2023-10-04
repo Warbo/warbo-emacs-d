@@ -367,7 +367,8 @@ Version 2017-09-01"
             ;; Also skip if we're already running a server (e.g. if we're
             ;; reloading our config, and don't want to close existing frames)
             (and (boundp 'server-clients) server-clients))
-  (defer 'server-start))
+  ;(defer 'server-start)
+)
 
 ;;(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
 (manjaro-only
