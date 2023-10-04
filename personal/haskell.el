@@ -29,18 +29,18 @@
   :ensure t)
 
 (use-package haskell-tng-mode
-  :ensure nil
-  :load-path "/run/current-system/sw/share/emacs/site-lisp/haskell-tng.el"
+  :ensure t
+  ;;:load-path "/run/current-system/sw/share/emacs/site-lisp/haskell-tng.el"
   :mode ((rx ".hs" eos) . haskell-tng-mode)
 
   :config
   (require 'haskell-tng-hsinspect)
-  (require 'haskell-tng-extra)
-  (require 'haskell-tng-extra-abbrev)
-  (require 'haskell-tng-extra-company)
-  (require 'haskell-tng-extra-projectile)
-  (require 'haskell-tng-extra-smartparens)
-  (require 'haskell-tng-extra-yasnippet)
+  ;(require 'haskell-tng-extra)
+  ;(require 'haskell-tng-extra-abbrev)
+  ;(require 'haskell-tng-extra-company)
+  ;(require 'haskell-tng-extra-projectile)
+  ;(require 'haskell-tng-extra-smartparens)
+  ;(require 'haskell-tng-extra-yasnippet)
 
   :bind
   (:map

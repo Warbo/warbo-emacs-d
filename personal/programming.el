@@ -244,9 +244,9 @@
   :ensure t)
 
 ;; Add company-lsp backend for metals
-(use-package company-lsp
-  :ensure t
-  :defer  t)
+;(use-package company-lsp
+;  :ensure t
+;  :defer  t)
 
 ;; Posframe is a pop-up tool that must be manually installed for dap-mode
 (use-package posframe
