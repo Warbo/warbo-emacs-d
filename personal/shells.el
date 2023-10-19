@@ -50,19 +50,54 @@
       (ignore-errors (cd-absolute dir))))
   s)
 
+(defun warbo-shell-mode-hook ()
+  "Sets up a shell-mode buffer nicely."
+  ;; shx-mode is nice, but don't let it mess with cwd
+  (unless shx-mode (shx-mode 1))
+  (advice-remove #'find-file-at-point #'shx--with-shx-cwd)
+  (advice-remove #'ffap-at-mouse #'shx--with-shx-cwd)
+
+  ;; Use xterm-color to turn ANSI escape codes into Emacs text properties
+  ;; (setq comint-preoutput-filter-functions
+  ;;       (cons 'xterm-color-filter
+  ;;             (remove 'xterm-color-filter
+  ;;                     comint-preoutput-filter-functions)))
+
+  ;; Look for an OSC7 escape sequence to keep track of the current directory.
+  ;; This is invisible, machine readable and mostly standard. We must do this
+  ;; before xterm-color-filter is applied, since that will strip out the ANSI.
+  (setq comint-preoutput-filter-functions
+        (cons 'extract-directory-from-prompt
+              (remove 'extract-directory-from-prompt
+                      comint-preoutput-filter-functions)))
+
+  ;; Don't try to keep track of the shell's current directory by looking for
+  ;; 'cd' commands: it's very limited and fragile (use OSC7 instead)
+  (shell-dirtrack-mode -1)
+
+  ;; Don't try to keep track of the shell's current directory by parsing the
+  ;; prompt with a regular expression: it's very limited and fragile (use OSC7)
+  (dirtrack-mode -1)
+
+  ;; Disable font-locking to improve performance. We don't need
+  ;; it since we're using xterm-color
+  (font-lock-mode -1)
+  ;; Prevent font-locking from being re-enabled in this buffer
+  (make-local-variable 'font-lock-function)
+  (setq font-lock-function (lambda (_) nil))
+
+  ;; Wrap at edge of the screen, not at last whitespace
+  (visual-line-mode -1)
+
+  ;;(company-mode 1)
+
+  ;; Avoid overriding prompt colours
+  ;; https://stackoverflow.com/a/50776528/884682
+  (face-remap-set-base 'comint-highlight-prompt :inherit nil))
+
 (use-package shell
   :hook
-  (shell-mode . (lambda ()
-                  (unless shx-mode (shx-mode 1))
-
-                  ;; Wrap at edge of the screen, not at last whitespace
-                  (visual-line-mode -1)
-
-                  (company-mode 1)
-
-                  ;; Avoid overriding prompt colours
-                  ;; https://stackoverflow.com/a/50776528/884682
-                  (face-remap-set-base 'comint-highlight-prompt :inherit nil)))
+  (shell-mode . warbo-shell-mode-hook)
   ;; :bind
   ;; (:map shell-mode-map
   ;;       ;; Use Company's drop-down completions, rather than a separate window
