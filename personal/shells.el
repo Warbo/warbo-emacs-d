@@ -36,6 +36,20 @@
                  (t "/bin/bash"))))
      (apply f (list host)))))
 
+(defun extract-directory-from-prompt (s)
+  "Like `comint-osc-process-output' but acts on the given string S."
+  (let ((dir default-directory))
+    (when
+        (save-excursion
+          (with-temp-buffer
+            (insert s)
+            (ansi-osc-apply-on-region (point-min) (point-max))
+            (unless (equal dir default-directory)
+              (setq dir default-directory)
+              t)))
+      (ignore-errors (cd-absolute dir))))
+  s)
+
 (use-package shell
   :hook
   (shell-mode . (lambda ()
