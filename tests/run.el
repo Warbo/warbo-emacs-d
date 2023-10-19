@@ -6,4 +6,4 @@
   (mapcar load-test (directory-files "~/.emacs.d/tests" nil ".*-tests\.el")))
 
 (message "Running tests")
-(ert-run-tests-batch-and-exit)
+(ert-run-tests-batch-and-exit (getenv "EMACS_TEST_REGEX"))
