@@ -362,14 +362,8 @@ Version 2017-09-01"
       (turn-on-fci-mode))))
 (my-global-fci-mode 1)
 
-;;(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
-(manjaro-only
- ;; Iosevka is narrow enough to fit two 80 column buffers side-by-side.
- ;; We want a setup that is readable and compact, both on mobile and when
- ;; plugged in to a monitor. Size 11 works well, in combination with GTK text
- ;; scaling, e.g. x0.75 when plugged in (nice and compact), x1.33 when mobile
- ;; (easier to hit the buttons)
- (set-frame-font  "Iosevka 11"))
+(defvar desired-font "Droid Sans Mono 10" "The font the use in graphical mode.")
+(add-to-list 'default-frame-alist `(font . ,desired-font))
 
 (provide 'generic)
 ;;; generic.el ends here
