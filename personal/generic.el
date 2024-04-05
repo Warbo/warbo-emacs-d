@@ -362,15 +362,6 @@ Version 2017-09-01"
       (turn-on-fci-mode))))
 (my-global-fci-mode 1)
 
-;; Start emacs server, so emacsclient works. We can only run one emacs server at
-;; a time, so skip this if this emacs instance is just for running tests.
-(unless (or (getenv "EMACS_UNDER_TEST")
-            ;; Also skip if we're already running a server (e.g. if we're
-            ;; reloading our config, and don't want to close existing frames)
-            (and (boundp 'server-clients) server-clients))
-  ;(defer 'server-start)
-)
-
 ;;(defvar desired-font "Roboto Mono" "The font the use in graphical mode")
 (manjaro-only
  ;; Iosevka is narrow enough to fit two 80 column buffers side-by-side.
