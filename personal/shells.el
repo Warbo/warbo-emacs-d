@@ -131,10 +131,10 @@
         ("<down>" . next-line)))
 
 ;; Uses Bash's real tab-completion, rather than an ELisp approximation
-(use-package bash-completion
-  :ensure t
-  :config
-  (bash-completion-setup))
+;; (use-package bash-completion
+;;   :ensure t
+;;   :config
+;;   (bash-completion-setup))
 
 (defun make-numbered-name (prefix n)
   "For string PREFIX and number N, combine into '*PREFIX-N*'."
