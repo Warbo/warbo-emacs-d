@@ -289,6 +289,7 @@
 
    ((equal machine-id 'wsl)
     '(("deleteme" "~/deleteme")
+      ("home" "~")
       ("nix-config" "~/nix-config")
       ("nix-helpers" "~/nix-helpers")
       ("trent" "~/trent")
