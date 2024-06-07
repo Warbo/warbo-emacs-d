@@ -7,12 +7,14 @@
                       ((file-directory-p "/Users/chrisw") 'mac)
                       ((file-directory-p "/home/chris")   'thinkpad)
                       ((file-directory-p "/home/manjaro") 'manjaro)
+                      ((file-directory-p "/mnt/c/Users")  'wsl)
                       (t                                  'unknown)))
 
 (defconst manjaro-p (equal machine-id 'manjaro))
 
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
+  "Only evaluate BODY iff on mac"
   `(when (equal machine-id 'mac)
       ,@body))
 
@@ -22,8 +24,13 @@
      ,@body))
 
 (defmacro manjaro-only (&rest body)
-  "Only tevaluate BODY iff on manjaro."
+  "Only evaluate BODY iff on manjaro."
   `(when manjaro-p
+     ,@body))
+
+(defmacro wsl-only (&rest body)
+  "Only evaluate BODY iff on wsl"
+  `(when (equal machine-id 'wsl)
      ,@body))
 
 ;; Set PATH and 'exec-path', so external commands will work.
