@@ -362,7 +362,9 @@ Version 2017-09-01"
       (turn-on-fci-mode))))
 (my-global-fci-mode 1)
 
-(defvar desired-font "Droid Sans Mono 10" "The font the use in graphical mode.")
+(defvar desired-font
+  (if (equal machine-id 'wsl) "fixed" "Droid Sans Mono 10")
+  "The font the use in graphical mode.")
 (add-to-list 'default-frame-alist `(font . ,desired-font))
 
 (provide 'generic)
