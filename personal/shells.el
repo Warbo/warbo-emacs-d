@@ -287,6 +287,13 @@
       ("warbo-packages"  "~/repos/warbo-packages")
       ("warbo-utilities" "~/repos/warbo-utilities")))
 
+   ((equal machine-id 'wsl)
+    '(("deleteme" "~/deleteme")
+      ("nix-config" "~/nix-config")
+      ("nix-helpers" "~/nix-helpers")
+      ("trent" "~/trent")
+      ("warbo-packages" "~/warbo-packages")))
+
    (t '(("home" "~"))))
   "Useful buffers to open at startup.")
 
