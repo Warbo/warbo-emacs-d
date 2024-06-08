@@ -364,6 +364,7 @@ Version 2017-09-01"
 
 (defvar desired-font
   (cond
+   ((equal machine-id 'wsl) "fixed")
    ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
     "EnvyCodeR Nerd Font Mono-8")
    ((font-utils-exists-p "Droid Sans Mono-9")

@@ -8,5 +8,6 @@
 ;; http://emacs.stackexchange.com/a/17579/5391
 (setq projectile-mode-line "Projectile")
 
-;; TODO: Take from ~/.bashrc, e.g. by running a bash script and parsing it out
-(setenv "SSH_AUTH_SOCK" "/run/user/1000/gcr/ssh")
+;; Make sure this is set in the same way as a normal shell (in case Emacs was
+;; started as a SystemD unit in a different environment)
+(setenv "SSH_AUTH_SOCK" (shell-command-to-string "bash -c 'printf $SSH_AUTH_SOCK'"))
