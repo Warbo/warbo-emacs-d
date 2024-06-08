@@ -2,18 +2,20 @@
   "Defer calling the function F until Emacs has finished initialising."
   (run-with-idle-timer 2 nil f))
 
-(defconst machine-id (cond
-                      ((file-directory-p "/Users/chris")  'mac)
-                      ((file-directory-p "/Users/chrisw") 'mac)
+(defconst machine-id
+  (cond
+   ((file-directory-p "/Users/chris")  'mac)
+   ((file-directory-p "/Users/chrisw") 'mac)
 
-                      ((and (file-directory-p "/home/chris")
-                            (file-exists-p "/run/current-system/sw/bin/pw-top")) 'nixos-amd64)
-                      ((and (file-directory-p "/home/chris")
-                            (not (file-exists-p "/run/current-system/sw/bin/pw-top")))
-                       'thinkpad)
-                      ((file-directory-p "/home/manjaro") 'manjaro)
-                      ((file-directory-p "/mnt/c/Users")  'wsl)
-                      (t                                  'unknown)))
+   ((and (file-directory-p "/home/chris")
+         (file-exists-p "/run/current-system/sw/bin/pw-top"))
+    'nixos-amd64)
+   ((and (file-directory-p "/home/chris")
+         (not (file-exists-p "/run/current-system/sw/bin/pw-top")))
+    'thinkpad)
+   ((file-directory-p "/home/manjaro") 'manjaro)
+   ((file-directory-p "/mnt/c/Users")  'wsl)
+   (t                                  'unknown)))
 
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
