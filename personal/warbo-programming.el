@@ -14,7 +14,8 @@
   :args '("fmt" "-"))
 
 (reformatter-define nix-format
-  :program "nixfmt")
+  :program "nixfmt"
+  :args '("-w" "80"))
 
 (reformatter-define scala-format
   :program "scalafmt"
