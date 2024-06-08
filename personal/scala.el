@@ -1,7 +1,7 @@
 (use-package scala-mode
   :ensure t
   :mode "\\.s\\(cala\\|bt\\)$"
-  :bind (("C-c C-c" . sbt-run-previous-command)))
+  :bind-keymap (("C-c C-c" . sbt-run-previous-command)))
 
 ;; Enable nice rendering of diagnostics like compile errors.
 (use-package flycheck
