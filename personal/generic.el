@@ -362,8 +362,15 @@ Version 2017-09-01"
       (turn-on-fci-mode))))
 (my-global-fci-mode 1)
 
-(defvar desired-font "Droid Sans Mono 10" "The font the use in graphical mode.")
-(add-to-list 'default-frame-alist `(font . ,desired-font))
+(defvar desired-font
+  (cond
+   ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
+    "EnvyCodeR Nerd Font Mono-8")
+   ((font-utils-exists-p "Droid Sans Mono-9")
+    "Droid Sans Mono-9"))
+  "The font the use in graphical mode.")
+(when desired-font
+  (add-to-list 'default-frame-alist `(font . ,desired-font)))
 
 (provide 'generic)
 ;;; generic.el ends here
