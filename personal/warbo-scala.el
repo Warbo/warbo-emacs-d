@@ -49,7 +49,7 @@
   ;(setq lsp-metals-treeview-show-when-views-received t)
   )
 
-(use-package lsp-metals
-    :quelpa (lsp-metals :fetcher github
-                        :repo    "emacs-lsp/lsp-metals")
-    :ensure t)
+;; (use-package lsp-metals
+;;     :quelpa (lsp-metals :fetcher github
+;;                         :repo    "emacs-lsp/lsp-metals")
+;;     :ensure t)
