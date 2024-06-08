@@ -15,8 +15,6 @@
                       ((file-directory-p "/mnt/c/Users")  'wsl)
                       (t                                  'unknown)))
 
-(defconst manjaro-p (equal machine-id 'manjaro))
-
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
   "Only evaluate BODY iff on mac"
@@ -30,7 +28,7 @@
 
 (defmacro manjaro-only (&rest body)
   "Only evaluate BODY iff on manjaro."
-  `(when manjaro-p
+  `(when (equal machine-id 'manjaro)
      ,@body))
 
 (defmacro wsl-only (&rest body)
