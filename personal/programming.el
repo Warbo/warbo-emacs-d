@@ -57,8 +57,8 @@
 (use-package js2-mode
   :ensure t)
 
-(use-package js2-refactor
-  :ensure t)
+;; (use-package js2-refactor
+;;   :ensure t)
 
 (use-package xref-js2
   :ensure t)
@@ -271,12 +271,12 @@
 
 ;; Use the Tree View Protocol for viewing the project structure and triggering
 ;; compilation
-(use-package lsp-treemacs
-  :disabled
-  :ensure t
-  :defer  t
-  :config
-  (setq lsp-metals-treeview-show-when-views-received t))
+;; (use-package lsp-treemacs
+;;   :disabled
+;;   :ensure t
+;;   :defer  t
+;;   :config
+;;   (setq lsp-metals-treeview-show-when-views-received t))
 
 (use-package typescript-mode
   :ensure t
