@@ -35,10 +35,10 @@
 ;; (setq browse-url-browser-function 'browse-url-generic
 ;;       browse-url-generic-program "firefox")
 
-(use-package w3m
-  :ensure t
-  :config
-  (progn
-    (setq w3m-default-display-inline-images t
-          w3m-search-default-engine         "duckduckgo"
-          w3m-use-cookies           t)))
+;(use-package w3m
+;  :ensure t
+;  :config
+;  (progn
+;    (setq w3m-default-display-inline-images t
+;          w3m-search-default-engine         "duckduckgo"
+;          w3m-use-cookies           t)))

@@ -46,13 +46,13 @@
   :config
   (add-hook 'cue-mode-hook 'cue-format-on-save-mode))
 
-(use-package direnv
-  :ensure t
-  :init
-  (add-hook 'prog-mode-hook #'direnv-update-environment)
-  :config
-  (add-to-list 'direnv-non-file-modes 'shell-mode)
-  (direnv-mode))
+;(use-package direnv
+;  :ensure t
+;  :init
+;  (add-hook 'prog-mode-hook #'direnv-update-environment)
+;  :config
+;  (add-to-list 'direnv-non-file-modes 'shell-mode)
+;  (direnv-mode))
 
 (use-package js2-mode
   :ensure t)
@@ -171,71 +171,71 @@
                       beacon-mode
                       pretty-sha-path-mode)))
 
-(use-package lsp-mode
-  :quelpa (lsp-mode :fetcher github
-                    :repo    "emacs-lsp/lsp-mode")
-  :after (dash dap-mode direnv)  ; lsp-mode uses functions defined by dash
-  ;:disabled
-  :ensure t
-  ;:defer  t
-  ;; Optional - enable lsp-mode automatically in scala files
-  :hook  ((scala-mode       ; metals?
-           python-mode      ; spyder IDE python-lsp-server?
-           haskell-mode     ; haskell-language-server
-           js-mode          ; ts-ls (tsserver wrapper)
-           typescript-mode  ; ts-ls (tsserver wrapper)
-           java-mode        ; eclipse-jdtls
-           web-mode         ; ts-ls/HTML/CSS
-           ) . lsp-deferred)
-  (lsp-mode . lsp-lens-mode)
-  :commands lsp
-  :config
-  (advice-add 'lsp :before #'direnv-update-environment)
-  (setq lsp-auto-guess-root t)
-  (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-enable-on-type-formatting nil)
-  (setq lsp-signature-auto-activate t)
-  (setq lsp-signature-render-documentation t)
-  (setq lsp-eldoc-hook nil)
-  (setq lsp-eldoc-enable-hover t)
-  (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-semantic-tokens-enable nil)
-  ;(setq lsp-enable-folding nil)
-  (setq lsp-enable-imenu nil)
-  (setq lsp-enable-snippet nil)
-  (setq lsp-idle-delay 0.5)
-  (setq lsp-prefer-flymake nil)
-  (setq lsp-restart 'auto-restart)
-
-  ;; Avoids the following error:
-  ;; Error running timer ‘lsp--on-idle’:
-  ;; (error "The connected server(s) does not support method
-  ;; textDocument/documentHighlight.
-  (setq lsp-enable-links nil)
-
-  ;; Better performance than 4k default
-  (setq read-process-output-max (* 1024 1024))
-
-  ;; Useful for debugging, but very slow otherwise
-  (setq lsp-log-io nil))
+;(use-package lsp-mode
+;  :quelpa (lsp-mode :fetcher github
+;                    :repo    "emacs-lsp/lsp-mode")
+;  :after (dash dap-mode direnv)  ; lsp-mode uses functions defined by dash
+;  ;:disabled
+;  :ensure t
+;  ;:defer  t
+;  ;; Optional - enable lsp-mode automatically in scala files
+;  :hook  ((scala-mode       ; metals?
+;           python-mode      ; spyder IDE python-lsp-server?
+;           haskell-mode     ; haskell-language-server
+;           js-mode          ; ts-ls (tsserver wrapper)
+;           typescript-mode  ; ts-ls (tsserver wrapper)
+;           java-mode        ; eclipse-jdtls
+;           web-mode         ; ts-ls/HTML/CSS
+;           ) . lsp-deferred)
+;  (lsp-mode . lsp-lens-mode)
+;  :commands lsp
+;  :config
+;  (advice-add 'lsp :before #'direnv-update-environment)
+;  (setq lsp-auto-guess-root t)
+;  (setq lsp-enable-symbol-highlighting nil)
+;  (setq lsp-enable-on-type-formatting nil)
+;  (setq lsp-signature-auto-activate t)
+;  (setq lsp-signature-render-documentation t)
+;  (setq lsp-eldoc-hook nil)
+;  (setq lsp-eldoc-enable-hover t)
+;  (setq lsp-modeline-code-actions-enable nil)
+;  (setq lsp-modeline-diagnostics-enable nil)
+;  (setq lsp-headerline-breadcrumb-enable nil)
+;  (setq lsp-semantic-tokens-enable nil)
+;  ;(setq lsp-enable-folding nil)
+;  (setq lsp-enable-imenu nil)
+;  (setq lsp-enable-snippet nil)
+;  (setq lsp-idle-delay 0.5)
+;  (setq lsp-prefer-flymake nil)
+;  (setq lsp-restart 'auto-restart)
+;
+;  ;; Avoids the following error:
+;  ;; Error running timer ‘lsp--on-idle’:
+;  ;; (error "The connected server(s) does not support method
+;  ;; textDocument/documentHighlight.
+;  (setq lsp-enable-links nil)
+;
+;  ;; Better performance than 4k default
+;  (setq read-process-output-max (* 1024 1024))
+;
+;  ;; Useful for debugging, but very slow otherwise
+;  (setq lsp-log-io nil))
 
 ;; Enable nice rendering of documentation on hover
-(use-package lsp-ui
-  :ensure t
-  :defer  t
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-doc-enable t)
-  (setq lsp-ui-doc-show-with-cursor nil)
-  (setq lsp-ui-doc-header t)
-  (setq lsp-ui-doc-include-signature t)
-  (setq lsp-ui-doc-border (face-foreground 'default))
-  (setq lsp-ui-sideline-show-diagnostics nil)
-  (setq lsp-ui-sideline-show-code-actions nil)
-  (setq lsp-ui-sideline-delay 0.05)
-  (setq lsp-ui-flycheck t))
+;(use-package lsp-ui
+;  :ensure t
+;  :defer  t
+;  :commands lsp-ui-mode
+;  :config
+;  (setq lsp-ui-doc-enable t)
+;  (setq lsp-ui-doc-show-with-cursor nil)
+;  (setq lsp-ui-doc-header t)
+;  (setq lsp-ui-doc-include-signature t)
+;  (setq lsp-ui-doc-border (face-foreground 'default))
+;  (setq lsp-ui-sideline-show-diagnostics nil)
+;  (setq lsp-ui-sideline-show-code-actions nil)
+;  (setq lsp-ui-sideline-delay 0.05)
+;  (setq lsp-ui-flycheck t))
 
 ;; lsp-mode supports snippets, but in order for them to work you need to use
 ;; yasnippet. If you don't want to use snippets set lsp-enable-snippet to nil in
@@ -253,30 +253,30 @@
   :ensure t)
 
 ;; Use the Debug Adapter Protocol for running tests and debugging
-(use-package lsp-java
-  ;; Includes dap-java
-  :ensure t
-  :defer  t)
+;(use-package lsp-java
+;  ;; Includes dap-java
+;  :ensure t
+;  :defer  t)
 
-(use-package dap-mode
-  ;; Includes dap-python
-  :disabled
-  :ensure t
-  :defer  t
-  :hook
-  (lsp-mode . dap-mode)
-  (lsp-mode . dap-ui-mode)
-  :config
-  (require 'dap-ui))
+;(use-package dap-mode
+;  ;; Includes dap-python
+;  :disabled
+;  :ensure t
+;  :defer  t
+;  :hook
+;  (lsp-mode . dap-mode)
+;  (lsp-mode . dap-ui-mode)
+;  :config
+;  (require 'dap-ui))
 
 ;; Use the Tree View Protocol for viewing the project structure and triggering
 ;; compilation
-(use-package lsp-treemacs
-  :disabled
-  :ensure t
-  :defer  t
-  :config
-  (setq lsp-metals-treeview-show-when-views-received t))
+;(use-package lsp-treemacs
+;  :disabled
+;  :ensure t
+;  :defer  t
+;  :config
+;  (setq lsp-metals-treeview-show-when-views-received t))
 
 (use-package typescript-mode
   :ensure t

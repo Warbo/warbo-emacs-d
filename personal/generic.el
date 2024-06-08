@@ -143,72 +143,73 @@
   ;; on in the background, and the checkers will start working once the builds
   ;; finish.
 
-  (defvar nix-sandbox-builders-map
-    (make-hash-table :test 'equal :size 100)
-    "Stores the builder processes")
+  ;; (defvar nix-sandbox-builders-map
+  ;;   (make-hash-table :test 'equal :size 100)
+  ;;   "Stores the builder processes")
 
-  (defun nix-sandbox-build-asynchronously (sandbox)
-    "Launch a process to build a nix-shell in SANDBOX.
-     The build command is copypasta from nix-create-sandbox-rc."
-    (or (gethash sandbox nix-sandbox-builders-map)
-        (let* ((name (concat "nix-sandbox-builder-" sandbox))
-               (proc (puthash
-                      sandbox
-                      (start-process
-                       name name
-                       "nostderr" "nix-shell" "--run"
-                       "declare +x shellHook; declare -x; declare -xf")
-                      nix-sandbox-builders-map)))
-          (message "Starting nix-shell builder for dir %s\n" sandbox)
+  ;; (defun nix-sandbox-build-asynchronously (sandbox)
+  ;;   "Launch a process to build a nix-shell in SANDBOX.
+  ;;    The build command is copypasta from nix-create-sandbox-rc."
+  ;;   (or (gethash sandbox nix-sandbox-builders-map)
+  ;;       (let* ((name (concat "nix-sandbox-builder-" sandbox))
+  ;;              (proc (puthash
+  ;;                     sandbox
+  ;;                     (start-process
+  ;;                      name name
+  ;;                      "nostderr" "nix-shell" "--run"
+  ;;                      "declare +x shellHook; declare -x; declare -xf")
+  ;;                     nix-sandbox-builders-map)))
+  ;;         (message "Starting nix-shell builder for dir %s\n" sandbox)
 
-          ;; Prevents 'Process foo finished' messages polluting output buffer
-          (set-process-sentinel proc #'ignore)
-          proc)))
+  ;;         ;; Prevents 'Process foo finished' messages polluting output buffer
+  ;;         (set-process-sentinel proc #'ignore)
+  ;;         proc)))
 
-  (defun nix-create-sandbox-rc-async (sandbox)
-    "Replacement for nix-create-sandbox-rc.
-     Looks up or creates a nix-shell process in the SANDBOX dir. If the process
-     is running (e.g. if it's newly created, or takes a while) then an interrupt
-     is triggered, as if the user cancelled this operation. If it's no longer
-     running, we dump its output to a temp file and return it."
-    (let ((proc (nix-sandbox-build-asynchronously sandbox)))
-      ;; When we're not finished yet, pretend we cancelled with C-g
-      (when (process-live-p proc)
-        (keyboard-quit))
+  ;; (defun nix-create-sandbox-rc-async (sandbox)
+  ;;   "Replacement for nix-create-sandbox-rc.
+  ;;    Looks up or creates a nix-shell process in the SANDBOX dir. If the process
+  ;;    is running (e.g. if it's newly created, or takes a while) then an interrupt
+  ;;    is triggered, as if the user cancelled this operation. If it's no longer
+  ;;    running, we dump its output to a temp file and return it."
+  ;;   (let ((proc (nix-sandbox-build-asynchronously sandbox)))
+  ;;     ;; When we're not finished yet, pretend we cancelled with C-g
+  ;;     (when (process-live-p proc)
+  ;;       (keyboard-quit))
 
-      ;; Process is finished, remove it from cache.
-      (message "Found finished builder for nix-shell dir %s\n" sandbox)
-      (remhash sandbox nix-sandbox-builders-map)
+  ;;     ;; Process is finished, remove it from cache.
+  ;;     (message "Found finished builder for nix-shell dir %s\n" sandbox)
+  ;;     (remhash sandbox nix-sandbox-builders-map)
 
-      ;; Write output to a file
-      (let ((filename (make-temp-file "nix-sandbox-rc-")))
-        (with-current-buffer (process-buffer proc)
-          (write-file filename)
-          (kill-buffer))
+  ;;     ;; Write output to a file
+  ;;     (let ((filename (make-temp-file "nix-sandbox-rc-")))
+  ;;       (with-current-buffer (process-buffer proc)
+  ;;         (write-file filename)
+  ;;         (kill-buffer))
 
-        ;; Return filename, to use as our 'rc' file
-        filename)))
+  ;;       ;; Return filename, to use as our 'rc' file
+  ;;       filename)))
 
-          ;; Override nix-create-sandbox-rc. Using advice is inefficient, but
-          ;; will work even if nix-sandbox hasn't been loaded yet.
+  ;;         ;; Override nix-create-sandbox-rc. Using advice is inefficient, but
+  ;;         ;; will work even if nix-sandbox hasn't been loaded yet.
 
-  (advice-add 'nix-create-sandbox-rc
-              :override #'nix-create-sandbox-rc-async)
+  ;; (advice-add 'nix-create-sandbox-rc
+  ;;             :override #'nix-create-sandbox-rc-async)
 
-  ;; Tell flycheck to look up commands in Nix sandboxes, if we're in one
-  (setq flycheck-command-wrapper-function
-        (lambda (command)
-          (let ((sandbox (thinkpad-only (nix-current-sandbox))))
-            (if sandbox
-                (apply 'nix-shell-command sandbox command)
-              command)))
+  ;; ;; Tell flycheck to look up commands in Nix sandboxes, if we're in one
+  ;; (setq flycheck-command-wrapper-function
+  ;;       (lambda (command)
+  ;;         (let ((sandbox (thinkpad-only (nix-current-sandbox))))
+  ;;           (if sandbox
+  ;;               (apply 'nix-shell-command sandbox command)
+  ;;             command)))
 
-        flycheck-executable-find
-        (lambda (command)
-          (let ((sandbox (thinkpad-only (nix-current-sandbox))))
-            (if sandbox
-                (nix-executable-find sandbox command)
-              (executable-find command))))))
+        ;; flycheck-executable-find
+        ;; (lambda (command)
+        ;;   (let ((sandbox (thinkpad-only (nix-current-sandbox))))
+        ;;     (if sandbox
+        ;;         (nix-executable-find sandbox command)
+        ;;       (executable-find command))))
+        )
 
 (use-package dwim-compile
   :disabled
