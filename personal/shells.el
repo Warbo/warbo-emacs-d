@@ -293,6 +293,8 @@
       ("nix-config" "~/nix-config")
       ("nix-helpers" "~/nix-helpers")
       ("trent" "~/trent")
+      ("warbo-dotfiles" "~/warbo-dotfiles")
+      ("emacs-d" "~/.emacs.d")
       ("warbo-packages" "~/warbo-packages")))
 
    (t '(("home" "~"))))
