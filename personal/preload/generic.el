@@ -19,7 +19,7 @@
 
 ;; See which per-machine options we should enable
 (defmacro mac-only (&rest body)
-  "Only evaluate BODY iff on mac"
+  "Only evaluate BODY iff on mac."
   `(when (equal machine-id 'mac)
       ,@body))
 
@@ -34,7 +34,7 @@
      ,@body))
 
 (defmacro wsl-only (&rest body)
-  "Only evaluate BODY iff on wsl"
+  "Only evaluate BODY iff on wsl."
   `(when (equal machine-id 'wsl)
      ,@body))
 
