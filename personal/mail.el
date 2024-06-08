@@ -1,5 +1,5 @@
 ;; See if we're running on NixOS with mu installed system-wide
-(thinkpad-only
+(when nil ;thinkpad-only
   (ignore-errors
     (add-to-list 'load-path "/run/current-system/sw/share/emacs/site-lisp/mu4e")
     (require 'mu4e))

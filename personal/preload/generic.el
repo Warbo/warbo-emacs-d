@@ -5,7 +5,12 @@
 (defconst machine-id (cond
                       ((file-directory-p "/Users/chris")  'mac)
                       ((file-directory-p "/Users/chrisw") 'mac)
-                      ((file-directory-p "/home/chris")   'thinkpad)
+
+                      ((and (file-directory-p "/home/chris")
+                            (file-exists-p "/run/current-system/sw/bin/pw-top")) 'nixos-amd64)
+                      ((and (file-directory-p "/home/chris")
+                            (not (file-exists-p "/run/current-system/sw/bin/pw-top")))
+                       'thinkpad)
                       ((file-directory-p "/home/manjaro") 'manjaro)
                       (t                                  'unknown)))
 
