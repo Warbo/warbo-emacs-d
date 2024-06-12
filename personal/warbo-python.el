@@ -6,7 +6,7 @@
   :ensure t
   :mode ("\\.py\\'" . python-mode)
   :config
-  ;(add-hook 'python-mode-hook 'blacken-mode)
+  ;;(add-hook 'python-mode-hook 'blacken-mode)
   (custom-set-variables '(python-shell-interpreter "python3")
                         '(python-shell-buffer-name "Python3")))
 

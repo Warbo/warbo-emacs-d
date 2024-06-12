@@ -38,7 +38,8 @@
 ;; Put as much as possible in use-package expressions; roughly alphabetically
 
 (use-package cue-mode
-  :ensure t  :after reformatter
+  :ensure t
+  :after reformatter
   :quelpa (cue-mode :fetcher github
                     :repo    "russell/cue-mode")
   :mode (("\\.cue\\'"  . cue-mode))

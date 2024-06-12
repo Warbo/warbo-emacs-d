@@ -22,10 +22,10 @@
   :ensure t
   :init
   (dolist (hook '(emacs-lisp-mode-hook
-                     clojure-mode-hook
-                        lisp-mode-hook
-                      racket-mode-hook
-                      scheme-mode-hook))
+                  clojure-mode-hook
+                  lisp-mode-hook
+                  racket-mode-hook
+                  scheme-mode-hook))
     (add-hook hook 'paredit-mode))
   :diminish paredit-mode)
 
