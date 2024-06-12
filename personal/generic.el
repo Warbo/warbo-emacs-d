@@ -363,16 +363,19 @@ Version 2017-09-01"
       (turn-on-fci-mode))))
 (my-global-fci-mode 1)
 
-(defvar desired-font
-  (cond
-   ((equal machine-id 'wsl) "fixed")
-   ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
-    "EnvyCodeR Nerd Font Mono-8")
-   ((font-utils-exists-p "Droid Sans Mono-9")
-    "Droid Sans Mono-9"))
-  "The font the use in graphical mode.")
-(when desired-font
-  (add-to-list 'default-frame-alist `(font . ,desired-font)))
+(defun set-desired-font ()
+  (defvar desired-font
+    (cond
+     ((equal machine-id 'wsl) "fixed")
+     ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
+      "EnvyCodeR Nerd Font Mono-8")
+     ((font-utils-exists-p "Droid Sans Mono-9")
+      "Droid Sans Mono-9"))
+    "The font the use in graphical mode.")
+  (when desired-font
+    (add-to-list 'default-frame-alist `(font . ,desired-font))
+    (set-frame-font desired-font)))
+(add-hook 'server-after-make-frame-hook 'set-desired-font)
 
 (provide 'generic)
 ;;; generic.el ends here
