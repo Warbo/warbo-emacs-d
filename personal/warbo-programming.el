@@ -356,5 +356,44 @@
 (mac-only
  (setq flycheck-global-modes '(not c-mode)))
 
-(provide 'programming)
-;;; programming.el ends here
+;; Bind a key to look for 'test.sh' and run it
+(defun warbo-find-and-run-tests-sentinel (process signal)
+  "A process sentinel suitable for 'set-process-sentinel'.
+The returned sentinel will send a notification when the attached (asynchronous)
+PROCESS gets an exit SIGNAL.
+Inspired by https://emacs.stackexchange.com/a/42174/5391"
+  (when (memq (process-status process) '(exit signal))
+    (let* ((buf    (process-buffer process))
+           (dir    (with-current-buffer buf default-directory))
+           (prefix (car (last (s-split "/" dir t))))
+           (msg    (concat "'Tests complete for " prefix "'")))
+      (shell-command
+       (concat "(command -v notify-send && notify-send " msg ") || echo " msg)))
+    (shell-command-sentinel process signal)))
+
+(defun warbo-find-and-run-tests ()
+  "Look for a test runner in the current dir (or parents) and run it."
+  (interactive)
+  (let ((dir (s-chomp (shell-command-to-string
+                       "git rev-parse --show-toplevel"))))
+    (when (and (s-starts-with-p "/" dir)
+               (not (s-starts-with-p "fatal:" dir)))
+      (let ((cmd (cond
+                  ;; TODO: Check for more things here, e.g. the existence of a
+                  ;; .cabal file containing a test suite, the existence of a
+                  ;; Python project with tests, etc.
+                  ((file-exists-p (concat dir "/test.sh")) "./test.sh")
+                  ((file-exists-p (concat dir "/tests.sh")) "./tests.sh")
+                  (t nil))))
+        (when cmd
+          (let* ((prefix (car (last (s-split "/" dir t))))
+                 (output-buffer (generate-new-buffer
+                                 (concat "*" prefix " test*")))
+                 (proc (with-current-buffer output-buffer
+                         (cd dir)
+                         (async-shell-command cmd output-buffer)
+                         (get-buffer-process output-buffer))))
+            (if (process-live-p proc)
+                (set-process-sentinel  proc warbo-find-and-run-tests-sentinel)
+              (message "Tests finished immediately"))))))))
+(keymap-global-set "<f5>" 'warbo-find-and-run-tests)
