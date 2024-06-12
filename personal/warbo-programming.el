@@ -315,7 +315,10 @@
   ;; Clear the buffer and replace with 'nix show-derivation' run on the file
   (erase-buffer)
   (shell-command
-   (concat "nix show-derivation " (buffer-file-name))
+   (concat "nix derivation show "
+           "--extra-experimental-features nix-command "
+           (buffer-file-name)
+           "^*")
    (buffer-name))
 
   ;; Don't prompt to save our changed content (we can't, since it's read-only!)
