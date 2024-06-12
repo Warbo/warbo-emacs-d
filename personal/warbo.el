@@ -24,7 +24,20 @@
 ;;;
 ;;; Code:
 
+(use-package warbo-documents)
+(use-package warbo-fixes)
+(use-package warbo-haskell)
+(use-package warbo-lisp)
+(use-package warbo-mail)
+(use-package warbo-mercury)
+(use-package warbo-programming)
+(use-package warbo-provers)
+(use-package warbo-python)
+(use-package warbo-scala)
+(use-package warbo-tramp)
+(use-package warbo-web)
 (use-package warbo-windows)
+(use-package warbo-writing)
 
 (provide 'warbo)
 ;;; warbo.el ends here
