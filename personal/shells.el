@@ -287,6 +287,13 @@
       ("warbo-packages"  "~/repos/warbo-packages")
       ("warbo-utilities" "~/repos/warbo-utilities")))
 
+   ((equal machine-id 'nixos-amd64)
+    '(("home" "~")
+      ("nix-config" "~/repos/nix-config")
+      ("nix-helpers" "~/repos/nix-helpers")
+      ("warbo-packages" "~/warbo-packages")
+      ("warbo-utilities" "~/warbo-utilities")))
+
    ((equal machine-id 'wsl)
     '(("deleteme" "~/deleteme")
       ("home" "~")
