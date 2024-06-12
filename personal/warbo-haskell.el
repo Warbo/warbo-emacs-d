@@ -1,3 +1,7 @@
+;;; warbo-haskell --- Functionality specific to Haskell
+;;; Commentary:
+;;; Code:
+
 ;; Haskell programming
 (require 'use-package)
 
@@ -49,3 +53,6 @@
    ("C-c c"   . haskell-tng-compile)
    ("C-c C-c" . haskell-tng-compile)
    ("C-c e"   . next-error)))
+
+(provide 'warbo-haskell)
+;;; warbo-haskell.el ends here

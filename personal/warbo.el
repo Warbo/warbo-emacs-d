@@ -1,4 +1,4 @@
-;;; warbo -- Entry point for Warbo's Emacs config
+;;; warbo --- Entry point for Warbo's Emacs config
 ;;; Commentary:
 ;;; We want everything to be loaded and configured with use-package, but we need
 ;;; to transition ourselves to that gradually.
@@ -24,7 +24,20 @@
 ;;;
 ;;; Code:
 
+(use-package warbo-documents)
+(use-package warbo-fixes)
+(use-package warbo-haskell)
+(use-package warbo-lisp)
+(use-package warbo-mail)
+(use-package warbo-mercury)
+(use-package warbo-programming)
+(use-package warbo-provers)
+(use-package warbo-python)
+(use-package warbo-scala)
+(use-package warbo-tramp)
+(use-package warbo-web)
 (use-package warbo-windows)
+(use-package warbo-writing)
 
 (provide 'warbo)
-;;; warbo ends here
+;;; warbo.el ends here

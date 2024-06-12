@@ -1,38 +1,36 @@
-;;; package --- summary
-
+;;; warbo-programming --- Generic programming-related stuff
 ;;; Commentary:
-
 ;;; Code:
 
 ;; Define some reformatters, used by various modes below
 
 (use-package reformatter
-  :ensure t)
+  :ensure t
+  :config
+  (reformatter-define cue-format
+    :program "cue"
+    :args '("fmt" "-"))
 
-(reformatter-define cue-format
-  :program "cue"
-  :args '("fmt" "-"))
+  (reformatter-define nix-format
+    :program "nixfmt"
+    :args '("-w" "80"))
 
-(reformatter-define nix-format
-  :program "nixfmt"
-  :args '("-w" "80"))
+  (reformatter-define scala-format
+    :program "scalafmt"
+    :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
+            "--stdin"
+            "--stdout"))
 
-(reformatter-define scala-format
-  :program "scalafmt"
-  :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
-          "--stdin"
-          "--stdout"))
+  (reformatter-define sh-format
+    :program "shfmt")
 
-(reformatter-define sh-format
-  :program "shfmt")
+  (reformatter-define xmllint-format
+    :program "xmllint"
+    :args '("--format" "-"))
 
-(reformatter-define xmllint-format
-  :program "xmllint"
-  :args '("--format" "-"))
-
-(reformatter-define yamlfix-format
-  :program "yamlfix"
-  :args '("-"))
+  (reformatter-define yamlfix-format
+    :program "yamlfix"
+    :args '("-")))
 
 ;; These modes are built-in, so we don't need use-package to run add-hook
 (add-hook 'sh-mode-hook 'sh-format-on-save-mode)
@@ -40,7 +38,8 @@
 ;; Put as much as possible in use-package expressions; roughly alphabetically
 
 (use-package cue-mode
-  :ensure t  :after reformatter
+  :ensure t
+  :after reformatter
   :quelpa (cue-mode :fetcher github
                     :repo    "russell/cue-mode")
   :mode (("\\.cue\\'"  . cue-mode))
@@ -115,6 +114,7 @@
 
 (use-package nix-mode
   :ensure t
+  :after reformatter
   :config
   (add-hook 'nix-mode-hook 'nix-format-on-save-mode))
 
@@ -397,3 +397,6 @@ Inspired by https://emacs.stackexchange.com/a/42174/5391"
                 (set-process-sentinel  proc warbo-find-and-run-tests-sentinel)
               (message "Tests finished immediately"))))))))
 (keymap-global-set "<f5>" 'warbo-find-and-run-tests)
+
+(provide 'warbo-programming)
+;;; warbo-programming.el ends here
