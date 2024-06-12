@@ -1,4 +1,6 @@
-;; Support for the Mercury logic programming language
+;;; warbo-mercury --- Support for the Mercury logic programming language
+;;; Commentary:
+;;; Code:
 
 (defun compile-mercury ()
   (interactive)
@@ -26,3 +28,6 @@
                           "nix-shell -p mercury "
                           "--run 'mmc --make " module-name "'")))
   (bind-key "<f9>" 'compile-mercury metal-mercury-mode-map))
+
+(provide 'warbo-mercury)
+;;; warbo-mercury.el ends here

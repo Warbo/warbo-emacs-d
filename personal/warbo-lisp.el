@@ -1,3 +1,7 @@
+;;; warbo-lisp --- Functionality specific to Lisp/Scheme/S-expressions
+;;; Commentary:
+;;; Code:
+
 ;; Make parentheses dimmer when editing LISP
 ;; (defface paren-face
 ;;   '((((class color) (background dark))
@@ -41,3 +45,6 @@
            (ert t))
          (define-key emacs-lisp-mode-map       (kbd "C-x r") 'ert-silently)
          (define-key lisp-interaction-mode-map (kbd "C-x r") 'ert-silently)))
+
+(provide 'warbo-lisp)
+;;; warbo-lisp.el ends here

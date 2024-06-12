@@ -1,5 +1,9 @@
+;;; warbo-writing --- Setup for writing documents
+;;; Commentary:
+;;; Code:
+
 (defun compile-with-make ()
-  "Run COMPILE, without prompting for a command"
+  "Run COMPILE, without prompting for a command."
   (interactive)
   (let ((compilation-read-command nil))
     (compile (cond
@@ -121,3 +125,6 @@
   ;;               (org-present-read-write)
                                              ))
      ))
+
+(provide 'warbo-writing)
+;;; warbo-writing.el ends here

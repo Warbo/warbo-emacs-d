@@ -1,3 +1,7 @@
+;;; warbo-provers --- Helpers for (interactive) theorem provers
+;;; Commentary:
+;;; Code:
+
 ;; Isabelle files
 ;; (use-package isar-mode
 ;;   :quelpa (isar-mode :fetcher github :repo "agomezl/simp-isar-mode")
@@ -22,3 +26,6 @@
   :init
   ;(setq company-coq-disabled-features '(hello prettify-symbols))
   )
+
+(provide 'warbo-provers)
+;;; warbo-provers.el ends here

@@ -1,3 +1,7 @@
+;;; warbo-web --- Setup for Web browsing in Emacs
+;;; Commentary:
+;;; Code:
+
 ;; From https://github.com/GriffinSchneider/emacs-config eww-customizations.el
 (require 'eww)
 
@@ -42,3 +46,6 @@
     (setq w3m-default-display-inline-images t
           w3m-search-default-engine         "duckduckgo"
           w3m-use-cookies           t)))
+
+(provide 'warbo-web)
+;;; warbo-web.el ends here

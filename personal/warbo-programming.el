@@ -1,7 +1,5 @@
-;;; package --- summary
-
+;;; warbo-programming --- Generic programming-related stuff
 ;;; Commentary:
-
 ;;; Code:
 
 ;; Define some reformatters, used by various modes below
@@ -353,5 +351,5 @@
 (mac-only
  (setq flycheck-global-modes '(not c-mode)))
 
-(provide 'programming)
-;;; programming.el ends here
+(provide 'warbo-programming)
+;;; warbo-programming.el ends here

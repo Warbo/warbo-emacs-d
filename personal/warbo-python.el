@@ -1,3 +1,7 @@
+;;; warbo-python --- Programming functionality specific to Python
+;;; Commentary:
+;;; Code:
+
 (use-package python
   :ensure t
   :mode ("\\.py\\'" . python-mode)
@@ -29,3 +33,6 @@
      '("/run/current-system/sw/bin/python3" "-m" "unittest")))
   (add-to-list 'python-shell-completion-native-disabled-interpreters
                "/run/current-system/sw/bin/python3"))
+
+(provide 'warbo-python)
+;;; warbo-python.el ends here

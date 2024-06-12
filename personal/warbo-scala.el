@@ -1,3 +1,7 @@
+;;; warbo-scala --- Programming functionality specific to Scala
+;;; Commentary:
+;;; Code:
+
 (use-package scala-mode
   :ensure t
   :mode "\\.s\\(cala\\|bt\\)$"
@@ -53,3 +57,6 @@
 ;;     :quelpa (lsp-metals :fetcher github
 ;;                         :repo    "emacs-lsp/lsp-metals")
 ;;     :ensure t)
+
+(provide 'warbo-scala)
+;;; warbo-scala.el ends here

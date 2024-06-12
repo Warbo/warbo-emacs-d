@@ -1,3 +1,7 @@
+;;; warbo-documents --- Helpers for reading PDFs, etc.
+;;; Commentary:
+;;; Code:
+
 ;; Make doc-view continuous
 (setq doc-view-continuous t)
 
@@ -29,3 +33,6 @@
     (insert ",\n\ttitle = \"")
     (insert title)
     (insert "\"")))
+
+(provide 'warbo-documents)
+;;; warbo-documents.el ends here

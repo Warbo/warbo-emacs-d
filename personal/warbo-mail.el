@@ -1,3 +1,7 @@
+;;; warbo-mail --- Email reading in Emacs
+;;; Commentary:
+;;; Code:
+
 ;; See if we're running on NixOS with mu installed system-wide
 (thinkpad-only
   (ignore-errors
@@ -174,3 +178,6 @@
   (thinkpad-only
    (add-to-list 'mu4e-view-actions
                 '("View in browser" . mu4e-msgv-action-view-in-browser) t)))
+
+(provide 'warbo-mail)
+;;; warbo-mail.el ends here
