@@ -5,32 +5,32 @@
 ;; Define some reformatters, used by various modes below
 
 (use-package reformatter
-  :ensure t)
+  :ensure t
+  :config
+  (reformatter-define cue-format
+    :program "cue"
+    :args '("fmt" "-"))
 
-(reformatter-define cue-format
-  :program "cue"
-  :args '("fmt" "-"))
+  (reformatter-define nix-format
+    :program "nixfmt"
+    :args '("-w" "80"))
 
-(reformatter-define nix-format
-  :program "nixfmt"
-  :args '("-w" "80"))
+  (reformatter-define scala-format
+    :program "scalafmt"
+    :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
+            "--stdin"
+            "--stdout"))
 
-(reformatter-define scala-format
-  :program "scalafmt"
-  :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
-          "--stdin"
-          "--stdout"))
+  (reformatter-define sh-format
+    :program "shfmt")
 
-(reformatter-define sh-format
-  :program "shfmt")
+  (reformatter-define xmllint-format
+    :program "xmllint"
+    :args '("--format" "-"))
 
-(reformatter-define xmllint-format
-  :program "xmllint"
-  :args '("--format" "-"))
-
-(reformatter-define yamlfix-format
-  :program "yamlfix"
-  :args '("-"))
+  (reformatter-define yamlfix-format
+    :program "yamlfix"
+    :args '("-")))
 
 ;; These modes are built-in, so we don't need use-package to run add-hook
 (add-hook 'sh-mode-hook 'sh-format-on-save-mode)
