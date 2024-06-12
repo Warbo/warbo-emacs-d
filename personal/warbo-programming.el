@@ -114,6 +114,7 @@
 
 (use-package nix-mode
   :ensure t
+  :after reformatter
   :config
   (add-hook 'nix-mode-hook 'nix-format-on-save-mode))
 
