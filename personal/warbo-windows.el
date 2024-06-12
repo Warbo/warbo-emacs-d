@@ -1,4 +1,4 @@
-;;; warbo-windows -- Window layouts
+;;; warbo-windows --- Window layouts
 ;;;
 ;;; Commentary:
 ;;; Stored window configs

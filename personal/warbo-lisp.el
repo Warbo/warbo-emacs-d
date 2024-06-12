@@ -1,3 +1,7 @@
+;;; warbo-lisp --- Functionality specific to Lisp/Scheme/S-expressions
+;;; Commentary:
+;;; Code:
+
 ;; Make parentheses dimmer when editing LISP
 ;; (defface paren-face
 ;;   '((((class color) (background dark))
@@ -18,10 +22,10 @@
   :ensure t
   :init
   (dolist (hook '(emacs-lisp-mode-hook
-                     clojure-mode-hook
-                        lisp-mode-hook
-                      racket-mode-hook
-                      scheme-mode-hook))
+                  clojure-mode-hook
+                  lisp-mode-hook
+                  racket-mode-hook
+                  scheme-mode-hook))
     (add-hook hook 'paredit-mode))
   :diminish paredit-mode)
 
@@ -41,3 +45,6 @@
            (ert t))
          (define-key emacs-lisp-mode-map       (kbd "C-x r") 'ert-silently)
          (define-key lisp-interaction-mode-map (kbd "C-x r") 'ert-silently)))
+
+(provide 'warbo-lisp)
+;;; warbo-lisp.el ends here
