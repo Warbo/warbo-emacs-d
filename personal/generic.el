@@ -364,21 +364,34 @@ Version 2017-09-01"
 (my-global-fci-mode 1)
 
 (defun set-desired-font ()
-  (defvar desired-font
+  (let ((f (cond
+            ((or (equal machine-id 'wsl)
+                 (equal machine-id 'wsl-ubuntu))
+             "fixed")
+
+            ;; This seems to depend on whether our monitor is connected...
+            ((equal machine-id 'manjaro)
+             "EnvyCodeR Nerd Font Mono-11")
+
+            ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
+             "EnvyCodeR Nerd Font Mono-8")
+
+            ((font-utils-exists-p "Droid Sans Mono-9")
+             "Droid Sans Mono-9"))))
+    ;; Declare desired-font. Will not replace a value that's already defined.
+    (defvar desired-font
+      f
+      "The font to use in graphical mode.")
     (cond
-     ((or (equal machine-id 'wsl)
-          (equal machine-id 'wsl-ubuntu))
-      "fixed")
-
-     ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
-      "EnvyCodeR Nerd Font Mono-8")
-
-     ((font-utils-exists-p "Droid Sans Mono-9")
-      "Droid Sans Mono-9"))
-    "The font the use in graphical mode.")
-  (when desired-font
-    (add-to-list 'default-frame-alist `(font . ,desired-font))
-    (set-frame-font desired-font)))
+     ;; Return early if desired-font matches f, or is otherwise non-nil
+     (desired-font nil)
+     ((equal desired-font f) nil)
+     ;; Otherwise set the value as necessary
+     (t (setq desired-font f)))
+    ;; Apply now, if possible
+    (when desired-font
+      (add-to-list 'default-frame-alist `(font . ,desired-font))
+      (set-frame-font desired-font))))
 (add-hook 'server-after-make-frame-hook 'set-desired-font)
 
 (provide 'generic)
