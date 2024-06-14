@@ -247,6 +247,7 @@
         (rename-buffer name)))
     name))
 
+(require 's)
 (defconst startup-shells
   (pcase machine-id
     ('thinkpad
@@ -303,6 +304,12 @@
        ("warbo-dotfiles" "~/warbo-dotfiles")
        ("emacs-d" "~/.emacs.d")
        ("warbo-packages" "~/warbo-packages")))
+
+    ('wsl-ubuntu
+     `(("home" "~")
+       ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d)))
+                 (cl-remove-if (lambda (d) (s-starts-with-p "." d))
+                               (directory-files "~/src")))))
 
     (_ '(("home" "~"))))
   "Useful buffers to open at startup.")
