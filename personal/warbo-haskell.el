@@ -39,12 +39,12 @@
 
   :config
   (require 'haskell-tng-hsinspect)
-  ;(require 'haskell-tng-extra)
-  ;(require 'haskell-tng-extra-abbrev)
-  ;(require 'haskell-tng-extra-company)
-  ;(require 'haskell-tng-extra-projectile)
-  ;(require 'haskell-tng-extra-smartparens)
-  ;(require 'haskell-tng-extra-yasnippet)
+  ;;(require 'haskell-tng-extra)
+  ;;(require 'haskell-tng-extra-abbrev)
+  ;;(require 'haskell-tng-extra-company)
+  ;;(require 'haskell-tng-extra-projectile)
+  ;;(require 'haskell-tng-extra-smartparens)
+  ;;(require 'haskell-tng-extra-yasnippet)
 
   :bind
   (:map
