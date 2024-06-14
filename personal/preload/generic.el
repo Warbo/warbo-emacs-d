@@ -14,7 +14,12 @@
          (not (file-exists-p "/run/current-system/sw/bin/pw-top")))
     'thinkpad)
    ((file-directory-p "/home/manjaro") 'manjaro)
-   ((file-directory-p "/mnt/c/Users")  'wsl)
+   ((and (file-directory-p "/mnt/c/Users")
+         (file-directory-p "/home/nixos"))
+    'wsl)
+   ((and (file-directory-p "/mnt/c/Users")
+         (file-directory-p "/home/chrisw"))
+    'wsl-ubuntu)
    (t                                  'unknown)))
 
 ;; See which per-machine options we should enable
