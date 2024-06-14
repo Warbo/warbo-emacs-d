@@ -366,9 +366,13 @@ Version 2017-09-01"
 (defun set-desired-font ()
   (defvar desired-font
     (cond
-     ((equal machine-id 'wsl) "fixed")
+     ((or (equal machine-id 'wsl)
+          (equal machine-id 'wsl-ubuntu))
+      "fixed")
+
      ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
       "EnvyCodeR Nerd Font Mono-8")
+
      ((font-utils-exists-p "Droid Sans Mono-9")
       "Droid Sans Mono-9"))
     "The font the use in graphical mode.")
