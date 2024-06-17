@@ -54,6 +54,9 @@
 ;  (add-to-list 'direnv-non-file-modes 'shell-mode)
 ;  (direnv-mode))
 
+(use-package haskell-mode
+  :ensure t)
+
 (use-package js2-mode
   :ensure t)
 
@@ -181,6 +184,9 @@
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
   (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
   )
+
+(use-package company
+  :ensure t)
 
 (use-package yasnippet
   :ensure t)
