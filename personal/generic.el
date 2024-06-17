@@ -392,7 +392,13 @@ Version 2017-09-01"
     (when desired-font
       (add-to-list 'default-frame-alist `(font . ,desired-font))
       (set-frame-font desired-font))))
+
+;; Set hook, so it will run when emacsclients open new frames
 (add-hook 'server-after-make-frame-hook 'set-desired-font)
+
+;; Run now if we're already in a graphical frame (e.g. not started as a daemon)
+(when (display-graphic-p)
+  (set-desired-font))
 
 (provide 'generic)
 ;;; generic.el ends here
