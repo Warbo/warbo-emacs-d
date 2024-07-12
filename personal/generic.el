@@ -365,9 +365,10 @@ Version 2017-09-01"
 
 (defun set-desired-font ()
   (let ((f (cond
-            ((or (equal machine-id 'wsl)
-                 (equal machine-id 'wsl-ubuntu))
-             "fixed")
+            ((equal machine-id 'wsl) "fixed")
+
+            ((equal machine-id 'wsl-ubuntu)
+             "-jmk-neep-medium-r-semicondensed--11-*-*-*-*-*-*-*")
 
             ;; This seems to depend on whether our monitor is connected...
             ((equal machine-id 'manjaro)
