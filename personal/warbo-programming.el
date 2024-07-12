@@ -186,7 +186,8 @@
   )
 
 (use-package company
-  :ensure t)
+  :ensure t
+  :hook (prog-mode . company-mode))
 
 (use-package yasnippet
   :ensure t)
