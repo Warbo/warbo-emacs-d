@@ -454,5 +454,21 @@ Version 2017-09-01"
 (when (display-graphic-p)
   (set-desired-font))
 
+(wsl-ubuntu-only
+ (run-at-time
+  5
+  nil
+  (lambda ()
+    (message "Auto-spawning emacsclient -c")
+    (start-process
+     "auto-emacsclient"
+     nil
+     ;; Run a graphical terminal so emacsclient knows it's to run graphically
+     "urxvt"
+     ;; Execute emacsclient via nohup, so it will detach from the terminal. This
+     ;; (a) allows the terminal window to close immediately, and (b) prevents
+     ;; the emacsclient process getting killed when the terminal closes.
+     "-e" "nohup" "emacsclient" "-c"))))
+
 (provide 'generic)
 ;;; generic.el ends here
