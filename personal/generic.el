@@ -363,12 +363,64 @@ Version 2017-09-01"
       (turn-on-fci-mode))))
 (my-global-fci-mode 1)
 
+(require 'dash)
+(require 'cl-lib)
+(defun font-strings-match (x y)
+  "Check if the strings X and Y (in XLFD format) match, allowing wildcards."
+  (-all? 'identity
+         (cl-mapcar (lambda (part-x part-y)
+                      (or (member "*" (list part-x part-y))
+                          (equal part-x part-y)))
+                    (split-string x "-")
+                    (split-string y "-"))))
+
 (defun set-desired-font ()
+  "Choose and set a font, depending on which machine we're on."
   (let ((f (cond
             ((equal machine-id 'wsl) "fixed")
 
+            ;; wls-ubuntu is awkward, since the WSL X server can crash and lose
+            ;; access to bitmap fonts other than 'fixed'...
             ((equal machine-id 'wsl-ubuntu)
-             "-jmk-neep-medium-r-semicondensed--11-*-*-*-*-*-*-*")
+             (let* ((font-exists-env "FONT_EXISTS_CMD")
+                    (cmd (getenv font-exists-env))
+                    (want "-jmk-neep-medium-r-semicondensed--11-*-*-*-*-*-*-*"))
+               (if (and (boundp 'desired-font)
+                        (equal want desired-font)
+                        ;; See if there's an existing frame whose font matches
+                        ;; `want' (taking wildcards into account). If so, there
+                        ;; is no need to choose a font, we can just use `want'.
+                        ;; This is needed when `emacsclient' gets invoked from
+                        ;; within Emacs (e.g. when writing a commit message in
+                        ;; Magit): we don't want an xfontsel window to pop up
+                        ;; and take focus away from Emacs!
+                        (-any?
+                         ;; Does any existing frame have a font matching `want'?
+                         (lambda (frame)
+                           (let ((frame-font (frame-parameter frame 'font)))
+                             ;; Do any matches for `want' also match frame-font?
+                             (-any? (lambda (font)
+                                      (font-strings-match frame-font font))
+                                    (x-list-fonts want nil frame))))
+                         (frame-list)))
+                   ;; We can use `want', no need to run any commands
+                   want
+                 ;; We need to pick a font. We'd like `want', but it may not be
+                 ;; available (e.g. if the WSL X server crashed), so run the
+                 ;; FONT_EXISTS_CMD to check. Note that pops up an xfontsel
+                 ;; window momentarily, which may change the focused window!
+                 (with-temp-buffer
+                   (if (and cmd (equal 0 (call-process cmd nil t nil want)))
+                       want
+                     (if cmd
+                         (message "%s" (buffer-string))
+                       (message "Env var %s not set by Home Manager"
+                                font-exists-env))
+                     (message "Font '%s' not found (%s), falling back to %s"
+                              want
+                              "see *Messages* for details"
+                              "fixed")
+                     "fixed")))))
 
             ;; This seems to depend on whether our monitor is connected...
             ((equal machine-id 'manjaro)
@@ -379,6 +431,7 @@ Version 2017-09-01"
 
             ((font-utils-exists-p "Droid Sans Mono-9")
              "Droid Sans Mono-9"))))
+
     ;; Declare desired-font. Will not replace a value that's already defined.
     (defvar desired-font
       f
