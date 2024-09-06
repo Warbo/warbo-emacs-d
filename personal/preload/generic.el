@@ -43,6 +43,11 @@
   `(when (equal machine-id 'wsl)
      ,@body))
 
+(defmacro wsl-ubuntu-only (&rest body)
+  "Only evaluate BODY iff on wsl-ubuntu."
+  `(when (equal machine-id 'wsl-ubuntu)
+     ,@body))
+
 ;; Set PATH and 'exec-path', so external commands will work.
 ;; TODO: Check if this is still needed, or if there's a cleaner approach
 (require 'subr-x)
