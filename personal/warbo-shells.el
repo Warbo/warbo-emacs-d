@@ -322,6 +322,9 @@
 ;; Avoid complaints from 'less' about terminal not being fully functional
 (setq process-environment (cons "PAGER=cat" process-environment))
 
+;; Show CWD when prompting for a command, with M-! or M-&
+(setq shell-command-prompt-show-cwd t)
+
 (defun open-startup-shells ()
   "Open a new shell for each entry in startup-shells."
   (interactive)
