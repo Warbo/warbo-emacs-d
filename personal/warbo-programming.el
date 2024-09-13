@@ -57,6 +57,42 @@
 (use-package haskell-mode
   :ensure t)
 
+;; TODO: This requires Emacs 30+, but should be a nicer way to install ghcid.el,
+;; replacing the :init below
+;; (use-package ghcid
+;;   :vc (:url "https://github.com/ndmitchell/ghcid"
+;;             :rev :newest
+;;             :lisp-dir "blob/master/plugins/emacs/"))
+(use-package ghcid
+  :init
+  (let* ((iname (intern "ghcid")))
+    (unless (package-installed-p iname)
+      (package-vc-install
+       `(,iname . (:url "https://github.com/ndmitchell/ghcid"
+                        :rev :newest
+                        :lisp-dir "plugins/emacs/")))))
+  :config
+  ;; Use a custom shell script, rather than trying to guess appropriate CLI args
+  (defun ghcid-stack-cmd (target)
+    "Override ghcid's default command"
+    "./GHCID")
+
+  ;; The 'start-ghcid' function sets the 'term-buffer-maximum-size' to equal the
+  ;; window height. It's useful to have *a* cutoff, to prevent an ever-growing
+  ;; output from slowing down Emacs; but we want more than a screen's worth. We
+  ;; can work around this by advising 'ghcid-buffer-name', since that is called
+  ;; after 'term-buffer-maximum-size' gets set, but before the 'term-exec' call
+  ;; which starts GHCID.
+  (defun set-reasonable-scrollback-height (&rest _)
+    ;; 'ghcid-buffer-name' is called in a few places, so only update the
+    ;; variable if it's already (locally) set.
+    (when (local-variable-p 'term-buffer-maximum-size)
+      (setq-local term-buffer-maximum-size 10000)))
+  (advice-add 'ghcid-buffer-name :after #'set-reasonable-scrollback-height)
+  )
+
+(use-package linum)  ;; Used by ghcid
+
 (use-package js2-mode
   :ensure t)
 
