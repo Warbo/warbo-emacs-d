@@ -64,14 +64,15 @@
   (when (get-buffer "ghcid")
     (let ((kill-buffer-query-functions nil)) ;; Don't ask
       (kill-buffer "ghcid")))
-  (let ((buf (command-in-buffer (list "ghcid" (vc-root-dir) ". GHCID"))))
-    (with-current-buffer buf
-      (compilation-minor-mode 1)  ;; Nice warning/error highlighting
-      (setq-local comint-buffer-maximum-size ghcid-height)
-      (add-hook 'comint-output-filter-functions
-                'comint-truncate-buffer
-                nil
-                :local))))
+  (let ((shell-mode-hook nil))  ;; Avoid warbo-shell-hook's colour mangling
+    (let ((buf (command-in-buffer (list "ghcid" (vc-root-dir) ". GHCID"))))
+      (with-current-buffer buf
+        (compilation-minor-mode 1) ;; Nice warning/error highlighting
+        (setq-local comint-buffer-maximum-size ghcid-height)
+        (add-hook 'comint-output-filter-functions
+                  'comint-truncate-buffer
+                  nil
+                  :local)))))
 
 ;; SEE https://github.com/ndmitchell/ghcid/blob/master/plugins/emacs/ghcid.el
 ;; Compilation mode does some caching for markers in files, but it gets confused
