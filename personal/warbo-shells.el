@@ -317,6 +317,8 @@
 
     ('wsl-ubuntu
      `(("home" "~")
+       ("emacs-d" "~/.emacs.d")
+       ("nix-config" "~/nix-config")
        ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
 
     (_ '(("home" "~"))))
