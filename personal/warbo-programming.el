@@ -66,11 +66,31 @@
       (kill-buffer "ghcid")))
   (let ((buf (command-in-buffer (list "ghcid" (vc-root-dir) ". GHCID"))))
     (with-current-buffer buf
+      (compilation-minor-mode 1)  ;; Nice warning/error highlighting
       (setq-local comint-buffer-maximum-size ghcid-height)
       (add-hook 'comint-output-filter-functions
                 'comint-truncate-buffer
                 nil
                 :local))))
+
+;; SEE https://github.com/ndmitchell/ghcid/blob/master/plugins/emacs/ghcid.el
+;; Compilation mode does some caching for markers in files, but it gets confused
+;; because ghcid reloads the files in the same process. Here we parse the
+;; 'Reloading...' message from ghcid and flush the cache for the mentioned
+;; files. This approach is very similar to the 'omake' hacks included in
+;; compilation mode.
+(add-to-list
+ 'compilation-error-regexp-alist-alist
+ '(ghcid-reloading
+   "Reloading\\.\\.\\.\\(\\(\n  .+\\)*\\)" 1 nil nil nil nil
+   (0 (progn
+        (let* ((filenames (cdr (split-string (match-string 1) "\n  "))))
+          (dolist (filename filenames)
+            (compilation--flush-file-structure filename)))
+        nil))
+   ))
+(add-to-list 'compilation-error-regexp-alist 'ghcid-reloading)
+
 
 (use-package js2-mode
   :ensure t)
