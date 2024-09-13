@@ -251,6 +251,11 @@
         (rename-buffer name)))
     name))
 
+(defconst sources
+  (cl-remove-if (lambda (d) (s-starts-with-p "." d))
+                (directory-files "~/src"))
+  "Source repos in ~/src.")
+
 (require 's)
 (defconst startup-shells
   (pcase machine-id
@@ -312,9 +317,7 @@
 
     ('wsl-ubuntu
      `(("home" "~")
-       ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d)))
-                 (cl-remove-if (lambda (d) (s-starts-with-p "." d))
-                               (directory-files "~/src")))))
+       ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
 
     (_ '(("home" "~"))))
   "Useful buffers to open at startup.")
