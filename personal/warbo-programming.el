@@ -57,14 +57,16 @@
 (use-package haskell-mode
   :ensure t)
 
+(defvar ghcid-height 65536 "How many lines to truncate a ghcid buffer to.")
 (defun ghcid ()
   "Run ghcid in a shell-mode buffer"
   (interactive)
   (when (get-buffer "ghcid")
-    (kill-buffer "ghcid"))
+    (let ((kill-buffer-query-functions nil)) ;; Don't ask
+      (kill-buffer "ghcid")))
   (let ((buf (command-in-buffer (list "ghcid" (vc-root-dir) ". GHCID"))))
     (with-current-buffer buf
-      (setq-local comint-buffer-maximum-size 10000)
+      (setq-local comint-buffer-maximum-size ghcid-height)
       (add-hook 'comint-output-filter-functions
                 'comint-truncate-buffer
                 nil
