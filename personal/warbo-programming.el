@@ -83,11 +83,7 @@
  'compilation-error-regexp-alist-alist
  '(ghcid-reloading
    "Reloading\\.\\.\\.\\(\\(\n  .+\\)*\\)" 1 nil nil nil nil
-   (0 (progn
-        (let* ((filenames (cdr (split-string (match-string 1) "\n  "))))
-          (dolist (filename filenames)
-            (compilation--flush-file-structure filename)))
-        nil))
+   (0 (progn (compilation-forget-errors) nil))
    ))
 (add-to-list 'compilation-error-regexp-alist 'ghcid-reloading)
 
