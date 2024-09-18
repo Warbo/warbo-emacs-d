@@ -48,12 +48,13 @@
 (require 'subr-x)
 (thinkpad-only
  (setenv "PATH"
-         (string-join `("/run/current-system/sw/bin"
+         (string-join `("/run/wrappers/bin"
+                        "/run/current-system/sw/bin"
                         ,(getenv "PATH")
                         "/home/chris/.nix-profile/bin"
                         "/home/chris/System/Programs/bin")
                       ":"))
- (setq exec-path (append '("/run/current-system/sw/bin")
+ (setq exec-path (append '("/run/wrappers/bin" "/run/current-system/sw/bin")
                          exec-path
                          '("/home/chris/.nix-profile/bin"
                            "/home/chris/System/Programs/bin"))))
