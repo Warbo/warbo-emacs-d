@@ -293,11 +293,12 @@
        ("warbo-utilities" "~/repos/warbo-utilities")))
 
     ('nixos-amd64
-     '(("home" "~")
+     '(("blog" "~/repos/chriswarbo-net")
       ("nix-config" "~/repos/nix-config")
       ("nix-helpers" "~/repos/nix-helpers")
       ("warbo-packages" "~/warbo-packages")
-      ("warbo-utilities" "~/warbo-utilities")))
+      ("warbo-utilities" "~/warbo-utilities")
+      ("home" "~")))
 
     ('wsl
      '(("deleteme" "~/deleteme")
