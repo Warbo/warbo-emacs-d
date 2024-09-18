@@ -1,3 +1,7 @@
+;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term
+;;; Commentary:
+;;; Code:
+
 ;; Interpret and use ansi color codes in shell output windows. We use
 ;; https://github.com/atomontage/xterm-color rather than Emacs's built-in ansi
 ;; handling, e.g. (ansi-color-for-comint-mode-on), since that's SLOW
@@ -405,3 +409,6 @@
  '(comint-input-ignoredups t)             ; no duplicates in command history
  '(comint-completion-addsuffix t)         ; insert space/slash after file completion
  )
+
+(provide 'warbo-shells)
+;;; warbo-shells.el ends here
