@@ -28,7 +28,7 @@
 
 (use-package org
   :mode (("\\.org$" . org-mode))
-  :ensure org-plus-contrib
+  ;:ensure org-plus-contrib
   :bind (("<f9>" . 'org-save-and-show-pdf)
 
          ;; Don't clobber windmove bindings
