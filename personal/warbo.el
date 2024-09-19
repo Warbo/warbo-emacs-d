@@ -34,6 +34,8 @@
 (use-package warbo-provers)
 (use-package warbo-python)
 (use-package warbo-scala)
+(use-package warbo-shells)
+(use-package warbo-rolling-shell)
 (use-package warbo-tramp)
 (use-package warbo-web)
 (use-package warbo-windows)
