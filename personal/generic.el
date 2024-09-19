@@ -364,22 +364,42 @@ Version 2017-09-01"
 (my-global-fci-mode 1)
 
 (defun set-desired-font ()
-  (defvar desired-font
+  (let ((f (cond
+            ((equal machine-id 'wsl) "fixed")
+
+            ((equal machine-id 'wsl-ubuntu)
+             "-jmk-neep-medium-r-semicondensed--11-*-*-*-*-*-*-*")
+
+            ;; This seems to depend on whether our monitor is connected...
+            ((equal machine-id 'manjaro)
+             "EnvyCodeR Nerd Font Mono-11")
+
+            ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
+             "EnvyCodeR Nerd Font Mono-8")
+
+            ((font-utils-exists-p "Droid Sans Mono-9")
+             "Droid Sans Mono-9"))))
+    ;; Declare desired-font. Will not replace a value that's already defined.
+    (defvar desired-font
+      f
+      "The font to use in graphical mode.")
     (cond
-     ((or (equal machine-id 'wsl)
-          (equal machine-id 'wsl-ubuntu))
-      "fixed")
+     ;; Return early if desired-font matches f, or is otherwise non-nil
+     (desired-font nil)
+     ((equal desired-font f) nil)
+     ;; Otherwise set the value as necessary
+     (t (setq desired-font f)))
+    ;; Apply now, if possible
+    (when desired-font
+      (add-to-list 'default-frame-alist `(font . ,desired-font))
+      (set-frame-font desired-font))))
 
-     ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
-      "EnvyCodeR Nerd Font Mono-8")
-
-     ((font-utils-exists-p "Droid Sans Mono-9")
-      "Droid Sans Mono-9"))
-    "The font the use in graphical mode.")
-  (when desired-font
-    (add-to-list 'default-frame-alist `(font . ,desired-font))
-    (set-frame-font desired-font)))
+;; Set hook, so it will run when emacsclients open new frames
 (add-hook 'server-after-make-frame-hook 'set-desired-font)
+
+;; Run now if we're already in a graphical frame (e.g. not started as a daemon)
+(when (display-graphic-p)
+  (set-desired-font))
 
 (provide 'generic)
 ;;; generic.el ends here
