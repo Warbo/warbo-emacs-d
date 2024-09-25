@@ -107,11 +107,15 @@
 ;; "clean" when it was opened. This way, editing files which already contain
 ;; dodgy whitespace won't cause all of that to be stripped (which would pollute
 ;; diffs and git commits, for example)
+(require 'cl-lib)
 (use-package whitespace-cleanup-mode
   :ensure t
   :config
-  (progn
-    (global-whitespace-cleanup-mode)))
+  ;; Avoid cleanup in vue-mode, since it can reindent everything weirdly. This
+  ;; is probably due to it using mmm-mode to handle mixtures of HTML, JS, etc.
+  (cl-pushnew 'vue-mode whitespace-cleanup-mode-ignore-modes)
+  ;; Otherwise, enable everywhere else
+  (global-whitespace-cleanup-mode))
 
 ;; Flycheck all the things
 (use-package flycheck
