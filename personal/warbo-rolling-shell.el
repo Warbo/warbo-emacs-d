@@ -18,28 +18,30 @@ Returns the number of lines truncated."
         (delete-region (point-min) (point))
         lines-to-delete))))
 
+(defun rolling-shell-preoutput-filter (text)
+  "Return TEXT unchanged, but also update the old-point."
+  (prog1 text
+    (setq-local old-point (point))
+    (setq-local at-end (= old-point (point-max)))
+    (setq-local old-line (line-number-at-pos))))
+
 (defun rolling-shell-output-filter (text)
   "Filter to insert TEXT into rolling shell."
-  (let* ((old-point (point))
-         (at-end (= old-point (point-max)))
-         (old-line (line-number-at-pos))
-         (inhibit-read-only t))
-    ;; Insert the new text
-    (goto-char (point-max))
-    (insert text)
+  ;; Insert the new text
+  (goto-char (point-max))
 
-    ;; Truncate if necessary and get number of truncated lines
-    (let ((truncated-lines (rolling-shell-truncate-buffer)))
-      ;; Adjust point based on where it was
-      (if at-end
-          (goto-char (point-max))  ; Keep point at end if it was there
-        (goto-char (point-min))
-        (forward-line (- old-line truncated-lines 1))))
+  ;; Truncate if necessary and get number of truncated lines
+  (let ((truncated-lines (rolling-shell-truncate-buffer)))
+    ;; Adjust point based on where it was
+    (if at-end
+        (goto-char (point-max))       ; Keep point at end if it was there
+      (goto-char (point-min))
+      (forward-line (- old-line truncated-lines 1))))
 
-    ;; Ensure point is visible
-    (when (and (< (point) (window-start))
-               (not (eq (current-buffer) (window-buffer))))
-      (set-window-point (get-buffer-window (current-buffer)) (point))))
+  ;; Ensure point is visible
+  (when (and (< (point) (window-start))
+             (not (eq (current-buffer) (window-buffer))))
+    (set-window-point (get-buffer-window (current-buffer)) (point)))
 
   ;; Return nil to indicate we've handled the output
   nil)
@@ -50,10 +52,18 @@ Returns the number of lines truncated."
   "Pass BUF-DIR-CMD to command-in-buffer, but rolling (truncated to MAX-LINES)."
   (with-current-buffer (command-in-buffer buf-dir-cmd)
     (setq-local rolling-shell-max-lines (or max-lines 10000))
-    (setq-local comint-output-filter-functions '(rolling-shell-output-filter))
     (setq-local comint-buffer-maximum-size rolling-shell-max-lines)
-    (buffer-disable-undo)
-    (add-hook 'shell-mode-hook 'rolling-shell-setup nil t)))
+    (rolling-shell-preoutput-filter "")  ;; Initialise local variables
+    (add-hook 'comint-preoutput-filter-functions
+              'rolling-shell-preoutput-filter
+              nil
+              t)
+    (add-hook 'comint-output-filter-functions
+              'rolling-shell-output-filter
+              nil
+              t)
+
+    (buffer-disable-undo)))
 
 (provide 'warbo-rolling-shell)
 ;;; warbo-rolling-shell.el ends here
