@@ -54,8 +54,37 @@
       (ignore-errors (cd-absolute dir))))
   s)
 
+(require 'tramp)
+(defun track-osc-over-tramp (orig-fun &rest args)
+  "Advise `ansi-osc-directory-tracker' (ORIG-FUN, w/ ARGS) to work over TRAMP."
+  ;; The second element of ARGS is the text extracted from the OSC7 PS1 prompt.
+  ;; It should have the form "file://host/path", e.g. "file://nixos/home/chris".
+  ;; Split up such URLs, the same as `ansi-osc-directory-tracker' does, and act
+  ;; according to the host part...
+  (let* ((osc-string (cadr args))
+         (parsed-uri (url-generic-parse-url osc-string))
+         (host (url-host parsed-uri))
+         (path (url-filename parsed-uri)))
+    (if (or (null host)
+            (string= host (system-name)))
+        ;; If this is a local directory, call the original function
+        (apply orig-fun args)
+      ;; If our buffer is already using TRAMP, we'll update the path part of the
+      ;; `default-directory', but assume the host/method/etc. remain unchanged.
+      ;; This is a pretty safe bet, since Emacs will reliably update the latter
+      ;; as needed; whilst the hostname in the PS1 prompt cannot be relied upon
+      ;; (e.g. we may be using its IP instead; or it may be a missing a `.local'
+      ;; domain; or we may be using multi-hop, or `sudo', etc.).
+      (when (file-remote-p default-directory)
+        (let* ((vec (tramp-dissect-file-name default-directory))
+               (new-localname (tramp-file-name-localname vec)))
+          (setf (tramp-file-name-localname vec) path)
+          (setq default-directory (tramp-make-tramp-file-name vec)))))))
+(advice-add 'ansi-osc-directory-tracker :around #'track-osc-over-tramp)
+
+(require 'shx)
 (defun warbo-shell-mode-hook ()
-  "Sets up a shell-mode buffer nicely."
+  "Set up a shell-mode buffer nicely."
   ;; shx-mode is nice, but don't let it mess with cwd
   (unless shx-mode (shx-mode 1))
   (advice-remove #'find-file-at-point #'shx--with-shx-cwd)
