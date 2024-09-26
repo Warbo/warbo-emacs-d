@@ -4,9 +4,6 @@
 
 (defconst machine-id
   (cond
-   ((file-directory-p "/Users/chris")  'mac)
-   ((file-directory-p "/Users/chrisw") 'mac)
-
    ((and (file-directory-p "/home/chris")
          (file-exists-p "/run/current-system/sw/bin/pw-top"))
     'nixos-amd64)
@@ -23,11 +20,6 @@
    (t                                  'unknown)))
 
 ;; See which per-machine options we should enable
-(defmacro mac-only (&rest body)
-  "Only evaluate BODY iff on mac."
-  `(when (equal machine-id 'mac)
-      ,@body))
-
 (defmacro thinkpad-only (&rest body)
   "Only evaluate BODY iff on thinkpad."
   `(when (equal machine-id 'thinkpad)
@@ -63,42 +55,6 @@
                          exec-path
                          '("/home/chris/.nix-profile/bin"
                            "/home/chris/System/Programs/bin"))))
-
-(mac-only
- ;; Nix does some environment fiddling in its default bashrc. The following flag
- ;; gets set once it's configured, under the assumption that child processes
- ;; will inherit the fixed env vars. Since Emacs on macOS seems to screw these
- ;; up, we unset the flag, which causes our shells to re-do the fiddling.
- ;; NOTE: If you get Apple popups asking you to install developer tools for git,
- ;; gcc, etc. then this variable is the culprit!
- (setenv "__NIX_DARWIN_SET_ENVIRONMENT_DONE" "")
-
- (let ((extra `(,(concat (getenv "HOME") "/.nix-profile/bin")
-                "/run/current-system/sw/bin"
-                "/nix/var/nix/profiles/default/bin"
-                "/usr/local/bin"
-                "/usr/bin"
-                "/usr/sbin"
-                "/bin"
-                "/sbin")))
-   (setenv "PATH" (string-join (append extra (list (getenv "PATH"))) ":"))
-   (setq exec-path (append extra exec-path)))
-
- (setq explicit-shell-file-name (executable-find "wrappedShell"))
-
- (unless (getenv "SSL_CERT_FILE")
-   (require 'seq)
-   (seq-do (lambda (path) (setenv "SSL_CERT_FILE" path))
-           (seq-take
-            (seq-filter
-             'file-exists-p
-             '("/run/current-system/etc/ssl/certs/ca-certificates.crt"
-               "/run/current-system/etc/ssl/certs/ca-bundle.crt"
-               "/nix/var/nix/profiles/default/etc/ssl/certs/ca-certificates.crt"
-               "/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt"
-               "~/.nix-profile/etc/ssl//certs/ca-certificates.crt"
-               "~/.nix-profile/etc/ssl//certs/ca-bundle.crt"))
-            1))))
 
 ;; Set up other env vars early, so they're inherited by shells
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers

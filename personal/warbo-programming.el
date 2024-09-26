@@ -322,9 +322,6 @@
     (global-flycheck-mode +1)
   (add-hook 'prog-mode-hook 'flycheck-mode))
 
-(mac-only
- (setq flycheck-global-modes '(not c-mode)))
-
 ;; Bind a key to look for 'test.sh' and run it
 (defun warbo-find-and-run-tests-sentinel (process signal)
   "A process sentinel suitable for 'set-process-sentinel'.
