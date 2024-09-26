@@ -16,6 +16,14 @@
          (remove 'xterm-color-filter comint-preoutput-filter-functions))
    "Ensure xterm-color's preoutput handler is in place"))
 
+(defvar possible-shell-binaries
+  '("/run/current-system/sw/bin/bash"
+    "~/.nix-profile/bin/bash"
+    "/usr/bin/bash"
+    "/bin/bash"
+    "/bin/sh")
+  "A list of paths where we might find a shell binary, in order of preference.")
+
 (use-package shx
   :ensure t
   :custom
@@ -29,16 +37,21 @@
   ;; remove this binding here, to allow typing spaces like normal shell-mode.
   (define-key shx-mode-map (kbd "SPC") nil)
 
+  (require 'cl-lib)
   (define-advice shx-cmd-ssh
       (:around (f host) ssh-default-to-bash)
-    "Assume remote hosts will be using /bin/bash, rather than wrappedShell"
-    ;; TODO: Would be even better if we check whether the remote command exists,
-    ;; before falling back to a default (similar to shx--shell-command, but we
-    ;; need to use 'host' rather than 'default-directory'
-    (let ((explicit-shell-file-name
-           (cond ((string= "" host) explicit-shell-file-name)
-                 (t "/bin/bash"))))
-     (apply f (list host)))))
+    "Look for a Bash on the HOST we're connecting to (to avoid prompting)."
+    (let ((host-prefix (if (string= "" host) host (concat "/ssh:" host ":"))))
+      (let ((found (cl-some (lambda (path)
+                              (and (file-exists-p (concat host-prefix path))
+                                   path))
+                            ;; Check if any of these exist, when host-prefix is
+                            ;; prepended. If so, the first one is returned.
+                            possible-shell-binaries)))
+        (if found
+            (let ((explicit-shell-file-name found))
+              (apply f (list host)))
+          (apply f (list host)))))))
 
 (defun extract-directory-from-prompt (s)
   "Like `comint-osc-process-output' but acts on the given string S."
