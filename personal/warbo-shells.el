@@ -388,14 +388,6 @@
 
 (mapc 'command-in-buffer startup-programs)
 
-;; From http://stackoverflow.com/a/27908343/884682
-(defun eshell/clear ()
-  "Clear terminal."
-  (interactive)
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (eshell-send-input)))
-
 (add-hook 'eshell-mode-hook
           '(lambda()
              (local-set-key (kbd "C-l") 'eshell/clear)))
