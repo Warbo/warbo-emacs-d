@@ -8,7 +8,7 @@
   (setq desktop-path '("."))
   (desktop-save-mode 1))
 
-;; Prevent Nix '.drv' filesf rom opening as LaTeX
+;; Prevent Nix '.drv' files from opening as LaTeX
 (add-to-list 'auto-mode-alist '("\\.drv\\'" . fundamental-mode))
 
 (provide 'warbo-fixes)

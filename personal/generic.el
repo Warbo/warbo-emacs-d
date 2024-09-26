@@ -31,11 +31,8 @@
   ;; Bi-directional text can slow down Emacs's processing
   (setq-default bidi-display-reordering nil)
 
-
-
   ;; Disable which-key, as it's slow and swallows keypresses
-  (which-key-mode -1)
-  )
+  (which-key-mode -1))
 
 (use-package nhexl-mode
   :ensure t)
