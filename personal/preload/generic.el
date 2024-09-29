@@ -6,8 +6,7 @@
   (cond
    ((equal (system-name) "nixos-amd64")
     'nixos-amd64)
-   ((and (file-directory-p "/home/chris")
-         (not (file-exists-p "/run/current-system/sw/bin/pw-top")))
+   ((file-directory-p "/home/chris")
     'thinkpad)
    ((file-directory-p "/home/manjaro") 'manjaro)
    ((and (file-directory-p "/mnt/c/Users")
