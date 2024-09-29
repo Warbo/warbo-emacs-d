@@ -294,8 +294,9 @@
     name))
 
 (defconst sources
-  (cl-remove-if (lambda (d) (s-starts-with-p "." d))
-                (directory-files "~/src"))
+  (if (file-directory-p "~/src")
+      (cl-remove-if (lambda (d) (s-starts-with-p "." d))
+                    (directory-files "~/src")))
   "Source repos in ~/src.")
 
 (require 's)
