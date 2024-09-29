@@ -8,14 +8,16 @@
     'nixos-amd64)
    ((file-directory-p "/home/chris")
     'thinkpad)
-   ((file-directory-p "/home/manjaro") 'manjaro)
+   ((file-directory-p "/home/manjaro")
+    'manjaro)
    ((and (file-directory-p "/mnt/c/Users")
          (file-directory-p "/home/nixos"))
     'wsl)
    ((and (file-directory-p "/mnt/c/Users")
          (file-directory-p "/home/chrisw"))
     'wsl-ubuntu)
-   (t                                  'unknown)))
+   (t
+    'unknown)))
 
 ;; See which per-machine options we should enable
 (defmacro thinkpad-only (&rest body)
