@@ -343,8 +343,8 @@
      '(("blog" "~/repos/chriswarbo-net")
       ("nix-config" "~/repos/nix-config")
       ("nix-helpers" "~/repos/nix-helpers")
-      ("warbo-packages" "~/warbo-packages")
-      ("warbo-utilities" "~/warbo-utilities")
+      ("warbo-packages" "~/repos/warbo-packages")
+      ("warbo-utilities" "~/repos/warbo-utilities")
       ("home" "~")))
 
     ('wsl
