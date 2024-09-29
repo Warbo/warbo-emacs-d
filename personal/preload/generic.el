@@ -4,8 +4,7 @@
 
 (defconst machine-id
   (cond
-   ((and (file-directory-p "/home/chris")
-         (file-exists-p "/run/current-system/sw/bin/pw-top"))
+   ((equal (system-name) "nixos-amd64")
     'nixos-amd64)
    ((and (file-directory-p "/home/chris")
          (not (file-exists-p "/run/current-system/sw/bin/pw-top")))
