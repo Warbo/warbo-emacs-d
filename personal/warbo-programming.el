@@ -152,6 +152,9 @@
   :after reformatter
   :config
   (add-hook 'nix-mode-hook 'nix-format-on-save-mode))
+  ;; nix-mode can run nixfmt, but it can't specify commandline args like "-w 80"
+  ;; so we prefer reformatter.
+  (setq nix-nixfmt-bin nil))
 
 (use-package scala-mode
   :ensure t
