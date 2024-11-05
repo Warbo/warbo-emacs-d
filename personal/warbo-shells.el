@@ -68,6 +68,16 @@
   s)
 
 (require 'tramp)
+(defvar warbo-shell-want-lowercase-system-name nil
+  "Setting this to t will cause (system-name) to lowercase its result.")
+
+(defun system-name-maybe-lowercased (orig-fun &rest args)
+  "Maybe lowercases result of function `system-name' (ORIG-FUN with ARGS)."
+  (if warbo-shell-want-lowercase-system-name
+      (downcase (apply orig-fun args))
+    (apply orig-fun args)))
+(advice-add 'system-name :around #'system-name-maybe-lowercased)
+
 (defun track-osc-over-tramp (orig-fun &rest args)
   "Advise `ansi-osc-directory-tracker' (ORIG-FUN, w/ ARGS) to work over TRAMP."
   ;; The second element of ARGS is the text extracted from the OSC7 PS1 prompt.
@@ -77,9 +87,10 @@
   (let* ((osc-string (cadr args))
          (parsed-uri (url-generic-parse-url osc-string))
          (host (url-host parsed-uri))
-         (path (url-filename parsed-uri)))
+         (path (url-filename parsed-uri))
+         (warbo-shell-want-lowercase-system-name t))
     (if (or (null host)
-            (string= host (system-name)))
+            (string= (downcase host) (system-name)))
         ;; If this is a local directory, call the original function
         (apply orig-fun args)
       ;; If our buffer is already using TRAMP, we'll update the path part of the
