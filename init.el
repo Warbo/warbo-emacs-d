@@ -96,25 +96,14 @@ by Prelude.")
 (require 'prelude-editor)
 (require 'prelude-global-keybindings)
 
-;; config changes made through the customize UI will be store here
-(setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
-
-(message  "Loading personal settings (including `custom-file')")
+;; Config changes made through the customize UI will be stored in custom.el
 (add-to-list 'load-path prelude-personal-dir)
+(setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
+(load custom-file)
+(load (expand-file-name "flycheck-custom.el" prelude-personal-dir))
 
-;; TODO: We want to migrate everything to use-package going forwards. See the
-;; commentary in personal/warbo.el for more info.
+;; Most of our custom functionality lives in personal/warbo.el
 (use-package warbo)
-(when (file-exists-p prelude-personal-dir)
-  (mapc 'load
-        ;; Load all personal/*.el files except if they begin with "warbo"
-        (seq-filter (lambda (f)
-                      (not (string-equal
-                            "warbo"
-                            (substring (car (last (split-string f "/"))) 0 5))))
-                    (directory-files prelude-personal-dir
-                                     't
-                                     "^[^#].*el$"))))
 
 (message "Finished init.el")
 
