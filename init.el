@@ -39,6 +39,14 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
+;; Set PATH and 'exec-path', so external commands will work.
+(use-package exec-path-from-shell
+  :commands exec-path-from-shell-initialize
+  :custom
+  (exec-path-from-shell-arguments '("-l"))
+  :config
+  (exec-path-from-shell-initialize))
+
 (message "Loading personal/preload/*.el files")
 (let ((preload-dir (expand-file-name "personal/preload"
                                      (file-name-directory load-file-name))))

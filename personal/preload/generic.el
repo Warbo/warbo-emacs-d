@@ -40,14 +40,6 @@
   `(when (equal machine-id 'wsl-ubuntu)
      ,@body))
 
-;; Set PATH and 'exec-path', so external commands will work.
-(use-package exec-path-from-shell
-  :commands exec-path-from-shell-initialize
-  :custom
-  (exec-path-from-shell-arguments '("-l"))
-  :config
-  (exec-path-from-shell-initialize))
-
 ;; Set up other env vars early, so they're inherited by shells
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers
 (setenv "COLUMNS" "80")
