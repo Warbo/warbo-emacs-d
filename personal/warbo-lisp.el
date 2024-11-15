@@ -37,6 +37,9 @@
 (use-package rainbow-mode
   :ensure t)
 
+(use-package racket-mode
+  :ensure t)
+
 ;; Unit testing for ELisp
 (defer (lambda ()
          (require 'ert)

@@ -1,4 +1,4 @@
-;;; issues --- Emacs UI for the Artemis issue tracker
+;;; warbo-issues --- Emacs UI for the Artemis issue tracker
 
 ;;; Commentary:
 
@@ -336,5 +336,5 @@ Any timezone information is ignored; we assume the timestamp is UTC."
          (issue-all-details)))
   (tabulated-list-print t))
 
-(provide 'issues)
-;;; issues.el ends here
+(provide 'warbo-issues)
+;;; warbo-issues.el ends here

@@ -2,6 +2,12 @@
 ;;; Commentary:
 ;;; Code:
 
+(use-package ebib
+  :ensure t)
+
+(use-package markdown-mode
+  :ensure t)
+
 (defun compile-with-make ()
   "Run COMPILE, without prompting for a command."
   (interactive)

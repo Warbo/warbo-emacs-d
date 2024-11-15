@@ -24,8 +24,11 @@
 ;;;
 ;;; Code:
 
+(use-package warbo-artemis-mode)
 (use-package warbo-documents)
 (use-package warbo-fixes)
+(use-package warbo-generic)
+(use-package warbo-issues)
 (use-package warbo-lisp)
 (use-package warbo-mail)
 (use-package warbo-mercury)

@@ -1,4 +1,12 @@
+;;; warbo-artemis-mode --- Emacs mode for the Artemis issue tracker
+
+;;; Commentary:
+
+;; Provides a major mode for Artemis issues, based on message-mode
+
 (require 'use-package)
+
+;;; Code:
 
 ;; Artemis uses maildirs for issue tracking. Use message-mode for editing these,
 ;; but augment it a little (e.g. save and close, rather than send).
@@ -59,4 +67,5 @@ From https://stackoverflow.com/a/3034272/884682"
 ;;    artemis-mode, since it will exit immediately and hence not work as EDITOR
 (add-hook 'server-visit-hook 'server-visit-artemis-issue-hook)
 
-(provide 'artemis-mode)
+(provide 'warbo-artemis-mode)
+;;; warbo-artemis-mode.el ends here

@@ -1,3 +1,10 @@
+;; reduce the frequency of garbage collection by making it happen on
+;; each 50MB of allocated data (the default is on every 0.76MB)
+(setq gc-cons-threshold 50000000)
+
+;; warn when opening files bigger than 100MB
+(setq large-file-warning-threshold 100000000)
+
 (defun defer (f)
   "Defer calling the function F until Emacs has finished initialising."
   (run-with-idle-timer 2 nil f))
@@ -39,14 +46,6 @@
   "Only evaluate BODY iff on wsl-ubuntu."
   `(when (equal machine-id 'wsl-ubuntu)
      ,@body))
-
-;; Set PATH and 'exec-path', so external commands will work.
-(use-package exec-path-from-shell
-  :commands exec-path-from-shell-initialize
-  :custom
-  (exec-path-from-shell-arguments '("-l"))
-  :config
-  (exec-path-from-shell-initialize))
 
 ;; Set up other env vars early, so they're inherited by shells
 ;; Set a reasonable value for COLUMNS, e.g. for shell buffers

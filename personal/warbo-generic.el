@@ -1,3 +1,11 @@
+;;; warbo-generic --- General Emacs settings, useful in all modes
+
+;;; Commentary:
+
+;; Emacs configuration, and generally-useful packages
+
+;;; Code:
+
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
 (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
@@ -6,6 +14,46 @@
 
 ;; Easily toggle truncation; helps on narrow phone screens
 (global-set-key (kbd "C-c C-t") 'toggle-truncate-lines)
+
+(use-package ag
+  :ensure t)
+
+(use-package fill-column-indicator
+  :ensure t)
+
+(use-package flycheck
+  :ensure t)
+
+(use-package git-timemachine
+  :ensure t)
+
+(use-package popup
+  :ensure t)
+
+(use-package pretty-sha-path
+  :ensure t
+  :config (pretty-sha-path-global-mode))
+
+(use-package smart-mode-line
+  :disabled
+  :ensure t
+  :init
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/theme nil)
+  (add-hook 'after-init-hook #'sml/setup))
+
+(use-package undo-tree
+  :ensure t
+  :config
+  (progn
+    (setq undo-tree-visualizer-timestamps t
+          undo-tree-history-directory-alist (quote (("" . "~/.emacs.d/.appdata/.undo-tree-history")))
+          undo-tree-auto-save-history nil  ;; Freezes Emacs on big XML files
+          undo-tree-visualizer-lazy-drawing 1000)
+    (global-undo-tree-mode)))
+
+(use-package zenburn-theme
+  :ensure t)
 
 (use-package zygospore
   :ensure t
@@ -211,14 +259,6 @@
         ;;         (nix-executable-find sandbox command)
         ;;       (executable-find command))))
         )
-
-(use-package dwim-compile
-  :disabled
-  :ensure t
-  :config
-  ;; Compile using nix-build if there's a default.nix file
-  (add-to-list 'dwim-c/build-tool-alist
-               '(nix "\\`default\\.nix\\'" "nix-build")))
 
 ;; Look for line and column numbers when using find-file-at-point
 
@@ -475,5 +515,5 @@ Version 2017-09-01"
      ;; it doesn't steal focus from programs running on another monitor.
      "-e" "nohup" "emacsclient" "-c" "-F" "((undecorated . t))"))))
 
-(provide 'generic)
-;;; generic.el ends here
+(provide 'warbo-generic)
+;;; warbo-generic.el ends here
