@@ -66,13 +66,6 @@
   :config
   (exec-path-from-shell-initialize))
 
-(defvar current-user
-  (getenv
-   (if (equal system-type 'windows-nt) "USERNAME" "USER")))
-
-;; Always load newest byte code
-(setq load-prefer-newer t)
-
 (defvar prelude-dir (file-name-directory load-file-name)
   "The root dir of the Emacs Prelude distribution.")
 (defvar prelude-personal-dir (expand-file-name "personal" prelude-dir)
@@ -92,36 +85,15 @@ by Prelude.")
 (add-to-list 'load-path (expand-file-name "modules" prelude-dir))
 (add-to-list 'load-path (expand-file-name "vendor" prelude-dir))
 
-;; reduce the frequency of garbage collection by making it happen on
-;; each 50MB of allocated data (the default is on every 0.76MB)
-(setq gc-cons-threshold 50000000)
-
-;; warn when opening files bigger than 100MB
-(setq large-file-warning-threshold 100000000)
-
-;; Ensure all of our custom code is byte-compiled, for speed
-;; FIXME: Disabled since this makes it harder to switch Emacs version
-;(byte-recompile-directory (expand-file-name "~/.emacs.d/personal") 0)
-
-(message "Loading Prelude's core...")
-
-;; the core stuff
-(message "Loading prelude-packages")
 (require 'prelude-packages)
-(message "Loading prelude-custom")
 (require 'prelude-custom)  ;; Needs to be loaded before core, editor and ui
 
 (unless noninteractive
-  (message "Loading prelude-ui")
   (require 'prelude-ui))
 
-(message "Loading prelude-core")
 (require 'prelude-core)
-(message "Loading prelude-mode")
 (require 'prelude-mode)
-(message "Loading prelude-editor")
 (require 'prelude-editor)
-(message "Loading prelude-global-keybindings")
 (require 'prelude-global-keybindings)
 
 ;; config changes made through the customize UI will be store here
