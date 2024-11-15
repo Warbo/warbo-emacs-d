@@ -1,4 +1,4 @@
-;;; generic --- General Emacs settings, useful in all modes
+;;; warbo-generic --- General Emacs settings, useful in all modes
 
 ;;; Commentary:
 
@@ -523,5 +523,5 @@ Version 2017-09-01"
      ;; it doesn't steal focus from programs running on another monitor.
      "-e" "nohup" "emacsclient" "-c" "-F" "((undecorated . t))"))))
 
-(provide 'generic)
-;;; generic.el ends here
+(provide 'warbo-generic)
+;;; warbo-generic.el ends here
