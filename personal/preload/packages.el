@@ -15,12 +15,15 @@
 (use-package quelpa-use-package
   :init (setq quelpa-update-melpa-p nil))
 
+(use-package quelpa
+  :ensure t)
+
+(use-package quelpa-use-package
+  :ensure t)
+
 ;; (use-package ace-jump-mode)
 
 ;; (use-package ace-window)
-
-(use-package ag
-  :ensure t)
 
 ;; (use-package ahg)
 
@@ -68,9 +71,6 @@
 
 ;; (use-package easy-kill)
 
-(use-package ebib
-  :ensure t)
-
 ;; (use-package elisp-slime-nav)
 
 ;; (use-package epl)
@@ -83,15 +83,9 @@
 
 ;; (use-package faceup)
 
-(use-package fill-column-indicator
-  :ensure t)
-
 ;; (use-package flx)
 
 ;; (use-package flx-ido)
-
-(use-package flycheck
-  :ensure t)
 
 ;; (use-package flycheck-haskell)
 
@@ -110,9 +104,6 @@
 ;; (use-package gist)
 
 ;; (use-package git-commit)
-
-(use-package git-timemachine
-  :ensure t)
 
 ;; (use-package gitconfig-mode)
 
@@ -182,9 +173,6 @@
 
 ;; (use-package makey)
 
-(use-package markdown-mode
-  :ensure t)
-
 ;; (use-package marshal)
 
 ;; (use-package maude-mode)
@@ -223,22 +211,9 @@
 
 ;; (use-package pkg-info)
 
-(use-package popup
-  :ensure t)
-
-(use-package pretty-sha-path
-  :ensure t
-  :config (pretty-sha-path-global-mode))
-
 ;; (use-package projectile)
 
 ;; (use-package prop-menu)
-
-(use-package quelpa
-  :ensure t)
-
-(use-package quelpa-use-package
-  :ensure t)
 
 ;; (use-package racket-mode)
 
@@ -256,14 +231,6 @@
 
 ;; (use-package slime)
 
-(use-package smart-mode-line
-  :disabled
-  :ensure t
-  :init
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/theme nil)
-  (add-hook 'after-init-hook #'sml/setup))
-
 ;; (use-package smartrep)
 
 ;; (use-package smex)
@@ -275,16 +242,6 @@
 ;; (use-package test-simple)
 
 ;; (use-package tuareg)
-
-(use-package undo-tree
-  :ensure t
-  :config
-  (progn
-    (setq undo-tree-visualizer-timestamps t
-          undo-tree-history-directory-alist (quote (("" . "~/.emacs.d/.appdata/.undo-tree-history")))
-          undo-tree-auto-save-history nil  ;; Freezes Emacs on big XML files
-          undo-tree-visualizer-lazy-drawing 1000)
-    (global-undo-tree-mode)))
 
 ;; (use-package use-package)
 
@@ -298,13 +255,7 @@
 
 ;; (use-package ws-butler)
 
-(use-package xterm-color
-  :ensure t)
-
 ;; (use-package yasnippet)
-
-(use-package zenburn-theme
-  :ensure t)
 
 ;; (use-package zop-to-char)
 

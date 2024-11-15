@@ -7,6 +7,46 @@
 ;; Easily toggle truncation; helps on narrow phone screens
 (global-set-key (kbd "C-c C-t") 'toggle-truncate-lines)
 
+(use-package ag
+  :ensure t)
+
+(use-package fill-column-indicator
+  :ensure t)
+
+(use-package flycheck
+  :ensure t)
+
+(use-package git-timemachine
+  :ensure t)
+
+(use-package popup
+  :ensure t)
+
+(use-package pretty-sha-path
+  :ensure t
+  :config (pretty-sha-path-global-mode))
+
+(use-package smart-mode-line
+  :disabled
+  :ensure t
+  :init
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/theme nil)
+  (add-hook 'after-init-hook #'sml/setup))
+
+(use-package undo-tree
+  :ensure t
+  :config
+  (progn
+    (setq undo-tree-visualizer-timestamps t
+          undo-tree-history-directory-alist (quote (("" . "~/.emacs.d/.appdata/.undo-tree-history")))
+          undo-tree-auto-save-history nil  ;; Freezes Emacs on big XML files
+          undo-tree-visualizer-lazy-drawing 1000)
+    (global-undo-tree-mode)))
+
+(use-package zenburn-theme
+  :ensure t)
+
 (use-package zygospore
   :ensure t
   :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
