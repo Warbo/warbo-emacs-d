@@ -24,6 +24,7 @@
 ;;;
 ;;; Code:
 
+(use-package warbo-artemis-mode)
 (use-package warbo-documents)
 (use-package warbo-fixes)
 (use-package warbo-issues)

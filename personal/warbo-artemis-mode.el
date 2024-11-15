@@ -1,4 +1,4 @@
-;;; artemis-mode --- Emacs mode for the Artemis issue tracker
+;;; warbo-artemis-mode --- Emacs mode for the Artemis issue tracker
 
 ;;; Commentary:
 
@@ -67,5 +67,5 @@ From https://stackoverflow.com/a/3034272/884682"
 ;;    artemis-mode, since it will exit immediately and hence not work as EDITOR
 (add-hook 'server-visit-hook 'server-visit-artemis-issue-hook)
 
-(provide 'artemis-mode)
-;;; artemis-mode.el ends here
+(provide 'warbo-artemis-mode)
+;;; warbo-artemis-mode.el ends here
