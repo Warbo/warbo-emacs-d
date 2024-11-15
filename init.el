@@ -82,7 +82,6 @@ by Prelude.")
 
 ;; add Prelude's directories to Emacs's `load-path'
 (add-to-list 'load-path (expand-file-name "core" prelude-dir))
-(add-to-list 'load-path (expand-file-name "modules" prelude-dir))
 (add-to-list 'load-path (expand-file-name "vendor" prelude-dir))
 
 (require 'prelude-packages)
