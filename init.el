@@ -48,24 +48,14 @@
 
 (defvar prelude-dir (file-name-directory load-file-name)
   "The root dir of the Emacs Prelude distribution.")
-(defvar prelude-core-dir (expand-file-name "core" prelude-dir)
-  "The home of Prelude's core functionality.")
-(defvar prelude-modules-dir (expand-file-name  "modules" prelude-dir)
-  "This directory houses all of the built-in Prelude modules.")
 (defvar prelude-personal-dir (expand-file-name "personal" prelude-dir)
   "This directory is for your personal configuration.
 
 Users of Emacs Prelude are encouraged to keep their personal configuration
 changes in this directory.  All Emacs Lisp files there are loaded automatically
 by Prelude.")
-(defvar prelude-personal-preload-dir (expand-file-name "preload" prelude-personal-dir)
-  "This directory is for your personal configuration, that you want loaded before Prelude.")
-(defvar prelude-vendor-dir (expand-file-name "vendor" prelude-dir)
-  "This directory houses packages that are not yet available in ELPA (or MELPA).")
 (defvar prelude-savefile-dir (expand-file-name "savefile" prelude-dir)
   "This folder stores all the automatically generated save/history-files.")
-(defvar prelude-modules-file (expand-file-name "prelude-modules.el" prelude-dir)
-  "This files contains a list of modules that will be loaded by Prelude.")
 
 (unless (file-exists-p prelude-savefile-dir)
   (make-directory prelude-savefile-dir))
@@ -80,10 +70,9 @@ by Prelude.")
        (prelude-add-subfolders-to-load-path name)))))
 
 ;; add Prelude's directories to Emacs's `load-path'
-(add-to-list 'load-path prelude-core-dir)
-(add-to-list 'load-path prelude-modules-dir)
-(add-to-list 'load-path prelude-vendor-dir)
-(prelude-add-subfolders-to-load-path prelude-vendor-dir)
+(add-to-list 'load-path (expand-file-name "core" prelude-dir))
+(add-to-list 'load-path (expand-file-name  "modules" prelude-dir))
+(add-to-list 'load-path (expand-file-name "vendor" prelude-dir))
 
 ;; reduce the frequency of garbage collection by making it happen on
 ;; each 50MB of allocated data (the default is on every 0.76MB)
@@ -97,9 +86,10 @@ by Prelude.")
 ;(byte-recompile-directory (expand-file-name "~/.emacs.d/personal") 0)
 
 ;; preload the personal settings from `prelude-personal-preload-dir'
-(when (file-exists-p prelude-personal-preload-dir)
-  (message "Loading personal configuration files in %s..." prelude-personal-preload-dir)
-  (mapc 'load (directory-files prelude-personal-preload-dir 't "^[^#].*el$")))
+(let ((prelude-personal-preload-dir (expand-file-name "preload" prelude-personal-dir)))
+  (when (file-exists-p prelude-personal-preload-dir)
+    (message "Loading personal configuration files in %s..." prelude-personal-preload-dir)
+    (mapc 'load (directory-files prelude-personal-preload-dir 't "^[^#].*el$"))))
 
 (message "Loading Prelude's core...")
 
@@ -125,10 +115,11 @@ by Prelude.")
 (message "Loading Prelude's modules...")
 
 ;; the modules
-(if (file-exists-p prelude-modules-file)
-    (load prelude-modules-file)
-  (message "Missing modules file %s" prelude-modules-file)
-  (message "You can get started by copying the bundled example file"))
+(let ((prelude-modules-file (expand-file-name "prelude-modules.el" prelude-dir)))
+  (if (file-exists-p prelude-modules-file)
+      (load prelude-modules-file)
+    (message "Missing modules file %s" prelude-modules-file)
+    (message "You can get started by copying the bundled example file")))
 
 ;; config changes made through the customize UI will be store here
 (setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
