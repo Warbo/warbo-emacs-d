@@ -39,6 +39,25 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
+;; Use "package.el" to get "use-package", which simplifies packaging
+(unless (package-installed-p 'use-package)
+                                        ;(package-refresh-contents)
+  (package-install 'use-package))
+
+;; Get quelpa-use-package, which allows 'packages' to come from arbitrary places
+(unless (package-installed-p 'quelpa-use-package)
+                                        ;(package-refresh-contents)
+  (package-install 'quelpa-use-package))
+
+(use-package quelpa-use-package
+  :init (setq quelpa-update-melpa-p nil))
+
+(use-package quelpa
+  :ensure t)
+
+(use-package quelpa-use-package
+  :ensure t)
+
 ;; Set PATH and 'exec-path', so external commands will work.
 (use-package exec-path-from-shell
   :commands exec-path-from-shell-initialize
