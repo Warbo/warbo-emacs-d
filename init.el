@@ -60,18 +60,9 @@ by Prelude.")
 (unless (file-exists-p prelude-savefile-dir)
   (make-directory prelude-savefile-dir))
 
-(defun prelude-add-subfolders-to-load-path (parent-dir)
- "Add all level PARENT-DIR subdirs to the `load-path'."
- (dolist (f (directory-files parent-dir))
-   (let ((name (expand-file-name f parent-dir)))
-     (when (and (file-directory-p name)
-                (not (string-prefix-p "." f)))
-       (add-to-list 'load-path name)
-       (prelude-add-subfolders-to-load-path name)))))
-
 ;; add Prelude's directories to Emacs's `load-path'
 (add-to-list 'load-path (expand-file-name "core" prelude-dir))
-(add-to-list 'load-path (expand-file-name  "modules" prelude-dir))
+(add-to-list 'load-path (expand-file-name "modules" prelude-dir))
 (add-to-list 'load-path (expand-file-name "vendor" prelude-dir))
 
 ;; reduce the frequency of garbage collection by making it happen on
