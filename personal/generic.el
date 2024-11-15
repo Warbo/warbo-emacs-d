@@ -1,3 +1,11 @@
+;;; generic --- General Emacs settings, useful in all modes
+
+;;; Commentary:
+
+;; Emacs configuration, and generally-useful packages
+
+;;; Code:
+
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
 (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
