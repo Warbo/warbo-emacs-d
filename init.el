@@ -39,9 +39,17 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
+(message "Loading personal/preload/*.el files")
+(let ((preload-dir (expand-file-name "personal/preload"
+                                     (file-name-directory load-file-name))))
+  (when (file-exists-p preload-dir)
+    (message "Loading personal configuration files in %s..." preload-dir)
+    (mapc 'load (directory-files preload-dir 't "^[^#].*el$"))))
+
+
 (defvar current-user
-      (getenv
-       (if (equal system-type 'windows-nt) "USERNAME" "USER")))
+  (getenv
+   (if (equal system-type 'windows-nt) "USERNAME" "USER")))
 
 ;; Always load newest byte code
 (setq load-prefer-newer t)
@@ -75,12 +83,6 @@ by Prelude.")
 ;; Ensure all of our custom code is byte-compiled, for speed
 ;; FIXME: Disabled since this makes it harder to switch Emacs version
 ;(byte-recompile-directory (expand-file-name "~/.emacs.d/personal") 0)
-
-;; preload the personal settings from `prelude-personal-preload-dir'
-(let ((prelude-personal-preload-dir (expand-file-name "preload" prelude-personal-dir)))
-  (when (file-exists-p prelude-personal-preload-dir)
-    (message "Loading personal configuration files in %s..." prelude-personal-preload-dir)
-    (mapc 'load (directory-files prelude-personal-preload-dir 't "^[^#].*el$"))))
 
 (message "Loading Prelude's core...")
 
