@@ -26,6 +26,7 @@
 
 (use-package warbo-documents)
 (use-package warbo-fixes)
+(use-package warbo-issues)
 (use-package warbo-lisp)
 (use-package warbo-mail)
 (use-package warbo-mercury)
