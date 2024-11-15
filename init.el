@@ -124,15 +124,6 @@ by Prelude.")
 (message "Loading prelude-global-keybindings")
 (require 'prelude-global-keybindings)
 
-(message "Loading Prelude's modules...")
-
-;; the modules
-(let ((prelude-modules-file (expand-file-name "prelude-modules.el" prelude-dir)))
-  (if (file-exists-p prelude-modules-file)
-      (load prelude-modules-file)
-    (message "Missing modules file %s" prelude-modules-file)
-    (message "You can get started by copying the bundled example file")))
-
 ;; config changes made through the customize UI will be store here
 (setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
 
@@ -153,15 +144,6 @@ by Prelude.")
                                      't
                                      "^[^#].*el$"))))
 
-(let ((work-dir (expand-file-name "work" prelude-dir)))
-  (when (file-exists-p work-dir)
-    ;; Load all work/*.el files
-    (mapc 'load (directory-files work-dir 't "^[^#].*el$"))))
-
-(message "Prelude is ready to do thy bidding, Master %s!" current-user)
-
-(prelude-eval-after-init
- ;; greet the use with some useful tip
- (run-at-time 5 nil 'prelude-tip-of-the-day))
+(message "Finished init.el")
 
 ;;; init.el ends here
