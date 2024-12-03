@@ -54,8 +54,26 @@
 ;  (add-to-list 'direnv-non-file-modes 'shell-mode)
 ;  (direnv-mode))
 
+(use-package xref-union
+  :ensure t
+  :hook haskell-mode
+  :config
+  (setq tags-revert-without-query 1))
+
+(defun warbo-haskell-tags ()
+  "Runs command to generate TAGS file in root directory of current repo"
+  (let ((default-directory (vc-root-dir)))
+    (when default-directory
+      (start-process "hasktags" nil "hasktags" "--etags" "."))))
+
+(defun warbo-haskell-setup ()
+  "Custom hook to setup `haskell-mode'."
+  (add-hook 'after-save-hook 'warbo-haskell-tags nil t))
+
 (use-package haskell-mode
-  :ensure t)
+  :ensure t
+  :config
+  (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
 
 (use-package warbo-rolling-shell
   :config
