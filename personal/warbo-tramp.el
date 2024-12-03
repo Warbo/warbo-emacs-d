@@ -19,7 +19,7 @@
 (setenv "SSH_AUTH_SOCK" (shell-command-to-string "bash -c 'printf $SSH_AUTH_SOCK'"))
 
 ;; Add all the many non-FHS PATH entries we might want
-(dolist (user '("chris" "manjaro" "user" "nixos"))
+(dolist (user '("chris" "jo" "manjaro" "user" "nixos"))
   (dolist (dir '(".nix-profile/bin" "bin" "System/Programs"))
     (add-to-list 'tramp-remote-path (concat "/home/" user "/" dir))))
 
