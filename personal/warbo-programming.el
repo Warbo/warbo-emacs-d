@@ -151,6 +151,14 @@
   (transient-append-suffix 'magit-log "o"
     '("R" "reflog objects" my/magit-log-reflog)))
 
+(use-package magit-tbdiff
+  :ensure t)
+
+(use-package magit-delta
+  :disabled
+  :ensure t
+  :hook (magit-mode . magit-delta-mode))
+
 (use-package magit-popup
   :ensure t)
 
