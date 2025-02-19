@@ -130,6 +130,12 @@
 ;; Unset some conflicting keybindings before binding them to magit
 (global-unset-key (kbd "s-m"))
 
+;; From https://github.com/magit/magit/discussions/4748#discussioncomment-3589929
+(defun my/magit-log-reflog (&optional args files)
+  "Show log for objects mentioned in reflog."
+  (interactive (magit-log-arguments))
+  (magit-log-setup-buffer (list "--reflog") args files))
+
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)
@@ -140,7 +146,10 @@
   :init
   (setq magit-diff-paint-whitespace t)
   (setq magit-diff-highlight-trailing t)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+
+  (transient-append-suffix 'magit-log "o"
+    '("R" "reflog objects" my/magit-log-reflog)))
 
 (use-package magit-popup
   :ensure t)
