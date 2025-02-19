@@ -37,6 +37,10 @@
 
 ;; Put as much as possible in use-package expressions; roughly alphabetically
 
+(use-package rainbow-identifiers
+  :ensure t
+  :hook (prog-mode . rainbow-identifiers-mode))
+
 (use-package cue-mode
   :ensure t
   :after reformatter
