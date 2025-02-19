@@ -90,7 +90,7 @@
         (kill-buffer "ghcid")))
     (let ((shell-mode-hook nil))  ;; Avoid warbo-shell-hook's colour mangling
       (let ((buf (command-in-rolling-buffer
-                  (list "ghcid" (vc-root-dir) ". GHCID")
+                  (list "ghcid" default-directory ". ~/GHCID")
                   ghcid-height)))
         (with-current-buffer buf
           ;; Nice warning/error highlighting
