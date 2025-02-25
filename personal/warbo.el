@@ -30,6 +30,7 @@
 (use-package warbo-generic)
 (use-package warbo-issues)
 (use-package warbo-lisp)
+(use-package warbo-llm)
 (use-package warbo-mail)
 (use-package warbo-mercury)
 (use-package warbo-programming)
