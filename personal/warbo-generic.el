@@ -159,6 +159,7 @@
   ;; Avoid cleanup in vue-mode, since it can reindent everything weirdly. This
   ;; is probably due to it using mmm-mode to handle mixtures of HTML, JS, etc.
   (cl-pushnew 'vue-mode whitespace-cleanup-mode-ignore-modes)
+  (cl-pushnew 'vue-html-mode whitespace-cleanup-mode-ignore-modes)
   ;; Otherwise, enable everywhere else
   (global-whitespace-cleanup-mode))
 
