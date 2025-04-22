@@ -42,6 +42,11 @@
 (use-package git-timemachine
   :ensure t)
 
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
+
 (use-package popup
   :ensure t)
 
