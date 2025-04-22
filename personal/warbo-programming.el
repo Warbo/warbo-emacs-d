@@ -264,6 +264,40 @@
   :ensure t
   :hook (prog-mode . company-mode))
 
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless))
+  (completion-category-defaults nil)
+  ;(completion-category-overrides '((file (styles literal-prefix))))
+  )
+
+(use-package corfu
+  :ensure t
+
+  :custom
+  (corfu-auto t)
+  (corfu-auto-prefix 1)
+  (corfu-auto-delay 0)
+  (corfu-quit-no-match 'separator)
+
+  :config
+  (setq completion-cycle-threshold 3)
+  (setq tab-always-indent 'complete)
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))
+
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
 (use-package yasnippet
   :ensure t)
 
