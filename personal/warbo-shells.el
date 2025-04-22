@@ -24,6 +24,10 @@
     "/bin/sh")
   "A list of paths where we might find a shell binary, in order of preference.")
 
+(use-package mistty
+  :ensure t
+  :bind (:map mistty-prompt-map))
+
 (use-package shx
   :ensure t
   :custom
