@@ -111,6 +111,7 @@
   )
 
 (use-package company
+  :disabled
   :ensure t
   :config
   (setq company-idle-delay              nil

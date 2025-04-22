@@ -28,8 +28,6 @@
 
 ;; (use-package cmake-mode)
 
-;; (use-package company)
-
 ;; (use-package counsel)
 
 ;; (use-package crux)

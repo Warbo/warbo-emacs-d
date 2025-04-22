@@ -260,6 +260,7 @@
   )
 
 (use-package company
+  :disabled
   :ensure t
   :hook (prog-mode . company-mode))
 
