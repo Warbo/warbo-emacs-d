@@ -254,10 +254,21 @@
   :config
   (add-hook 'haskell-mode-hook 'eglot-ensure)
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
+  ;; From https://gluer.org/blog/improving-eglot-performance/
+  (advice-add 'jsonrpc--log-event :override #'ignore)
+  ;; From https://www.reddit.com/r/emacs/comments/1b25904/is_there_anything_i_can_do_to_make_eglots/
+  ;(setf (plist-get eglot-events-buffer-config :size) 0)
+  ;(eldoc-echo-area-use-multiline-p nil)
   :custom
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
   (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
   )
+
+;; (use-package eglot-booster
+;;   :ensure t
+;;   :after eglot
+;;   :config
+;;   (eglot-booster-mode))
 
 (use-package company
   :disabled
