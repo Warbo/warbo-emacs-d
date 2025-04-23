@@ -366,14 +366,6 @@
         nxml-slash-auto-complete-flag t
         nxml-bind-meta-tab-to-complete-flag t))
 
-(use-package vue-mode
-  :ensure t
-  :mode (("\\.vue$" . vue-mode))
-  :config
-  (defun unset-mmm-subface ()
-    (set-face-background 'mmm-default-submode-face nil))
-  (add-hook 'mmm-mode-hook 'unset-mmm-subface))
-
 (define-derived-mode nix-derivation-mode prog-mode "nix-derivation-mode"
   "Custom major mode, which runs Nix .drv files through 'nix show-derivation'.
    The result is JSON, so we derive from json-mode."
