@@ -42,6 +42,7 @@
 (use-package warbo-scala)
 (use-package warbo-shells)
 (use-package warbo-rolling-shell)
+(use-package warbo-vue)
 (use-package warbo-web)
 (use-package warbo-windows)
 (use-package warbo-writing)

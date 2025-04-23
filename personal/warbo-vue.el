@@ -1,3 +1,12 @@
+;;; warbo-vue.el --- A major mode for Vue.js files -*- lexical-binding: t -*-
+
+;;; Commentary:
+
+;; This package provides `vue-mode', a major mode derived from `web-mode' for
+;; editing Vue.js files.
+
+;;; Code:
+
 (use-package web-mode
   :ensure t
   :config
@@ -12,3 +21,6 @@
     "A major mode derived from web-mode, for editing .vue files with LSP support.")
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
   )
+
+(provide 'warbo-vue)
+;;; warbo-vue.el ends here
