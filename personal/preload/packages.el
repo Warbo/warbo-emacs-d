@@ -98,12 +98,6 @@
 
 ;; (use-package haskell-mode)
 
-;; (use-package helm)
-
-;; (use-package helm-core)
-
-;; (use-package helm-projectile)
-
 ;; (use-package highlight)
 
 ;; (use-package ht)
@@ -119,10 +113,6 @@
 ;; (use-package iedit)
 
 ;; (use-package imenu-anywhere)
-
-;; (use-package intero)
-
-;; (use-package ivy)
 
 ;; (use-package jabber)
 
