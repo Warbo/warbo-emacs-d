@@ -251,6 +251,12 @@
 
 (use-package eglot
   :ensure t
+  :commands eglot-ensure eglot
+  :hook ((vue-mode . eglot-ensure)
+         (c-mode-common . eglot-ensure)
+         (c-ts-base-mode . eglot-ensure)
+         (js-base-mode . eglot-ensure)
+         (typescript-ts-base-mode . eglot-ensure))
   :config
   (add-hook 'haskell-mode-hook 'eglot-ensure)
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
