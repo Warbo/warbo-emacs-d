@@ -265,6 +265,37 @@
   ;; From https://www.reddit.com/r/emacs/comments/1b25904/is_there_anything_i_can_do_to_make_eglots/
   ;(setf (plist-get eglot-events-buffer-config :size) 0)
   ;(eldoc-echo-area-use-multiline-p nil)
+  (let ((projects (expand-file-name "~/src")))
+    (when (file-directory-p projects)
+      (eval-when-compile
+        (require 'dash)
+        (require 's))
+      (require 'dash)
+      (require 's)
+      (let* ((root (car (-filter (lambda (entry)
+                                   (and (not (s-starts-with? "yesod" entry))
+                                        (not (s-starts-with? "." entry))))
+                                 (directory-files "~/src"))))
+             (tsdk (file-name-concat
+                    projects root "webpack" "node_modules" "typescript" "lib")))
+        (add-to-list 'eglot-server-programs
+                     `(vue-mode . ("vue-language-server" "--stdio"
+                                   :initializationOptions
+                                   (:typescript (:tsdk ,tsdk)
+                                                :vue (:hybridMode :json-false)
+                                                :languageFeatures (:completion
+                                                                   (:defaultTagNameCase "both"
+                                                                                        :defaultAttrNameCase "kebabCase"
+                                                                                        :getDocumentNameCasesRequest nil
+                                                                                        :getDocumentSelectionRequest nil)
+                                                                   :diagnostics
+                                                                   (:getDocumentVersionRequest nil))
+                                                :documentFeatures (:documentFormatting
+                                                                   (:defaultPrintWidth 100
+                                                                                       :getDocumentPrintWidthRequest nil)
+                                                                   :documentSymbol t
+                                                                   :documentColor t))
+                                   ))))))
   :custom
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
   (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
