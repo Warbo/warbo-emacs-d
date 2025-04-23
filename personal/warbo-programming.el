@@ -284,12 +284,13 @@
 (use-package vertico
   :ensure t
   :init
-  (vertico-mode))
+  (vertico-mode)
+  (keymap-set vertico-map "TAB" #'minibuffer-complete))
 
 (use-package orderless
   :ensure t
   :custom
-  (completion-styles '(orderless))
+  (completion-styles '(basic partial-completion emacs22))
   (completion-category-defaults nil)
   ;(completion-category-overrides '((file (styles literal-prefix))))
   )
@@ -298,14 +299,24 @@
   :ensure t
 
   :custom
+  ;; Pop up immediately
   (corfu-auto t)
   (corfu-auto-prefix 1)
   (corfu-auto-delay 0)
+
   (corfu-quit-no-match 'separator)
 
+  ;; Select the prompt by default. That way, TAB will expand an unambiguous
+  ;; prefix (the default is 'valid, which can auto-select the first suggestion,
+  ;; in which case TAB will insert that, rather than expanding)
+  (corfu-preselect 'prompt)
+
   :config
-  (setq completion-cycle-threshold 3)
+  ;; "Cycling" causes TAB to go through the list of suggestions; but I prefer it
+  ;; to expand an unambiguous prefix.
+  (setq completion-cycle-threshold nil)
   (setq tab-always-indent 'complete)
+  (setq tab-first-completion 'word)
   (global-corfu-mode)
   (corfu-popupinfo-mode))
 
