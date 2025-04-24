@@ -130,6 +130,44 @@
   (add-hook 'prog-mode-hook 'editorconfig-mode)
   )
 
+(use-package consult
+  :ensure t
+  :bind* (("C-c r"     . consult-recent-file))
+  :bind (("C-c i"     . consult-imenu)
+         ("C-c b"     . consult-project-buffer)
+         ("C-x b"     . consult-buffer)
+         ("C-c B"     . consult-bookmark)
+         ;("C-c h"     . consult-ripgrep)
+         ("C-c y"     . consult-yank-pop)
+         ("C-c C-h a" . describe-symbol)
+         )
+  :custom
+  (consult-narrow-key (kbd ";"))
+  (completion-in-region-function #'consult-completion-in-region)
+  (xref-show-xrefs-function #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
+  (consult-project-root-function #'deadgrep--project-root) ;; ensure ripgrep works
+  (consult-preview-key '(:debounce 0.25 any))
+  )
+
+(use-package consult-eglot
+  :disabled
+  :ensure t
+  :config
+  (defun pt/consult-eglot ()
+    (interactive)
+    (let ((completion-styles '(emacs22)))
+      (call-interactively #'consult-eglot-symbols)))
+  :bind (:map eglot-mode-map ("s-t" . #'pt/consult-eglot)))
+
+(use-package embark-consult
+  :ensure t
+  :after (embark consult))
+
+(use-package embark-vc
+  :ensure t
+  :after embark)
+
 (use-package company
   :disabled
   :ensure t
