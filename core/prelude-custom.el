@@ -83,16 +83,6 @@ Only modes that don't derive from `prog-mode' should be listed here."
   :type 'symbol
   :group 'prelude)
 
-(setq zenburn-override-colors-alist
-  '(("zenburn-bg-2"  . "#000000")
-    ("zenburn-bg-1"  . "#080808")
-    ("zenburn-bg-05" . "#0C0C0C")
-    ("zenburn-bg"    . "#111111")
-    ("zenburn-bg+05" . "#181818")
-    ("zenburn-bg+1"  . "#212121")
-    ("zenburn-bg+2"  . "#313131")
-    ("zenburn-bg+3"  . "#414141")))
-
 (defcustom prelude-shell (getenv "SHELL")
   "The default shell to run with `crux-visit-term-buffer'"
   :type 'string

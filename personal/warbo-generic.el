@@ -73,7 +73,17 @@
     (global-undo-tree-mode)))
 
 (use-package zenburn-theme
-  :ensure t)
+  :ensure t
+  :config
+  (setq zenburn-override-colors-alist
+        '(("zenburn-bg-2"  . "#000000")
+          ("zenburn-bg-1"  . "#080808")
+          ("zenburn-bg-05" . "#0D0D0D")
+          ("zenburn-bg"    . "#101010")
+          ("zenburn-bg+05" . "#181818")
+          ("zenburn-bg+1"  . "#212121")
+          ("zenburn-bg+2"  . "#313131")
+          ("zenburn-bg+3"  . "#414141"))))
 
 (use-package zygospore
   :ensure t
