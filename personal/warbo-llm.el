@@ -31,7 +31,9 @@
 (use-package aider
   :ensure
   :config
-  (setq aider-args `("--model" ,(concat "ollama_chat/" warbo-local-llm)))
+  (setq aider-args
+        `("--model" ,(concat "ollama_chat/" warbo-local-llm)
+          "--no-auto-commits"))
   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 (provide 'warbo-llm)
