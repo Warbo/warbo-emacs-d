@@ -310,7 +310,7 @@
 
 (defconst sources
   (if (file-directory-p "~/src")
-      (cl-remove-if (lambda (d) (s-starts-with-p "." d))
+      (cl-remove-if (lambda (d) (or (s-starts-with-p "." d) (s-starts-with-p "y" d)))
                     (directory-files "~/src")))
   "Source repos in ~/src.")
 
