@@ -77,12 +77,6 @@ Only modes that don't derive from `prog-mode' should be listed here."
   :type 'number
   :group 'prelude)
 
-(defcustom prelude-theme
-  'zenburn
-  "The default color theme, change this in your /personal/preload config."
-  :type 'symbol
-  :group 'prelude)
-
 (defcustom prelude-shell (getenv "SHELL")
   "The default shell to run with `crux-visit-term-buffer'"
   :type 'string

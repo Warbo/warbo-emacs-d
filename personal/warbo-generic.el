@@ -83,7 +83,8 @@
           ("zenburn-bg+05" . "#181818")
           ("zenburn-bg+1"  . "#212121")
           ("zenburn-bg+2"  . "#313131")
-          ("zenburn-bg+3"  . "#414141"))))
+          ("zenburn-bg+3"  . "#414141")))
+  (load-theme 'zenburn t))
 
 (use-package zygospore
   :ensure t
