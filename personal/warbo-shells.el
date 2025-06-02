@@ -27,6 +27,10 @@
     "/bin/sh")
   "A list of paths where we might find a shell binary, in order of preference.")
 
+(use-package mistty
+  :ensure t
+  :bind (:map mistty-prompt-map))
+
 (use-package shx
   :ensure t
   :custom
@@ -309,7 +313,7 @@
 
 (defconst sources
   (if (file-directory-p "~/src")
-      (cl-remove-if (lambda (d) (s-starts-with-p "." d))
+      (cl-remove-if (lambda (d) (or (s-starts-with-p "." d) (s-starts-with-p "y" d)))
                     (directory-files "~/src")))
   "Source repos in ~/src.")
 
@@ -376,6 +380,7 @@
      `(("home" "~")
        ("emacs-d" "~/.emacs.d")
        ("nix-config" "~/nix-config")
+       ("nixos-basic" "/sudo:root@localhost|nspawn:chrisw@nixos-basic:/home/chrisw")
        ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
 
     (_ '(("home" "~"))))

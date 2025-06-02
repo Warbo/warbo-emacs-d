@@ -18,6 +18,21 @@
 (use-package ag
   :ensure t)
 
+(use-package embark
+  :ensure t
+  :bind
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim)
+   ("C-h B" . embark-bindings)
+   )
+  :init
+  (setq prefix-help-command #'embark-prefix-help-command)
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
 (use-package fill-column-indicator
   :ensure t)
 
@@ -26,6 +41,11 @@
 
 (use-package git-timemachine
   :ensure t)
+
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
 
 (use-package popup
   :ensure t)
@@ -53,7 +73,18 @@
     (global-undo-tree-mode)))
 
 (use-package zenburn-theme
-  :ensure t)
+  :ensure t
+  :config
+  (setq zenburn-override-colors-alist
+        '(("zenburn-bg-2"  . "#000000")
+          ("zenburn-bg-1"  . "#080808")
+          ("zenburn-bg-05" . "#0D0D0D")
+          ("zenburn-bg"    . "#101010")
+          ("zenburn-bg+05" . "#181818")
+          ("zenburn-bg+1"  . "#212121")
+          ("zenburn-bg+2"  . "#313131")
+          ("zenburn-bg+3"  . "#414141")))
+  (load-theme 'zenburn t))
 
 (use-package zygospore
   :ensure t
@@ -110,7 +141,46 @@
   (add-hook 'prog-mode-hook 'editorconfig-mode)
   )
 
+(use-package consult
+  :ensure t
+  :bind* (("C-c r"     . consult-recent-file))
+  :bind (("C-c i"     . consult-imenu)
+         ("C-c b"     . consult-project-buffer)
+         ("C-x b"     . consult-buffer)
+         ("C-c B"     . consult-bookmark)
+         ;("C-c h"     . consult-ripgrep)
+         ("C-c y"     . consult-yank-pop)
+         ("C-c C-h a" . describe-symbol)
+         )
+  :custom
+  (consult-narrow-key (kbd ";"))
+  (completion-in-region-function #'consult-completion-in-region)
+  (xref-show-xrefs-function #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
+  (consult-project-root-function #'deadgrep--project-root) ;; ensure ripgrep works
+  (consult-preview-key '(:debounce 0.25 any))
+  )
+
+(use-package consult-eglot
+  :disabled
+  :ensure t
+  :config
+  (defun pt/consult-eglot ()
+    (interactive)
+    (let ((completion-styles '(emacs22)))
+      (call-interactively #'consult-eglot-symbols)))
+  :bind (:map eglot-mode-map ("s-t" . #'pt/consult-eglot)))
+
+(use-package embark-consult
+  :ensure t
+  :after (embark consult))
+
+(use-package embark-vc
+  :ensure t
+  :after embark)
+
 (use-package company
+  :disabled
   :ensure t
   :config
   (setq company-idle-delay              nil
@@ -158,7 +228,8 @@
   :config
   ;; Avoid cleanup in vue-mode, since it can reindent everything weirdly. This
   ;; is probably due to it using mmm-mode to handle mixtures of HTML, JS, etc.
-  (cl-pushnew 'vue-mode whitespace-cleanup-mode-ignore-modes)
+  ;(cl-pushnew 'vue-mode whitespace-cleanup-mode-ignore-modes)
+  ;(cl-pushnew 'vue-html-mode whitespace-cleanup-mode-ignore-modes)
   ;; Otherwise, enable everywhere else
   (global-whitespace-cleanup-mode))
 

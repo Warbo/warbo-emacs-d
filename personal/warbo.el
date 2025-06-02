@@ -24,6 +24,9 @@
 ;;;
 ;;; Code:
 
+;; Needs to load early, to provide nspawn TRAMP method
+(use-package warbo-tramp)
+
 (use-package warbo-artemis-mode)
 (use-package warbo-documents)
 (use-package warbo-fixes)
@@ -39,7 +42,7 @@
 (use-package warbo-scala)
 (use-package warbo-shells)
 (use-package warbo-rolling-shell)
-(use-package warbo-tramp)
+(use-package warbo-vue)
 (use-package warbo-web)
 (use-package warbo-windows)
 (use-package warbo-writing)

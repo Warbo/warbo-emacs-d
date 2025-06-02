@@ -19,9 +19,17 @@
 (setenv "SSH_AUTH_SOCK" (shell-command-to-string "bash -c 'printf $SSH_AUTH_SOCK'"))
 
 ;; Add all the many non-FHS PATH entries we might want
-(dolist (user '("chris" "manjaro" "user" "nixos"))
+(dolist (user '("chris" "chrisw" "jo" "manjaro" "user" "nixos"))
   (dolist (dir '(".nix-profile/bin" "bin" "System/Programs"))
     (add-to-list 'tramp-remote-path (concat "/home/" user "/" dir))))
+
+;; Provides TRAMP remotes like /nspawn:myuser@mycontainer:/ including
+;; auto-complete. If you hit 'Interactive authentication required', try hopping
+;; from /sudo like '/sudo:root@localhost|nspawn:chrisw@nixos-basic:/'
+(use-package tramp-nspawn
+  :ensure t
+  :config
+  (tramp-nspawn-setup))
 
 (provide 'warbo-tramp)
 ;;; warbo-tramp.el ends here

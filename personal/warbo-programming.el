@@ -37,6 +37,10 @@
 
 ;; Put as much as possible in use-package expressions; roughly alphabetically
 
+(use-package rainbow-identifiers
+  :ensure t
+  :hook (prog-mode . rainbow-identifiers-mode))
+
 (use-package cue-mode
   :ensure t
   :after reformatter
@@ -54,8 +58,26 @@
 ;  (add-to-list 'direnv-non-file-modes 'shell-mode)
 ;  (direnv-mode))
 
+(use-package xref-union
+  :ensure t
+  :hook haskell-mode
+  :config
+  (setq tags-revert-without-query 1))
+
+(defun warbo-haskell-tags ()
+  "Runs command to generate TAGS file in root directory of current repo"
+  (let ((default-directory (vc-root-dir)))
+    (when default-directory
+      (start-process "hasktags" nil "hasktags" "--etags" "."))))
+
+(defun warbo-haskell-setup ()
+  "Custom hook to setup `haskell-mode'."
+  (add-hook 'after-save-hook 'warbo-haskell-tags nil t))
+
 (use-package haskell-mode
-  :ensure t)
+  :ensure t
+  :config
+  (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
 
 (use-package warbo-rolling-shell
   :config
@@ -68,7 +90,7 @@
         (kill-buffer "ghcid")))
     (let ((shell-mode-hook nil))  ;; Avoid warbo-shell-hook's colour mangling
       (let ((buf (command-in-rolling-buffer
-                  (list "ghcid" (vc-root-dir) ". GHCID")
+                  (list "ghcid" default-directory ". ~/GHCID")
                   ghcid-height)))
         (with-current-buffer buf
           ;; Nice warning/error highlighting
@@ -108,6 +130,12 @@
 ;; Unset some conflicting keybindings before binding them to magit
 (global-unset-key (kbd "s-m"))
 
+;; From https://github.com/magit/magit/discussions/4748#discussioncomment-3589929
+(defun my/magit-log-reflog (&optional args files)
+  "Show log for objects mentioned in reflog."
+  (interactive (magit-log-arguments))
+  (magit-log-setup-buffer (list "--reflog") args files))
+
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)
@@ -118,7 +146,18 @@
   :init
   (setq magit-diff-paint-whitespace t)
   (setq magit-diff-highlight-trailing t)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+
+  (transient-append-suffix 'magit-log "o"
+    '("R" "reflog objects" my/magit-log-reflog)))
+
+(use-package magit-tbdiff
+  :ensure t)
+
+(use-package magit-delta
+  :disabled
+  :ensure t
+  :hook (magit-mode . magit-delta-mode))
 
 (use-package magit-popup
   :ensure t)
@@ -212,17 +251,111 @@
 
 (use-package eglot
   :ensure t
+  :commands eglot-ensure eglot
+  :hook ((vue-mode . eglot-ensure)
+         (c-mode-common . eglot-ensure)
+         (c-ts-base-mode . eglot-ensure)
+         (js-base-mode . eglot-ensure)
+         (typescript-ts-base-mode . eglot-ensure))
   :config
   (add-hook 'haskell-mode-hook 'eglot-ensure)
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
+  ;; From https://gluer.org/blog/improving-eglot-performance/
+  (advice-add 'jsonrpc--log-event :override #'ignore)
+  ;; From https://www.reddit.com/r/emacs/comments/1b25904/is_there_anything_i_can_do_to_make_eglots/
+  ;(setf (plist-get eglot-events-buffer-config :size) 0)
+  ;(eldoc-echo-area-use-multiline-p nil)
+  (let ((projects (expand-file-name "~/src")))
+    (when (file-directory-p projects)
+      (eval-when-compile
+        (require 'dash)
+        (require 's))
+      (require 'dash)
+      (require 's)
+      (let* ((root (car (-filter (lambda (entry)
+                                   (and (not (s-starts-with? "yesod" entry))
+                                        (not (s-starts-with? "." entry))))
+                                 (directory-files "~/src"))))
+             (tsdk (file-name-concat
+                    projects root "webpack" "node_modules" "typescript" "lib")))
+        (add-to-list 'eglot-server-programs
+                     `(vue-mode . ("vue-language-server" "--stdio"
+                                   :initializationOptions
+                                   (:typescript (:tsdk ,tsdk)
+                                                :vue (:hybridMode :json-false)
+                                                :languageFeatures (:completion
+                                                                   (:defaultTagNameCase "both"
+                                                                                        :defaultAttrNameCase "kebabCase"
+                                                                                        :getDocumentNameCasesRequest nil
+                                                                                        :getDocumentSelectionRequest nil)
+                                                                   :diagnostics
+                                                                   (:getDocumentVersionRequest nil))
+                                                :documentFeatures (:documentFormatting
+                                                                   (:defaultPrintWidth 100
+                                                                                       :getDocumentPrintWidthRequest nil)
+                                                                   :documentSymbol t
+                                                                   :documentColor t))
+                                   ))))))
   :custom
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
   (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
   )
 
+;; (use-package eglot-booster
+;;   :ensure t
+;;   :after eglot
+;;   :config
+;;   (eglot-booster-mode))
+
 (use-package company
+  :disabled
   :ensure t
   :hook (prog-mode . company-mode))
+
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode)
+  (keymap-set vertico-map "TAB" #'minibuffer-complete))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(basic partial-completion emacs22))
+  (completion-category-defaults nil)
+  ;(completion-category-overrides '((file (styles literal-prefix))))
+  )
+
+(use-package corfu
+  :ensure t
+
+  :custom
+  ;; Pop up immediately
+  (corfu-auto t)
+  (corfu-auto-prefix 1)
+  (corfu-auto-delay 0)
+
+  (corfu-quit-no-match 'separator)
+
+  ;; Select the prompt by default. That way, TAB will expand an unambiguous
+  ;; prefix (the default is 'valid, which can auto-select the first suggestion,
+  ;; in which case TAB will insert that, rather than expanding)
+  (corfu-preselect 'prompt)
+
+  :config
+  ;; "Cycling" causes TAB to go through the list of suggestions; but I prefer it
+  ;; to expand an unambiguous prefix.
+  (setq completion-cycle-threshold nil)
+  (setq tab-always-indent 'complete)
+  (setq tab-first-completion 'word)
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))
+
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (use-package yasnippet
   :ensure t)
@@ -263,14 +396,6 @@
         ;;nxml-auto-insert-xml-declaration-flag t
         nxml-slash-auto-complete-flag t
         nxml-bind-meta-tab-to-complete-flag t))
-
-(use-package vue-mode
-  :ensure t
-  :mode (("\\.vue$" . vue-mode))
-  :config
-  (defun unset-mmm-subface ()
-    (set-face-background 'mmm-default-submode-face nil))
-  (add-hook 'mmm-mode-hook 'unset-mmm-subface))
 
 (define-derived-mode nix-derivation-mode prog-mode "nix-derivation-mode"
   "Custom major mode, which runs Nix .drv files through 'nix show-derivation'.
