@@ -32,19 +32,14 @@
   :ensure
   :config
   (setq aider-args
-        `("--model" ,(concat "ollama_chat/" warbo-local-llm)
-          "--no-auto-commits"))
-  (global-set-key (kbd "C-c a") 'aider-transient-menu))
-
-(use-package aider
-  :ensure t
-  :config
-  (setq aider-args
-        '("--model" "gemini/gemini-2.5-flash-preview-04-17"
-          "--no-auto-lint"))
-
-  ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
-  ;; Optional: Set a key binding for the transient menu
+        (pcase machine-id
+          ('wsl-ubuntu
+           `("--model" ,(concat "ollama_chat/" warbo-local-llm)
+             "--no-auto-commits"
+             "--no-auto-lint"))
+          (_
+           '("--model" "gemini/gemini-2.5-flash-preview-04-17"
+             "--no-auto-lint"))))
   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 (provide 'warbo-llm)
