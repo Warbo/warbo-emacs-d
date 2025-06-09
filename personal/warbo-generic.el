@@ -93,14 +93,6 @@
 ;; When TRAMP connections die, auto-save can hang
 (setq auto-save-default t)
 
-;; Turn off Prelude's auto-save-when-switching-buffer
-(ad-unadvise 'switch-to-buffer)
-(ad-unadvise 'other-window)
-(ad-unadvise 'windmove-up)
-(ad-unadvise 'windmove-down)
-(ad-unadvise 'windmove-left)
-(ad-unadvise 'windmove-right)
-
 ;; Disable expensive modes when long lines are found
 (use-package so-long
   :ensure t
