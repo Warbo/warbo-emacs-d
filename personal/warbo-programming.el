@@ -79,6 +79,56 @@
   :config
   (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
 
+(defun replace-region-string (s &optional beg end)
+  "Replace the region between BEG and END (default: region, or point-min/max)
+with the string S. Unlike `replace-region-contents' this maintains text
+ properties like colouring."
+  (let ((beg2 (or beg (and (use-region-p) (region-beginning)) (point-min)))
+        (end2 (or end (and (use-region-p) (region-end))       (point-max))))
+    (delete-region beg2 end2)
+    (goto-char beg2)
+    (insert s)))
+
+(defun pretty-simple-region (start end)
+  "Send region (between START and END) through `pretty-simple' command."
+  (interactive "r")
+  (if (use-region-p)
+      (let* ((old (buffer-substring-no-properties start end))
+             (new (with-temp-buffer
+                    (insert old)
+                    (when (zerop (call-process-region (point-min)
+                                                      (point-max)
+                                                      "pretty-simple"
+                                                      t
+                                                      t
+                                                      nil))
+                      ;; pretty-simple gives us ANSI colour codes, which
+                      ;; are especially useful for punctuation. We could
+                      ;; apply those using ansi-color-apply, but I prefer
+                      ;; the look of xterm-color-filter.
+                      (replace-region-string
+                       (xterm-color-filter (buffer-string))
+                       (point-min)
+                       (point-max))
+
+                      ;; This is commonly used for the output of Haskell
+                      ;; Show instances, which looks enough like Haskell
+                      ;; code for haskell-mode syntax highlighting to work.
+                      ;;(haskell-font-lock-defaults-create)
+                      ;;(font-lock-ensure)
+                      ;;(haskell-mode)
+                      ;;(haskell-font-lock-fontify-block 'shell-mode (point-min) (point-max))
+
+                      ;; Enable a simple prog-mode like json-mode, which will
+                      ;; give us rainbow-delimiters and rainbow-identifiers
+                      (json-mode)
+                      (font-lock-fontify-buffer)
+
+                      (buffer-string)))))
+        (when new
+          (replace-region-string new start end)))
+    (message "No region selected")))
+
 (use-package warbo-rolling-shell
   :config
   (defvar ghcid-height 65536 "How many lines to truncate a ghcid buffer to.")
