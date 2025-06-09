@@ -54,14 +54,6 @@
   :ensure t
   :config (pretty-sha-path-global-mode))
 
-(use-package smart-mode-line
-  :disabled
-  :ensure t
-  :init
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/theme nil)
-  (add-hook 'after-init-hook #'sml/setup))
-
 (use-package undo-tree
   :ensure t
   :config
@@ -169,18 +161,6 @@
 (use-package embark-vc
   :ensure t
   :after embark)
-
-(use-package company
-  :disabled
-  :ensure t
-  :config
-  (setq company-idle-delay              nil
-        company-tooltip-flip-when-above t
-        company-minimum-prefix-length   1
-        company-show-quick-access       t
-        company-tooltip-limit           20
-        company-dabrev-downcase         nil)
-  :bind  ("TAB" . 'company-indent-or-complete-common))
 
 ;; See https://www.masteringemacs.org/article/whats-new-in-emacs-28-1
 (setq completions-detailed t)
