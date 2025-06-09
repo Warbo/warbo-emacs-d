@@ -16,6 +16,9 @@
          (remove 'xterm-color-filter comint-preoutput-filter-functions))
    "Ensure xterm-color's preoutput handler is in place"))
 
+(use-package mistty
+  :ensure t)
+
 (defvar possible-shell-binaries
   '("/run/current-system/sw/bin/bash"
     "~/.nix-profile/bin/bash"

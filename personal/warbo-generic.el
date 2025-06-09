@@ -54,14 +54,6 @@
   :ensure t
   :config (pretty-sha-path-global-mode))
 
-(use-package smart-mode-line
-  :disabled
-  :ensure t
-  :init
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/theme nil)
-  (add-hook 'after-init-hook #'sml/setup))
-
 (use-package undo-tree
   :ensure t
   :config
@@ -92,14 +84,6 @@
 
 ;; When TRAMP connections die, auto-save can hang
 (setq auto-save-default t)
-
-;; Turn off Prelude's auto-save-when-switching-buffer
-(ad-unadvise 'switch-to-buffer)
-(ad-unadvise 'other-window)
-(ad-unadvise 'windmove-up)
-(ad-unadvise 'windmove-down)
-(ad-unadvise 'windmove-left)
-(ad-unadvise 'windmove-right)
 
 ;; Disable expensive modes when long lines are found
 (use-package so-long
@@ -154,7 +138,6 @@
          )
   :custom
   (consult-narrow-key (kbd ";"))
-  (completion-in-region-function #'consult-completion-in-region)
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
   (consult-project-root-function #'deadgrep--project-root) ;; ensure ripgrep works
@@ -178,18 +161,6 @@
 (use-package embark-vc
   :ensure t
   :after embark)
-
-(use-package company
-  :disabled
-  :ensure t
-  :config
-  (setq company-idle-delay              nil
-        company-tooltip-flip-when-above t
-        company-minimum-prefix-length   1
-        company-show-quick-access       t
-        company-tooltip-limit           20
-        company-dabrev-downcase         nil)
-  :bind  ("TAB" . 'company-indent-or-complete-common))
 
 ;; See https://www.masteringemacs.org/article/whats-new-in-emacs-28-1
 (setq completions-detailed t)
@@ -331,49 +302,12 @@
         ;;       (executable-find command))))
         )
 
-;; Look for line and column numbers when using find-file-at-point
-
-(define-minor-mode ffap-goto-line-mode
-  "Tells `find-file-at-point' to look for line and column numbers.
-
-  Toggling this minor mode lets us toggle the behaviour, without having to faff
-  around with things like 'unadvising'."
-  :global t :init-value t)
-
-(defun ffap-goto-line-advice (orig &rest args)
-  "Advice for `find-file-at-point' (it's bound to ORIG, with args in ARGS).
-
-   If `ffap-goto-line-mode' is non-nil, we'll scan ahead in the buffer to see if
-   there's a line number and column, separated by colons, e.g. if we've called
-   `ffap' when the point is on `/home/foo/bar.txt:12:34':
-
-    - We search forward and find the `:12:34'
-    - We parse this to get line 12 and column 34
-    - We call the original `ffap', which guesses filename `/home/foo/bar.txt'
-    - Once opened, we go to line 12 column 34
-
-   If only one colon-separated number is found, we assume it's the line number."
-  (let* ((have-col (and ffap-goto-line-mode
-                        (looking-at ".*:[0-9]+:[0-9]+")))
-         (col      (and ffap-goto-line-mode
-                        (looking-at ".*:[0-9]+:\\([0-9]+\\)")
-                        (string-to-number (match-string 1))))
-         (line     (if have-col
-                       (and (looking-at ".*:\\([0-9]+\\):[0-9]+")
-                            (string-to-number (match-string 1)))
-                     (and ffap-goto-line-mode
-                          (looking-at ".*:\\([0-9]+\\)")
-                          (string-to-number (match-string 1))))))
-    (apply orig args)
-    (and line (goto-line line))
-    (and col  (move-to-column col))))
-
-(advice-add 'find-file-at-point :around #'ffap-goto-line-advice)
-
-;; Also use find-file-at-point for C-x C-f instead of find-file (ffap will
-;; emulate find-file if it can't guess a filename)
-(require 'bind-key)
-(bind-key* "C-x C-f" 'find-file-at-point)
+(use-package ffap-goto-line
+  :load-path "."
+  :demand t
+  :bind ("C-x C-f" . find-file-at-point)
+  :config
+  (ffap-goto-line-mode 1))
 
 ;; We don't want C-a to go all of the way back; drop us on the actual code
 ;; (Taken from https://stackoverflow.com/a/7250027/884682 )

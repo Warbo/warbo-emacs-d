@@ -32,8 +32,14 @@
   :ensure
   :config
   (setq aider-args
-        `("--model" ,(concat "ollama_chat/" warbo-local-llm)
-          "--no-auto-commits"))
+        (append '("--no-gitignore" "--no-auto-lint")
+                (pcase machine-id
+                  ('wsl-ubuntu
+                   `("--model" ,(concat "ollama_chat/" warbo-local-llm)
+                     "--no-auto-commits"
+                     ))
+                  (_
+                   '("--model" "gemini/gemini-2.5-flash-preview-04-17")))))
   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 (provide 'warbo-llm)
