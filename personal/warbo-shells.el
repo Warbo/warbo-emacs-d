@@ -14,7 +14,27 @@
   (comint-preoutput-filter-functions
    (cons 'xterm-color-filter
          (remove 'xterm-color-filter comint-preoutput-filter-functions))
-   "Ensure xterm-color's preoutput handler is in place"))
+   "Ensure xterm-color's preoutput handler is in place")
+  :config
+  ;; Synchronize standard ansi-color faces with xterm-color's palette and bold setting
+  (let ((ansi-color-names '("black" "red" "green" "yellow" "blue" "magenta" "cyan" "white"))
+        (bright-weight (if xterm-color-use-bold-for-bright 'bold 'normal)))
+    (dotimes (i (length ansi-color-names))
+      (let* ((name (nth i ansi-color-names))
+             (std-face (intern (concat "ansi-color-" name)))
+             (bright-face (intern (concat "ansi-color-bright-" name)))
+             (std-color (aref xterm-color-names i))
+             (bright-color (aref xterm-color-names-bright i)))
+
+        ;; Set standard color face attributes
+        (set-face-attribute std-face nil
+                            :foreground std-color
+                            :weight 'normal) ; Standard colors are never bold
+
+        ;; Set bright color face attributes
+        (set-face-attribute bright-face nil
+                            :foreground bright-color
+                            :weight bright-weight)))))
 
 (use-package mistty
   :ensure t)
