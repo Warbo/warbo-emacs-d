@@ -129,6 +129,7 @@
   :ensure t
   :bind* (("C-c r"     . consult-recent-file))
   :bind (("C-c i"     . consult-imenu)
+         ("C-c f"     . consult-fd)
          ("C-c b"     . consult-project-buffer)
          ("C-x b"     . consult-buffer)
          ("C-c B"     . consult-bookmark)
