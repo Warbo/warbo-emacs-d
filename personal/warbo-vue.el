@@ -9,12 +9,17 @@
 
 (use-package web-mode
   :ensure t
+  :mode (("\\.html" . web-mode)
+         ;; Haskell shakespeare templates
+         ("\\.hamlet" . web-mode)
+         ("\\.lucius" . web-mode)
+         ("\\.julius" . web-mode))
   :config
   (setq web-mode-code-indent-offset 2
         web-mode-css-indent-offset 2
         web-mode-markup-indent-offset 2
         web-mode-sql-indent-offset 2
-        web-mode-script-padding 0       ; start script in col 0
+        web-mode-script-padding 0  ;; start script in col 0
         web-mode-enable-current-column-highlight t
         )
   (define-derived-mode vue-mode web-mode "GO.Vue"
