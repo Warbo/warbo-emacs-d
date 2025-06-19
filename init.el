@@ -1,9 +1,10 @@
-;;; init.el --- Prelude's configuration entry point.
+;;; init.el --- Entry point for Warbo's Emacs config.
 ;;
 ;; Copyright (c) 2011-2016 Bozhidar Batsov
+;; Copyright (c) 2016-     Chris Warburton
 ;;
-;; Author: Bozhidar Batsov <bozhidar@batsov.com>
-;; URL: http://batsov.com/prelude
+;; Author: Chris Warburton
+;; URL: http://chriswarbo.net/git/warbo-emacs-d
 ;; Version: 1.0.0
 ;; Keywords: convenience
 
@@ -11,8 +12,12 @@
 
 ;;; Commentary:
 
-;; This file simply sets up the default load path and requires
-;; the various modules defined within Emacs Prelude.
+;; This file was originally part of Emacs Prelude by Bozhidar Batsov, and has
+;; since been heavily modified (to remove options/indirections I don't need, and
+;; due to functionality being available in other packages or from Emacs updates)
+;;
+;; Over time I hope to remove all the remnants of Emacs Prelude, so everything
+;; is defined as use-package blocks.
 
 ;;; License:
 
@@ -33,20 +38,15 @@
 
 ;;; Code:
 
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-(package-initialize)
-
 ;; Use "package.el" to get "use-package", which simplifies packaging
+(package-initialize)
 (unless (package-installed-p 'use-package)
-                                        ;(package-refresh-contents)
+  ;;(package-refresh-contents)
   (package-install 'use-package))
 
 ;; Get quelpa-use-package, which allows 'packages' to come from arbitrary places
 (unless (package-installed-p 'quelpa-use-package)
-                                        ;(package-refresh-contents)
+  ;;(package-refresh-contents)
   (package-install 'quelpa-use-package))
 
 (use-package quelpa-use-package
