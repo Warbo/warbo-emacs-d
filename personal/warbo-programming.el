@@ -162,7 +162,9 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 
 (use-package js2-mode
-  :ensure t)
+  :ensure t
+  :mode (("\\.js" . js2-mode)
+         ("\\.julius" . web-mode)))
 
 ;; (use-package js2-refactor
 ;;   :ensure t)

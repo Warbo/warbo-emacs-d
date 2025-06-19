@@ -12,8 +12,7 @@
   :mode (("\\.html" . web-mode)
          ;; Haskell shakespeare templates
          ("\\.hamlet" . web-mode)
-         ("\\.lucius" . web-mode)
-         ("\\.julius" . web-mode))
+         ("\\.lucius" . web-mode))
   :config
   (setq web-mode-code-indent-offset 2
         web-mode-css-indent-offset 2
