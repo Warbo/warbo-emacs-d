@@ -198,6 +198,9 @@ with the string S. Unlike `replace-region-contents' this maintains text
   (setq magit-diff-highlight-trailing t)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
 
+  ;; From https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
+  (setq magit-tramp-pipe-stty-settings 'pty)
+
   (transient-append-suffix 'magit-log "o"
     '("R" "reflog objects" my/magit-log-reflog)))
 
