@@ -65,12 +65,6 @@
 
 (defvar prelude-dir (file-name-directory load-file-name)
   "The root dir of the Emacs Prelude distribution.")
-(defvar prelude-personal-dir (expand-file-name "personal" prelude-dir)
-  "This directory is for your personal configuration.
-
-Users of Emacs Prelude are encouraged to keep their personal configuration
-changes in this directory.  All Emacs Lisp files there are loaded automatically
-by Prelude.")
 (defvar prelude-savefile-dir (expand-file-name "savefile" prelude-dir)
   "This folder stores all the automatically generated save/history-files.")
 
@@ -111,15 +105,17 @@ by Prelude.")
     :demand t
     :load-path core-load-path)) ;; Close the let block here
 
-;; Config changes made through the customize UI will be stored in custom.el
-(add-to-list 'load-path prelude-personal-dir)
-(setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
-(load custom-file)
-(load (expand-file-name "flycheck-custom.el" prelude-personal-dir))
+;; Load personal configuration files using use-package and a local load-path
+(let ((prelude-personal-dir (expand-file-name "personal" prelude-dir)))
+  ;; Config changes made through the customize UI will be stored in custom.el
+  (add-to-list 'load-path prelude-personal-dir)
+  (setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
+  (load custom-file)
+  (load (expand-file-name "flycheck-custom.el" prelude-personal-dir))
 
-;; Most of our custom functionality lives in personal/warbo.el
-(use-package warbo
-  :load-path prelude-personal-dir)
+  ;; Most of our custom functionality lives in personal/warbo.el
+  (use-package warbo
+    :load-path prelude-personal-dir))
 
 (message "Finished init.el")
 
