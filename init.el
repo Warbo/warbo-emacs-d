@@ -74,7 +74,6 @@
 ;; add Prelude's directories to Emacs's `load-path'
 (add-to-list 'load-path (expand-file-name "core" prelude-dir))
 
-;; Load core prelude files using use-package and a local load-path
 (let ((core-load-path (expand-file-name "core" prelude-dir)))
   (use-package prelude-packages
     :demand t
@@ -103,9 +102,8 @@
 
   (use-package prelude-global-keybindings
     :demand t
-    :load-path core-load-path)) ;; Close the let block here
+    :load-path core-load-path))
 
-;; Load personal configuration files using use-package and a local load-path
 (let ((prelude-personal-dir (expand-file-name "personal" prelude-dir)))
   ;; Config changes made through the customize UI will be stored in custom.el
   (add-to-list 'load-path prelude-personal-dir)
