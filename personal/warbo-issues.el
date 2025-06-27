@@ -43,9 +43,9 @@
     ;; Components of the line
     (string-match r-line line)
     (let* ((id            (match-string-no-properties 1 line))
-           (comments      (match-string-no-properties 2 line))
-           (status        (match-string-no-properties 3 line))
-           (description   (match-string-no-properties 4 line))
+           (comments      (match-string-no-properties 3 line)) ; Corrected index for the number
+           (status        (match-string-no-properties 4 line)) ; Corrected index for status
+           (description   (match-string-no-properties 5 line)) ; Corrected index for description
            (comment-count (string-to-number comments)))
       `(id            ,id
         index         0
