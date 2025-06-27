@@ -161,6 +161,7 @@ Done
   (with-examples
    (should (equal (issue-get-line "0000000000000002")
                   '(id            "0000000000000002"
+                    index         0
                     comment-count 2
                     status        "resolved"
                     description   "Desc2")))))
