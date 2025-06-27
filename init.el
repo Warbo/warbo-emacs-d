@@ -74,7 +74,7 @@
 ;; add Prelude's directories to Emacs's `load-path'
 (add-to-list 'load-path (expand-file-name "core" prelude-dir))
 
-(let ((core-load-path (expand-file-name "core" prelude-dir)))
+(cl-symbol-macrolet ((core-load-path (expand-file-name "core" prelude-dir)))
   (use-package prelude-packages
     :demand t
     :load-path core-load-path)
@@ -104,7 +104,7 @@
     :demand t
     :load-path core-load-path))
 
-(let ((prelude-personal-dir (expand-file-name "personal" prelude-dir)))
+(cl-symbol-macrolet ((prelude-personal-dir (expand-file-name "personal" prelude-dir)))
   ;; Config changes made through the customize UI will be stored in custom.el
   (add-to-list 'load-path prelude-personal-dir)
   (setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
