@@ -239,6 +239,10 @@ with the string S. Unlike `replace-region-contents' this maintains text
                 (setq whitespace-style '(face tab-mark trailing))
                       indent-tabs-mode t))))
 
+(defun warbo-remove-bel (text)
+  "Remove BEL characters (^G) from TEXT."
+  (replace-regexp-in-string "\C-g" "" text))
+
 (use-package nix-mode
   :ensure t
   :after reformatter
@@ -246,7 +250,16 @@ with the string S. Unlike `replace-region-contents' this maintains text
   (add-hook 'nix-mode-hook 'nix-format-on-save-mode)
   ;; nix-mode can run nixfmt, but it can't specify commandline args like "-w 80"
   ;; so we prefer reformatter.
-  (setq nix-nixfmt-bin nil))
+  (setq nix-nixfmt-bin nil)
+
+  (defun warbo-filter-bel ()
+    "`nix-repl-completion-at-point' can leave ^G (BEL chars) in the buffer."
+    (save-excursion
+      (goto-char (point-min))
+      (while (search-forward "\C-g" nil t)
+        (replace-match ""))))
+
+  (advice-add 'nix-repl-completion-at-point :after 'warbo-filter-bel))
 
 (use-package scala-mode
   :ensure t
