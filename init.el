@@ -88,10 +88,10 @@ by Prelude.")
   :demand t
   :load-path (expand-file-name "core" prelude-dir)) ;; Needs to be loaded before core, editor and ui
 
-(unless noninteractive
-  (use-package prelude-ui
-    :demand t
-    :load-path (expand-file-name "core" prelude-dir)))
+(use-package prelude-ui
+  :demand t
+  :load-path (expand-file-name "core" prelude-dir)
+  :unless noninteractive)
 
 (use-package prelude-core
   :demand t
