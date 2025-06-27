@@ -74,7 +74,7 @@
 
 (defun prelude-packages-installed-p ()
   "Check if all packages in `prelude-packages' are installed."
-  (every #'package-installed-p prelude-packages))
+  (seq-every-p #'package-installed-p prelude-packages))
 
 (defun prelude-require-package (package)
   "Install PACKAGE unless already installed."
