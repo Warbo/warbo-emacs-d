@@ -97,22 +97,22 @@ Done
 
 (defmacro inject-examples (examples &rest body)
   "Replace effectful procedures by returning EXAMPLES, when running BODY."
-  `(flet ((issue-artemis-lines ()
-                               (plist-get ,examples 'lines))
-          (issue-get-comment   (id index)
-                               (nth index (lax-plist-get
-                                           (plist-get ,examples 'files)
-                                           id)))
+  `(cl-flet ((issue-artemis-lines ()
+               (plist-get ,examples 'lines))
+             (issue-get-comment   (id index)
+               (nth index (lax-plist-get
+                           (plist-get ,examples 'files)
+                           id)))
           (issues-issue-files  (issue)
-                               (let ((files (lax-plist-get
-                                             (plist-get examples 'files)
-                                             issue)))
-                                 (mapcar (lambda (index)
-                                           (list (concat
-                                                  issue "/"
-                                                  (number-to-string index))
-                                                 (nth index files)))
-                                         (range 0 (length files))))))
+            (let ((files (lax-plist-get
+                          (plist-get examples 'files)
+                          issue)))
+              (mapcar (lambda (index)
+                        (list (concat
+                               issue "/"
+                               (number-to-string index))
+                              (nth index files)))
+                      (range 0 (length files))))))
      ,@body))
 
 (defmacro with-examples (&rest body)
