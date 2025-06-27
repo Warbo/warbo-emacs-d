@@ -74,46 +74,40 @@
 ;; add Prelude's directories to Emacs's `load-path'
 (add-to-list 'load-path (expand-file-name "core" prelude-dir))
 
-(cl-symbol-macrolet ((core-load-path (expand-file-name "core" prelude-dir)))
-  (use-package prelude-packages
-    :demand t
-    :load-path core-load-path)
+;; Use cl-macrolet to avoid repeating ourselves, and to ensure :load-path gets a
+;; literal value (other expressions, like function calls, won't work).
+(cl-macrolet
+    ((prelude-package (name &rest args)
+       `(use-package ,name
+          :demand t
+          :load-path
+          ,(expand-file-name "core" (file-name-directory load-file-name))
+          ,@args)))
 
-  (use-package prelude-custom
-    :demand t
-    :load-path core-load-path) ;; Needs to be loaded before core, editor and ui
+  (prelude-package prelude-packages)
+  (prelude-package prelude-custom) ;; Needs to be loaded before core, editor and ui
+  (prelude-package prelude-ui
+                   :unless noninteractive)
+  (prelude-package prelude-core)
+  (prelude-package prelude-mode)
+  (prelude-package prelude-editor)
+  (prelude-package prelude-global-keybindings))
 
-  (use-package prelude-ui
-    :demand t
-    :load-path core-load-path
-    :unless noninteractive)
-
-  (use-package prelude-core
-    :demand t
-    :load-path core-load-path)
-
-  (use-package prelude-mode
-    :demand t
-    :load-path core-load-path)
-
-  (use-package prelude-editor
-    :demand t
-    :load-path core-load-path)
-
-  (use-package prelude-global-keybindings
-    :demand t
-    :load-path core-load-path))
-
-(cl-symbol-macrolet ((prelude-personal-dir (expand-file-name "personal" prelude-dir)))
+(let ((personal-dir
+       (expand-file-name "personal" (file-name-directory load-file-name))))
   ;; Config changes made through the customize UI will be stored in custom.el
-  (add-to-list 'load-path prelude-personal-dir)
-  (setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
+  (add-to-list 'load-path personal-dir)
+  (setq custom-file (expand-file-name "custom.el" personal-dir))
   (load custom-file)
-  (load (expand-file-name "flycheck-custom.el" prelude-personal-dir))
+  (load (expand-file-name "flycheck-custom.el" personal-dir)))
 
-  ;; Most of our custom functionality lives in personal/warbo.el
-  (use-package warbo
-    :load-path prelude-personal-dir))
+;; Most of our custom functionality lives in personal/warbo.el
+(cl-macrolet
+    ((in-personal (name)
+       `(use-package ,name
+         :load-path
+         ,(expand-file-name "personal" (file-name-directory load-file-name)))))
+  (in-personal warbo))
 
 (message "Finished init.el")
 
