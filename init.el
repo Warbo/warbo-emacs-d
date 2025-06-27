@@ -98,7 +98,8 @@ by Prelude.")
 (load (expand-file-name "flycheck-custom.el" prelude-personal-dir))
 
 ;; Most of our custom functionality lives in personal/warbo.el
-(use-package warbo)
+(use-package warbo
+  :load-path prelude-personal-dir)
 
 (message "Finished init.el")
 
