@@ -32,8 +32,8 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(require 'cl)
 (require 'package)
+(require 'seq)
 
 ;; TODO: Switch all this to use-package!
 
@@ -109,7 +109,7 @@ are installed and are not in `prelude-packages'.  Useful for
 removing unwanted packages."
   (interactive)
   (package-show-package-list
-   (set-difference package-activated-list prelude-packages)))
+   (seq-difference package-activated-list prelude-packages)))
 
 (defmacro prelude-auto-install (extension package mode)
   "When file with EXTENSION is opened triggers auto-install of PACKAGE.
@@ -190,7 +190,6 @@ PACKAGE is installed only if not already present.  The file is opened in MODE."
 
 (provide 'prelude-packages)
 ;; Local Variables:
-;; byte-compile-warnings: (not cl-functions)
 ;; End:
 
 ;;; prelude-packages.el ends here
