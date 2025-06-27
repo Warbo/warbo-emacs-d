@@ -63,7 +63,7 @@
   :config
   (exec-path-from-shell-initialize))
 
-(defvar prelude-dir (file-name-directory load-file-name)
+(defvar prelude-dir user-emacs-directory
   "The root dir of the Emacs Prelude distribution.")
 (defvar prelude-savefile-dir (expand-file-name "savefile" prelude-dir)
   "This folder stores all the automatically generated save/history-files.")
@@ -81,7 +81,7 @@
        `(use-package ,name
           :demand t
           :load-path
-          ,(expand-file-name "core" (file-name-directory load-file-name))
+          ,(expand-file-name "core" user-emacs-directory)
           ,@args)))
 
   (prelude-package prelude-packages)
@@ -94,7 +94,7 @@
   (prelude-package prelude-global-keybindings))
 
 (let ((personal-dir
-       (expand-file-name "personal" (file-name-directory load-file-name))))
+       (expand-file-name "personal" user-emacs-directory)))
   ;; Config changes made through the customize UI will be stored in custom.el
   (add-to-list 'load-path personal-dir)
   (setq custom-file (expand-file-name "custom.el" personal-dir))
@@ -106,7 +106,7 @@
     ((in-personal (name)
        `(use-package ,name
          :load-path
-         ,(expand-file-name "personal" (file-name-directory load-file-name)))))
+         ,(expand-file-name "personal" user-emacs-directory))))
   (in-personal warbo))
 
 (message "Finished init.el")

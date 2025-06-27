@@ -16,8 +16,7 @@
 ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 
 (message "Loading personal/preload/*.el files")
-(let ((preload-dir (expand-file-name "personal/preload"
-                                     (file-name-directory load-file-name))))
+(let ((preload-dir (expand-file-name "personal/preload" user-emacs-directory)))
   (when (file-exists-p preload-dir)
     (message "Loading personal configuration files in %s..." preload-dir)
     (mapc 'load (directory-files preload-dir 't "^[^#].*el$"))))
