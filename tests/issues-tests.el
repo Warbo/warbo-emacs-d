@@ -5,8 +5,9 @@
          (comment-count 1)
          (status        "resolved")
          (description   "I am a description")
+         ;; Adjusted line format to match real artemis output spacing
          (line          (concat id
-                                " (  " (number-to-string comment-count) ")"
+                                " (" (format "%3s" (number-to-string comment-count)) ")"
                                 " [" status "]"
                                 ": " description))
          (parsed        (issue-parse-line line)))
@@ -58,40 +59,40 @@ Done
   (s-join "\n" lines))
 
 (defvar warbo-issues-examples
-  `(lines ((id "id1" comment-count 3 status "new"      description "Desc1")
-           (id "id2" comment-count 2 status "resolved" description "Desc2")
-           (id "id3" comment-count 0 status "new"      description "Desc3"))
+  `(lines ((id "0000000000000001" comment-count 3 status "new"      description "Desc1")
+           (id "0000000000000002" comment-count 2 status "resolved" description "Desc2")
+           (id "0000000000000003" comment-count 0 status "new"      description "Desc3"))
 
-    files ("id1" (,(unlines "Date: 2020-01-01 00:00:00 +0000"
-                            "Message-Id: <id1-0-artemis@example.com>"
+    files ("0000000000000001" (,(unlines "Date: 2020-01-01 00:00:00 +0000"
+                            "Message-Id: <0000000000000001-0-artemis@example.com>"
                             "Subject: issue1"
                             "First post 1")
                   ,(unlines "Date: 2020-01-02 00:00:00 +0000"
-                            "Message-Id: <id1-1-artemis@example.com>"
+                            "Message-Id: <0000000000000001-1-artemis@example.com>"
                             "Subject: issue1"
                             "Comment 1-1")
                   ,(unlines "Date: 2020-01-03 00:00:00 +0000"
-                            "Message-Id: <id1-2-artemis@example.com>"
+                            "Message-Id: <0000000000000001-2-artemis@example.com>"
                             "Subject: issue1"
                             "Comment 1-2")
                   ,(unlines "Date: 2020-01-04 00:00:00 +0000"
-                            "Message-Id: <id1-3-artemis@example.com>"
+                            "Message-Id: <0000000000000001-3-artemis@example.com>"
                             "Subject: issue1"
                             "Comment 1-3"))
-           "id2" (,(unlines "Date: 2020-02-01 00:00:00 +0000"
-                            "Message-Id: <id2-0-artemis@example.com>"
+           "0000000000000002" (,(unlines "Date: 2020-02-01 00:00:00 +0000"
+                            "Message-Id: <0000000000000002-0-artemis@example.com>"
                             "Subject: issue2"
                             "First post 2")
                   ,(unlines "Date: 2020-02-02 00:00:00 +0000"
-                            "Message-Id: <id2-1-artemis@example.com>"
+                            "Message-Id: <0000000000000002-1-artemis@example.com>"
                             "Subject: issue2"
                             "Comment 2-1")
                   ,(unlines "Date: 2020-02-03 00:00:00 +0000"
-                            "Message-Id: <id2-2-artemis@example.com>"
+                            "Message-Id: <0000000000000002-2-artemis@example.com>"
                             "Subject: issue2"
                             "Comment 2-2"))
-           "id3" (,(unlines "Date: 2020-03-01 00:00:00 +0000"
-                            "Message-Id: <id3-0-artemis@example.com>"
+           "0000000000000003" (,(unlines "Date: 2020-03-01 00:00:00 +0000"
+                            "Message-Id: <0000000000000003-0-artemis@example.com>"
                             "Subject: issue3"
                             "First post 3")))))
 
@@ -100,7 +101,8 @@ Done
   (cond
    ((string= command "artemis list -a -o latest")
     (s-join "\n" (mapcar (lambda (line-plist)
-                           (format "%s (%s) [%s]: %s"
+                           ;; Format string adjusted to match real output spacing and empty status
+                           (format "%s (%3s) [%s]: %s"
                                    (plist-get line-plist 'id)
                                    (plist-get line-plist 'comment-count)
                                    (plist-get line-plist 'status)
@@ -109,8 +111,9 @@ Done
    ((string-prefix-p "artemis show " command)
     (let* ((parts (split-string command " "))
            (id    (nth 2 parts))
-           (index (string-to-number (nth 3 parts))))
-      (nth index (lax-plist-get (plist-get examples 'files) id))))
+           (index (string-to-number (nth 3 parts)))
+           (comments-list (lax-plist-get (plist-get examples 'files) id)))
+      (nth index comments-list))) ; Get the index-th comment string
    ((string= command "git rev-parse --show-toplevel")
     "/mock/repo")
    (t
@@ -153,29 +156,29 @@ Done
 
 (ert-deftest warbo-issues-can-list-ids ()
   (with-examples
-   (should (equal (issue-list-ids) '("id1" "id2" "id3")))))
+   (should (equal (issue-list-ids) '("0000000000000001" "0000000000000002" "0000000000000003")))))
 
 (ert-deftest warbo-issues-can-lookup-details ()
   (with-examples
-   (should (equal (issue-get-line "id2")
-                  '(id            "id2"
+   (should (equal (issue-get-line "0000000000000002")
+                  '(id            "0000000000000002"
                     comment-count 2
                     status        "resolved"
                     description   "Desc2")))))
 
 (ert-deftest warbo-issues-can-get-comment ()
   (with-examples
-   (should (equal (issue-get-comment "id1" 2)
+   (should (equal (issue-get-comment "0000000000000001" 2)
                   (nth 2 (lax-plist-get (plist-get warbo-issues-examples 'files)
-                                        "id1"))))))
+                                        "0000000000000001"))))))
 
 (ert-deftest warbo-issues-can-lookup-comments ()
   (with-examples
    (let ((get-date-string (lambda (entry) (plist-get entry 'date-string))))
      (dolist
-         (id-want '(("id1" . ("2020-01-02" "2020-01-03" "2020-01-04"))
-                    ("id2" . ("2020-02-02" "2020-02-03"))
-                    ("id3" . nil)))
+         (id-want '(("0000000000000001" . ("2020-01-02" "2020-01-03" "2020-01-04"))
+                    ("0000000000000002" . ("2020-02-02" "2020-02-03"))
+                    ("0000000000000003" . nil)))
        (should (equal (mapcar get-date-string
                               (mapcar 'cadr
                                       (issue-comments (car id-want))))
