@@ -83,30 +83,30 @@ by Prelude.")
     :demand t
     :load-path core-load-path)
 
-(use-package prelude-custom
-  :demand t
-  :load-path (expand-file-name "core" prelude-dir)) ;; Needs to be loaded before core, editor and ui
+  (use-package prelude-custom
+    :demand t
+    :load-path core-load-path) ;; Needs to be loaded before core, editor and ui
 
-(use-package prelude-ui
-  :demand t
-  :load-path (expand-file-name "core" prelude-dir)
-  :unless noninteractive)
+  (use-package prelude-ui
+    :demand t
+    :load-path core-load-path
+    :unless noninteractive)
 
-(use-package prelude-core
-  :demand t
-  :load-path (expand-file-name "core" prelude-dir))
+  (use-package prelude-core
+    :demand t
+    :load-path core-load-path)
 
-(use-package prelude-mode
-  :demand t
-  :load-path (expand-file-name "core" prelude-dir))
+  (use-package prelude-mode
+    :demand t
+    :load-path core-load-path)
 
-(use-package prelude-editor
-  :demand t
-  :load-path (expand-file-name "core" prelude-dir))
+  (use-package prelude-editor
+    :demand t
+    :load-path core-load-path)
 
-(use-package prelude-global-keybindings
-  :demand t
-  :load-path (expand-file-name "core" prelude-dir))
+  (use-package prelude-global-keybindings
+    :demand t
+    :load-path core-load-path)) ;; Close the let block here
 
 ;; Config changes made through the customize UI will be stored in custom.el
 (add-to-list 'load-path prelude-personal-dir)
