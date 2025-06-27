@@ -77,12 +77,11 @@ by Prelude.")
 (unless (file-exists-p prelude-savefile-dir)
   (make-directory prelude-savefile-dir))
 
-;; add Prelude's directories to Emacs's `load-path'
-(add-to-list 'load-path (expand-file-name "core" prelude-dir))
-
-(use-package prelude-packages
-  :demand t
-  :load-path (expand-file-name "core" prelude-dir))
+;; Load core prelude files using use-package and a local load-path
+(let ((core-load-path (expand-file-name "core" prelude-dir)))
+  (use-package prelude-packages
+    :demand t
+    :load-path core-load-path)
 
 (use-package prelude-custom
   :demand t
