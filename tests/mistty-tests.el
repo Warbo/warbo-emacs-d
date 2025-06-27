@@ -57,8 +57,7 @@
               (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string)))))
         ;; Cleanup
         (advice-remove 'term-emulate-terminal #'mistty-tests--advice-term-emulate-terminal)
-        (kill-process test-proc)
-        (kill-buffer test-buffer)))))
+        (delete-process test-proc)))))
 
 (ert-deftest mistty-test-emulate-terminal-control-chars ()
   "Test how `mistty--emulate-terminal' handles SOH and STX control characters."
@@ -86,8 +85,7 @@
               (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string)))))
         ;; Cleanup
         (advice-remove 'term-emulate-terminal #'mistty-tests--advice-term-emulate-terminal)
-        (kill-process test-proc)
-        (kill-buffer test-buffer)))))
+        (delete-process test-proc)))))
 
 (ert-deftest mistty-test-emulate-terminal-other-control-chars ()
   "Test that `mistty--emulate-terminal' passes through other control characters."
@@ -107,8 +105,7 @@
               (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string)))))
         ;; Cleanup
         (advice-remove 'term-emulate-terminal #'mistty-tests--advice-term-emulate-terminal)
-        (kill-process test-proc)
-        (kill-buffer test-buffer)))))
+        (delete-process test-proc)))))
 
 (provide 'mistty-tests)
 
