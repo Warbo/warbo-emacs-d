@@ -5,9 +5,8 @@
          (comment-count 1)
          (status        "resolved")
          (description   "I am a description")
-         ;; Adjusted line format to match real artemis output spacing
          (line          (concat id
-                                " (" (format "%3s" (number-to-string comment-count)) ")"
+                                " (" (number-to-string comment-count) ")"
                                 " [" status "]"
                                 ": " description))
          (parsed        (issue-parse-line line)))
