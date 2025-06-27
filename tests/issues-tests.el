@@ -95,30 +95,61 @@ Done
                             "Subject: issue3"
                             "First post 3")))))
 
+(defun warbo-issues-mock-shell-command-to-string (examples command)
+  "Mock `shell-command-to-string' using EXAMPLES data."
+  (cond
+   ((string= command "artemis list -a -o latest")
+    (s-join "\n" (mapcar (lambda (line-plist)
+                           (format "%s (%s) [%s]: %s"
+                                   (plist-get line-plist 'id)
+                                   (plist-get line-plist 'comment-count)
+                                   (plist-get line-plist 'status)
+                                   (plist-get line-plist 'description)))
+                         (plist-get examples 'lines))))
+   ((string-prefix-p "artemis show " command)
+    (let* ((parts (split-string command " "))
+           (id    (nth 2 parts))
+           (index (string-to-number (nth 3 parts))))
+      (nth index (lax-plist-get (plist-get examples 'files) id))))
+   ((string= command "git rev-parse --show-toplevel")
+    "/mock/repo")
+   (t
+    (error "Unexpected shell command: %s" command))))
+
+(defun warbo-issues-mock-directory-files-and-attributes (examples dir &rest args)
+  "Mock `directory-files-and-attributes' using EXAMPLES data."
+  (let* ((parts (split-string dir "/"))
+         (issue-id (nth (- (length parts) 2) parts)) ; Assumes dir is like /mock/repo/.issues/ID/new
+         (files (lax-plist-get (plist-get examples 'files) issue-id)))
+    (mapcar (lambda (index)
+              (list (concat dir "/" (number-to-string index)) nil)) ; Return dummy attributes
+            (range 0 (length files)))))
+
+(defun warbo-issues-mock-insert-file-contents (examples file &rest args)
+  "Mock `insert-file-contents' using EXAMPLES data."
+  (let* ((parts (split-string file "/"))
+         (issue-id (nth (- (length parts) 2) parts)) ; Assumes file is like /mock/repo/.issues/ID/new/INDEX
+         (index (string-to-number (file-name-nondirectory file)))
+         (content (nth index (lax-plist-get (plist-get examples 'files) issue-id))))
+    (insert content)))
+
 (defmacro inject-examples (examples &rest body)
   "Replace effectful procedures by returning EXAMPLES, when running BODY."
-  `(cl-flet ((issue-artemis-lines ()
-               (plist-get ,examples 'lines))
-             (issue-get-comment   (id index)
-               (nth index (lax-plist-get
-                           (plist-get ,examples 'files)
-                           id)))
-          (issues-issue-files  (issue)
-            (let ((files (lax-plist-get
-                          (plist-get examples 'files)
-                          issue)))
-              (mapcar (lambda (index)
-                        (list (concat
-                               issue "/"
-                               (number-to-string index))
-                              (nth index files)))
-                      (range 0 (length files))))))
+  `(cl-letf (((symbol-function 'shell-command-to-string)
+              (lambda (command &rest args)
+                (warbo-issues-mock-shell-command-to-string ,examples command)))
+             ((symbol-function 'directory-files-and-attributes)
+              (lambda (dir &rest args)
+                (apply 'warbo-issues-mock-directory-files-and-attributes ,examples dir args)))
+             ((symbol-function 'insert-file-contents)
+              (lambda (file &rest args)
+                (apply 'warbo-issues-mock-insert-file-contents ,examples file args))))
      ,@body))
 
 (defmacro with-examples (&rest body)
   "Run BODY with some example issues."
   `(inject-examples warbo-issues-examples
-    (progn ,@body)))
+     ,@body))
 
 (ert-deftest warbo-issues-can-list-ids ()
   (with-examples
