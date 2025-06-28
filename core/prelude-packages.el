@@ -101,16 +101,6 @@ Missing packages are installed automatically."
 ;; run package installation
 (prelude-install-packages)
 
-(defun prelude-list-foreign-packages ()
-  "Browse third-party packages not bundled with Prelude.
-
-Behaves similarly to `package-list-packages', but shows only the packages that
-are installed and are not in `prelude-packages'.  Useful for
-removing unwanted packages."
-  (interactive)
-  (package-show-package-list
-   (seq-difference package-activated-list prelude-packages)))
-
 (use-package clojure-mode
   :ensure t
   :mode "\\.clj\\'")
