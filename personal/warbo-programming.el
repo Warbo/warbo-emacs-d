@@ -61,6 +61,7 @@
 (use-package xref-union
   :ensure t
   :hook haskell-mode
+  :mode "\\.hs\\'"
   :config
   (setq tags-revert-without-query 1))
 
@@ -171,7 +172,8 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t)
 
 (use-package json-mode
-  :ensure t)
+  :ensure t
+  :mode "\\.json\\'")
 
 (use-package jq-mode
   :ensure t
@@ -263,6 +265,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 (use-package scala-mode
   :ensure t
+  :mode "\\.scala\\'"
   :config
   (add-hook 'scala-mode-hook 'scala-format-on-save-mode))
 
@@ -271,6 +274,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 (use-package yaml-mode
   :ensure t
+  :mode ("\\.yml\\'" "\\.yaml\\'")
   :config
   (add-hook 'yaml-mode-hook 'yamlfix-format-on-save-mode))
 

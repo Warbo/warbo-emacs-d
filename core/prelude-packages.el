@@ -52,16 +52,10 @@
 (use-package crux
   :ensure t)
 
-(use-package dash
-  :ensure t)
-
 (use-package discover-my-major
   :ensure t)
 
 (use-package diff-hl
-  :ensure t)
-
-(use-package diminish
   :ensure t)
 
 (use-package easy-kill
@@ -71,9 +65,6 @@
   :ensure t)
 
 (use-package expand-region
-  :ensure t)
-
-(use-package flycheck
   :ensure t)
 
 (use-package gist
@@ -104,9 +95,6 @@
   :ensure t)
 
 (use-package operate-on-number
-  :ensure t)
-
-(use-package smartparens
   :ensure t)
 
 (use-package smartrep
@@ -187,14 +175,6 @@
   :ensure t
   :mode "\\.haml\\'")
 
-(use-package haskell-mode
-  :ensure t
-  :mode "\\.hs\\'")
-
-(use-package json-mode
-  :ensure t
-  :mode "\\.json\\'")
-
 (use-package kotlin-mode
   :ensure t
   :mode "\\.kt\\'")
@@ -253,10 +233,6 @@
   :ensure t
   :mode "\\.sass\\'")
 
-(use-package scala-mode
-  :ensure t
-  :mode "\\.scala\\'")
-
 (use-package scss-mode
   :ensure t
   :mode "\\.scss\\'")
@@ -280,10 +256,6 @@
 (use-package thrift
   :ensure t
   :mode "\\.thrift\\'")
-
-(use-package yaml-mode
-  :ensure t
-  :mode ("\\.yml\\'" "\\.yaml\\'"))
 
 (use-package dockerfile-mode
   :ensure t
