@@ -320,6 +320,8 @@ and file 'filename' will be opened and cursor set on line 'linenumber'"
   (setq reb-re-syntax 'string))
 
 (use-package eshell
+  :bind (("C-x m" . eshell)
+         ("C-x M" . (lambda () (interactive) (eshell t))))
   :config
   (require 'eshell) ; eshell is built-in
   (setq eshell-directory-name (expand-file-name "eshell" prelude-savefile-dir)))
