@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Sat, 28 Jun 2025 02:01:26 +0100
+Subject: Re: Move desirable prelude stuff into personal
+Message-Id: <a691150e7fb628c8-ba488ffb8e2b209a-artemis@nixos-amd64>
+References: <a691150e7fb628c8-0-artemis@nixos>
+In-Reply-To: <a691150e7fb628c8-0-artemis@nixos>
+
+Converted a lot of Prelude stuff to use-package, and put those in personal/.
+However, there's still a bunch of config that's floating around the core/
+prelude directory, which should be moved into an appropriate use-package block.

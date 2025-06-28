@@ -36,11 +36,6 @@
 (require 'dash)
 (require 'ov)
 
-(defun prelude-buffer-mode (buffer-or-name)
-  "Retrieve the `major-mode' of BUFFER-OR-NAME."
-  (with-current-buffer buffer-or-name
-    major-mode))
-
 (defun prelude-search (query-url prompt)
   "Open the search url constructed with the QUERY-URL.
 PROMPT sets the `read-string prompt."
@@ -80,53 +75,6 @@ PROMPT sets the `read-string prompt."
   "Byte-compile all your dotfiles again."
   (interactive)
   (byte-recompile-directory prelude-dir 0))
-
-(defvar prelude-tips
-  '("Press <C-c o> to open a file with external program."
-    "Press <C-c p f> to navigate a project's files with ido."
-    "Press <s-r> to open a recently visited file."
-    "Press <C-c p s g> to run grep on a project."
-    "Press <C-c p p> to switch between projects."
-    "Press <C-=> to expand the selected region."
-    "Press <C-c g> to search in Google."
-    "Press <C-c G> to search in GitHub."
-    "Press <C-c y> to search in YouTube."
-    "Press <C-c U> to search in DuckDuckGo."
-    "Press <C-c r> to rename the current buffer and the file it's visiting if any."
-    "Press <C-c t> to open a terminal in Emacs."
-    "Press <C-c k> to kill all the buffers, but the active one."
-    "Press <C-c D> to delete the current file and buffer."
-    "Press <C-c s> to swap two windows."
-    "Press <S-RET> or <M-o> to open a line beneath the current one."
-    "Press <s-o> to open a line above the current one."
-    "Press <C-c C-z> in a Elisp buffer to launch an interactive Elisp shell."
-    "Press <C-Backspace> to kill a line backwards."
-    "Press <C-S-Backspace> or <s-k> to kill the whole line."
-    "Press <s-j> or <C-^> to join lines."
-    "Press <s-.> or <C-c j> to jump to the start of a word in any visible window."
-    "Press <f11> to toggle fullscreen mode."
-    "Press <f12> to toggle the menu bar."
-    "Explore the Tools->Prelude menu to find out about some of Prelude extensions to Emacs."
-    "Access the official Emacs manual by pressing <C-h r>."
-    "Visit the EmacsWiki at http://emacswiki.org to find out even more about Emacs."))
-
-(defun prelude-tip-of-the-day ()
-  "Display a random entry from `prelude-tips'."
-  (interactive)
-  (when (and prelude-tips (not (window-minibuffer-p)))
-    ;; pick a new random seed
-    (random t)
-    (message
-     (concat "Prelude tip: " (nth (random (length prelude-tips)) prelude-tips)))))
-
-(defun prelude-eval-after-init (form)
-  "Add `(lambda () FORM)' to `after-init-hook'.
-
-    If Emacs has already finished initialization, also eval FORM immediately."
-  (let ((func (list 'lambda nil form)))
-    (add-hook 'after-init-hook func)
-    (when after-init-time
-      (eval form))))
 
 ;;; Emacs in OSX already has fullscreen support
 ;;; Emacs has a similar built-in command in 24.4
