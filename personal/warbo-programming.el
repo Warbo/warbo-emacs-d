@@ -41,6 +41,34 @@
   :ensure t
   :hook (prog-mode . rainbow-identifiers-mode))
 
+(use-package auctex
+  :ensure t
+  :mode "\\.latex\\'")
+
+(use-package cask-mode
+  :ensure t
+  :mode "Cask")
+
+(use-package clojure-mode
+  :ensure t
+  :mode "\\.clj\\'")
+
+(use-package cmake-mode
+  :ensure t
+  :mode ("\\.cmake\\'" "CMakeLists\\.txt\\'"))
+
+(use-package coffee-mode
+  :ensure t
+  :mode "\\.coffee\\'")
+
+(use-package css-mode
+  :ensure t
+  :mode "\\.css\\'")
+
+(use-package csv-mode
+  :ensure t
+  :mode "\\.csv\\'")
+
 (use-package cue-mode
   :ensure t
   :after reformatter
@@ -50,6 +78,18 @@
   :config
   (add-hook 'cue-mode-hook 'cue-format-on-save-mode))
 
+(use-package cython-mode
+  :ensure t
+  :mode ("\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
+
+(use-package d-mode
+  :ensure t
+  :mode "\\.d\\'")
+
+(use-package dart-mode
+  :ensure t
+  :mode "\\.dart\\'")
+
 ;(use-package direnv
 ;  :ensure t
 ;  :init
@@ -57,6 +97,38 @@
 ;  :config
 ;  (add-to-list 'direnv-non-file-modes 'shell-mode)
 ;  (direnv-mode))
+
+(use-package dockerfile-mode
+  :ensure t
+  :mode "Dockerfile\\'")
+
+(use-package elixir-mode
+  :ensure t
+  :mode ("\\.ex\\'" "\\.exs\\'" "\\.elixir\\'"))
+
+(use-package elm-mode
+  :ensure t
+  :mode "\\.elm\\'")
+
+(use-package erlang
+  :ensure t
+  :mode "\\.erl\\'")
+
+(use-package feature-mode
+  :ensure t
+  :mode "\\.feature\\'")
+
+(use-package go-mode
+  :ensure t
+  :mode "\\.go\\'")
+
+(use-package groovy-mode
+  :ensure t
+  :mode "\\.groovy\\'")
+
+(use-package haml-mode
+  :ensure t
+  :mode "\\.haml\\'")
 
 (use-package xref-union
   :ensure t
@@ -171,6 +243,22 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :mode ("\\.jq" . jq-mode))
 
+(use-package kotlin-mode
+  :ensure t
+  :mode "\\.kt\\'")
+
+(use-package kivy-mode
+  :ensure t
+  :mode "\\.kv\\'")
+
+(use-package less-css-mode
+  :ensure t
+  :mode "\\.less\\'")
+
+(use-package lua-mode
+  :ensure t
+  :mode "\\.lua\\'")
+
 ;; Unset some conflicting keybindings before binding them to magit
 (global-unset-key (kbd "s-m"))
 
@@ -233,6 +321,12 @@ with the string S. Unlike `replace-region-contents' this maintains text
                 (setq whitespace-style '(face tab-mark trailing))
                       indent-tabs-mode t))))
 
+(use-package markdown-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
+  (add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode)))
+
 (defun warbo-remove-bel (text)
   "Remove BEL characters (^G) from TEXT."
   (replace-regexp-in-string "\C-g" "" text))
@@ -255,14 +349,58 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
   (advice-add 'nix-repl-completion-at-point :after 'warbo-filter-bel))
 
+(use-package php-mode
+  :ensure t
+  :mode "\\.php\\'")
+
+(use-package pkgbuild-mode
+  :ensure t
+  :mode "PKGBUILD\\'")
+
+(use-package protobuf-mode
+  :ensure t
+  :mode "\\.proto\\'")
+
 (use-package scala-mode
   :ensure t
   :mode "\\.scala\\'"
   :config
   (add-hook 'scala-mode-hook 'scala-format-on-save-mode))
 
+(use-package sass-mode
+  :ensure t
+  :mode "\\.sass\\'")
+
+(use-package scss-mode
+  :ensure t
+  :mode "\\.scss\\'")
+
+(use-package slim-mode
+  :ensure t
+  :mode "\\.slim\\'")
+
 (use-package smartparens
   :ensure t)
+
+(use-package stylus-mode
+  :ensure t
+  :mode "\\.styl\\'")
+
+(use-package swift-mode
+  :ensure t
+  :mode "\\.swift\\'")
+
+(use-package textile-mode
+  :ensure t
+  :mode "\\.textile\\'")
+
+(use-package thrift
+  :ensure t
+  :mode "\\.thrift\\'")
+
+(use-package tuareg
+  :ensure t
+  :mode "\\.ml\\'")
 
 (use-package yaml-mode
   :ensure t
