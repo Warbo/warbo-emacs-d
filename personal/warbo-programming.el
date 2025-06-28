@@ -112,14 +112,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
                        (point-min)
                        (point-max))
 
-                      ;; This is commonly used for the output of Haskell
-                      ;; Show instances, which looks enough like Haskell
-                      ;; code for haskell-mode syntax highlighting to work.
-                      ;;(haskell-font-lock-defaults-create)
-                      ;;(font-lock-ensure)
-                      ;;(haskell-mode)
-                      ;;(haskell-font-lock-fontify-block 'shell-mode (point-min) (point-max))
-
                       ;; Enable a simple prog-mode like json-mode, which will
                       ;; give us rainbow-delimiters and rainbow-identifiers
                       (json-mode)
