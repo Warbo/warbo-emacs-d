@@ -33,16 +33,6 @@
 ;;; Code:
 
 ;; Helper macros (kept outside use-package for now)
-(defmacro advise-commands (advice-name commands class &rest body)
-  "Apply advice named ADVICE-NAME to multiple COMMANDS.
-
-The body of the advice is in BODY."
-  `(progn
-     ,@(mapcar (lambda (command)
-                 `(defadvice ,command (,class ,(intern (concat (symbol-name command) "-" advice-name)) activate)
-                    ,@body))
-               commands)))
-
 (defmacro with-region-or-buffer (func)
   "When called with no active region, call FUNC on current buffer."
   `(defadvice ,func (before with-region-or-or-buffer activate compile)
@@ -123,18 +113,20 @@ The body of the advice is in BODY."
   (global-hl-line-mode +1)
 
   ;; Advice for basic commands
-  (defadvice set-buffer-major-mode (after set-major-mode activate compile)
-    "Set buffer major mode according to `auto-mode-alist'."
-    (let* ((name (buffer-name buffer))
-           (mode (assoc-default name auto-mode-alist 'string-match)))
-      (when (and mode (consp mode))
-        (setq mode (car mode)))
-      (with-current-buffer buffer (if mode (funcall mode)))))
+  (advice-add 'set-buffer-major-mode :after 'set-major-mode
+    (lambda ()
+      "Set buffer major mode according to `auto-mode-alist'."
+      (let* ((name (buffer-name buffer))
+             (mode (assoc-default name auto-mode-alist 'string-match)))
+        (when (and mode (consp mode))
+          (setq mode (car mode)))
+        (with-current-buffer buffer (if mode (funcall mode))))))
 
-  (defadvice exchange-point-and-mark (before deactivate-mark activate compile)
-    "When called with no active region, do not activate mark."
-    (interactive
-     (list (not (region-active-p)))))
+  (advice-add 'exchange-point-and-mark :before 'deactivate-mark
+    (lambda ()
+      "When called with no active region, do not activate mark."
+      (interactive
+       (list (not (region-active-p))))))
 
   (with-region-or-buffer indent-region)
   (with-region-or-buffer untabify)
@@ -145,15 +137,27 @@ The body of the advice is in BODY."
     (if (<= (- end beg) prelude-yank-indent-threshold)
         (indent-region beg end nil)))
 
-  (advise-commands "indent" (yank yank-pop) after
-    "If current mode is one of `prelude-yank-indent-modes',
+  (advice-add 'yank :after 'yank-indent
+    (lambda (&optional arg)
+      "If current mode is one of `prelude-yank-indent-modes',
 indent yanked text (with prefix arg don't indent)."
-    (if (and (not (ad-get-arg 0))
-             (not (member major-mode prelude-indent-sensitive-modes))
-             (or (derived-mode-p 'prog-mode)
-                 (member major-mode prelude-yank-indent-modes)))
-        (let ((transient-mark-mode nil))
-          (yank-advised-indent-function (region-beginning) (region-end)))))
+      (if (and (not arg)
+               (not (member major-mode prelude-indent-sensitive-modes))
+               (or (derived-mode-p 'prog-mode)
+                   (member major-mode prelude-yank-indent-modes)))
+          (let ((transient-mark-mode nil))
+            (yank-advised-indent-function (region-beginning) (region-end))))))
+
+  (advice-add 'yank-pop :after 'yank-pop-indent
+    (lambda (&optional arg)
+      "If current mode is one of `prelude-yank-indent-modes',
+indent yanked text (with prefix arg don't indent)."
+      (if (and (not arg)
+               (not (member major-mode prelude-indent-sensitive-modes))
+               (or (derived-mode-p 'prog-mode)
+                   (member major-mode prelude-yank-indent-modes)))
+          (let ((transient-mark-mode nil))
+            (yank-advised-indent-function (region-beginning) (region-end))))))
 
   ;; abbrev config
   (add-hook 'text-mode-hook 'abbrev-mode)
