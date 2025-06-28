@@ -70,9 +70,6 @@
 (use-package gist
   :ensure t)
 
-(use-package git-timemachine
-  :ensure t)
-
 (use-package god-mode
   :ensure t)
 
@@ -100,16 +97,10 @@
 (use-package smartrep
   :ensure t)
 
-(use-package undo-tree
-  :ensure t)
-
 (use-package volatile-highlights
   :ensure t)
 
 (use-package which-key
-  :ensure t)
-
-(use-package zenburn-theme
   :ensure t)
 
 (use-package zop-to-char
