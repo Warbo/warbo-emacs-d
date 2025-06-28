@@ -15,6 +15,36 @@
 ;; Easily toggle truncation; helps on narrow phone screens
 (global-set-key (kbd "C-c C-t") 'toggle-truncate-lines)
 
+(use-package ace-window
+  :ensure t)
+
+(use-package anzu
+  :ensure t)
+
+(use-package avy
+  :ensure t)
+
+(use-package beacon
+  :ensure t)
+
+(use-package browse-kill-ring
+  :ensure t)
+
+(use-package crux
+  :ensure t)
+
+(use-package diff-hl
+  :ensure t)
+
+(use-package discover-my-major
+  :ensure t)
+
+(use-package easy-kill
+  :ensure t)
+
+(use-package epl
+  :ensure t)
+
 (use-package ag
   :ensure t)
 
@@ -33,13 +63,31 @@
                  nil
                  (window-parameters (mode-line-format . none)))))
 
+(use-package expand-region
+  :ensure t)
+
 (use-package fill-column-indicator
   :ensure t)
 
 (use-package flycheck
   :ensure t)
 
+(use-package gist
+  :ensure t)
+
 (use-package git-timemachine
+  :ensure t)
+
+(use-package god-mode
+  :ensure t)
+
+(use-package grizzl
+  :ensure t)
+
+(use-package guru-mode
+  :ensure t)
+
+(use-package imenu-anywhere
   :ensure t)
 
 (use-package marginalia
@@ -47,12 +95,27 @@
   :init
   (marginalia-mode))
 
+(use-package move-text
+  :ensure t)
+
+(use-package operate-on-number
+  :ensure t)
+
+(use-package ov
+  :ensure t)
+
 (use-package popup
   :ensure t)
 
 (use-package pretty-sha-path
   :ensure t
   :config (pretty-sha-path-global-mode))
+
+(use-package projectile
+  :ensure t)
+
+(use-package smartrep
+  :ensure t)
 
 (use-package undo-tree
   :ensure t
@@ -63,6 +126,12 @@
           undo-tree-auto-save-history nil  ;; Freezes Emacs on big XML files
           undo-tree-visualizer-lazy-drawing 1000)
     (global-undo-tree-mode)))
+
+(use-package volatile-highlights
+  :ensure t)
+
+(use-package which-key
+  :ensure t)
 
 (use-package zenburn-theme
   :ensure t
@@ -77,6 +146,9 @@
           ("zenburn-bg+2"  . "#313131")
           ("zenburn-bg+3"  . "#414141")))
   (load-theme 'zenburn t))
+
+(use-package zop-to-char
+  :ensure t)
 
 (use-package zygospore
   :ensure t
