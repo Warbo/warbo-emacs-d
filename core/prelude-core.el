@@ -128,33 +128,6 @@ PROMPT sets the `read-string prompt."
     (when after-init-time
       (eval form))))
 
-(require 'epl)
-
-(defun prelude-update ()
-  "Update Prelude to its latest version."
-  (interactive)
-  (when (y-or-n-p "Do you want to update Prelude? ")
-    (message "Updating installed packages...")
-    (epl-upgrade)
-    (message "Updating Prelude...")
-    (cd prelude-dir)
-    (shell-command "git pull")
-    (prelude-recompile-init)
-    (message "Update finished. Restart Emacs to complete the process.")))
-
-(defun prelude-update-packages (&optional arg)
-  "Update Prelude's packages.
-This includes package installed via `prelude-require-package'.
-
-With a prefix ARG updates all installed packages."
-  (interactive "P")
-  (when (y-or-n-p "Do you want to update Prelude's packages? ")
-    (if arg
-        (epl-upgrade)
-      (epl-upgrade (-filter (lambda (p) (memq (epl-package-name p) prelude-packages))
-                            (epl-installed-packages))))
-    (message "Update finished. Restart Emacs to complete the process.")))
-
 ;;; Emacs in OSX already has fullscreen support
 ;;; Emacs has a similar built-in command in 24.4
 (defun prelude-fullscreen ()

@@ -84,7 +84,6 @@
           ,(expand-file-name "core" user-emacs-directory)
           ,@args)))
 
-  (prelude-package prelude-packages)
   (prelude-package prelude-custom) ;; Needs to be loaded before core, editor and ui
   (prelude-package prelude-ui
                    :unless noninteractive)

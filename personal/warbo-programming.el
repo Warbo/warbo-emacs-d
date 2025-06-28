@@ -361,6 +361,14 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :mode "\\.proto\\'")
 
+(use-package puppet-mode
+  :ensure t
+  :mode "\\.pp\\'")
+
+(use-package rust-mode
+  :ensure t
+  :mode "\\.rs\\'")
+
 (use-package scala-mode
   :ensure t
   :mode "\\.scala\\'"
