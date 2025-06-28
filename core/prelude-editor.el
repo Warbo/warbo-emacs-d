@@ -53,6 +53,25 @@ The body of the advice is in BODY."
 
 ;; Group 1: Basic Editor Behavior and Tweaks
 (use-package emacs
+  :bind (("C-x \\" . align-regexp)
+         ("C-+" . text-scale-increase)
+         ("C--" . text-scale-decrease)
+         ("C-x O" . (lambda () (interactive) (other-window -1)))
+         ("C-x M-m" . shell)
+         ("C-<backspace>" . (lambda () (interactive) (kill-line 0) (indent-according-to-mode)))
+         ("M-/" . hippie-expand)
+         ("C-x C-b" . ibuffer)
+         ("<f12>" . menu-bar-mode)
+         :map help-command
+         ("A" . apropos)
+         ("C-f" . find-function)
+         ("C-k" . find-function-on-key)
+         ("C-v" . find-variable)
+         ("C-l" . find-library)
+         ("C-i" . info-display-manual)
+         :map isearch-mode-map
+         ("C-o" . isearch-occur)
+         )
   :config
   ;; Death to the tabs!  However, tabs historically indent to the next
   ;; 8-character offset; specifying anything else will cause *mass*
