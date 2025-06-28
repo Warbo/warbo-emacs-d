@@ -111,52 +111,167 @@ removing unwanted packages."
   (package-show-package-list
    (seq-difference package-activated-list prelude-packages)))
 
+(use-package clojure-mode
+  :ensure t
+  :mode "\\.clj\\'")
 
-;; Auto-install packages using use-package :mode
-(use-package clojure-mode :mode "\\.clj\\'")
-(use-package cmake-mode :mode ("\\.cmake\\'" "CMakeLists\\.txt\\'"))
-(use-package coffee-mode :mode "\\.coffee\\'")
-(use-package css-mode :mode "\\.css\\'")
-(use-package csv-mode :mode "\\.csv\\'")
-(use-package cask-mode :mode "Cask")
-(use-package d-mode :mode "\\.d\\'")
-(use-package dart-mode :mode "\\.dart\\'")
-(use-package elm-mode :mode "\\.elm\\'")
-(use-package elixir-mode :mode ("\\.ex\\'" "\\.exs\\'" "\\.elixir\\'"))
-(use-package erlang :mode "\\.erl\\'")
-(use-package feature-mode :mode "\\.feature\\'")
-(use-package go-mode :mode "\\.go\\'")
-(use-package groovy-mode :mode "\\.groovy\\'")
-(use-package haml-mode :mode "\\.haml\\'")
-(use-package haskell-mode :mode "\\.hs\\'")
-(use-package json-mode :mode "\\.json\\'")
-(use-package kotlin-mode :mode "\\.kt\\'")
-(use-package kivy-mode :mode "\\.kv\\'")
-(use-package auctex :mode "\\.latex\\'")
-(use-package less-css-mode :mode "\\.less\\'")
-(use-package lua-mode :mode "\\.lua\\'")
-;; markdown-mode handled separately to use gfm-mode
+(use-package cmake-mode
+  :ensure t
+  :mode ("\\.cmake\\'" "CMakeLists\\.txt\\'"))
+
+(use-package coffee-mode
+  :ensure t
+  :mode "\\.coffee\\'")
+
+(use-package css-mode
+  :ensure t
+  :mode "\\.css\\'")
+
+(use-package csv-mode
+  :ensure t
+  :mode "\\.csv\\'")
+
+(use-package cask-mode
+  :ensure t
+  :mode "Cask")
+
+(use-package d-mode
+  :ensure t
+  :mode "\\.d\\'")
+
+(use-package dart-mode
+  :ensure t
+  :mode "\\.dart\\'")
+
+(use-package elm-mode
+  :ensure t
+  :mode "\\.elm\\'")
+
+(use-package elixir-mode
+  :ensure t
+  :mode ("\\.ex\\'" "\\.exs\\'" "\\.elixir\\'"))
+
+(use-package erlang
+  :ensure t
+  :mode "\\.erl\\'")
+
+(use-package feature-mode
+  :ensure t
+  :mode "\\.feature\\'")
+
+(use-package go-mode
+  :ensure t
+  :mode "\\.go\\'")
+
+(use-package groovy-mode
+  :ensure t
+  :mode "\\.groovy\\'")
+
+(use-package haml-mode
+  :ensure t
+  :mode "\\.haml\\'")
+
+(use-package haskell-mode
+  :ensure t
+  :mode "\\.hs\\'")
+
+(use-package json-mode
+  :ensure t
+  :mode "\\.json\\'")
+
+(use-package kotlin-mode
+  :ensure t
+  :mode "\\.kt\\'")
+
+(use-package kivy-mode
+  :ensure t
+  :mode "\\.kv\\'")
+
+(use-package auctex
+  :ensure t
+  :mode "\\.latex\\'")
+
+(use-package less-css-mode
+  :ensure t
+  :mode "\\.less\\'")
+
+(use-package lua-mode
+  :ensure t
+  :mode "\\.lua\\'")
+
 (use-package markdown-mode
+  :ensure t
   :config
   (add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
   (add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode)))
-(use-package tuareg :mode "\\.ml\\'")
-(use-package puppet-mode :mode "\\.pp\\'")
-(use-package php-mode :mode "\\.php\\'")
-(use-package protobuf-mode :mode "\\.proto\\'")
-(use-package cython-mode :mode ("\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
-(use-package pkgbuild-mode :mode "PKGBUILD\\'")
-(use-package rust-mode :mode "\\.rs\\'")
-(use-package sass-mode :mode "\\.sass\\'")
-(use-package scala-mode :mode "\\.scala\\'")
-(use-package scss-mode :mode "\\.scss\\'")
-(use-package slim-mode :mode "\\.slim\\'")
-(use-package stylus-mode :mode "\\.styl\\'")
-(use-package swift-mode :mode "\\.swift\\'")
-(use-package textile-mode :mode "\\.textile\\'")
-(use-package thrift :mode "\\.thrift\\'")
-(use-package yaml-mode :mode ("\\.yml\\'" "\\.yaml\\'"))
-(use-package dockerfile-mode :mode "Dockerfile\\'")
+
+(use-package tuareg
+  :ensure t
+  :mode "\\.ml\\'")
+
+(use-package puppet-mode
+  :ensure t
+  :mode "\\.pp\\'")
+
+(use-package php-mode
+  :ensure t
+  :mode "\\.php\\'")
+
+(use-package protobuf-mode
+  :ensure t
+  :mode "\\.proto\\'")
+
+(use-package cython-mode
+  :ensure t
+  :mode ("\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
+
+(use-package pkgbuild-mode
+  :ensure t
+  :mode "PKGBUILD\\'")
+
+(use-package rust-mode
+  :ensure t
+  :mode "\\.rs\\'")
+
+(use-package sass-mode
+  :ensure t
+  :mode "\\.sass\\'")
+
+(use-package scala-mode
+  :ensure t
+  :mode "\\.scala\\'")
+
+(use-package scss-mode
+  :ensure t
+  :mode "\\.scss\\'")
+
+(use-package slim-mode
+  :ensure t
+  :mode "\\.slim\\'")
+
+(use-package stylus-mode
+  :ensure t
+  :mode "\\.styl\\'")
+
+(use-package swift-mode
+  :ensure t
+  :mode "\\.swift\\'")
+
+(use-package textile-mode
+  :ensure t
+  :mode "\\.textile\\'")
+
+(use-package thrift
+  :ensure t
+  :mode "\\.thrift\\'")
+
+(use-package yaml-mode
+  :ensure t
+  :mode ("\\.yml\\'" "\\.yaml\\'"))
+
+(use-package dockerfile-mode
+  :ensure t
+  :mode "Dockerfile\\'")
 
 (provide 'prelude-packages)
 ;; Local Variables:
