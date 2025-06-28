@@ -32,8 +32,6 @@
 
 ;;; Code:
 (require 'easymenu)
-(require 'imenu-anywhere)
-(require 'crux)
 
  (defvar prelude-mode-map
    (let ((map (make-sparse-keymap)))

@@ -274,7 +274,9 @@ with the string S. Unlike `replace-region-contents' this maintains text
          ("s-m m" . magit-status)
          ("s-m l" . magit-log)
          ("s-m f" . magit-log-buffer-file)
-         ("s-m b" . magit-blame))
+         ("s-m b" . magit-blame)
+         ("C-x M-g" . magit-dispatch-popup) ;; Moved from prelude-global-keybindings.el
+         )
   :init
   (setq magit-diff-paint-whitespace t)
   (setq magit-diff-highlight-trailing t)
@@ -455,7 +457,11 @@ with the string S. Unlike `replace-region-contents' this maintains text
                       flycheck-mode
                       lsp-lens-mode
                       beacon-mode
-                      pretty-sha-path-mode)))
+                      pretty-sha-path-mode
+                      volatile-highlights-mode ;; Moved from prelude-editor.el
+                      undo-tree-mode ;; Moved from prelude-editor.el
+                      anzu-mode ;; Moved from prelude-editor.el
+                      )))
 
 (use-package eglot
   :ensure t

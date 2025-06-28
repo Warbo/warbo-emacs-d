@@ -33,8 +33,6 @@
 ;;; Code:
 
 (require 'thingatpt)
-(require 'dash)
-(require 'ov)
 
 (defun prelude-search (query-url prompt)
   "Open the search url constructed with the QUERY-URL.
@@ -58,19 +56,6 @@ PROMPT sets the `read-string prompt."
 (prelude-install-search-engine "github"     "https://github.com/search?q="                 "Search GitHub: ")
 (prelude-install-search-engine "duckduckgo" "https://duckduckgo.com/?t=lm&q="              "Search DuckDuckGo: ")
 
-(defun prelude-todo-ov-evaporate (_ov _after _beg _end &optional _length)
-  (let ((inhibit-modification-hooks t))
-    (if _after (ov-reset _ov))))
-
-(defun prelude-annotate-todo ()
-  "Put fringe marker on TODO: lines in the curent buffer."
-  (interactive)
-  (ov-set (format "[[:space:]]*%s+[[:space:]]*TODO:" comment-start)
-          'before-string
-          (propertize (format "A")
-                      'display '(left-fringe right-triangle))
-          'modification-hooks '(prelude-todo-ov-evaporate)))
-
 (defun prelude-recompile-init ()
   "Byte-compile all your dotfiles again."
   (interactive)
@@ -87,12 +72,6 @@ This follows freedesktop standards, should work in X servers."
       (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
                              '(2 "_NET_WM_STATE_FULLSCREEN" 0))
     (error "Only X server is supported")))
-
-(defun prelude-wrap-with (s)
-  "Create a wrapper function for smartparens using S."
-  `(lambda (&optional arg)
-     (interactive "P")
-     (sp-wrap-with-pair ,s)))
 
 (provide 'prelude-core)
 ;;; prelude-core.el ends here

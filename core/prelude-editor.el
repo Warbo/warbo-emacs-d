@@ -92,9 +92,6 @@
 ;; disable annoying blink-matching-paren
 (setq blink-matching-paren nil)
 
-;; diminish keeps the modeline tidy
-(require 'diminish)
-
 ;; meaningful names for buffers with the same name
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
@@ -166,14 +163,9 @@ The body of the advice is in BODY."
 ;; highlight the current line
 (global-hl-line-mode +1)
 
-(require 'volatile-highlights)
-(volatile-highlights-mode t)
-(diminish 'volatile-highlights-mode)
-
 ;; note - this should be after volatile-highlights is required
 ;; add the ability to cut the current line, without marking it
 (require 'rect)
-(crux-with-region-or-line kill-region)
 
 ;; tramp, for sudo access
 (require 'tramp)
@@ -206,30 +198,10 @@ The body of the advice is in BODY."
 ;; enable erase-buffer command
 (put 'erase-buffer 'disabled nil)
 
-(require 'expand-region)
-
 ;; bookmarks
 (require 'bookmark)
 (setq bookmark-default-file (expand-file-name "bookmarks" prelude-savefile-dir)
       bookmark-save-flag 1)
-
-;; projectile is a project management mode
-(unless noninteractive (require 'projectile)
-        (setq projectile-cache-file (expand-file-name  "projectile.cache" prelude-savefile-dir))
-        (projectile-global-mode t))
-
-;; avy allows us to effectively navigate to visible things
-(require 'avy)
-(setq avy-background t)
-(setq avy-style 'at-full)
-
-;; anzu-mode enhances isearch & query-replace by showing total matches and current match position
-(require 'anzu)
-(diminish 'anzu-mode)
-(global-anzu-mode)
-
-(global-set-key (kbd "M-%") 'anzu-query-replace)
-(global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
 
 ;; dired - reuse current buffer by pressing 'a'
 (put 'dired-find-alternate-file 'disabled nil)
@@ -251,11 +223,6 @@ The body of the advice is in BODY."
 
 ;; clean up obsolete buffers automatically
 (require 'midnight)
-
-;; smarter kill-ring navigation
-(require 'browse-kill-ring)
-(browse-kill-ring-default-keybindings)
-(global-set-key (kbd "s-y") 'browse-kill-ring)
 
 (defadvice exchange-point-and-mark (before deactivate-mark activate compile)
   "When called with no active region, do not activate mark."
@@ -335,38 +302,8 @@ indent yanked text (with prefix arg don't indent)."
 ;; enable Prelude's keybindings
 (prelude-global-mode t)
 
-;; sensible undo
-(global-undo-tree-mode)
-(diminish 'undo-tree-mode)
-
 ;; enable winner-mode to manage window configurations
 (winner-mode +1)
-
-;; diff-hl
-(global-diff-hl-mode +1)
-(add-hook 'dired-mode-hook 'diff-hl-dired-mode)
-
-
-;; easy-kill
-(global-set-key [remap kill-ring-save] 'easy-kill)
-(global-set-key [remap mark-sexp] 'easy-mark)
-
-;; operate-on-number
-(require 'operate-on-number)
-(require 'smartrep)
-
-(smartrep-define-key global-map "C-c ."
-  '(("+" . apply-operation-to-number-at-point)
-    ("-" . apply-operation-to-number-at-point)
-    ("*" . apply-operation-to-number-at-point)
-    ("/" . apply-operation-to-number-at-point)
-    ("\\" . apply-operation-to-number-at-point)
-    ("^" . apply-operation-to-number-at-point)
-    ("<" . apply-operation-to-number-at-point)
-    (">" . apply-operation-to-number-at-point)
-    ("#" . apply-operation-to-number-at-point)
-    ("%" . apply-operation-to-number-at-point)
-    ("'" . operate-on-number-at-point)))
 
 (defadvice server-visit-files (before parse-numbers-in-lines (files proc &optional nowait) activate)
   "Open file with emacsclient with cursors positioned on requested line.

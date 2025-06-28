@@ -44,8 +44,6 @@
                                 (interactive)
                                 (other-window -1))) ;; back one
 
-;; Indentation help
-(global-set-key (kbd "C-^") 'crux-top-join-line)
 ;; Start proced in a similar manner to dired
 (unless (eq system-type 'darwin)
     (global-set-key (kbd "C-x p") 'proced))
@@ -65,9 +63,6 @@
 ;; A complementary binding to the apropos-command (C-h a)
 (define-key 'help-command "A" 'apropos)
 
-;; A quick major mode help with discover-my-major
-(define-key 'help-command (kbd "C-m") 'discover-my-major)
-
 (define-key 'help-command (kbd "C-f") 'find-function)
 (define-key 'help-command (kbd "C-k") 'find-function-on-key)
 (define-key 'help-command (kbd "C-v") 'find-variable)
@@ -75,17 +70,11 @@
 
 (define-key 'help-command (kbd "C-i") 'info-display-manual)
 
-;; replace zap-to-char functionaity with the more powerful zop-to-char
-(global-set-key (kbd "M-z") 'zop-up-to-char)
-(global-set-key (kbd "M-Z") 'zop-to-char)
-
 ;; kill lines backward
 (global-set-key (kbd "C-<backspace>") (lambda ()
                                         (interactive)
                                         (kill-line 0)
                                         (indent-according-to-mode)))
-
-(global-set-key [remap kill-whole-line] 'crux-kill-whole-line)
 
 ;; Activate occur easily inside isearch
 (define-key isearch-mode-map (kbd "C-o") 'isearch-occur)
@@ -102,14 +91,8 @@
 ;; toggle menu-bar visibility
 (global-set-key (kbd "<f12>") 'menu-bar-mode)
 
-(global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
-
-(global-set-key (kbd "C-=") 'er/expand-region)
-
-(global-set-key (kbd "C-c j") 'avy-goto-word-or-subword-1)
-(global-set-key (kbd "s-.") 'avy-goto-word-or-subword-1)
-(global-set-key (kbd "s-w") 'ace-window)
+;; Duplicate keybinding, magit-status is already bound in personal/warbo-programming.el
+;; (global-set-key (kbd "C-x g") 'magit-status)
 
 (provide 'prelude-global-keybindings)
 
