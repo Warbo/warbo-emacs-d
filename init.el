@@ -88,7 +88,6 @@
   (prelude-package prelude-ui
                    :unless noninteractive)
   (prelude-package prelude-core)
-  (prelude-package prelude-mode)
   (prelude-package prelude-editor)
   (prelude-package prelude-global-keybindings))
 

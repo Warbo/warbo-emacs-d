@@ -451,7 +451,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
                       eldoc-mode
                       visual-line-mode
                       smartparens-mode
-                      prelude-mode
                       flycheck-mode
                       lsp-lens-mode
                       beacon-mode
