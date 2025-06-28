@@ -97,9 +97,6 @@
 (use-package flycheck
   :ensure t)
 
-(use-package gist
-  :ensure t)
-
 (use-package git-timemachine
   :ensure t)
 

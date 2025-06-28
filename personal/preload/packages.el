@@ -80,8 +80,6 @@
 
 ;; (use-package gh)
 
-;; (use-package gist)
-
 ;; (use-package git-commit)
 
 ;; (use-package gitconfig-mode)
