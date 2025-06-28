@@ -240,29 +240,31 @@
 
 (use-package smartparens
   :ensure t
+  :hook (prog-mode . smartparens-mode)
   :config
-  ;; Disable smartparens mode, as it's really slow
-  ;; CONFLICT: prelude-editor.el enabled this globally (+1)
+  ;; Disable smartparens mode globally, as it's really slow
   (show-smartparens-global-mode -1)
 
-  ;; Moved from prelude-editor.el
   (setq sp-base-key-bindings 'paredit)
   (setq sp-autoskip-closing-pair 'always)
   (setq sp-hybrid-kill-entire-symbol nil)
   (sp-use-paredit-bindings)
 
-  ;; Moved from prelude-editor.el
   (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
   ;; FIXME: pick terminal friendly binding
   ;; (define-key prog-mode-map (kbd "M-[") (prelude-wrap-with "["))
   (define-key prog-mode-map (kbd "M-\"") (prelude-wrap-with "\""))
 
-  ;; Moved from prelude-core.el
-  (defun prelude-wrap-with (s)
-    "Create a wrapper function for smartparens using S."
-    `(lambda (&optional arg)
-       (interactive "P")
-       (sp-wrap-with-pair ,s))))
+  ;; smart curly braces
+  (sp-pair "{" nil :post-handlers
+           '(((lambda (&rest _ignored)
+                (crux-smart-open-line-above)) "RET"))))
+
+(defun prelude-wrap-with (s)
+  "Create a wrapper function for smartparens using S."
+  `(lambda (&optional arg)
+     (interactive "P")
+     (sp-wrap-with-pair ,s)))
 
 ;; Hovering tooltips are annoying
 ;(setq tooltip-use-echo-area t)

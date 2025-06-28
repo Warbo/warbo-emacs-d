@@ -389,8 +389,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :mode "\\.slim\\'")
 
-(use-package smartparens
-  :ensure t)
 
 (use-package stylus-mode
   :ensure t
@@ -646,18 +644,12 @@ with the string S. Unlike `replace-region-contents' this maintains text
           (lambda ()
             (when (executable-find ispell-program-name)
               (flyspell-prog-mode))
-            (smartparens-mode +1)
             (set (make-local-variable 'comment-auto-fill-only-comments) t)
 
             ;; Highlight a bunch of well known comment annotations.
             (font-lock-add-keywords
              nil '(("\\<\\(\\(FIX\\(ME\\)?\\|TODO\\|OPTIMIZE\\|HACK\\|REFACTOR\\):\\)"
                     1 font-lock-warning-face t)))))
-
-;; smart curly braces
-(sp-pair "{" nil :post-handlers
-         '(((lambda (&rest _ignored)
-              (crux-smart-open-line-above)) "RET")))
 
 ;; Enable on-the-fly syntax checking
 (if (fboundp 'global-flycheck-mode)
