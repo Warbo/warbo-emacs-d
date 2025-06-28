@@ -46,7 +46,8 @@
 (use-package crux
   :ensure t
   :bind (("C-^" . crux-top-join-line)
-         ([remap kill-whole-line] . crux-kill-whole-line))
+         ([remap kill-whole-line] . crux-kill-whole-line)
+         ("C-c r" . crux-rename-buffer-and-file))
   :config
   (crux-with-region-or-line kill-region))
 

@@ -35,7 +35,6 @@
 
  (defvar prelude-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map (kbd "C-c r") 'crux-rename-buffer-and-file)
      map)
    "Keymap for Prelude mode.")
 
