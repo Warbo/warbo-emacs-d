@@ -33,73 +33,99 @@
 
 ;;; Code:
 (require 'package)
-(require 'seq)
 
-;; TODO: Switch all this to use-package!
+(use-package ace-window
+  :ensure t)
 
-(defvar prelude-packages
-  '(ace-window
-    avy
-    anzu
-    beacon
-    browse-kill-ring
-    crux
-    dash
-    discover-my-major
-    diff-hl
-    diminish
-    easy-kill
-    epl
-    expand-region
-    flycheck
-    gist
-    git-timemachine
-    god-mode
-    grizzl
-    guru-mode
-    imenu-anywhere
-    ov
-    projectile
-    move-text
-    operate-on-number
-    ;;smart-mode-line
-    smartparens
-    smartrep
-    undo-tree
-    volatile-highlights
-    which-key
-    zenburn-theme
-    zop-to-char)
-  "A list of packages to ensure are installed at launch.")
+(use-package avy
+  :ensure t)
 
-(defun prelude-packages-installed-p ()
-  "Check if all packages in `prelude-packages' are installed."
-  (seq-every-p #'package-installed-p prelude-packages))
+(use-package anzu
+  :ensure t)
 
-(defun prelude-require-package (package)
-  "Install PACKAGE unless already installed."
-  (unless (memq package prelude-packages)
-    (add-to-list 'prelude-packages package))
-  (unless (package-installed-p package)
-    (package-install package)))
+(use-package beacon
+  :ensure t)
 
-(defun prelude-require-packages (packages)
-  "Ensure PACKAGES are installed.
-Missing packages are installed automatically."
-  (mapc #'prelude-require-package packages))
+(use-package browse-kill-ring
+  :ensure t)
 
-(defun prelude-install-packages ()
-  "Install all packages listed in `prelude-packages'."
-  (unless (prelude-packages-installed-p)
-    ;; check for new packages (package versions)
-    (message "%s" "Emacs Prelude is now refreshing its package database...")
-    ;(package-refresh-contents)
-    (message "%s" " done.")
-    ;; install the missing packages
-    (prelude-require-packages prelude-packages)))
+(use-package crux
+  :ensure t)
 
-;; run package installation
-(prelude-install-packages)
+(use-package dash
+  :ensure t)
+
+(use-package discover-my-major
+  :ensure t)
+
+(use-package diff-hl
+  :ensure t)
+
+(use-package diminish
+  :ensure t)
+
+(use-package easy-kill
+  :ensure t)
+
+(use-package epl
+  :ensure t)
+
+(use-package expand-region
+  :ensure t)
+
+(use-package flycheck
+  :ensure t)
+
+(use-package gist
+  :ensure t)
+
+(use-package git-timemachine
+  :ensure t)
+
+(use-package god-mode
+  :ensure t)
+
+(use-package grizzl
+  :ensure t)
+
+(use-package guru-mode
+  :ensure t)
+
+(use-package imenu-anywhere
+  :ensure t)
+
+(use-package ov
+  :ensure t)
+
+(use-package projectile
+  :ensure t)
+
+(use-package move-text
+  :ensure t)
+
+(use-package operate-on-number
+  :ensure t)
+
+(use-package smartparens
+  :ensure t)
+
+(use-package smartrep
+  :ensure t)
+
+(use-package undo-tree
+  :ensure t)
+
+(use-package volatile-highlights
+  :ensure t)
+
+(use-package which-key
+  :ensure t)
+
+(use-package zenburn-theme
+  :ensure t)
+
+(use-package zop-to-char
+  :ensure t)
 
 (use-package clojure-mode
   :ensure t
