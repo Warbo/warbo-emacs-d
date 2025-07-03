@@ -113,21 +113,6 @@
   (global-hl-line-mode +1)
 
   ;; Advice for basic commands
-  (advice-add 'set-buffer-major-mode :after 'set-major-mode
-    (lambda ()
-      "Set buffer major mode according to `auto-mode-alist'."
-      (let* ((name (buffer-name buffer))
-             (mode (assoc-default name auto-mode-alist 'string-match)))
-        (when (and mode (consp mode))
-          (setq mode (car mode)))
-        (with-current-buffer buffer (if mode (funcall mode))))))
-
-  (advice-add 'exchange-point-and-mark :before 'deactivate-mark
-    (lambda ()
-      "When called with no active region, do not activate mark."
-      (interactive
-       (list (not (region-active-p))))))
-
   (with-region-or-buffer indent-region)
   (with-region-or-buffer untabify)
 
