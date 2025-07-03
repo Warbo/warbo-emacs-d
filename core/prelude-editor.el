@@ -35,11 +35,12 @@
 ;; Helper macros (kept outside use-package for now)
 (defmacro with-region-or-buffer (func)
   "When called with no active region, call FUNC on current buffer."
-  `(defadvice ,func (before with-region-or-or-buffer activate compile)
-     (interactive
-      (if mark-active
-          (list (region-beginning) (region-end))
-        (list (point-min) (point-max))))))
+  `(advice-add ',func :before
+               (lambda ()
+                 (interactive
+                  (if mark-active
+                      (list (region-beginning) (region-end))
+                    (list (point-min) (point-max)))))))
 
 ;; Group 1: Basic Editor Behavior and Tweaks
 (use-package emacs
