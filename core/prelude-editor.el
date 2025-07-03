@@ -181,24 +181,23 @@ indent yanked text (with prefix arg don't indent)."
   (add-hook 'compilation-filter-hook #'prelude-colorize-compilation-buffer)
 
   ;; server-visit-files advice
-  (defadvice server-visit-files (before parse-numbers-in-lines (files proc &optional nowait) activate)
-    "Open file with emacsclient with cursors positioned on requested line.
-Most of console-based utilities prints filename in format
-'filename:linenumber'.  So you may wish to open filename in that format.
-Just call:
-
-  emacsclient filename:linenumber
-
-and file 'filename' will be opened and cursor set on line 'linenumber'"
-    (ad-set-arg 0
-                (mapcar (lambda (fn)
-                          (let ((name (car fn)))
-                            (if (string-match "^\\(.*?\\):\\([0-9]+\\)\\(?::\\([0-9]+\\)\\)?$" name)
-                                (cons
-                                 (match-string 1 name)
-                                 (cons (string-to-number (match-string 2 name))
-                                       (string-to-number (or (match-string 3 name) ""))))
-                              fn))) files)))
+  (advice-add 'server-visit-files :filter-args
+              (lambda (args)
+                "Filter arguments for `server-visit-files` to handle filename:linenumber."
+                (let ((files (car args))
+                      (proc (cadr args))
+                      (nowait (caddr args)))
+                  (list
+                   (mapcar (lambda (fn)
+                             (let ((name (car fn)))
+                               (if (string-match "^\\(.*?\\):\\([0-9]+\\)\\(?::\\([0-9]+\\)\\)?$" name)
+                                   (cons
+                                    (match-string 1 name)
+                                    (cons (string-to-number (match-string 2 name))
+                                          (string-to-number (or (match-string 3 name) ""))))
+                                 fn))) files)
+                   proc
+                   nowait))))
   )
 
 ;; Group 2: File/Buffer Management
