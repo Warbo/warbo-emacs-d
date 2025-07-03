@@ -88,11 +88,7 @@
   (prelude-package prelude-ui
                    :unless noninteractive)
   (prelude-package prelude-core)
-  (prelude-package prelude-editor)
-  (prelude-package prelude-global-keybindings)) ; prelude-global-keybindings is loaded here
-
-;; enable Prelude's global keybindings after the package is loaded
-(prelude-global-mode t)
+  (prelude-package prelude-editor))
 
 (let ((personal-dir
        (expand-file-name "personal" user-emacs-directory)))

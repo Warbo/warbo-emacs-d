@@ -61,6 +61,8 @@
          ("C-i" . info-display-manual)
          :map isearch-mode-map
          ("C-o" . isearch-occur)
+         ("C-x p" . proced)
+         ("C-x C-m" . smex)
          )
   :config
   ;; Death to the tabs!  However, tabs historically indent to the next
