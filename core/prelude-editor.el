@@ -351,10 +351,6 @@ indent yanked text (with prefix arg don't indent)."
   ;; enable winner-mode to manage window configurations
   (winner-mode +1))
 
-;; This should probably stay outside use-package as it's a core prelude function call
-;; enable Prelude's keybindings
-(prelude-global-mode t)
-
 (provide 'prelude-editor)
 
 ;;; prelude-editor.el ends here
