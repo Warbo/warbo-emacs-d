@@ -55,9 +55,6 @@
 (use-package quelpa
   :ensure t)
 
-(use-package quelpa-use-package
-  :ensure t)
-
 ;; Set PATH and 'exec-path', so external commands will work.
 (use-package exec-path-from-shell
   :commands exec-path-from-shell-initialize
@@ -66,14 +63,8 @@
   :config
   (exec-path-from-shell-initialize))
 
-(defvar prelude-dir (file-name-directory load-file-name)
+(defvar prelude-dir user-emacs-directory
   "The root dir of the Emacs Prelude distribution.")
-(defvar prelude-personal-dir (expand-file-name "personal" prelude-dir)
-  "This directory is for your personal configuration.
-
-Users of Emacs Prelude are encouraged to keep their personal configuration
-changes in this directory.  All Emacs Lisp files there are loaded automatically
-by Prelude.")
 (defvar prelude-savefile-dir (expand-file-name "savefile" prelude-dir)
   "This folder stores all the automatically generated save/history-files.")
 
@@ -83,25 +74,37 @@ by Prelude.")
 ;; add Prelude's directories to Emacs's `load-path'
 (add-to-list 'load-path (expand-file-name "core" prelude-dir))
 
-(require 'prelude-packages)
-(require 'prelude-custom)  ;; Needs to be loaded before core, editor and ui
+;; Use cl-macrolet to avoid repeating ourselves, and to ensure :load-path gets a
+;; literal value (other expressions, like function calls, won't work).
+(cl-macrolet
+    ((prelude-package (name &rest args)
+       `(use-package ,name
+          :demand t
+          :load-path
+          ,(expand-file-name "core" user-emacs-directory)
+          ,@args)))
 
-(unless noninteractive
-  (require 'prelude-ui))
+  (prelude-package prelude-custom) ;; Needs to be loaded before core, editor and ui
+  (prelude-package prelude-ui
+                   :unless noninteractive)
+  (prelude-package prelude-core)
+  (prelude-package prelude-editor))
 
-(require 'prelude-core)
-(require 'prelude-mode)
-(require 'prelude-editor)
-(require 'prelude-global-keybindings)
-
-;; Config changes made through the customize UI will be stored in custom.el
-(add-to-list 'load-path prelude-personal-dir)
-(setq custom-file (expand-file-name "custom.el" prelude-personal-dir))
-(load custom-file)
-(load (expand-file-name "flycheck-custom.el" prelude-personal-dir))
+(let ((personal-dir
+       (expand-file-name "personal" user-emacs-directory)))
+  ;; Config changes made through the customize UI will be stored in custom.el
+  (add-to-list 'load-path personal-dir)
+  (setq custom-file (expand-file-name "custom.el" personal-dir))
+  (load custom-file)
+  (load (expand-file-name "flycheck-custom.el" personal-dir)))
 
 ;; Most of our custom functionality lives in personal/warbo.el
-(use-package warbo)
+(cl-macrolet
+    ((in-personal (name)
+       `(use-package ,name
+         :load-path
+         ,(expand-file-name "personal" user-emacs-directory))))
+  (in-personal warbo))
 
 (message "Finished init.el")
 

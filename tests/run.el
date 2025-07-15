@@ -1,9 +1,7 @@
-(message "Loading init.el")
-(load "~/.emacs.d/init.el")
-
-(message "Loading *-tests.el files")
-(let ((load-test `(lambda (f) (load  (concat "~/.emacs.d/tests/" f)))))
-  (mapcar load-test (directory-files "~/.emacs.d/tests" nil ".*-tests\.el")))
-
-(message "Running tests")
+(require 'files)
+(let ((default-directory user-emacs-directory))
+  (load-file "early-init.el")
+  (load-file "init.el"))
+(let ((default-directory (expand-file-name "tests" user-emacs-directory)))
+  (mapcar 'load-file (directory-files default-directory nil ".*-tests\.el")))
 (ert-run-tests-batch-and-exit (getenv "EMACS_TEST_REGEX"))

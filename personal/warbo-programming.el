@@ -41,6 +41,34 @@
   :ensure t
   :hook (prog-mode . rainbow-identifiers-mode))
 
+(use-package auctex
+  :ensure t
+  :mode "\\.latex\\'")
+
+(use-package cask-mode
+  :ensure t
+  :mode "Cask")
+
+(use-package clojure-mode
+  :ensure t
+  :mode "\\.clj\\'")
+
+(use-package cmake-mode
+  :ensure t
+  :mode ("\\.cmake\\'" "CMakeLists\\.txt\\'"))
+
+(use-package coffee-mode
+  :ensure t
+  :mode "\\.coffee\\'")
+
+(use-package css-mode
+  :ensure t
+  :mode "\\.css\\'")
+
+(use-package csv-mode
+  :ensure t
+  :mode "\\.csv\\'")
+
 (use-package cue-mode
   :ensure t
   :after reformatter
@@ -50,6 +78,18 @@
   :config
   (add-hook 'cue-mode-hook 'cue-format-on-save-mode))
 
+(use-package cython-mode
+  :ensure t
+  :mode ("\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
+
+(use-package d-mode
+  :ensure t
+  :mode "\\.d\\'")
+
+(use-package dart-mode
+  :ensure t
+  :mode "\\.dart\\'")
+
 ;(use-package direnv
 ;  :ensure t
 ;  :init
@@ -58,9 +98,42 @@
 ;  (add-to-list 'direnv-non-file-modes 'shell-mode)
 ;  (direnv-mode))
 
+(use-package dockerfile-mode
+  :ensure t
+  :mode "Dockerfile\\'")
+
+(use-package elixir-mode
+  :ensure t
+  :mode ("\\.ex\\'" "\\.exs\\'" "\\.elixir\\'"))
+
+(use-package elm-mode
+  :ensure t
+  :mode "\\.elm\\'")
+
+(use-package erlang
+  :ensure t
+  :mode "\\.erl\\'")
+
+(use-package feature-mode
+  :ensure t
+  :mode "\\.feature\\'")
+
+(use-package go-mode
+  :ensure t
+  :mode "\\.go\\'")
+
+(use-package groovy-mode
+  :ensure t
+  :mode "\\.groovy\\'")
+
+(use-package haml-mode
+  :ensure t
+  :mode "\\.haml\\'")
+
 (use-package xref-union
   :ensure t
   :hook haskell-mode
+  :mode "\\.hs\\'"
   :config
   (setq tags-revert-without-query 1)
 
@@ -124,14 +197,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
                        (point-min)
                        (point-max))
 
-                      ;; This is commonly used for the output of Haskell
-                      ;; Show instances, which looks enough like Haskell
-                      ;; code for haskell-mode syntax highlighting to work.
-                      ;;(haskell-font-lock-defaults-create)
-                      ;;(font-lock-ensure)
-                      ;;(haskell-mode)
-                      ;;(haskell-font-lock-fontify-block 'shell-mode (point-min) (point-max))
-
                       ;; Enable a simple prog-mode like json-mode, which will
                       ;; give us rainbow-delimiters and rainbow-identifiers
                       (json-mode)
@@ -186,11 +251,28 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t)
 
 (use-package json-mode
-  :ensure t)
+  :ensure t
+  :mode "\\.json\\'")
 
 (use-package jq-mode
   :ensure t
   :mode ("\\.jq" . jq-mode))
+
+(use-package kotlin-mode
+  :ensure t
+  :mode "\\.kt\\'")
+
+(use-package kivy-mode
+  :ensure t
+  :mode "\\.kv\\'")
+
+(use-package less-css-mode
+  :ensure t
+  :mode "\\.less\\'")
+
+(use-package lua-mode
+  :ensure t
+  :mode "\\.lua\\'")
 
 ;; Unset some conflicting keybindings before binding them to magit
 (global-unset-key (kbd "s-m"))
@@ -207,11 +289,16 @@ with the string S. Unlike `replace-region-contents' this maintains text
          ("s-m m" . magit-status)
          ("s-m l" . magit-log)
          ("s-m f" . magit-log-buffer-file)
-         ("s-m b" . magit-blame))
+         ("s-m b" . magit-blame)
+         ("C-x M-g" . magit-dispatch-popup) ;; Moved from prelude-global-keybindings.el
+         )
   :init
   (setq magit-diff-paint-whitespace t)
   (setq magit-diff-highlight-trailing t)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+
+  ;; From https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
+  (setq magit-tramp-pipe-stty-settings 'pty)
 
   (transient-append-suffix 'magit-log "o"
     '("R" "reflog objects" my/magit-log-reflog)))
@@ -251,6 +338,16 @@ with the string S. Unlike `replace-region-contents' this maintains text
                 (setq whitespace-style '(face tab-mark trailing))
                       indent-tabs-mode t))))
 
+(use-package markdown-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
+  (add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode)))
+
+(defun warbo-remove-bel (text)
+  "Remove BEL characters (^G) from TEXT."
+  (replace-regexp-in-string "\C-g" "" text))
+
 (use-package nix-mode
   :ensure t
   :after reformatter
@@ -258,18 +355,79 @@ with the string S. Unlike `replace-region-contents' this maintains text
   (add-hook 'nix-mode-hook 'nix-format-on-save-mode)
   ;; nix-mode can run nixfmt, but it can't specify commandline args like "-w 80"
   ;; so we prefer reformatter.
-  (setq nix-nixfmt-bin nil))
+  (setq nix-nixfmt-bin nil)
+
+  (defun warbo-filter-bel ()
+    "`nix-repl-completion-at-point' can leave ^G (BEL chars) in the buffer."
+    (save-excursion
+      (goto-char (point-min))
+      (while (search-forward "\C-g" nil t)
+        (replace-match ""))))
+
+  (advice-add 'nix-repl-completion-at-point :after 'warbo-filter-bel))
+
+(use-package php-mode
+  :ensure t
+  :mode "\\.php\\'")
+
+(use-package pkgbuild-mode
+  :ensure t
+  :mode "PKGBUILD\\'")
+
+(use-package protobuf-mode
+  :ensure t
+  :mode "\\.proto\\'")
+
+(use-package puppet-mode
+  :ensure t
+  :mode "\\.pp\\'")
+
+(use-package rust-mode
+  :ensure t
+  :mode "\\.rs\\'")
 
 (use-package scala-mode
   :ensure t
+  :mode "\\.scala\\'"
   :config
   (add-hook 'scala-mode-hook 'scala-format-on-save-mode))
 
-(use-package smartparens
-  :ensure t)
+(use-package sass-mode
+  :ensure t
+  :mode "\\.sass\\'")
+
+(use-package scss-mode
+  :ensure t
+  :mode "\\.scss\\'")
+
+(use-package slim-mode
+  :ensure t
+  :mode "\\.slim\\'")
+
+
+(use-package stylus-mode
+  :ensure t
+  :mode "\\.styl\\'")
+
+(use-package swift-mode
+  :ensure t
+  :mode "\\.swift\\'")
+
+(use-package textile-mode
+  :ensure t
+  :mode "\\.textile\\'")
+
+(use-package thrift
+  :ensure t
+  :mode "\\.thrift\\'")
+
+(use-package tuareg
+  :ensure t
+  :mode "\\.ml\\'")
 
 (use-package yaml-mode
   :ensure t
+  :mode ("\\.yml\\'" "\\.yaml\\'")
   :config
   (add-hook 'yaml-mode-hook 'yamlfix-format-on-save-mode))
 
@@ -308,11 +466,14 @@ with the string S. Unlike `replace-region-contents' this maintains text
                       eldoc-mode
                       visual-line-mode
                       smartparens-mode
-                      prelude-mode
                       flycheck-mode
                       lsp-lens-mode
                       beacon-mode
-                      pretty-sha-path-mode)))
+                      pretty-sha-path-mode
+                      volatile-highlights-mode ;; Moved from prelude-editor.el
+                      undo-tree-mode ;; Moved from prelude-editor.el
+                      anzu-mode ;; Moved from prelude-editor.el
+                      )))
 
 (use-package eglot
   :ensure t
@@ -497,18 +658,12 @@ with the string S. Unlike `replace-region-contents' this maintains text
           (lambda ()
             (when (executable-find ispell-program-name)
               (flyspell-prog-mode))
-            (smartparens-mode +1)
             (set (make-local-variable 'comment-auto-fill-only-comments) t)
 
             ;; Highlight a bunch of well known comment annotations.
             (font-lock-add-keywords
              nil '(("\\<\\(\\(FIX\\(ME\\)?\\|TODO\\|OPTIMIZE\\|HACK\\|REFACTOR\\):\\)"
                     1 font-lock-warning-face t)))))
-
-;; smart curly braces
-(sp-pair "{" nil :post-handlers
-         '(((lambda (&rest _ignored)
-              (crux-smart-open-line-above)) "RET")))
 
 ;; Enable on-the-fly syntax checking
 (if (fboundp 'global-flycheck-mode)

@@ -41,17 +41,17 @@
                              r-status ": " r-desc "$")))
 
     ;; Components of the line
-    (string-match r-line line)
-    (let* ((id            (match-string-no-properties 1 line))
-           (comments      (match-string-no-properties 2 line))
-           (status        (match-string-no-properties 3 line))
-           (description   (match-string-no-properties 4 line))
-           (comment-count (string-to-number comments)))
-      `(id            ,id
-        index         0
-        comment-count ,comment-count
-        status        ,status
-        description   ,description))))
+    (when (string-match r-line line)
+        (let* ((id            (match-string-no-properties 1 line))
+               (comments      (match-string-no-properties 2 line))
+               (status        (match-string-no-properties 3 line))
+               (description   (match-string-no-properties 4 line))
+               (comment-count (string-to-number comments)))
+          `(id            ,id
+            index         0
+            comment-count ,comment-count
+            status        ,status
+            description   ,description)))))
 
 (defun issue-artemis-lines ()
   "Parse all of the lines from an 'artemis list' command."

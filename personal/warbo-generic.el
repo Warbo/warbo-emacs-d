@@ -15,6 +15,60 @@
 ;; Easily toggle truncation; helps on narrow phone screens
 (global-set-key (kbd "C-c C-t") 'toggle-truncate-lines)
 
+(use-package ace-window
+  :ensure t
+  :bind (("s-w" . ace-window)))
+
+(use-package anzu
+  :ensure t
+  :bind (("M-%" . anzu-query-replace)
+         ("C-M-%" . anzu-query-replace-regexp))
+  :config
+  (global-anzu-mode))
+
+(use-package avy
+  :ensure t
+  :bind (("C-c j" . avy-goto-word-or-subword-1)
+         ("s-." . avy-goto-word-or-subword-1))
+  :custom
+  (avy-background t)
+  (avy-style 'at-full))
+
+(use-package beacon
+  :ensure t)
+
+(use-package browse-kill-ring
+  :ensure t
+  :bind (("s-y" . browse-kill-ring))
+  :config
+  (browse-kill-ring-default-keybindings))
+
+(use-package crux
+  :ensure t
+  :bind (("C-^" . crux-top-join-line)
+         ([remap kill-whole-line] . crux-kill-whole-line)
+         ("C-c r" . crux-rename-buffer-and-file))
+  :config
+  (crux-with-region-or-line kill-region))
+
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode +1)
+  (add-hook 'dired-mode-hook 'diff-hl-dired-mode))
+
+(use-package discover-my-major
+  :ensure t
+  :bind (:map help-command ("C-m" . discover-my-major)))
+
+(use-package easy-kill
+  :ensure t
+  :bind ([remap kill-ring-save] . easy-kill)
+        ([remap mark-sexp] . easy-mark))
+
+(use-package epl
+  :ensure t)
+
 (use-package ag
   :ensure t)
 
@@ -33,6 +87,10 @@
                  nil
                  (window-parameters (mode-line-format . none)))))
 
+(use-package expand-region
+  :ensure t
+  :bind (("C-=" . er/expand-region)))
+
 (use-package fill-column-indicator
   :ensure t)
 
@@ -42,10 +100,45 @@
 (use-package git-timemachine
   :ensure t)
 
+(use-package god-mode
+  :ensure t)
+
+(use-package grizzl
+  :ensure t)
+
+(use-package guru-mode
+  :ensure t)
+
+(use-package imenu-anywhere
+  :ensure t)
+
 (use-package marginalia
   :ensure t
   :init
   (marginalia-mode))
+
+(use-package move-text
+  :ensure t)
+
+(use-package operate-on-number
+  :ensure t)
+
+(use-package ov
+  :ensure t
+  :config
+  (defun prelude-todo-ov-evaporate (_ov _after _beg _end &optional _length)
+    "Helper for `prelude-annotate-todo'."
+    (let ((inhibit-modification-hooks t))
+      (if _after (ov-reset _ov))))
+
+  (defun prelude-annotate-todo ()
+    "Put fringe marker on TODO: lines in the curent buffer."
+    (interactive)
+    (ov-set (format "[[:space:]]*%s+[[:space:]]*TODO:" comment-start)
+            'before-string
+            (propertize (format "A")
+                        'display '(left-fringe right-triangle))
+            'modification-hooks '(prelude-todo-ov-evaporate))))
 
 (use-package popup
   :ensure t)
@@ -53,6 +146,30 @@
 (use-package pretty-sha-path
   :ensure t
   :config (pretty-sha-path-global-mode))
+
+(use-package projectile
+  :ensure t
+  :config
+  ;; projectile is a project management mode
+  (unless noninteractive
+    (setq projectile-cache-file (expand-file-name  "projectile.cache" prelude-savefile-dir))
+    (projectile-global-mode t)))
+
+(use-package smartrep
+  :ensure t
+  :config
+  (smartrep-define-key global-map "C-c ."
+    '(("+" . apply-operation-to-number-at-point)
+      ("-" . apply-operation-to-number-at-point)
+      ("*" . apply-operation-to-number-at-point)
+      ("/" . apply-operation-to-number-at-point)
+      ("\\" . apply-operation-to-number-at-point)
+      ("^" . apply-operation-to-number-at-point)
+      ("<" . apply-operation-to-number-at-point)
+      (">" . apply-operation-to-number-at-point)
+      ("#" . apply-operation-to-number-at-point)
+      ("%" . apply-operation-to-number-at-point)
+      ("'" . operate-on-number-at-point))))
 
 (use-package undo-tree
   :ensure t
@@ -62,7 +179,16 @@
           undo-tree-history-directory-alist (quote (("" . "~/.emacs.d/.appdata/.undo-tree-history")))
           undo-tree-auto-save-history nil  ;; Freezes Emacs on big XML files
           undo-tree-visualizer-lazy-drawing 1000)
-    (global-undo-tree-mode)))
+    (global-undo-tree-mode)
+    ))
+
+(use-package volatile-highlights
+  :ensure t
+  :config
+  (volatile-highlights-mode t))
+
+(use-package which-key
+  :ensure t)
 
 (use-package zenburn-theme
   :ensure t
@@ -77,6 +203,11 @@
           ("zenburn-bg+2"  . "#313131")
           ("zenburn-bg+3"  . "#414141")))
   (load-theme 'zenburn t))
+
+(use-package zop-to-char
+  :ensure t
+  :bind (("M-z" . zop-up-to-char)
+         ("M-Z" . zop-to-char)))
 
 (use-package zygospore
   :ensure t
@@ -107,9 +238,31 @@
 
 (use-package smartparens
   :ensure t
+  :hook (prog-mode . smartparens-mode)
   :config
-  ;; Disable smartparens mode, as it's really slow
-  (show-smartparens-global-mode -1))
+  ;; Disable smartparens mode globally, as it's really slow
+  (show-smartparens-global-mode -1)
+
+  (setq sp-base-key-bindings 'paredit)
+  (setq sp-autoskip-closing-pair 'always)
+  (setq sp-hybrid-kill-entire-symbol nil)
+  (sp-use-paredit-bindings)
+
+  (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
+  ;; FIXME: pick terminal friendly binding
+  ;; (define-key prog-mode-map (kbd "M-[") (prelude-wrap-with "["))
+  (define-key prog-mode-map (kbd "M-\"") (prelude-wrap-with "\""))
+
+  ;; smart curly braces
+  (sp-pair "{" nil :post-handlers
+           '(((lambda (&rest _ignored)
+                (crux-smart-open-line-above)) "RET"))))
+
+(defun prelude-wrap-with (s)
+  "Create a wrapper function for smartparens using S."
+  `(lambda (&optional arg)
+     (interactive "P")
+     (sp-wrap-with-pair ,s)))
 
 ;; Hovering tooltips are annoying
 ;(setq tooltip-use-echo-area t)

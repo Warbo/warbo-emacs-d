@@ -27,5 +27,15 @@
   ;(setq company-coq-disabled-features '(hello prettify-symbols))
   )
 
+(use-package tla-mode
+  :quelpa (tla-mode
+           :fetcher github
+           :repo "shonfeder/tla-mode"
+           :branch "fix-single-line-comment"
+           :commit "be82e6287f5c219ab7a918813fa273ffa7b220ec")
+  :mode "\\.tla\\'"
+  :hook (tla-mode . prettify-symbols-mode)
+  )
+
 (provide 'warbo-provers)
 ;;; warbo-provers.el ends here
