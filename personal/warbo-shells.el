@@ -391,7 +391,6 @@
        ("home" "~")
        ("nix-config" "~/nix-config")
        ("nix-helpers" "~/nix-helpers")
-       ("trent" "~/trent")
        ("warbo-dotfiles" "~/warbo-dotfiles")
        ("emacs-d" "~/.emacs.d")
        ("warbo-packages" "~/warbo-packages")))
@@ -401,6 +400,7 @@
        ("emacs-d" "~/.emacs.d")
        ("nix-config" "~/nix-config")
        ("nixos-basic" "/sudo:root@localhost|nspawn:chrisw@nixos-basic:/home/chrisw")
+       ("notes" "~/notes")
        ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
 
     (_ '(("home" "~"))))
