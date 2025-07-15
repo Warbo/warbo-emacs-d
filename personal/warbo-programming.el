@@ -62,10 +62,23 @@
   :ensure t
   :hook haskell-mode
   :config
-  (setq tags-revert-without-query 1))
+  (setq tags-revert-without-query 1)
+
+  (defun case-sensitive-xref-find-definitions-advice (orig-fun &rest args)
+    "Sets `tags-case-fold-search` to `t' for name at point, but not prompts."
+    (if current-prefix-arg
+        (apply orig-fun args)
+      (let ((tags-case-fold-search t))
+        (apply orig-fun args))))
+
+  ;; Advise both the normal and “other-window” variants if you like:
+  (advice-add 'xref-find-definitions
+              :around #'case-sensitive-xref-find-definitions-advice)
+  (advice-add 'xref-find-definitions-other-window
+              :around #'case-sensitive-xref-find-definitions-advice))
 
 (defun warbo-haskell-tags ()
-  "Runs command to generate TAGS file in root directory of current repo"
+  "Run command to generate TAGS file in root directory of current repo."
   (let ((default-directory (vc-root-dir)))
     (when default-directory
       (start-process "hasktags" nil "hasktags" "--etags" "."))))
