@@ -133,7 +133,6 @@
 (use-package xref-union
   :ensure t
   :hook haskell-mode
-  :mode "\\.hs\\'"
   :config
   (setq tags-revert-without-query 1)
 
