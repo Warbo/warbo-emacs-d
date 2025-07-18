@@ -417,10 +417,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :mode "\\.textile\\'")
 
-(use-package thrift
-  :ensure t
-  :mode "\\.thrift\\'")
-
 (use-package tuareg
   :ensure t
   :mode "\\.ml\\'")
