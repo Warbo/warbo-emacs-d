@@ -125,27 +125,27 @@
     (if (<= (- end beg) prelude-yank-indent-threshold)
         (indent-region beg end nil)))
 
-  (advice-add 'yank :after 'yank-indent
-    (lambda (&optional arg)
-      "If current mode is one of `prelude-yank-indent-modes',
-indent yanked text (with prefix arg don't indent)."
-      (if (and (not arg)
-               (not (member major-mode prelude-indent-sensitive-modes))
-               (or (derived-mode-p 'prog-mode)
-                   (member major-mode prelude-yank-indent-modes)))
-          (let ((transient-mark-mode nil))
-            (yank-advised-indent-function (region-beginning) (region-end))))))
+  (define-advice yank
+      (:after (&optional arg) yank-indent)
+    "If current mode is one of `prelude-yank-indent-modes', indent yanked text
+(with prefix arg don't indent)."
+    (if (and (not arg)
+             (not (member major-mode prelude-indent-sensitive-modes))
+             (or (derived-mode-p 'prog-mode)
+                 (member major-mode prelude-yank-indent-modes)))
+        (let ((transient-mark-mode nil))
+          (yank-advised-indent-function (region-beginning) (region-end)))))
 
-  (advice-add 'yank-pop :after 'yank-pop-indent
-    (lambda (&optional arg)
-      "If current mode is one of `prelude-yank-indent-modes',
+  (define-advice yank-pop
+      (:after (&optional arg) yank-pop-indent)
+    "If current mode is one of `prelude-yank-indent-modes',
 indent yanked text (with prefix arg don't indent)."
-      (if (and (not arg)
-               (not (member major-mode prelude-indent-sensitive-modes))
-               (or (derived-mode-p 'prog-mode)
-                   (member major-mode prelude-yank-indent-modes)))
-          (let ((transient-mark-mode nil))
-            (yank-advised-indent-function (region-beginning) (region-end))))))
+    (if (and (not arg)
+             (not (member major-mode prelude-indent-sensitive-modes))
+             (or (derived-mode-p 'prog-mode)
+                 (member major-mode prelude-yank-indent-modes)))
+        (let ((transient-mark-mode nil))
+          (yank-advised-indent-function (region-beginning) (region-end)))))
 
   ;; abbrev config
   (add-hook 'text-mode-hook 'abbrev-mode)
