@@ -7,8 +7,9 @@
 
 (defvar gcs-shr-width 110)
 
-(define-advice shr-insert-document (force-shr-width :around (orig-fun &rest args))
-  "From https://github.com/GriffinSchneider/emacs-config eww-customizations.el"
+(define-advice shr-insert-document
+    (:around (orig-fun &rest args) force-shr-width)
+  "From https://github.com/GriffinSchneider/emacs-config eww-customizations.el."
   (let ((shr-width (min (1- (window-width)) gcs-shr-width)))
     (apply orig-fun args)))
 
