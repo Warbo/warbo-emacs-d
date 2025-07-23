@@ -1,10 +1,6 @@
 ;;; warbo-early-init --- Set up Emacs packaging, etc. before init.el
 ;;; Commentary:
 ;;; Code:
-(unless (or (getenv "EMACS_UNDER_TEST")
-            (and (boundp 'server-clients) server-clients))
-  (server-start))
-
 (require 'package)
 (setq package-enable-at-startup nil)
 
