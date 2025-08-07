@@ -59,7 +59,9 @@
 
 (use-package discover-my-major
   :ensure t
-  :bind (:map help-command ("C-m" . discover-my-major)))
+  :after help-mode
+  ;; FIXME: This keybinding is wrong: we don't want it to be *in* help-mode!
+  :bind (:map help-mode-map ("C-m" . discover-my-major)))
 
 (use-package easy-kill
   :ensure t
