@@ -4,12 +4,8 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 
-;(add-to-list 'package-archives
-;             '("gnu"       . "http://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives
             '("melpa"     . "https://melpa.org/packages/"))
-;; (add-to-list 'package-archives
-;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 
 (message "Loading personal/preload/*.el files")
 (let ((preload-dir (expand-file-name "personal/preload" user-emacs-directory)))
