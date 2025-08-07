@@ -1,5 +1,11 @@
 ;;; warbo-emacs-packages --- Load packages at startup
 ;;; Commentary:
+;;;
+;;; This file lists a bunch of packages that I used to have installed, at one
+;;; time or another.  Since I'm trying to switch everything over to use-package,
+;;; I haven't yet enabled these.  Requires going through to see what they are,
+;;; whether I want them, whether there's now a better alternative, etc.
+;;;
 ;;; Code:
 
 ;; (use-package ace-jump-mode)
