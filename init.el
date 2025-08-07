@@ -100,10 +100,17 @@
 
 ;; Most of our custom functionality lives in personal/warbo.el
 (cl-macrolet
-    ((in-personal (name)
+    ((in-personal (name &rest args)
        `(use-package ,name
          :load-path
-         ,(expand-file-name "personal" user-emacs-directory))))
+         ,(expand-file-name "personal" user-emacs-directory)
+         ,@args)))
+  (in-personal bytecode
+               :config
+               (warbo-bytecode-compile-directory
+                (expand-file-name "personal" user-emacs-directory)
+                (expand-file-name (format "personal-cache/%s/" emacs-version)
+                                  user-emacs-directory)))
   (in-personal warbo))
 
 (message "Finished init.el")
