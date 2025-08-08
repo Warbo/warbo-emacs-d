@@ -364,10 +364,7 @@ indent yanked text (with prefix arg don't indent)."
   ;; ansi-color is built-in
   nil) ; require is enough, hook is in emacs use-package
 
-;; FIXME: Gives the following in *Messages*:
-;;
-;; ■  Error (use-package): Cannot load winner-mode
-(use-package winner-mode
+(use-package winner
   :config
   ;; enable winner-mode to manage window configurations
   (winner-mode +1))
