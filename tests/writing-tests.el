@@ -22,7 +22,8 @@
         (set-auto-mode)
         (should     (equal major-mode 'LaTeX-mode))
         (should     visual-line-mode)
-        (should     flyspell-mode)
+        (when (executable-find ispell-program-name)
+          (should     flyspell-mode))
         (should-not whitespace-mode)
 
         (should (equal (local-key-binding (kbd "<f9>") t)
@@ -33,5 +34,6 @@
   (with-test-file "md"
        (set-auto-mode)
        (should     visual-line-mode)
-       (should     flyspell-mode)
+       (when (executable-find ispell-program-name)
+         (should     flyspell-mode))
        (should-not whitespace-mode)))
