@@ -240,6 +240,12 @@
   :ensure t
   :hook (prog-mode . smartparens-mode)
   :config
+  (defun prelude-wrap-with (s)
+    "Create a wrapper function for smartparens using S."
+    `(lambda (&optional arg)
+       (interactive "P")
+       (sp-wrap-with-pair ,s)))
+
   ;; Disable smartparens mode globally, as it's really slow
   (show-smartparens-global-mode -1)
 
@@ -257,12 +263,6 @@
   (sp-pair "{" nil :post-handlers
            '(((lambda (&rest _ignored)
                 (crux-smart-open-line-above)) "RET"))))
-
-(defun prelude-wrap-with (s)
-  "Create a wrapper function for smartparens using S."
-  `(lambda (&optional arg)
-     (interactive "P")
-     (sp-wrap-with-pair ,s)))
 
 ;; Hovering tooltips are annoying
 ;(setq tooltip-use-echo-area t)
