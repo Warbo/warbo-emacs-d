@@ -59,11 +59,7 @@
          ("M-/" . hippie-expand)
          ("C-x C-b" . ibuffer)
          ("<f12>" . menu-bar-mode)
-         ;; FIXME: Gives the following in *Messages*:
-         ;;
-         ;;  ■ Error (use-package): emacs/:catch: Symbol’s value as variable is
-         ;; void: help-command
-         :map help-command
+         :map help-map
          ("A" . apropos)
          ("C-f" . find-function)
          ("C-k" . find-function-on-key)
