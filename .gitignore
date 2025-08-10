@@ -34,5 +34,6 @@ elpy
 .dap-breakpoints
 .lsp-session-v1
 /.cache
+/personal-cache
 /games
 /projects

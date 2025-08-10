@@ -133,7 +133,6 @@
 (use-package xref-union
   :ensure t
   :hook haskell-mode
-  :mode "\\.hs\\'"
   :config
   (setq tags-revert-without-query 1)
 
@@ -416,10 +415,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package textile-mode
   :ensure t
   :mode "\\.textile\\'")
-
-(use-package thrift
-  :ensure t
-  :mode "\\.thrift\\'")
 
 (use-package tuareg
   :ensure t

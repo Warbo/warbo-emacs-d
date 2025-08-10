@@ -59,7 +59,7 @@
 
 (use-package discover-my-major
   :ensure t
-  :bind (:map help-command ("C-m" . discover-my-major)))
+  :bind (:map help-map ("C-m" . discover-my-major)))
 
 (use-package easy-kill
   :ensure t
@@ -240,6 +240,12 @@
   :ensure t
   :hook (prog-mode . smartparens-mode)
   :config
+  (defun prelude-wrap-with (s)
+    "Create a wrapper function for smartparens using S."
+    `(lambda (&optional arg)
+       (interactive "P")
+       (sp-wrap-with-pair ,s)))
+
   ;; Disable smartparens mode globally, as it's really slow
   (show-smartparens-global-mode -1)
 
@@ -257,12 +263,6 @@
   (sp-pair "{" nil :post-handlers
            '(((lambda (&rest _ignored)
                 (crux-smart-open-line-above)) "RET"))))
-
-(defun prelude-wrap-with (s)
-  "Create a wrapper function for smartparens using S."
-  `(lambda (&optional arg)
-     (interactive "P")
-     (sp-wrap-with-pair ,s)))
 
 ;; Hovering tooltips are annoying
 ;(setq tooltip-use-echo-area t)
@@ -653,26 +653,6 @@ Version 2017-09-01"
 ;; Run now if we're already in a graphical frame (e.g. not started as a daemon)
 (when (display-graphic-p)
   (set-desired-font))
-
-(wsl-ubuntu-only
- (run-at-time
-  5
-  nil
-  (lambda ()
-    (message "Auto-spawning emacsclient -c")
-    (start-process
-     "auto-emacsclient"
-     nil
-     ;; Run a graphical terminal so emacsclient knows it's to run graphically
-     "urxvt"
-     ;; Execute emacsclient via nohup, so it will detach from the terminal. This
-     ;; (a) allows the terminal window to close immediately, and (b) prevents
-     ;; the emacsclient process getting killed when the terminal closes. We make
-     ;; the window "undecorated", to avoid the titlebar clutter; this prevents
-     ;; us dragging the window around, but we can get it in position using some
-     ;; Super+arrow-key combos. Undecorated is preferable to fullscreen, since
-     ;; it doesn't steal focus from programs running on another monitor.
-     "-e" "nohup" "emacsclient" "-c" "-F" "((undecorated . t))"))))
 
 (provide 'warbo-generic)
 ;;; warbo-generic.el ends here

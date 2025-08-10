@@ -50,10 +50,10 @@
    (org-mode-hook . (lambda ()
                       (whitespace-mode 0)
                       (setq-local whitespace-style
-                                  (remove-if (lambda (x)
-                                               (member x '(lines-tail
-                                                           lines)))
-                                             whitespace-style))
+                                  (cl-remove-if (lambda (x)
+                                                  (member x '(lines-tail
+                                                              lines)))
+                                                whitespace-style))
                       (whitespace-mode 1))))
 
   :init

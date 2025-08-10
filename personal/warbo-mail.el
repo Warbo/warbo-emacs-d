@@ -71,37 +71,14 @@
                      (mu4e-trash-folder                . "/gmail/[Google Mail]/.Trash")
                      (mu4e-drafts-folder               . "/gmail/[Google Mail]/.Drafts")
                      (mu4e-sent-folder                 . "/gmail/[Google Mail]/.Sent Mail")
-                      
+
                      ;; don't save message to Sent Messages, GMail/IMAP will take
                      ;; care of this
-                     (mu4e-sent-messages-behavior      . delete)))
-          
-           ,(make-mu4e-context
-             :name "Dundee"
-             :enter-func (lambda ()
-                           (mu4e-message "Switch to the Dundee context")
-                           (setq message-send-mail-function
-                                 'message-send-mail-with-sendmail)
-                           (setq sendmail-program "msmtp")
-                           (setq message-sendmail-extra-arguments
-                                 '("-a"§ "dd"
-                                   "--read-envelope-from" "--read-recipients"))
-                           (setq user-mail-address "cmwarburton@dundee.ac.uk")
-                           (setq mu4e-sent-messages-behavior 'sent))
-             :leave-func (lambda ()
-                           ;; Try to prevent sending mail out of context
-                           (setq sendmail-program nil))
-             :match-func (lambda (msg)
-                           (when msg
-                             (mu4e-message-contact-field-matches
-                              msg :to ".*warburton@dundee.ac.uk")))
-             :vars '((user-mail-address      . "cmwarburton@dundee.ac.uk")
-                     (user-full-name         . "Chris Warburton")
-                     (mu4e-compose-signature . "Regards,\nChris Warburton"))))))
-  
+                     (mu4e-sent-messages-behavior      . delete))))))
+
  ;; mu4e uses database queries rather than hierarchical structure, so we use
  ;; "bookmarks" to create pseudo-folders
-  
+
  (require 'cl-lib)
  (let ((news-lists '("AGI"
                      "Bugs"
@@ -139,27 +116,27 @@
            ("maildir:/gmail/[Google Mail]/.* AND flag:unread" "New tagged"   ?t)
            ("flag:unread"                                     "All Unread"   ?u)
            )))
-  
+
  ;; Nicer HTML->text conversion, preserving links
  (require 'mu4e-contrib)
 
  ;;(setq mu4e-html2text-command 'mu4e-shr2text)  ;; Slow, freezes Emacs
  (setq mu4e-html2text-command "w3m -T text/html")
-  
+
  ;; Nice idea, but loses our position in the list so disable it for now
  (setq mu4e-headers-auto-update nil)
-  
+
  ;; set `mu4e-context-policy` and `mu4e-compose-policy` to tweak when mu4e should
  ;; guess or ask the correct context, e.g.
-  
+
  ;; start with the first (default) context;
  ;; default is to ask-if-none (ask when there's no context yet, and none match)
  ;; (setq mu4e-context-policy 'pick-first)
-  
+
  ;; compose with the current context is no context matches;
  ;; default is to ask
  ;; '(setq mu4e-compose-context-policy nil)
-  
+
  ;; From https://gist.github.com/syl20bnr/4460279
  ;; adapted from https://groups.google.com/d/topic/mu-discuss/ZXB72TR5GL0/discussion
  (defun mu4e-msgv-action-view-in-browser (msg)

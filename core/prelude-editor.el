@@ -33,14 +33,20 @@
 ;;; Code:
 
 ;; Helper macros (kept outside use-package for now)
+(defun with-region-or-buffer-advice (orig-fun &rest args)
+  "Run ORIG-FUN on ARGS if provided, otherwise on the region or entire buffer."
+  (if args
+      ;; If arguments are already provided, use them
+      (apply orig-fun args)
+    ;; Otherwise, provide region or buffer bounds
+    (apply orig-fun
+           (if (and (boundp 'mark-active) mark-active)
+               (list (region-beginning) (region-end))
+             (list (point-min) (point-max))))))
+
 (defmacro with-region-or-buffer (func)
   "When called with no active region, call FUNC on current buffer."
-  `(advice-add ',func :before
-               (lambda ()
-                 (interactive
-                  (if mark-active
-                      (list (region-beginning) (region-end))
-                    (list (point-min) (point-max)))))))
+  `(advice-add ',func :around #'with-region-or-buffer-advice))
 
 ;; Group 1: Basic Editor Behavior and Tweaks
 (use-package emacs
@@ -53,7 +59,7 @@
          ("M-/" . hippie-expand)
          ("C-x C-b" . ibuffer)
          ("<f12>" . menu-bar-mode)
-         :map help-command
+         :map help-map
          ("A" . apropos)
          ("C-f" . find-function)
          ("C-k" . find-function-on-key)
@@ -349,7 +355,7 @@ indent yanked text (with prefix arg don't indent)."
   ;; ansi-color is built-in
   nil) ; require is enough, hook is in emacs use-package
 
-(use-package winner-mode
+(use-package winner
   :config
   ;; enable winner-mode to manage window configurations
   (winner-mode +1))
