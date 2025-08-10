@@ -356,14 +356,12 @@ with the string S. Unlike `replace-region-contents' this maintains text
   ;; so we prefer reformatter.
   (setq nix-nixfmt-bin nil)
 
-  (defun warbo-filter-bel ()
+  (define-advice nix-repl-completion-at-point (:after () warbo-filter-bel)
     "`nix-repl-completion-at-point' can leave ^G (BEL chars) in the buffer."
     (save-excursion
       (goto-char (point-min))
-      (while (search-forward "\C-g" nil t)
-        (replace-match ""))))
-
-  (advice-add 'nix-repl-completion-at-point :after 'warbo-filter-bel))
+      (while (search-forward "C-g" nil t)
+        (replace-match "")))))
 
 (use-package php-mode
   :ensure t
@@ -482,7 +480,8 @@ with the string S. Unlike `replace-region-contents' this maintains text
   (add-hook 'haskell-mode-hook 'eglot-ensure)
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
   ;; From https://gluer.org/blog/improving-eglot-performance/
-  (advice-add 'jsonrpc--log-event :override #'ignore)
+  (define-advice jsonrpc--log-event (:override (&rest _))
+    "Silence jsonrpc logging to improve performance.")
   ;; From https://www.reddit.com/r/emacs/comments/1b25904/is_there_anything_i_can_do_to_make_eglots/
   ;(setf (plist-get eglot-events-buffer-config :size) 0)
   ;(eldoc-echo-area-use-multiline-p nil)

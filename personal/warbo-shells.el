@@ -98,14 +98,13 @@
 (defvar warbo-shell-want-lowercase-system-name nil
   "Setting this to t will cause (system-name) to lowercase its result.")
 
-(defun system-name-maybe-lowercased (orig-fun &rest args)
+(define-advice system-name (:around (orig-fun &rest args) system-name-maybe-lowercased)
   "Maybe lowercases result of function `system-name' (ORIG-FUN with ARGS)."
   (if warbo-shell-want-lowercase-system-name
       (downcase (apply orig-fun args))
     (apply orig-fun args)))
-(advice-add 'system-name :around #'system-name-maybe-lowercased)
 
-(defun track-osc-over-tramp (orig-fun &rest args)
+(define-advice ansi-osc-directory-tracker (:around (orig-fun &rest args) track-osc-over-tramp)
   "Advise `ansi-osc-directory-tracker' (ORIG-FUN, w/ ARGS) to work over TRAMP."
   ;; The second element of ARGS is the text extracted from the OSC7 PS1 prompt.
   ;; It should have the form "file://host/path", e.g. "file://nixos/home/chris".
@@ -131,7 +130,6 @@
                (new-localname (tramp-file-name-localname vec)))
           (setf (tramp-file-name-localname vec) path)
           (setq default-directory (tramp-make-tramp-file-name vec)))))))
-(advice-add 'ansi-osc-directory-tracker :around #'track-osc-over-tramp)
 
 (require 'shx)
 (defun warbo-shell-mode-hook ()

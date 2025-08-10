@@ -131,19 +131,7 @@
     (if (<= (- end beg) prelude-yank-indent-threshold)
         (indent-region beg end nil)))
 
-  (define-advice yank
-      (:after (&optional arg) yank-indent)
-    "If current mode is one of `prelude-yank-indent-modes', indent yanked text
-(with prefix arg don't indent)."
-    (if (and (not arg)
-             (not (member major-mode prelude-indent-sensitive-modes))
-             (or (derived-mode-p 'prog-mode)
-                 (member major-mode prelude-yank-indent-modes)))
-        (let ((transient-mark-mode nil))
-          (yank-advised-indent-function (region-beginning) (region-end)))))
-
-  (define-advice yank-pop
-      (:after (&optional arg) yank-pop-indent)
+  (defun prelude-indent-yanked-text-advice (&optional arg &rest _)
     "If current mode is one of `prelude-yank-indent-modes',
 indent yanked text (with prefix arg don't indent)."
     (if (and (not arg)
@@ -152,6 +140,10 @@ indent yanked text (with prefix arg don't indent)."
                  (member major-mode prelude-yank-indent-modes)))
         (let ((transient-mark-mode nil))
           (yank-advised-indent-function (region-beginning) (region-end)))))
+
+  (advice-add 'yank :after #'prelude-indent-yanked-text-advice)
+
+  (advice-add 'yank-pop :after #'prelude-indent-yanked-text-advice)
 
   ;; abbrev config
   (add-hook 'text-mode-hook 'abbrev-mode)
@@ -175,23 +167,22 @@ indent yanked text (with prefix arg don't indent)."
   (add-hook 'compilation-filter-hook #'prelude-colorize-compilation-buffer)
 
   ;; server-visit-files advice
-  (advice-add 'server-visit-files :filter-args
-              (lambda (args)
-                "Filter arguments for `server-visit-files` to handle filename:linenumber."
-                (let ((files (car args))
-                      (proc (cadr args))
-                      (nowait (caddr args)))
-                  (list
-                   (mapcar (lambda (fn)
-                             (let ((name (car fn)))
-                               (if (string-match "^\\(.*?\\):\\([0-9]+\\)\\(?::\\([0-9]+\\)\\)?$" name)
-                                   (cons
-                                    (match-string 1 name)
-                                    (cons (string-to-number (match-string 2 name))
-                                          (string-to-number (or (match-string 3 name) ""))))
-                                 fn))) files)
-                   proc
-                   nowait))))
+  (define-advice server-visit-files (:filter-args (args) server-visit-files-goto-line)
+    "Filter arguments for `server-visit-files` to handle filename:linenumber."
+    (let ((files (car args))
+          (proc (cadr args))
+          (nowait (caddr args)))
+      (list
+       (mapcar (lambda (fn)
+                 (let ((name (car fn)))
+                   (if (string-match "^\\(.*?\\):\\([0-9]+\\)\\(?::\\([0-9]+\\)\\)?$" name)
+                       (cons
+                        (match-string 1 name)
+                        (cons (string-to-number (match-string 2 name))
+                              (string-to-number (or (match-string 3 name) ""))))
+                     fn))) files)
+       proc
+       nowait)))
   )
 
 ;; Group 2: File/Buffer Management
