@@ -401,9 +401,12 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :mode "\\.slim\\'")
 
+(use-package sws-mode
+  :ensure t)
 
 (use-package stylus-mode
   :ensure t
+  :after sws-mode
   :mode "\\.styl\\'")
 
 (use-package swift-mode
