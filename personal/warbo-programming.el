@@ -237,7 +237,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
    ))
 (add-to-list 'compilation-error-regexp-alist 'ghcid-reloading)
 
-
 (use-package js2-mode
   :ensure t
   :mode (("\\.js" . js2-mode)

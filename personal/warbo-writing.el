@@ -85,6 +85,7 @@
 
 (add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
 
+;; TODO: Bindings should go in a use-package block
 (defun compile-with-make-setup-markdown ()
   "Bind F9 to compining Markdown."
   (bind-key (kbd "<f9>") 'compile-with-make markdown-mode-map))

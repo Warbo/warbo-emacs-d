@@ -13,6 +13,7 @@
   (let ((shr-width (min (1- (window-width)) gcs-shr-width)))
     (apply orig-fun args)))
 
+;; TODO: Bindings should go in a use-package block
 (defun eww-increase-width ()
   "Increase width then reload page."
   (interactive)

@@ -441,6 +441,7 @@
 
 (mapc 'command-in-buffer startup-programs)
 
+;; TODO: Set bindings via use-package
 (add-hook 'eshell-mode-hook
           '(lambda()
              (local-set-key (kbd "C-l") 'eshell/clear)))
