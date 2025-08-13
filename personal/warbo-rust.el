@@ -88,11 +88,11 @@ longer be necessary."
   (add-hook 'prog-mode-hook 'yas-minor-mode)
   (add-hook 'text-mode-hook 'yas-minor-mode))
 
-(defun company-yasnippet-or-completion ()
-  "Try to expand a yasnippet snippet, otherwise invoke company completion."
+(defun yasnippet-or-completion ()
+  "Try to expand a yasnippet snippet, otherwise invoke completion."
   (interactive)
   (or (do-yas-expand)
-      (company-complete-common)))
+      (completion-at-point)))
 
 (defun check-expansion ()
   "Return t if point is at a location where completion is likely.
@@ -114,15 +114,15 @@ after `::'."
   "Indent the current line, or complete the current symbol.
 If the minibuffer is active, then completion is performed.  Otherwise,
 if yasnippet is active and a snippet can be expanded, that is done.
-Otherwise, if at a point where completion is likely, company completion
-is invoked.  Otherwise, the current line is indented."
+Otherwise, if at a point where completion is likely, completion is
+invoked.  Otherwise, the current line is indented."
   (interactive)
   (if (minibufferp)
       (minibuffer-complete)
     (if (or (not yas/minor-mode)
             (null (do-yas-expand)))
         (if (check-expansion)
-            (company-complete-common)
+            (completion-at-point)
           (indent-for-tab-command)))))
 
 (use-package flycheck :ensure)
