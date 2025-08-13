@@ -89,11 +89,15 @@ longer be necessary."
   (add-hook 'text-mode-hook 'yas-minor-mode))
 
 (defun company-yasnippet-or-completion ()
+  "Try to expand a yasnippet snippet, otherwise invoke company completion."
   (interactive)
   (or (do-yas-expand)
       (company-complete-common)))
 
 (defun check-expansion ()
+  "Return t if point is at a location where completion is likely.
+This is the case if point is at the end of a symbol, or after a `.', or
+after `::'."
   (save-excursion
     (if (looking-at "\\_>") t
       (backward-char 1)
@@ -102,10 +106,16 @@ longer be necessary."
         (if (looking-at "::") t nil)))))
 
 (defun do-yas-expand ()
+  "Try to expand a yasnippet snippet, returning nil on failure."
   (let ((yas/fallback-behavior 'return-nil))
     (yas/expand)))
 
 (defun tab-indent-or-complete ()
+  "Indent the current line, or complete the current symbol.
+If the minibuffer is active, then completion is performed.  Otherwise,
+if yasnippet is active and a snippet can be expanded, that is done.
+Otherwise, if at a point where completion is likely, company completion
+is invoked.  Otherwise, the current line is indented."
   (interactive)
   (if (minibufferp)
       (minibuffer-complete)
