@@ -3,7 +3,7 @@
 ;;; Commentary:
 ;;
 ;; This file sets up byte-compilation for the files in the `personal`
-;; directory. It compiles them into a version-specific cache directory to
+;; directory.  It compiles them into a version-specific cache directory to
 ;; avoid conflicts when switching between different Emacs versions.
 
 ;;; Code:

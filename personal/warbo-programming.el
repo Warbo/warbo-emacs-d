@@ -278,7 +278,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 ;; From https://github.com/magit/magit/discussions/4748#discussioncomment-3589929
 (defun my/magit-log-reflog (&optional args files)
-  "Show log for objects mentioned in reflog."
+  "Show log for objects mentioned in reflog, passing along ARGS and FILES."
   (interactive (magit-log-arguments))
   (magit-log-setup-buffer (list "--reflog") args files))
 
@@ -619,8 +619,8 @@ with the string S. Unlike `replace-region-contents' this maintains text
         nxml-bind-meta-tab-to-complete-flag t))
 
 (define-derived-mode nix-derivation-mode prog-mode "nix-derivation-mode"
-  "Custom major mode, which runs Nix .drv files through 'nix show-derivation'.
-   The result is JSON, so we derive from json-mode."
+  "Custom major mode, which runs Nix .drv files through `nix show-derivation'.
+The result is JSON, so we derive from json-mode."
   (setq major-mode 'nix-derivation-mode)
   (setq mode-name "DRV")
 
@@ -667,7 +667,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 ;; Bind a key to look for 'test.sh' and run it
 (defun warbo-find-and-run-tests-sentinel (process signal)
-  "A process sentinel suitable for 'set-process-sentinel'.
+  "A process sentinel suitable for `set-process-sentinel'.
 The returned sentinel will send a notification when the attached (asynchronous)
 PROCESS gets an exit SIGNAL.
 Inspired by https://emacs.stackexchange.com/a/42174/5391"

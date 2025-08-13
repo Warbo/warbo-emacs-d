@@ -6,6 +6,7 @@
 ;;; Code:
 
 (defun windows-tall ()
+  "Splits Emacs frame to work well on a tall monitor."
   (interactive)
   ;; ┌─┐
   ;; │ │
@@ -58,6 +59,7 @@
   (balance-windows))
 
 (defun windows-wide ()
+  "Splits Emacs frame to work well on a wide monitor."
   (interactive)
   ;; ┌─┐
   ;; │ │

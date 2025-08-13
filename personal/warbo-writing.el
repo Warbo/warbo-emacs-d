@@ -86,6 +86,7 @@
 (add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
 
 (defun compile-with-make-setup-markdown ()
+  "Bind F9 to compining Markdown."
   (bind-key (kbd "<f9>") 'compile-with-make markdown-mode-map))
 
 (add-hook  'markdown-mode-hook 'compile-with-make-setup-markdown)
@@ -101,6 +102,7 @@
 (setq ebib-file-field "localfile")
 (setq ebib-file-associations '(("pdf" . "mupdf-x11") ("ps" . "gv")))
 (defun bib ()
+  "Opens our main Bibtex file."
   (interactive)
   (ebib "~/Writing/Bibtex.bib"))
 

@@ -14,6 +14,7 @@
     (apply orig-fun args)))
 
 (defun eww-increase-width ()
+  "Increase width then reload page."
   (interactive)
   (make-local-variable 'gcs-shr-width)
   (setq gcs-shr-width  (+ 10 gcs-shr-width))
@@ -21,6 +22,7 @@
 (define-key eww-mode-map (read-kbd-macro "+") 'eww-increase-width)
 
 (defun eww-decrease-width ()
+  "Reduce width then reload page."
   (interactive)
   (make-local-variable 'gcs-shr-width)
   (setq gcs-shr-width  (- gcs-shr-width 10))

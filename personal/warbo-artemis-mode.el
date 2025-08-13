@@ -11,7 +11,7 @@
 ;; Artemis uses maildirs for issue tracking. Use message-mode for editing these,
 ;; but augment it a little (e.g. save and close, rather than send).
 (defun artemis-save ()
-  "Save and close the buffer; used for Artemis messages instead of 'send'."
+  "Save and close the buffer; used for Artemis messages instead of `send'."
   (interactive)
   (save-some-buffers)
   (kill-buffer))
@@ -43,7 +43,7 @@ From https://stackoverflow.com/a/3034272/884682"
       (search-forward s nil t))))
 
 (defun is-artemis-buffer-p (&optional buffer)
-  "Is the given BUFFER (default: 'current-buffer') an artemis issue?"
+  "Is the given BUFFER (default: `current-buffer') an artemis issue?"
   (with-current-buffer (or buffer (current-buffer))
     (let ((f (buffer-file-name)))
       (and
@@ -53,7 +53,7 @@ From https://stackoverflow.com/a/3034272/884682"
            (buffer-contains-substring "Detailed description."))))))
 
 (defun server-visit-artemis-issue-hook ()
-  "Invokes 'artemis-mode' if the current buffer is an artemis issue."
+  "Invokes `artemis-mode' if the current buffer is an artemis issue."
   (when (is-artemis-buffer-p)
     (artemis-mode)))
 

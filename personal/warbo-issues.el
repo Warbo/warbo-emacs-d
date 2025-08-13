@@ -9,7 +9,7 @@
 ;;; Code:
 
 (defvar issue-artemis-command-output nil
-  "The output of 'artemis list -a'.
+  "The output of `artemis list -a'.
 
    We use dynamic scope to look this up, as a form of dependency injection.
    This lets us test functions without invoking commands.")
@@ -24,13 +24,13 @@
      ,@body))
 
 (defun issue-artemis-list ()
-  "Get the output of an actual 'artemis list' command."
+  "Get the output of an actual `artemis list' command."
   (split-string (shell-command-to-string "artemis list -a -o latest") "\n"))
 
 ;; Parse artemis command output into useful datastructures
 
 (defun issue-parse-line (line)
-  "Given a LINE from 'artemis list', return its components."
+  "Given a LINE from `artemis list', return its components."
   ;; Regexen
   (let* ((as-group   (lambda (r) (concat "\\(" r "\\)")))
          (r-id       (funcall as-group "[0-9a-f]\\{16\\}"))
@@ -54,7 +54,7 @@
             description   ,description)))))
 
 (defun issue-artemis-lines ()
-  "Parse all of the lines from an 'artemis list' command."
+  "Parse all of the lines from an `artemis list' command."
   (mapcar 'issue-parse-line
           (seq-filter (lambda (line) (not (string= "" line)))
                       (issue-artemis-list))))
@@ -68,7 +68,7 @@
   "Get the artemis line containing the given ID.
 
    This is low-level, since it is missing information like the time of the last
-   update.  Its advantage is only requiring 'artemis list' output."
+   update.  Its advantage is only requiring `artemis list' output."
   (car (seq-filter (lambda (line) (equal (plist-get line 'id) id) )
                    (issue-artemis-lines))))
 
@@ -176,11 +176,11 @@ last-updated-time, whilst keeping comments in index order beneath their issue."
     (format "%s%0.2d" (issues-timestamp-to-iso updated) order)))
 
 (defun issues-append-sort-key (details)
-  "Send DETAILS into 'issues-make-sort-key' and append the result."
+  "Send DETAILS into `issues-make-sort-key' and append the result."
   (append details (list 'sort-key (issues-make-sort-key details))))
 
 (defun issues-timestamp-to-iso (timestamp)
-  "Convert the given TIMESTAMP, as produced by 'parse-time-string', to ISO8601.
+  "Convert the given TIMESTAMP, as produced by `parse-time-string', to ISO8601.
 Any timezone information is ignored; we assume the timestamp is UTC."
   (apply 'format
          (cons
@@ -256,7 +256,7 @@ Any timezone information is ignored; we assume the timestamp is UTC."
        (list issue (plist-get details 'message-id))))))
 
 (defun issues-add-comment ()
-  "Run 'artemis add XXX', taking the issue ID from the current context."
+  "Run `artemis add XXX', taking the issue ID from the current context."
   (interactive)
   (let ((issue (issues-current-issue)))
     (call-process "artemis" nil 0 nil "add" issue)))
@@ -278,7 +278,7 @@ Any timezone information is ignored; we assume the timestamp is UTC."
   "Keymap for `issues-mode'.")
 
 (define-derived-mode issues-mode tabulated-list-mode "issues-mode"
-  "Major mode issues-mode for interacting with Artemis issues"
+  "Major mode issues-mode for interacting with Artemis issues."
   (setq tabulated-list-format [("Sort"        4  t                      )
                                ("Date"        10 t                      )
                                ("Status"      8  t                      )

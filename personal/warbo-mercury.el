@@ -3,6 +3,8 @@
 ;;; Code:
 
 (defun compile-mercury ()
+  "Compile the current Mercury buffer.
+Prefers nix-build, otherwise make, or falls back to raw mmc command."
   (interactive)
   (let* ((file-name  (file-name-nondirectory (buffer-file-name)))
          (is-mercury (equal "m" (file-name-extension file-name)))

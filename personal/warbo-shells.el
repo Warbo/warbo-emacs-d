@@ -257,7 +257,7 @@
     buf))
 
 (defun bash-unwrapped ()
-  "Start a shell-mode shell, forcing 'bash' as the shell."
+  "Start a shell-mode shell, forcing `bash' as the shell."
   (interactive)
   (let ((explicit-shell-file-name "bash"))
     (bash)))
