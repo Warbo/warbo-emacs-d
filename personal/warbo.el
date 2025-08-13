@@ -1,4 +1,4 @@
-;;; warbo --- Entry point for Warbo's Emacs config
+;;; warbo --- Entry point for Warbo's Emacs config -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; We want everything to be loaded and configured with use-package, but we need
 ;;; to transition ourselves to that gradually.

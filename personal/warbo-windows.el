@@ -1,4 +1,4 @@
-;;; warbo-windows --- Window layouts
+;;; warbo-windows --- Window layouts -*- lexical-binding: t; -*-
 ;;;
 ;;; Commentary:
 ;;; Stored window configs

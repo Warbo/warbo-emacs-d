@@ -1,4 +1,4 @@
-;;; warbo-llm --- Large Language Model support
+;;; warbo-llm --- Large Language Model support -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 

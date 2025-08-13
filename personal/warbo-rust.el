@@ -1,4 +1,4 @@
-;;; warbo-rust --- Setup for working with rust projects
+;;; warbo-rust --- Setup for working with rust projects -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;;; Inspired by https://robert.kra.hn/posts/rust-emacs-setup/

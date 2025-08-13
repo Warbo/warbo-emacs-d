@@ -1,4 +1,4 @@
-;;; warbo-provers --- Helpers for (interactive) theorem provers
+;;; warbo-provers --- Helpers for (interactive) theorem provers -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 

@@ -1,4 +1,4 @@
-;;; warbo-scala --- Programming functionality specific to Scala
+;;; warbo-scala --- Programming functionality specific to Scala -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 

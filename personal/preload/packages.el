@@ -1,4 +1,4 @@
-;;; warbo-emacs-packages --- Load packages at startup
+;;; warbo-emacs-packages --- Load packages at startup -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;;
 ;;; This file lists a bunch of packages that I used to have installed, at one

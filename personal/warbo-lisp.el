@@ -1,4 +1,4 @@
-;;; warbo-lisp --- Functionality specific to Lisp/Scheme/S-expressions
+;;; warbo-lisp --- Functionality specific to Lisp/Scheme/S-expressions -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 

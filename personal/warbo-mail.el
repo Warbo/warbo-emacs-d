@@ -1,4 +1,4 @@
-;;; warbo-mail --- Email reading in Emacs
+;;; warbo-mail --- Email reading in Emacs -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 

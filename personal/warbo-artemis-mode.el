@@ -1,4 +1,4 @@
-;;; warbo-artemis-mode --- Emacs mode for the Artemis issue tracker
+;;; warbo-artemis-mode --- Emacs mode for the Artemis issue tracker -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 

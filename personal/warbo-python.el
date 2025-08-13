@@ -1,4 +1,4 @@
-;;; warbo-python --- Programming functionality specific to Python
+;;; warbo-python --- Programming functionality specific to Python -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 

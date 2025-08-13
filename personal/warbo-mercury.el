@@ -1,4 +1,4 @@
-;;; warbo-mercury --- Support for the Mercury logic programming language
+;;; warbo-mercury --- Support for the Mercury logic programming language -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 
