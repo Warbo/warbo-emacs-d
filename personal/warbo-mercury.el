@@ -11,7 +11,7 @@ Prefers nix-build, otherwise make, or falls back to raw mmc command."
          (contracted (file-name-sans-extension file-name)))
     (compile (cond
               ((file-exists-p "default.nix") "nix-build")
-              ((file-exists-p "Makefile"     "make -k"  ))
+              ((file-exists-p "Makefile")    "make -k"  )
               (is-mercury     (concat "nix-shell -p mercury --run 'mmc --make "
                                       contracted
                                       "'"))
