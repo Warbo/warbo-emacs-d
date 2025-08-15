@@ -27,6 +27,7 @@
 ;; Needs to load early, to provide nspawn TRAMP method
 (use-package warbo-tramp)
 
+(use-package prelude-backup)
 (use-package prelude-search)
 
 (use-package warbo-artemis-mode)

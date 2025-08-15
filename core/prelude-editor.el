@@ -197,11 +197,7 @@ indent yanked text (with prefix arg don't indent)."
 ;; Group 2: File/Buffer Management
 (use-package files
   :config
-  ;; store all backup and autosave files in the tmp dir
-  (setq backup-directory-alist
-        `((".*" . ,temporary-file-directory)))
-  (setq auto-save-file-name-transforms
-        `((".*" ,temporary-file-directory t)))
+  
 
   ;; revert buffers automatically when underlying files are changed externally
   (global-auto-revert-mode t)
