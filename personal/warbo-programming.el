@@ -631,8 +631,6 @@ The result is JSON, so we derive from json-mode."
 ;; We can hook into prog-mode to affect any programming-related buffer
 (add-hook 'prog-mode-hook
           (lambda ()
-            (when (executable-find ispell-program-name)
-              (flyspell-prog-mode))
             (set (make-local-variable 'comment-auto-fill-only-comments) t)
 
             ;; Highlight a bunch of well known comment annotations.

@@ -27,7 +27,6 @@
         ("<f9>" . compile-with-make))
   :config
   (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-  (add-hook 'LaTeX-mode-hook 'flyspell-mode)  ;; Relies on aspell
   (add-hook 'LaTeX-mode-hook (lambda () (whitespace-mode 0)))
   (setq TeX-auto-save  t)
   (setq TeX-parse-self t))

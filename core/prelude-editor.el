@@ -212,19 +212,6 @@ indent yanked text (with prefix arg don't indent)."
   :config
   (set-default 'imenu-auto-rescan t))
 
-(use-package flyspell
-  :config
-  ;; flyspell-mode does spell-checking on the fly as you type
-  (setq ispell-program-name "aspell" ; use aspell instead of ispell
-        ispell-extra-args '("--sug-mode=ultra"))
-
-  (defun prelude-enable-flyspell ()
-    "Enable command `flyspell-mode' if `prelude-flyspell' is not nil."
-    (when (and prelude-flyspell (executable-find ispell-program-name))
-      (flyspell-mode +1)))
-
-  (add-hook 'text-mode-hook 'prelude-enable-flyspell))
-
 ;; bookmarks
 (require 'bookmark)
 (setq bookmark-default-file (expand-file-name "bookmarks" prelude-savefile-dir)
