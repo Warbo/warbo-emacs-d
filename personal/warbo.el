@@ -30,6 +30,7 @@
 (use-package prelude-backup)
 (use-package prelude-search)
 
+(use-package warbo-appearance)
 (use-package warbo-artemis-mode)
 (use-package warbo-documents)
 (use-package warbo-fixes)
