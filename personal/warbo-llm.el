@@ -39,7 +39,7 @@
                      "--no-auto-commits"
                      ))
                   (_
-                   '("--model" "gemini/gemini-2.5-flash-preview-04-17")))))
+                   '("--model" "gemini/gemini-2.5-flash")))))
   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 (provide 'warbo-llm)
