@@ -28,6 +28,7 @@
 (use-package warbo-tramp)
 
 (use-package prelude-backup)
+(use-package prelude-filesystem)
 (use-package prelude-search)
 
 (use-package warbo-appearance)
