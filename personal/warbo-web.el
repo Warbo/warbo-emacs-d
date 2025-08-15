@@ -34,6 +34,7 @@
 ;; with "&"
 ;;(setq browse-url-browser-function 'eww-browse-url)
 (setq browse-url-browser-function 'browse-url-firefox)
+(setq browse-url-secondary-browser-function 'browse-url-firefox) ;; FIXME??
 (setq browse-url-generic-program (executable-find "firefox")
       shr-external-browser 'browse-url-generic)
 
