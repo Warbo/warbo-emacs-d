@@ -265,10 +265,6 @@ indent yanked text (with prefix arg don't indent)."
   (setq semanticdb-default-save-directory
         (expand-file-name "semanticdb" prelude-savefile-dir)))
 
-(use-package windmove
-  :config
-  ;; use shift + arrow keys to switch between visible buffers
-  (windmove-default-keybindings))
 
 (use-package rect
   :config

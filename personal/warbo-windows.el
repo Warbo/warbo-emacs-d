@@ -109,5 +109,10 @@
 
 ;; TODO: Keybinding which picks one of these, based on frame size
 
+(use-package windmove
+  :config
+  ;; use shift + arrow keys to switch between visible buffers
+  (windmove-default-keybindings))
+
 (provide 'warbo-windows)
 ;;; warbo-windows ends here
