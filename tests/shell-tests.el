@@ -42,17 +42,14 @@
     (rename-buffer "*test-buffer-1*")
     (should (equal (free-name-num "test-buffer") "*test-buffer-2*"))))
 
-;; FIXME: These seem to do an infinite loop
-;; (ert-deftest warbo-shell-query-working-directory ()
-;;   "Explicitly update the working directory"
-;;   (save-excursion
-;;     (let ((shell-buf (bash)))
-;;       (with-current-buffer shell-buf
-;;         (insert "ls > /dev/null && cd \"$(echo /)\"")
-;;         (comint-send-input)
-;;         (warbo-wait-for-comint shell-buf)
-
-;;         (should (equal "/" (dirs)))))))
+(ert-deftest warbo-shell-query-working-directory ()
+  "Explicitly update the working directory."
+  (in-shell-buffer
+    (insert "ls > /dev/null && cd \"$(echo /)\"")
+    (comint-send-input)
+    (warbo-wait-for-comint (current-buffer))
+    (dirs)
+    (should (equal "/" default-directory))))
 
 ;; (ert-deftest warbo-shell-tracks-working-directory ()
 ;;   "Moving around the filesystem should get tracked by shell-mode"
