@@ -126,6 +126,7 @@
   (global-hl-line-mode +1)
 
   ;; Advice for basic commands
+  ;; TODO: Does crux offer this?
   (with-region-or-buffer indent-region)
   (with-region-or-buffer untabify)
 
