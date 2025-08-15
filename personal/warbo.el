@@ -39,6 +39,7 @@
 (use-package warbo-llm)
 (use-package warbo-mail)
 (use-package warbo-mercury)
+(use-package warbo-modeline)
 (use-package warbo-programming)
 (use-package warbo-provers)
 (use-package warbo-python)

@@ -450,25 +450,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package s
   :defer t)
 
-(use-package diminish
-  :config
-  (mapcar 'diminish '(editorconfig-mode
-                      whitespace-cleanup-mode
-                      flyspell-mode
-                      company-mode
-                      projectile-mode
-                      eldoc-mode
-                      visual-line-mode
-                      smartparens-mode
-                      flycheck-mode
-                      lsp-lens-mode
-                      beacon-mode
-                      pretty-sha-path-mode
-                      volatile-highlights-mode ;; Moved from prelude-editor.el
-                      undo-tree-mode ;; Moved from prelude-editor.el
-                      anzu-mode ;; Moved from prelude-editor.el
-                      )))
-
 (use-package eglot
   :ensure t
   :commands eglot-ensure eglot
