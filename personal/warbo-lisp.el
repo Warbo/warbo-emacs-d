@@ -39,6 +39,22 @@
 (use-package racket-mode
   :ensure t)
 
+(defun function-source (name)
+  "Return a string of source code for the function with the given NAME."
+  (let ((file-pos (find-function-noselect name)))
+    (with-current-buffer (car file-pos)
+      (goto-char (cdr file-pos))
+      (let ((start (point)))
+        (forward-sexp)
+        (buffer-substring-no-properties start (point))))))
+
+(defun reload-function-definition (name)
+  "Re-evaluats the definition of function NAME, e.g. to disable ERT."
+  (let ((file-pos (find-function-noselect name)))
+    (with-current-buffer (car file-pos)
+      (goto-char (cdr file-pos))
+      (eval-defun nil))))
+
 ;; Unit testing for ELisp
 (defer (lambda ()
          (require 'ert)
