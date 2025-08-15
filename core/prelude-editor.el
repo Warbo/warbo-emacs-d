@@ -32,10 +32,6 @@
 
 ;;; Code:
 
-(defvar prelude-indent-sensitive-modes
-  '(conf-mode coffee-mode haml-mode python-mode slim-mode yaml-mode)
-  "Modes for which auto-indenting is suppressed.")
-
 ;; Helper macros (kept outside use-package for now)
 (defun with-region-or-buffer-advice (orig-fun &rest args)
   "Run ORIG-FUN on ARGS if provided, otherwise on the region or entire buffer."
@@ -130,24 +126,23 @@
   (with-region-or-buffer indent-region)
   (with-region-or-buffer untabify)
 
-  ;; automatically indenting yanked text if in programming-modes
-  (defun yank-advised-indent-function (beg end)
-    "Do indentation, as long as the region isn't too large."
-    (if (<= (- end beg) prelude-yank-indent-threshold)
-        (indent-region beg end nil)))
-
   (defun prelude-indent-yanked-text-advice (&optional arg &rest _)
-    "If current mode is one of `prelude-yank-indent-modes',
-indent yanked text (with prefix arg don't indent)."
-    (if (and (not arg)
-             (not (member major-mode prelude-indent-sensitive-modes))
-             (or (derived-mode-p 'prog-mode)
-                 (member major-mode prelude-yank-indent-modes)))
-        (let ((transient-mark-mode nil))
-          (yank-advised-indent-function (region-beginning) (region-end)))))
+    "If current mode is one of `prelude-yank-indent-modes', indent yanked text
+(with prefix arg don't indent)."
+    (let ((prelude-indent-sensitive-modes
+           ;; Skip whitespace-sentitive modes
+           '(conf-mode coffee-mode haml-mode python-mode slim-mode yaml-mode)))      
+      (if (and (not arg)
+               (not (member major-mode prelude-indent-sensitive-modes))
+               (or (derived-mode-p 'prog-mode)
+                   (member major-mode prelude-yank-indent-modes)))
+          (let ((transient-mark-mode nil)
+                (beg (region-beginning))
+                (end (region-end)))
+            (if (<= (- end beg) prelude-yank-indent-threshold)
+                (indent-region beg end nil))))))
 
   (advice-add 'yank :after #'prelude-indent-yanked-text-advice)
-
   (advice-add 'yank-pop :after #'prelude-indent-yanked-text-advice)
 
   ;; abbrev config

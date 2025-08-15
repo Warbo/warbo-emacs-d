@@ -32,13 +32,16 @@
 
 ;;; Code:
 
+;; TODO: This is part of my config, so I can just set the values I want
+;; directly; rather than making them customisable. Delete those which aren't
+;; used, and push the others closer to their use-sites, to see if we can just
+;; define them inline somewhere.
+
 ;; customize
 (defgroup prelude nil
   "Emacs Prelude configuration."
   :prefix "prelude-"
   :group 'convenience)
-
-
 
 (defcustom prelude-yank-indent-modes '(LaTeX-mode TeX-mode)
   "Modes in which to indent regions that are yanked (or yank-popped).
