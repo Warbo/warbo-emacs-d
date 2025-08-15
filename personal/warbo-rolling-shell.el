@@ -2,6 +2,8 @@
 ;;; Commentary:
 ;;; Code:
 
+(require 's)
+
 (defvar rolling-shell-max-lines 10000
   "Maximum number of lines to keep in the rolling shell buffer.")
 

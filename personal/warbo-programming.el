@@ -448,7 +448,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :defer t)
 
 (use-package s
-  :defer t)
+  :ensure t)
 
 (use-package eglot
   :ensure t
