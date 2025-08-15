@@ -12,21 +12,7 @@
     (unless (save-excursion
               (goto-char (point-max))
               (re-search-backward comint-prompt-regexp nil t))
-      (error "Prompt not found in %s" comint-buffer)))
-
-  ;; Run a sync command and wait for it to finish.
-  (with-temp-buffer
-    (let ((temp-buffer (current-buffer)))
-      (with-current-buffer comint-buffer
-        (comint-redirect-send-command-to-process
-         "true" ;; Command to run
-         temp-buffer
-         (get-buffer-process comint-buffer)
-         nil t) ;; Don't echo and don't show temp-buffer
-
-        ;; Busy-loop until the redirected command has finished
-        (while (not comint-redirect-completed)
-          (sleep-for 0.1))))))
+      (error "Prompt not found in %s" comint-buffer))))
 
 (defmacro in-shell-buffer (&rest body)
   "Run BODY in a new shell buffer, with setup and teardown."
