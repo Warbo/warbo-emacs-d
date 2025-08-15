@@ -32,6 +32,10 @@
 
 ;;; Code:
 
+(defvar prelude-indent-sensitive-modes
+  '(conf-mode coffee-mode haml-mode python-mode slim-mode yaml-mode)
+  "Modes for which auto-indenting is suppressed.")
+
 ;; Helper macros (kept outside use-package for now)
 (defun with-region-or-buffer-advice (orig-fun &rest args)
   "Run ORIG-FUN on ARGS if provided, otherwise on the region or entire buffer."

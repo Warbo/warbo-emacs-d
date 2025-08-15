@@ -10,8 +10,8 @@
         ispell-extra-args '("--sug-mode=ultra"))
 
   (defun prelude-enable-flyspell ()
-    "Enable command `flyspell-mode' if `prelude-flyspell' is not nil."
-    (when (and prelude-flyspell (executable-find ispell-program-name))
+    "Enable command `flyspell-mode' if `ispell-program-name' is in PATH."
+    (when  (executable-find ispell-program-name)
       (flyspell-mode +1)))
 
   (add-hook 'text-mode-hook 'prelude-enable-flyspell))
