@@ -33,20 +33,14 @@
 ;;; Code:
 
 ;; Helper macros (kept outside use-package for now)
-(defun with-region-or-buffer-advice (orig-fun &rest args)
-  "Run ORIG-FUN on ARGS if provided, otherwise on the region or entire buffer."
-  (if args
-      ;; If arguments are already provided, use them
-      (apply orig-fun args)
-    ;; Otherwise, provide region or buffer bounds
-    (apply orig-fun
-           (if (and (boundp 'mark-active) mark-active)
-               (list (region-beginning) (region-end))
-             (list (point-min) (point-max))))))
-
 (defmacro with-region-or-buffer (func)
-  "When called with no active region, call FUNC on current buffer."
-  `(advice-add ',func :around #'with-region-or-buffer-advice))
+  "Advise FUNC to operate on the region or the whole buffer."
+  `(define-advice ,func (:around (orig-fun &rest args) with-region-or-buffer)
+     "Run ORIG-FUN on ARGS if provided, otherwise on the region or entire buffer."
+     (apply orig-fun
+            (or args
+                (and mark-active (list (region-beginning) (region-end)))
+                (list (point-min) (point-max))))))
 
 ;; Group 1: Basic Editor Behavior and Tweaks
 (use-package emacs
