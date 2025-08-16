@@ -134,7 +134,10 @@
            '(conf-mode coffee-mode haml-mode python-mode slim-mode yaml-mode))
 
           ;; Non prog-modes which should nevertheless be indented
-          (prelude-yank-indent-modes '(LaTeX-mode TeX-mode)))
+          (prelude-yank-indent-modes '(LaTeX-mode TeX-mode))
+
+          ;; Max region size to indent
+          (prelude-yank-indent-threshold 1000))
       (if (and (not arg)
                (not (member major-mode prelude-indent-sensitive-modes))
                (or (derived-mode-p 'prog-mode)

@@ -43,11 +43,6 @@
   :prefix "prelude-"
   :group 'convenience)
 
-(defcustom prelude-yank-indent-threshold 1000
-  "Threshold (# chars) over which indentation does not automatically occur."
-  :type 'number
-  :group 'prelude)
-
 (provide 'prelude-custom)
 
 ;;; prelude-custom.el ends here
