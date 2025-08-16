@@ -43,12 +43,6 @@
   :prefix "prelude-"
   :group 'convenience)
 
-(defcustom prelude-yank-indent-modes '(LaTeX-mode TeX-mode)
-  "Modes in which to indent regions that are yanked (or yank-popped).
-Only modes that don't derive from `prog-mode' should be listed here."
-  :type 'list
-  :group 'prelude)
-
 (defcustom prelude-yank-indent-threshold 1000
   "Threshold (# chars) over which indentation does not automatically occur."
   :type 'number

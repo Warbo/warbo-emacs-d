@@ -130,8 +130,11 @@
     "If current mode is one of `prelude-yank-indent-modes', indent yanked text
 (with prefix arg don't indent)."
     (let ((prelude-indent-sensitive-modes
-           ;; Skip whitespace-sentitive modes
-           '(conf-mode coffee-mode haml-mode python-mode slim-mode yaml-mode)))      
+           ;; Skip whitespace-sensitive modes
+           '(conf-mode coffee-mode haml-mode python-mode slim-mode yaml-mode))
+
+          ;; Non prog-modes which should nevertheless be indented
+          (prelude-yank-indent-modes '(LaTeX-mode TeX-mode)))
       (if (and (not arg)
                (not (member major-mode prelude-indent-sensitive-modes))
                (or (derived-mode-p 'prog-mode)
