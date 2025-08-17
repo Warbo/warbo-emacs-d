@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Sun, 17 Aug 2025 16:33:20 +0100
+Subject: Re: Add tests for crux's advice-adding macros
+Message-Id: <856c231391910d27-b24f23ca0208402e-artemis@nixos-amd64>
+References: <856c231391910d27-0-artemis@nixos-amd64>
+In-Reply-To: <856c231391910d27-0-artemis@nixos-amd64>
+
+I've added some tests that reproduce the problematic behaviour in various
+scenarios. Switching to my fixed version of crux-with-region-or-buffer makes the
+corresponding tests pass.
