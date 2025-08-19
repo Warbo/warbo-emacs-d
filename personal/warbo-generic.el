@@ -53,6 +53,8 @@
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c r" . crux-rename-buffer-and-file))
   :config
+  (crux-with-region-or-buffer indent-region)
+  (crux-with-region-or-buffer untabify)
   (crux-with-region-or-line kill-region))
 
 (use-package diff-hl

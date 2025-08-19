@@ -32,16 +32,6 @@
 
 ;;; Code:
 
-;; Helper macros (kept outside use-package for now)
-(defmacro with-region-or-buffer (func)
-  "Advise FUNC to operate on the region or the whole buffer."
-  `(define-advice ,func (:around (orig-fun &rest args) with-region-or-buffer)
-     "Run ORIG-FUN on ARGS if provided, otherwise on the region or entire buffer."
-     (apply orig-fun
-            (or args
-                (and mark-active (list (region-beginning) (region-end)))
-                (list (point-min) (point-max))))))
-
 ;; Group 1: Basic Editor Behavior and Tweaks
 (use-package emacs
   :bind (("C-x \\" . align-regexp)
@@ -114,11 +104,6 @@
 
   ;; highlight the current line
   (global-hl-line-mode +1)
-
-  ;; Advice for basic commands
-  ;; TODO: Does crux offer this?
-  (with-region-or-buffer indent-region)
-  (with-region-or-buffer untabify)
 
   (defun prelude-indent-yanked-text-advice (&optional arg &rest _)
     "If current mode is one of `prelude-yank-indent-modes', indent yanked text
