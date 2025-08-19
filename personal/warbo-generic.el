@@ -44,6 +44,10 @@
   (browse-kill-ring-default-keybindings))
 
 (use-package crux
+  ;; TODO: 2025-08-19 This is our fork which avoids deprecation warnings
+  :quelpa (crux :fetcher github
+                :repo "Warbo/crux"
+                :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f")
   :ensure t
   :bind (("C-^" . crux-top-join-line)
          ([remap kill-whole-line] . crux-kill-whole-line)
