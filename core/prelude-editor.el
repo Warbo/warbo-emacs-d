@@ -106,8 +106,8 @@
   (global-hl-line-mode +1)
 
   (defun prelude-indent-yanked-text-advice (&optional arg &rest _)
-    "If current mode is one of `prelude-yank-indent-modes', indent yanked text
-(with prefix arg don't indent)."
+    "If current mode is one of `prelude-yank-indent-modes', or descended from
+`prog-mode', then indent yanked text (with prefix arg don't indent)."
     (let ((prelude-indent-sensitive-modes
            ;; Skip whitespace-sensitive modes
            '(conf-mode coffee-mode haml-mode python-mode slim-mode yaml-mode))
