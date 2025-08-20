@@ -36,9 +36,6 @@
                             :foreground bright-color
                             :weight bright-weight)))))
 
-(use-package mistty
-  :ensure t)
-
 (defvar possible-shell-binaries
   '("/run/current-system/sw/bin/bash"
     "~/.nix-profile/bin/bash"
