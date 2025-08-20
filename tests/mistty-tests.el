@@ -120,8 +120,12 @@
 (ert-deftest mistty-C-a-elsewhere ()
   "C-a elsewhere should move to the first non-whitespace character."
   (in-mistty-buffer
-   (execute-kbd-macro (kbd "\s-s o m e \s-t e x t"))
-   (goto-char (point-max))
+   (execute-kbd-macro (kbd "p r i n t f \s-\" \s-\s-h e l l o \s-w o r l d \n \" RET")) ; Run printf with leading spaces
+   (sleep-for 0.5) ; Give time for output to appear
+   (accept-process-output)
+   (goto-char (point-min)) ; Move to beginning of buffer
+   (re-search-forward "  hello world" nil t) ; Find the line with leading spaces
+   (goto-char (line-end-position)) ; Move to end of that line
    (execute-kbd-macro (kbd "C-a"))
    (should (= (point) (+ (line-beginning-position) 2)))))
 
