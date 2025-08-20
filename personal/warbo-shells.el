@@ -46,7 +46,10 @@
 
 (use-package mistty
   :ensure t
-  :bind (:map mistty-prompt-map))
+  :bind ((:map mistty-prompt-map
+              ("C-a"      . mistty-beginning-of-line))
+         (:map mistty-mode-map
+              ("C-a"      . smart-line-beginning))))
 
 (use-package shx
   :ensure t

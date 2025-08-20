@@ -480,7 +480,7 @@ If point is already at the beginning of text, move it to the beginning of line."
     (back-to-indentation)
     (when (eq pt (point))
       (beginning-of-line))))
-(bind-key* "C-a" 'smart-line-beginning)
+(global-set-key (kbd "C-a") 'smart-line-beginning)
 
 ;; Home and End should stick to the current line
 (global-set-key (kbd "<home>") 'smart-line-beginning)
