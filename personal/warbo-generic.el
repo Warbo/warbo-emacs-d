@@ -245,6 +245,7 @@
 (use-package smartparens
   :ensure t
   :hook (prog-mode . smartparens-mode)
+  :after crux
   :config
   (defun prelude-wrap-with (s)
     "Create a wrapper function for smartparens using S."
