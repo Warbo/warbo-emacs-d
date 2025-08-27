@@ -56,7 +56,7 @@
 ;; Provides TRAMP remotes like /nspawn:myuser@mycontainer:/ including
 ;; auto-complete. If you hit 'Interactive authentication required', try hopping
 ;; from /sudo like '/sudo:root@localhost|nspawn:chrisw@nixos-basic:/'
-(with-eval-after-load 'tramp (tramp-enable-method "nspawn"))
+(tramp-enable-method "nspawn")
 
 (provide 'warbo-tramp)
 ;;; warbo-tramp.el ends here
