@@ -44,11 +44,17 @@
   (browse-kill-ring-default-keybindings))
 
 (use-package crux
+  ;; TODO: 2025-08-19 This is our fork which avoids deprecation warnings
+  :quelpa (crux :fetcher github
+                :repo "Warbo/crux"
+                :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f")
   :ensure t
   :bind (("C-^" . crux-top-join-line)
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c r" . crux-rename-buffer-and-file))
   :config
+  (crux-with-region-or-buffer indent-region)
+  (crux-with-region-or-buffer untabify)
   (crux-with-region-or-line kill-region))
 
 (use-package diff-hl
@@ -239,6 +245,7 @@
 (use-package smartparens
   :ensure t
   :hook (prog-mode . smartparens-mode)
+  :after crux
   :config
   (defun prelude-wrap-with (s)
     "Create a wrapper function for smartparens using S."
@@ -473,7 +480,7 @@ If point is already at the beginning of text, move it to the beginning of line."
     (back-to-indentation)
     (when (eq pt (point))
       (beginning-of-line))))
-(bind-key* "C-a" 'smart-line-beginning)
+(global-set-key (kbd "C-a") 'smart-line-beginning)
 
 ;; Home and End should stick to the current line
 (global-set-key (kbd "<home>") 'smart-line-beginning)

@@ -36,9 +36,6 @@
                             :foreground bright-color
                             :weight bright-weight)))))
 
-(use-package mistty
-  :ensure t)
-
 (defvar possible-shell-binaries
   '("/run/current-system/sw/bin/bash"
     "~/.nix-profile/bin/bash"
@@ -49,7 +46,12 @@
 
 (use-package mistty
   :ensure t
-  :bind (:map mistty-prompt-map))
+  :bind ((:map mistty-prompt-map
+              ("C-<up>"   . mistty-send-C-p)
+              ("C-<down>" . mistty-send-C-n)
+              ("C-a"      . mistty-beginning-of-line))
+         (:map mistty-mode-map
+              ("C-a"      . smart-line-beginning))))
 
 (use-package shx
   :ensure t

@@ -1,0 +1,40 @@
+From: Chris Warburton
+Date: Sat, 16 Aug 2025 14:31:30 +0100
+State: new
+Subject: Add tests for crux's advice-adding macros
+Message-Id: <856c231391910d27-0-artemis@nixos-amd64>
+
+The crux package defines macros like crux-with-region-or-buffer, etc.
+which add advice to the a given function. However, that advice doesn't
+work well in some situations, since e.g. it relies on 'interactive' to
+provide arguments about the region; but that won't be supplied if it's
+called from ordinary ELisp.
+
+To work around this, I've altered our copy of with-region-or-buffer
+(that we originally inherited from Emacs Prelude, before upstream moved
+it to crux; since our Emacs config predates the existence of packages in
+Emacs!). In my fixed version, we use :around advice, instead of :before
+advice; and we check whether any arguments have been supplied, and use
+fallbacks if not; rather than relying on 'interactive'. I've also
+changed it to use define-advice instead of the obsolete defadvice.
+
+I now want to upstream this change to the crux package, so I've forked
+it, and temporarily switched the (use-package crux ...) block to load my
+local clone. However, we need to do a little more work to make it
+acceptable for upstream:
+
+ - First, we need to write some unit tests that demonstrate the
+   behaviour, when the advised function is called interactively and
+   non-interactively, to demonstrate that there's a problem.
+   - We have some existing tests in tests/editor-tests.el which check
+     how the 'yank' and 'yank-pop' functions behave interactively and
+     non-interactively, which do this *indirectly* (those functions have
+     advice which calls 'indent', and 'indent' has been modified using
+     the (crux-)with-region-or-buffer macro).
+   - We should put some more direct tests in tests/crux-tests.el, which
+     define standalone functions, modify them with the macro, and test
+     their behaviour when used interactively and non-interactively.
+ - Secondly, there are some other macros in crux, which do a similar
+   thing to crux-with-region-or-buffer (generally named crux-with-...).
+   We should write tests for these too, then change them to work in the
+   same way.
