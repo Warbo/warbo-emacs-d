@@ -31,12 +31,14 @@
 (use-package aider
   :ensure
   :config
+
   (setq aider-args
         (append '("--no-gitignore" "--no-auto-lint")
                 (pcase machine-id
                   ('wsl-ubuntu
                    `("--model" ,(concat "ollama_chat/" warbo-local-llm)
                      "--no-auto-commits"
+                     "--set-env" "OLLAMA_API_BASE=http://127.0.0.1:11434"
                      ))
                   (_
                    '("--model" "gemini/gemini-2.5-flash")))))
