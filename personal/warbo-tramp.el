@@ -26,7 +26,7 @@
 (setq remote-file-name-inhibit-locks t
       ;; Move things using scp (rather than copying back and forth)
       tramp-use-scp-direct-remote-copying t
-      ;; Avoid little rountrips
+      ;; Avoid little roundtrips
       remote-file-name-inhibit-auto-save-visited t
       ;; Files under this size will be piped through ssh; avoiding the overhead
       ;; of spinning up a separate connection
@@ -43,6 +43,23 @@
 (connection-local-set-profiles
  '(:application tramp :protocol "scp")
  'remote-direct-async-process)
+
+;; Try multiplexing each host's SSH sessions through one connection. This should
+;; avoid trying to open multiple connections to the same host, which can cause
+;; "Forbidden reentrant call of Tramp" errors (e.g. when auto-complete fires off
+;; requests in the background, and they collide with other Tramp processes)
+(setq tramp-ssh-controlmaster-options
+      (string-join
+       '(;; Automatically start a re-usable, master connection
+         "-o ControlMaster=auto"
+         ;; Socket for the master connection. We want this path to "collide" for
+         ;; every connection attempt to that host (to re-use existing connection
+         ;; if present), whilst avoiding collisions with other hosts. Note these
+         ;; paths can't be too long, or SSH rejects them.
+         "-o ControlPath=~/.ssh/tramp-%%r@%%h:%%p"
+         ;; Keep the connection open for 10 mins after last use.
+         "-o ControlPersist=600")
+       " "))
 
 ;; Make sure this is set in the same way as a normal shell (in case Emacs was
 ;; started as a SystemD unit in a different environment)
