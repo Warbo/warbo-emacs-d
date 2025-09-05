@@ -253,12 +253,10 @@
        (interactive "P")
        (sp-wrap-with-pair ,s)))
 
-  ;; Disable smartparens mode globally, as it's really slow
-  (show-smartparens-global-mode -1)
-
   (setq sp-base-key-bindings 'paredit)
   (setq sp-autoskip-closing-pair 'always)
   (setq sp-hybrid-kill-entire-symbol nil)
+  (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
 
   (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
