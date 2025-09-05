@@ -491,10 +491,6 @@ If point is already at the beginning of text, move it to the beginning of line."
 ;; Turn URLs into buttons
 (global-goto-address-mode 1)
 
-(use-package xah-fly-keys
-  :ensure t
-  :bind ("C-M-w" . xah-copy-file-path))
-
 ;; https://www.blogbyben.com/2022/05/gotcha-emacs-on-mac-os-too-many-files.html
 (defun file-notify-rm-all-watches ()
   "Remove all existing file notification watches from Emacs."
