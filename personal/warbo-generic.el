@@ -246,6 +246,10 @@
   :ensure t
   :hook (prog-mode . smartparens-mode)
   :after crux
+  :custom
+  (sp-base-key-bindings 'paredit)
+  (sp-autoskip-closing-pair 'always)
+  (sp-hybrid-kill-entire-symbol nil)
   :config
   (defun prelude-wrap-with (s)
     "Create a wrapper function for smartparens using S."
@@ -253,9 +257,6 @@
        (interactive "P")
        (sp-wrap-with-pair ,s)))
 
-  (setq sp-base-key-bindings 'paredit)
-  (setq sp-autoskip-closing-pair 'always)
-  (setq sp-hybrid-kill-entire-symbol nil)
   (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
 
