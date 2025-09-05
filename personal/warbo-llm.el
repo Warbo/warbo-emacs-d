@@ -5,7 +5,7 @@
 (use-package llm
   :ensure t)
 
-(defvar warbo-local-llm "qwen3"
+(defvar warbo-local-llm "qwen3:8b"
   "Name of LLM model to use with ollama.")
 
 (use-package ellama
