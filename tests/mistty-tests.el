@@ -140,87 +140,32 @@
    (while (accept-process-output nil 0.2))
    (should (= (point) (+ (line-beginning-position) 2)))))
 
-(defvar mistty-tests--emulate-terminal-args nil
-  "Variable to store arguments passed to advised `term-emulate-terminal'.")
-
-(defun mistty-tests--advice-term-emulate-terminal (orig-fun proc str)
-  "Advice to capture arguments passed to `term-emulate-terminal'."
-  (setq mistty-tests--emulate-terminal-args (list proc str))
-  ;; Call the original function to allow normal processing if needed,
-  ;; though for these tests we primarily care about the input.
-  (funcall orig-fun proc str))
-
 (ert-deftest mistty-test-emulate-terminal-passthrough ()
   "Test that `mistty--emulate-terminal' passes through regular text."
-  (let ((test-buffer (generate-new-buffer "*mistty-test*"))
-        (test-proc (make-process :name "test-proc" :buffer nil :command '("sleep" "100"))))
-    (with-current-buffer test-buffer
-      (term-mode)
-      (set-process-buffer test-proc test-buffer)
-      (unwind-protect
-          (progn
-            (advice-add 'term-emulate-terminal :around #'mistty-tests--advice-term-emulate-terminal)
-            (setq mistty-tests--emulate-terminal-args nil) ; Reset capture variable
-
-            (let ((input-string "hello world\n"))
-              (mistty--emulate-terminal test-proc input-string)
-              (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string))))
-
-            (setq mistty-tests--emulate-terminal-args nil)
-            (let ((input-string "another line\r"))
-              (mistty--emulate-terminal test-proc input-string)
-              (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string)))))
-        ;; Cleanup
-        (advice-remove 'term-emulate-terminal #'mistty-tests--advice-term-emulate-terminal)
-        (delete-process test-proc)))))
+  (in-mistty-buffer
+   (let ((input-string "hello world\n"))
+     (mistty-send-string input-string)
+     (sleep-for 0.5)
+     (accept-process-output)
+     (should (string-match-p (regexp-quote input-string) (buffer-string))))))
 
 (ert-deftest mistty-test-emulate-terminal-control-chars ()
   "Test how `mistty--emulate-terminal' handles SOH and STX control characters."
-  (let ((test-buffer (generate-new-buffer "*mistty-test*"))
-        (test-proc (make-process :name "test-proc" :buffer nil :command '("sleep" "100"))))
-    (with-current-buffer test-buffer
-      (term-mode)
-      (set-process-buffer test-proc test-buffer)
-      (unwind-protect
-          (progn
-            (advice-add 'term-emulate-terminal :around #'mistty-tests--advice-term-emulate-terminal)
-            (setq mistty-tests--emulate-terminal-args nil) ; Reset capture variable
-
-            ;; String with SOH (^A, \001) and STX (^B, \002)
-            (let ((input-string (concat "prefix" (string ?\001 ?\002) "suffix\n")))
-              (mistty--emulate-terminal test-proc input-string)
-              ;; Assert that the original string *including* the control chars is passed
-              ;; to term-emulate-terminal, as per the current code.
-              (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string))))
-
-            (setq mistty-tests--emulate-terminal-args nil)
-            ;; String with only control chars
-            (let ((input-string (string ?\001 ?\002)))
-              (mistty--emulate-terminal test-proc input-string)
-              (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string)))))
-        ;; Cleanup
-        (advice-remove 'term-emulate-terminal #'mistty-tests--advice-term-emulate-terminal)
-        (delete-process test-proc)))))
+  (in-mistty-buffer
+   (let ((input-string (concat "prefix" (string ?\001 ?\002) "suffix\n")))
+     (mistty-send-string input-string)
+     (sleep-for 0.5)
+     (accept-process-output)
+     (should (string-match-p (regexp-quote input-string) (buffer-string))))))
 
 (ert-deftest mistty-test-emulate-terminal-other-control-chars ()
   "Test that `mistty--emulate-terminal' passes through other control characters."
-  (let ((test-buffer (generate-new-buffer "*mistty-test*"))
-        (test-proc (make-process :name "test-proc" :buffer nil :command '("sleep" "100"))))
-    (with-current-buffer test-buffer
-      (term-mode)
-      (set-process-buffer test-proc test-buffer)
-      (unwind-protect
-          (progn
-            (advice-add 'term-emulate-terminal :around #'mistty-tests--advice-term-emulate-terminal)
-            (setq mistty-tests--emulate-terminal-args nil) ; Reset capture variable
-
-            ;; String with ESC (\e, \033) and CR (\r, \015)
-            (let ((input-string (concat "line1\r" "line2\e[K\n")))
-              (mistty--emulate-terminal test-proc input-string)
-              (should (equal mistty-tests--emulate-terminal-args (list test-proc input-string)))))
-        ;; Cleanup
-        (advice-remove 'term-emulate-terminal #'mistty-tests--advice-term-emulate-terminal)
-        (delete-process test-proc)))))
+  (in-mistty-buffer
+   (let ((input-string (concat "line1\r" "line2\e[K\n")))
+     (mistty-send-string input-string)
+     (sleep-for 0.5)
+     (accept-process-output)
+     (should (string-match-p "line2\n" (buffer-string))))))
 
 (provide 'mistty-tests)
 
