@@ -36,3 +36,48 @@
                     (last-command nil))
                 (yank-pop)))
     (should (string-match-p "\n  (message \"selected item\"))" (buffer-string)))))
+
+(ert-deftest warbo-test-typing-replaces-region ()
+  "Test that typing replaces the contents of the region."
+  (with-temp-buffer
+    (python-mode)
+    (insert "foo = 'hello world'")
+    (goto-char 8)
+    (push-mark 13)
+    (execute-kbd-macro "goodbye")
+    (should (string-equal (buffer-string) "foo = 'goodbye world'"))))
+
+(ert-deftest warbo-test-yank-replaces-region ()
+  "Test that yanking replaces the contents of the region."
+  (with-temp-buffer
+    (python-mode)
+    (insert "foo = 'hello world'")
+    (kill-new "goodbye")
+    (goto-char 8)
+    (push-mark 13)
+    (execute-kbd-macro (kbd "C-y"))
+    (should (string-equal (buffer-string) "foo = 'goodbye world'"))))
+
+(ert-deftest warbo-test-expand-and-contract-brackets ()
+  "Test that C-<left> and C-<right> expand/contract bracketssexps."
+  (with-temp-buffer
+    (python-mode)
+    (let ((original-code "foo(w, bar(x, y), z)")
+          (contracted-code "foo(w, bar(x), y, z)")
+          (expanded-code "foo(w, bar(x, y, z))"))
+      ;; Test contraction
+      (insert original-code)
+      (goto-char (1+ (string-search "x" original-code)))
+      (let ((initial-point (point)))
+        (execute-kbd-macro (kbd "C-<left>"))
+        (should (string-equal (buffer-string) contracted-code))
+        (should (= initial-point (point))))
+
+      ;; Test expansion
+      (delete-region (point-min) (point-max))
+      (insert original-code)
+      (goto-char (1+ (string-search "x" original-code)))
+      (let ((initial-point (point)))
+        (execute-kbd-macro (kbd "C-<right>"))
+        (should (string-equal (buffer-string) expanded-code))
+        (should (= initial-point (point)))))))
