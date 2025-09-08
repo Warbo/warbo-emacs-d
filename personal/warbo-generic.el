@@ -245,7 +245,6 @@
 (use-package smartparens
   :ensure t
   :hook (prog-mode . smartparens-mode)
-  :after crux
   :custom
   (sp-base-key-bindings 'paredit)
   (sp-autoskip-closing-pair 'always)
@@ -253,9 +252,9 @@
   :config
   (defun prelude-wrap-with (s)
     "Create a wrapper function for smartparens using S."
-    `(lambda (&optional arg)
+    (lambda (&optional arg)
        (interactive "P")
-       (sp-wrap-with-pair ,s)))
+       (sp-wrap-with-pair s)))
 
   (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
@@ -266,9 +265,10 @@
   (define-key prog-mode-map (kbd "M-\"") (prelude-wrap-with "\""))
 
   ;; smart curly braces
-  (sp-pair "{" nil :post-handlers
-           '(((lambda (&rest _ignored)
-                (crux-smart-open-line-above)) "RET"))))
+  (with-eval-after-load 'crux
+    (sp-pair "{" nil :post-handlers
+             `((,(lambda (&rest _ignored) (crux-smart-open-line-above))
+                "RET")))))
 
 ;; Hovering tooltips are annoying
 ;(setq tooltip-use-echo-area t)
