@@ -1,0 +1,17 @@
+From: Your Name
+Date: Mon, 08 Sep 2025 10:40:50 +0100
+State: new
+Subject: MisTTY tests aren't waiting for changes
+Message-Id: <cea11f24cce2fc9f-0-artemis@TRAC-AAD-5340>
+
+Some MisTTY tests are failing, with errors that look like the relevant action
+hasn't taken place, e.g. the cursor hasn't moved, or whatever.
+
+However, if I run the same ELisp "manually" (e.g. via a `progn` in C-:) then
+(a) the action has taken place (e.g. the cursor has moved; I can see it), but
+(b) the assertion still doesn't work (e.g. if I include it in the `progn`).
+
+Adding sit-for, sleep-for, accept-process-output, etc. doesn't seem to help.
+Maybe that's somehow preventing Emacs from handling the events it needs to?
+Perhaps using an async approach to waiting would be better? For example
+https://github.com/skeeto/emacs-aio
