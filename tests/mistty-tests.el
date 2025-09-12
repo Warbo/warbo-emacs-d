@@ -91,23 +91,36 @@
      ;; Verify prompt line is unchanged (no history cycling)
      (should-line prompt-line-content))))
 
+(defmacro warbo-wait-for (condition &optional timeout)
+  "Wait until CONDITION is non-nil, or TIMEOUT seconds have passed.
+The waiting process will repeatedly accept process output and sit for a short duration."
+  (let ((timeout-val (or timeout 4.0)))
+    `(let ((start-time (float-time)))
+       (while (and (not ,condition)
+                   (< (- (float-time) start-time) ,timeout-val))
+         (accept-process-output nil 0.1)
+         (sit-for 0.01))
+       (unless ,condition
+         (ert-fail (format "Timeout waiting for condition: %s" ',condition))))))
+
 (ert-deftest mistty-C-up-down-cycle-history ()
   "C-up and C-down should cycle history when on the command line."
   (in-mistty-buffer
    (execute-kbd-macro (kbd "e c h o \s-c o m m a n d 1 RET"))
-   (sleep-for 0.1)
-   (accept-process-output)
+   (warbo-wait-for (re-search-backward "command1" nil t))
    (execute-kbd-macro (kbd "e c h o \s-c o m m a n d 2 RET"))
-   (sleep-for 0.1)
-   (accept-process-output)
+   (warbo-wait-for (re-search-backward "command2" nil t))
 
    (execute-kbd-macro (kbd "C-<up>"))
+   (warbo-wait-for (string-equal "echo command2" (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
    (should-line "echo command2")
 
    (execute-kbd-macro (kbd "C-<up>"))
+   (warbo-wait-for (string-equal "echo command1" (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
    (should-line "echo command1")
 
    (execute-kbd-macro (kbd "C-<down>"))
+   (warbo-wait-for (string-equal "echo command2" (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
    (should-line "echo command2")))
 
 (ert-deftest mistty-C-a-at-prompt ()
@@ -116,9 +129,7 @@
    (let ((original-location (point)))
      (insert "some text")
      (execute-kbd-macro (kbd "C-a"))
-     (sit-for 0.5)
-     (while (accept-process-output nil 0.2))
-     (sit-for 0.5)
+     (warbo-wait-for (= (point) original-location))
      (should (= (point) original-location)))))
 
 (ert-deftest mistty-C-a-elsewhere ()
@@ -127,17 +138,13 @@
    ;; Run printf with leading spaces
    (execute-kbd-macro
     (kbd "p r i n t f \s-\" \s-\s-h e l l o \s-w o r l d \n \" RET"))
-   (sleep-for 0.5)
-   (while (accept-process-output nil 0.2))
+   (warbo-wait-for (re-search-forward "  hello world" nil t))
 
    ;; Go to the end of a line with leading spaces
-   (goto-char (point-min))
-   (re-search-forward "  hello world" nil t)
    (goto-char (line-end-position))
 
    (execute-kbd-macro (kbd "C-a"))
-   (sleep-for 0.5)
-   (while (accept-process-output nil 0.2))
+   (warbo-wait-for (= (point) (+ (line-beginning-position) 2)))
    (should (= (point) (+ (line-beginning-position) 2)))))
 
 (ert-deftest mistty-test-emulate-terminal-passthrough ()
