@@ -245,20 +245,18 @@
 (use-package smartparens
   :ensure t
   :hook (prog-mode . smartparens-mode)
-  :after crux
+  :custom
+  (sp-base-key-bindings 'paredit)
+  (sp-autoskip-closing-pair 'always)
+  (sp-hybrid-kill-entire-symbol nil)
   :config
   (defun prelude-wrap-with (s)
     "Create a wrapper function for smartparens using S."
-    `(lambda (&optional arg)
+    (lambda (&optional arg)
        (interactive "P")
-       (sp-wrap-with-pair ,s)))
+       (sp-wrap-with-pair s)))
 
-  ;; Disable smartparens mode globally, as it's really slow
-  (show-smartparens-global-mode -1)
-
-  (setq sp-base-key-bindings 'paredit)
-  (setq sp-autoskip-closing-pair 'always)
-  (setq sp-hybrid-kill-entire-symbol nil)
+  (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
 
   (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
@@ -267,9 +265,10 @@
   (define-key prog-mode-map (kbd "M-\"") (prelude-wrap-with "\""))
 
   ;; smart curly braces
-  (sp-pair "{" nil :post-handlers
-           '(((lambda (&rest _ignored)
-                (crux-smart-open-line-above)) "RET"))))
+  (with-eval-after-load 'crux
+    (sp-pair "{" nil :post-handlers
+             `((,(lambda (&rest _ignored) (crux-smart-open-line-above))
+                "RET")))))
 
 ;; Hovering tooltips are annoying
 ;(setq tooltip-use-echo-area t)
@@ -490,10 +489,6 @@ If point is already at the beginning of text, move it to the beginning of line."
 
 ;; Turn URLs into buttons
 (global-goto-address-mode 1)
-
-(use-package xah-fly-keys
-  :ensure t
-  :bind ("C-M-w" . xah-copy-file-path))
 
 ;; https://www.blogbyben.com/2022/05/gotcha-emacs-on-mac-os-too-many-files.html
 (defun file-notify-rm-all-watches ()

@@ -181,12 +181,7 @@
 
 (use-package shell
   :hook
-  (shell-mode . warbo-shell-mode-hook)
-  ;; :bind
-  ;; (:map shell-mode-map
-  ;;       ;; Use Company's drop-down completions, rather than a separate window
-  ;;       ("TAB" . 'company-manual-begin))
-  )
+  (shell-mode . warbo-shell-mode-hook))
 
 (require 'esh-mode)
 (use-package eshell
