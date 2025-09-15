@@ -1,0 +1,19 @@
+From: Your Name
+Date: Mon, 15 Sep 2025 09:52:42 +0100
+State: new
+Subject: Value 't' appearing in comint filter lists
+Message-Id: <dd97804a8f3af506-0-artemis@TRAC-AAD-5340>
+
+Sometimes getting weird errors about attempting to call `t` but it's not a
+function. The error seems to be coming from comint, since some of its filter
+function lists get the value `t` for some reason (these can be checked via C-h v
+and looking at anything that matches 'comint*filter'):
+
+```
+comint-preoutput-filter-functions is a variable defined in ‘comint.el’.
+
+Its value is
+(extract-directory-from-prompt xterm-color-filter shell-filter-ctrl-a-ctrl-b t)
+```
+
+Not sure where it's coming from; presumably warbo-shells.el
