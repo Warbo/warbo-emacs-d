@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Fri, 12 Sep 2025 13:39:13 +0100
+State: new
+Subject: Forbidden reentrant call of Tramp
+Message-Id: <ddb58b6fb4db2759-0-artemis@nixos-amd64>
+
+This seems to be happening a lot more, maybe due to auto-completion
+(corfu, etc.) running in shell-mode?

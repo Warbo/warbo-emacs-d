@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 16 Aug 2025 14:31:30 +0100
-State: new
+State: resolved
 Subject: Add tests for crux's advice-adding macros
 Message-Id: <856c231391910d27-0-artemis@nixos-amd64>
+resolution: fixed
 
 The crux package defines macros like crux-with-region-or-buffer, etc.
 which add advice to the a given function. However, that advice doesn't
