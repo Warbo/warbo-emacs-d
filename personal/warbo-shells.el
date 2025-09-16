@@ -17,6 +17,16 @@
   (setq comint-output-filter-functions
         (remove 'ansi-color-process-output comint-output-filter-functions))
 
+  ;; 2025-09-16: Remove any occurrences of 't', which seem to be appearing
+  ;; sporadically for some unknown reason. Would be nice to fix the cause,
+  ;; rather than (attempting to fix) the symptom.
+  (setq comint-preoutput-filter-functions
+        (remove t comint-preoutput-filter-functions))
+  (setq comint-output-filter-functions
+        (remove t comint-output-filter-functions))
+  (setq comint-input-filter-functions
+        (remove t comint-input-filter-functions))
+
   ;; Synchronize standard ansi-color faces with xterm-color's palette and bold
   ;; setting. This ensures e.g. MisTTY looks the same as shell-mode.
   (let ((ansi-color-names
