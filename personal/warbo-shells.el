@@ -7,15 +7,16 @@
 ;; handling, e.g. (ansi-color-for-comint-mode-on), since that's SLOW
 (use-package xterm-color
   :ensure t
-  :custom
-  (comint-output-filter-functions
-   (remove 'ansi-color-process-output comint-output-filter-functions)
-   "Remove built-in handling of ANSI colour codes")
-  (comint-preoutput-filter-functions
-   (cons 'xterm-color-filter
-         (remove 'xterm-color-filter comint-preoutput-filter-functions))
-   "Ensure xterm-color's preoutput handler is in place")
   :config
+  ;; Switch comint's output filters from ansi-color to xterm-color.
+  ;; Ensure xterm-color's preoutput handler is in place and remove 't'
+  (setq comint-preoutput-filter-functions
+        (cons 'xterm-color-filter
+              (remove 'xterm-color-filter comint-preoutput-filter-functions)))
+  ;; Remove built-in handling of ANSI colour codes and remove 't'
+  (setq comint-output-filter-functions
+        (remove 'ansi-color-process-output comint-output-filter-functions))
+
   ;; Synchronize standard ansi-color faces with xterm-color's palette and bold
   ;; setting. This ensures e.g. MisTTY looks the same as shell-mode.
   (let ((ansi-color-names
