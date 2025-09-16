@@ -416,10 +416,6 @@
   "Open a new shell for each entry in startup-shells."
   (interactive)
   (mapc 'shell-named-in startup-shells))
-
-;; TODO: Start each buffer as empty, but with a local function that starts the
-;; shell if switched-to (window-buffer-change-functions could do this)
-
 (open-startup-shells)
 
 (defun command-in-buffer (buf-dir-cmd)
@@ -490,7 +486,7 @@
  '(comint-scroll-show-maximum-output t)   ; scroll to show max possible output
  '(comint-completion-autolist t)          ; show completion list when ambiguous
  '(comint-input-ignoredups t)             ; no duplicates in command history
- '(comint-completion-addsuffix t)         ; insert space/slash after file completion
+ '(comint-completion-addsuffix t)         ; insert space/slash after path
  )
 
 (provide 'warbo-shells)
