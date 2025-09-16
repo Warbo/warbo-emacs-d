@@ -16,8 +16,10 @@
          (remove 'xterm-color-filter comint-preoutput-filter-functions))
    "Ensure xterm-color's preoutput handler is in place")
   :config
-  ;; Synchronize standard ansi-color faces with xterm-color's palette and bold setting
-  (let ((ansi-color-names '("black" "red" "green" "yellow" "blue" "magenta" "cyan" "white"))
+  ;; Synchronize standard ansi-color faces with xterm-color's palette and bold
+  ;; setting. This ensures e.g. MisTTY looks the same as shell-mode.
+  (let ((ansi-color-names
+         '("black" "red" "green" "yellow" "blue" "magenta" "cyan" "white"))
         (bright-weight (if xterm-color-use-bold-for-bright 'bold 'normal)))
     (dotimes (i (length ansi-color-names))
       (let* ((name (nth i ansi-color-names))
@@ -100,13 +102,15 @@
 (defvar warbo-shell-want-lowercase-system-name nil
   "Setting this to t will cause (system-name) to lowercase its result.")
 
-(define-advice system-name (:around (orig-fun &rest args) system-name-maybe-lowercased)
+(define-advice system-name
+    (:around (orig-fun &rest args) system-name-maybe-lowercased)
   "Maybe lowercases result of function `system-name' (ORIG-FUN with ARGS)."
   (if warbo-shell-want-lowercase-system-name
       (downcase (apply orig-fun args))
     (apply orig-fun args)))
 
-(define-advice ansi-osc-directory-tracker (:around (orig-fun &rest args) track-osc-over-tramp)
+(define-advice ansi-osc-directory-tracker
+    (:around (orig-fun &rest args) track-osc-over-tramp)
   "Advise `ansi-osc-directory-tracker' (ORIG-FUN, w/ ARGS) to work over TRAMP."
   ;; The second element of ARGS is the text extracted from the OSC7 PS1 prompt.
   ;; It should have the form "file://host/path", e.g. "file://nixos/home/chris".
@@ -394,7 +398,8 @@
      `(("home" "~")
        ("emacs-d" "~/.emacs.d")
        ("nix-config" "~/nix-config")
-       ("nixos-basic" "/sudo:root@localhost|nspawn:chrisw@nixos-basic:/home/chrisw")
+       ("nixos-basic"
+        "/sudo:root@localhost|nspawn:chrisw@nixos-basic:/home/chrisw")
        ("notes" "~/notes")
        ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
 
@@ -441,7 +446,8 @@
           '(lambda()
              (local-set-key (kbd "C-l") 'eshell/clear)))
 
-(define-advice shell-command (:after (command &optional output-buffer error-buffer))
+(define-advice shell-command
+    (:after (command &optional output-buffer error-buffer))
   "From https://stackoverflow.com/a/6895517/884682 ."
   (when (get-buffer "*Async Shell Command*")
     (with-current-buffer "*Async Shell Command*"
