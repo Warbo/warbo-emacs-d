@@ -671,8 +671,12 @@ Inspired by https://emacs.stackexchange.com/a/42174/5391"
                   ;; TODO: Check for more things here, e.g. the existence of a
                   ;; .cabal file containing a test suite, the existence of a
                   ;; Python project with tests, etc.
-                  ((file-exists-p (concat dir "/test.sh")) "./test.sh")
-                  ((file-exists-p (concat dir "/tests.sh")) "./tests.sh")
+                  ((file-exists-p (concat dir "/test.sh"))
+                   "./test.sh")
+                  ((file-exists-p (concat dir "/tests.sh"))
+                   "./tests.sh")
+                  ((file-exists-p (concat dir "/test-runner.sh"))
+                   "./test-runner.sh")
                   (t nil))))
         (when cmd
           (let* ((prefix (car (last (s-split "/" dir t))))
