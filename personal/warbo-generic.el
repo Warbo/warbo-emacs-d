@@ -78,6 +78,9 @@
 (use-package ag
   :ensure t)
 
+(use-package deadgrep
+  :ensure t)
+
 (use-package embark
   :ensure t
   :bind
