@@ -685,7 +685,7 @@ Inspired by https://emacs.stackexchange.com/a/42174/5391"
             (if (process-live-p proc)
                 (set-process-sentinel  proc warbo-find-and-run-tests-sentinel)
               (message "Tests finished immediately"))))))))
-(keymap-global-set "<f5>" 'warbo-find-and-run-tests)
+(keymap-global-set "<f6>" 'warbo-find-and-run-tests)
 
 (provide 'warbo-programming)
 ;;; warbo-programming.el ends here
