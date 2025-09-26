@@ -1,0 +1,8 @@
+From: Your Name
+Date: Thu, 25 Sep 2025 18:15:16 +0100
+State: new
+Subject: Test Haskell setup
+Message-Id: <e9cbc4d1d87f6e7f-0-artemis@TRAC-AAD-5340>
+
+Write tests for Haskell files, like jump to definition, eglot-code-actions, etc.
+These should be realistic, and cover e.g. projects containing multiple packages.

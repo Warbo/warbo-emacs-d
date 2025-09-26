@@ -78,6 +78,11 @@
 (use-package ag
   :ensure t)
 
+(use-package deadgrep
+  :ensure t
+  :bind
+  (("<f5>" . #'deadgrep)))
+
 (use-package embark
   :ensure t
   :bind
