@@ -1,0 +1,8 @@
+From: Your Name
+Date: Thu, 25 Sep 2025 18:16:43 +0100
+State: new
+Subject: Tests for Vue
+Message-Id: <af80c4940cf71501-0-artemis@TRAC-AAD-5340>
+
+Check things like flymake/flycheck linter highlights, jump to definition,
+correct indentation, etc.
