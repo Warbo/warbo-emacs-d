@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 19 Aug 2025 21:06:34 +0100
-State: new
+State: resolved
 Subject: Make MisTTY feel more like shell-mode
 Message-Id: <8b10da116865567f-0-artemis@nixos-amd64>
+resolution: fixed
 
 I'm used to shell-mode, e.g. C-up/C-down for navigating commands, C-a to
 move point after the prompt, etc.
