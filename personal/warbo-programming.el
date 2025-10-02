@@ -442,11 +442,10 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :init (global-flycheck-mode))
 
 (use-package dash
-  :defer t)
+  :ensure t)
 
 (use-package f
-  :commands f-join  ;; add autoload for f-join
-  :defer t)
+  :ensure t)
 
 (use-package s
   :ensure t)
