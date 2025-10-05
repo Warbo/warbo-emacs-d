@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Sun, 05 Oct 2025 12:25:09 +0100
+State: new
+Subject: Test nixfmt uses 80 columns
+Message-Id: <ed1daba6e68df187-0-artemis@nixos-amd64>
+
+Not sure why it sometimes seems to ignore the 80 columns argument.
