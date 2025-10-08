@@ -394,7 +394,6 @@
      `(("home" "~")
        ("emacs-d" "~/.emacs.d")
        ("nix-config" "~/nix-config")
-       ("nixos-basic" "/sudo:root@localhost|nspawn:chrisw@nixos-basic:/home/chrisw")
        ("notes" "~/notes")
        ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
 
