@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Tue, 16 Sep 2025 11:50:24 +0100
+Subject: Re: Value 't' appearing in comint filter lists
+Message-Id: <dd97804a8f3af506-b2615dc68f23d77c-artemis@nixos-amd64>
+References: <dd97804a8f3af506-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <dd97804a8f3af506-0-artemis@TRAC-AAD-5340>
+
+Not sure where this is coming from, but I've added some code to
+warbo-shells.el that tries to remove them if they appear. Not sure how
+effective that will be though.

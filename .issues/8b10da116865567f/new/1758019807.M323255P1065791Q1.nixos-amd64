@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 16 Sep 2025 11:49:47 +0100
+Subject: Re: Make MisTTY feel more like shell-mode
+Message-Id: <8b10da116865567f-c2e4fb4c4c5a665b-artemis@nixos-amd64>
+References: <8b10da116865567f-0-artemis@nixos-amd64>
+In-Reply-To: <8b10da116865567f-0-artemis@nixos-amd64>
+
+Works, although the regression tests don't (that's addressed in other issues)

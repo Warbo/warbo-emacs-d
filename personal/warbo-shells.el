@@ -7,17 +7,30 @@
 ;; handling, e.g. (ansi-color-for-comint-mode-on), since that's SLOW
 (use-package xterm-color
   :ensure t
-  :custom
-  (comint-output-filter-functions
-   (remove 'ansi-color-process-output comint-output-filter-functions)
-   "Remove built-in handling of ANSI colour codes")
-  (comint-preoutput-filter-functions
-   (cons 'xterm-color-filter
-         (remove 'xterm-color-filter comint-preoutput-filter-functions))
-   "Ensure xterm-color's preoutput handler is in place")
   :config
-  ;; Synchronize standard ansi-color faces with xterm-color's palette and bold setting
-  (let ((ansi-color-names '("black" "red" "green" "yellow" "blue" "magenta" "cyan" "white"))
+  ;; Switch comint's output filters from ansi-color to xterm-color.
+  ;; Ensure xterm-color's preoutput handler is in place and remove 't'
+  (setq comint-preoutput-filter-functions
+        (cons 'xterm-color-filter
+              (remove 'xterm-color-filter comint-preoutput-filter-functions)))
+  ;; Remove built-in handling of ANSI colour codes and remove 't'
+  (setq comint-output-filter-functions
+        (remove 'ansi-color-process-output comint-output-filter-functions))
+
+  ;; 2025-09-16: Remove any occurrences of 't', which seem to be appearing
+  ;; sporadically for some unknown reason. Would be nice to fix the cause,
+  ;; rather than (attempting to fix) the symptom.
+  (setq comint-preoutput-filter-functions
+        (remove t comint-preoutput-filter-functions))
+  (setq comint-output-filter-functions
+        (remove t comint-output-filter-functions))
+  (setq comint-input-filter-functions
+        (remove t comint-input-filter-functions))
+
+  ;; Synchronize standard ansi-color faces with xterm-color's palette and bold
+  ;; setting. This ensures e.g. MisTTY looks the same as shell-mode.
+  (let ((ansi-color-names
+         '("black" "red" "green" "yellow" "blue" "magenta" "cyan" "white"))
         (bright-weight (if xterm-color-use-bold-for-bright 'bold 'normal)))
     (dotimes (i (length ansi-color-names))
       (let* ((name (nth i ansi-color-names))
@@ -100,13 +113,15 @@
 (defvar warbo-shell-want-lowercase-system-name nil
   "Setting this to t will cause (system-name) to lowercase its result.")
 
-(define-advice system-name (:around (orig-fun &rest args) system-name-maybe-lowercased)
+(define-advice system-name
+    (:around (orig-fun &rest args) system-name-maybe-lowercased)
   "Maybe lowercases result of function `system-name' (ORIG-FUN with ARGS)."
   (if warbo-shell-want-lowercase-system-name
       (downcase (apply orig-fun args))
     (apply orig-fun args)))
 
-(define-advice ansi-osc-directory-tracker (:around (orig-fun &rest args) track-osc-over-tramp)
+(define-advice ansi-osc-directory-tracker
+    (:around (orig-fun &rest args) track-osc-over-tramp)
   "Advise `ansi-osc-directory-tracker' (ORIG-FUN, w/ ARGS) to work over TRAMP."
   ;; The second element of ARGS is the text extracted from the OSC7 PS1 prompt.
   ;; It should have the form "file://host/path", e.g. "file://nixos/home/chris".
@@ -410,10 +425,6 @@
   "Open a new shell for each entry in startup-shells."
   (interactive)
   (mapc 'shell-named-in startup-shells))
-
-;; TODO: Start each buffer as empty, but with a local function that starts the
-;; shell if switched-to (window-buffer-change-functions could do this)
-
 (open-startup-shells)
 
 (defun command-in-buffer (buf-dir-cmd)
@@ -440,7 +451,8 @@
           '(lambda()
              (local-set-key (kbd "C-l") 'eshell/clear)))
 
-(define-advice shell-command (:after (command &optional output-buffer error-buffer))
+(define-advice shell-command
+    (:after (command &optional output-buffer error-buffer))
   "From https://stackoverflow.com/a/6895517/884682 ."
   (when (get-buffer "*Async Shell Command*")
     (with-current-buffer "*Async Shell Command*"
@@ -483,7 +495,7 @@
  '(comint-scroll-show-maximum-output t)   ; scroll to show max possible output
  '(comint-completion-autolist t)          ; show completion list when ambiguous
  '(comint-input-ignoredups t)             ; no duplicates in command history
- '(comint-completion-addsuffix t)         ; insert space/slash after file completion
+ '(comint-completion-addsuffix t)         ; insert space/slash after path
  )
 
 (provide 'warbo-shells)
