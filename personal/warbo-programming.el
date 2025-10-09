@@ -669,20 +669,16 @@ tests for the current buffer. It is intended to be set via
      'safe-local-variable
      (lambda (v) (equal v 'warbo-run-selenium)))
 
-(defun warbo-find-and-run-tests ()
-  "Look for a test runner in the current dir (or parents) and run it.
-If `warbo-run-buffer-tests-function' is non-nil, call that instead."
-  (interactive)
+(defun warbo-find-and-run-tests (arg)
+  "Run `warbo-run-buffer-tests-function' if it's non-nil. Otherwise, look for a
+test runner in the current git repo and run it if found. Allows prefix arg to be
+passed along."
+  (interactive "P")
   (if warbo-run-buffer-tests-function
-      (funcall warbo-run-buffer-tests-function)
-    (let ((dir (s-chomp (shell-command-to-string
-                         "git rev-parse --show-toplevel"))))
-      (when (and (s-starts-with-p "/" dir)
-                 (not (s-starts-with-p "fatal:" dir)))
+      (funcall warbo-run-buffer-tests-function arg)
+    (let ((dir (magit-toplevel)))
+      (when dir
         (let ((cmd (cond
-                    ;; TODO: Check for more things here, e.g. the existence of a
-                    ;; .cabal file containing a test suite, the existence of a
-                    ;; Python project with tests, etc.
                     ((file-exists-p (concat dir "/test.sh"))
                      "./test.sh")
                     ((file-exists-p (concat dir "/tests.sh"))
@@ -699,7 +695,7 @@ If `warbo-run-buffer-tests-function' is non-nil, call that instead."
                            (async-shell-command cmd output-buffer)
                            (get-buffer-process output-buffer))))
               (if (process-live-p proc)
-                  (set-process-sentinel  proc warbo-find-and-run-tests-sentinel)
+                  (set-process-sentinel proc warbo-find-and-run-tests-sentinel)
                 (message "Tests finished immediately")))))))))
 (keymap-global-set "<f6>" 'warbo-find-and-run-tests)
 
