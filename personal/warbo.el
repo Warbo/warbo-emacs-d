@@ -54,5 +54,10 @@
 (use-package warbo-windows)
 (use-package warbo-writing)
 
+;; Allow loading machine-specific things that aren't kept in this repo
+(let ((extra (expand-file-name "~/notes/elisp.el")))
+  (when (file-exists-p extra)
+    (load-file extra)))
+
 (provide 'warbo)
 ;;; warbo.el ends here
