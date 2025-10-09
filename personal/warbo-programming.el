@@ -665,6 +665,9 @@ If non-nil, this function will be called with no arguments to run
 tests for the current buffer. It is intended to be set via
 .dir-locals.el or similar.")
 (make-variable-buffer-local 'warbo-run-buffer-tests-function)
+(put 'warbo-run-buffer-tests-function
+     'safe-local-variable
+     (lambda (v) (equal v 'warbo-run-selenium)))
 
 (defun warbo-find-and-run-tests ()
   "Look for a test runner in the current dir (or parents) and run it.
