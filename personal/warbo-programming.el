@@ -659,35 +659,45 @@ Inspired by https://emacs.stackexchange.com/a/42174/5391"
        (concat "(command -v notify-send && notify-send " msg ") || echo " msg)))
     (shell-command-sentinel process signal)))
 
+(defvar warbo-run-buffer-tests-function nil
+  "A function to be run by `warbo-find-and-run-tests'.
+If non-nil, this function will be called with no arguments to run
+tests for the current buffer. It is intended to be set via
+.dir-locals.el or similar.")
+(make-variable-buffer-local 'warbo-run-buffer-tests-function)
+
 (defun warbo-find-and-run-tests ()
-  "Look for a test runner in the current dir (or parents) and run it."
+  "Look for a test runner in the current dir (or parents) and run it.
+If `warbo-run-buffer-tests-function' is non-nil, call that instead."
   (interactive)
-  (let ((dir (s-chomp (shell-command-to-string
-                       "git rev-parse --show-toplevel"))))
-    (when (and (s-starts-with-p "/" dir)
-               (not (s-starts-with-p "fatal:" dir)))
-      (let ((cmd (cond
-                  ;; TODO: Check for more things here, e.g. the existence of a
-                  ;; .cabal file containing a test suite, the existence of a
-                  ;; Python project with tests, etc.
-                  ((file-exists-p (concat dir "/test.sh"))
-                   "./test.sh")
-                  ((file-exists-p (concat dir "/tests.sh"))
-                   "./tests.sh")
-                  ((file-exists-p (concat dir "/test-runner.sh"))
-                   "./test-runner.sh")
-                  (t nil))))
-        (when cmd
-          (let* ((prefix (car (last (s-split "/" dir t))))
-                 (output-buffer (generate-new-buffer
-                                 (concat "*" prefix " test*")))
-                 (proc (with-current-buffer output-buffer
-                         (cd dir)
-                         (async-shell-command cmd output-buffer)
-                         (get-buffer-process output-buffer))))
-            (if (process-live-p proc)
-                (set-process-sentinel  proc warbo-find-and-run-tests-sentinel)
-              (message "Tests finished immediately"))))))))
+  (if warbo-run-buffer-tests-function
+      (funcall warbo-run-buffer-tests-function)
+    (let ((dir (s-chomp (shell-command-to-string
+                         "git rev-parse --show-toplevel"))))
+      (when (and (s-starts-with-p "/" dir)
+                 (not (s-starts-with-p "fatal:" dir)))
+        (let ((cmd (cond
+                    ;; TODO: Check for more things here, e.g. the existence of a
+                    ;; .cabal file containing a test suite, the existence of a
+                    ;; Python project with tests, etc.
+                    ((file-exists-p (concat dir "/test.sh"))
+                     "./test.sh")
+                    ((file-exists-p (concat dir "/tests.sh"))
+                     "./tests.sh")
+                    ((file-exists-p (concat dir "/test-runner.sh"))
+                     "./test-runner.sh")
+                    (t nil))))
+          (when cmd
+            (let* ((prefix (car (last (s-split "/" dir t))))
+                   (output-buffer (generate-new-buffer
+                                   (concat "*" prefix " test*")))
+                   (proc (with-current-buffer output-buffer
+                           (cd dir)
+                           (async-shell-command cmd output-buffer)
+                           (get-buffer-process output-buffer))))
+              (if (process-live-p proc)
+                  (set-process-sentinel  proc warbo-find-and-run-tests-sentinel)
+                (message "Tests finished immediately")))))))))
 (keymap-global-set "<f6>" 'warbo-find-and-run-tests)
 
 (provide 'warbo-programming)
