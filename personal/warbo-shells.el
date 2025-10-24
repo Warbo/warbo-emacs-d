@@ -275,33 +275,13 @@
   (interactive)
   (let ((buf (free-name-num "shell")))
     (shell buf)
-    ;; (with-current-buffer buf
-    ;;   ;; Stops shell-mode echoing our input, since the shell already does
-    ;;   ;; NOTE: Commented-out, since only seems to be needed when wrapping
-    ;;   ;; bash in fold (via expect)!
-    ;;   (setq comint-process-echoes t))
     buf))
-
-(defun bash-unwrapped ()
-  "Start a shell-mode shell, forcing `bash' as the shell."
-  (interactive)
-  (let ((explicit-shell-file-name "bash"))
-    (bash)))
 
 ;; "Refresh" an SSH shell after a connection dies
 (defun refresh-terminal ()
   "Start a new shell, like the current."
   (interactive)
   (let ((buf-name (buffer-name)))
-    (progn (command-execute 'bash)
-           (kill-buffer   buf-name)
-           (rename-buffer buf-name))))
-
-(defun refresh-terminal-unbuffered ()
-  "Start a new shell, like the current.  Avoids buffering the bash shell."
-  (interactive)
-  (let ((buf-name                 (buffer-name))
-        (explicit-shell-file-name "bash"))
     (progn (command-execute 'bash)
            (kill-buffer   buf-name)
            (rename-buffer buf-name))))
