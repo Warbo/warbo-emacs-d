@@ -76,11 +76,11 @@
 (use-package mistty
   :ensure t
   :bind ((:map mistty-prompt-map
-              ("C-<up>"   . mistty-send-C-p)
-              ("C-<down>" . mistty-send-C-n)
-              ("C-a"      . mistty-beginning-of-line))
+               ("C-<up>"   . mistty-send-C-p)
+               ("C-<down>" . mistty-send-C-n)
+               ("C-a"      . mistty-beginning-of-line))
          (:map mistty-mode-map
-              ("C-a"      . smart-line-beginning))))
+               ("C-a"      . smart-line-beginning))))
 
 (use-package shx
   :ensure t
