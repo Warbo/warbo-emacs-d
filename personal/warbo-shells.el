@@ -272,14 +272,22 @@
   (let ((explicit-shell-file-name "bash"))
     (bash)))
 
-;; "Refresh" an SSH shell after a connection dies
 (defun refresh-terminal ()
-  "Start a new shell, like the current."
+  "Restart this shell's process, even if remote."
   (interactive)
-  (let ((buf-name (buffer-name)))
-    (progn (command-execute 'bash)
-           (kill-buffer   buf-name)
-           (rename-buffer buf-name))))
+  (let ((host-prefix (or (file-remote-p (or (buffer-file-name)
+                                            default-directory))
+                         "")))
+    (let ((found (cl-some (lambda (path)
+                            (and (file-exists-p (concat host-prefix path))
+                                 path))
+                          ;; Check if any of these exist, when host-prefix is
+                          ;; prepended. If so, the first one is returned.
+                          possible-shell-binaries)))
+      (if found
+          (let ((explicit-shell-file-name found))
+            (shx--restart-shell))
+        (shx--restart-shell)))))
 
 (defun refresh-terminal-unbuffered ()
   "Start a new shell, like the current.  Avoids buffering the bash shell."
