@@ -278,6 +278,10 @@
     buf))
 
 ;; "Refresh" an SSH shell after a connection dies
+;; TODO: shx will restart a terminal process if we use something like '#ssh',
+;; which has the advantage of keeping our old buffer contents intact. Not sure
+;; how to make it restart "whatever we were doing" (e.g. using #ssh on its own
+;; will open a local shell, even if we were on a remote one)
 (defun refresh-terminal ()
   "Start a new shell, like the current."
   (interactive)
