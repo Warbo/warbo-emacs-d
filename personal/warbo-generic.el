@@ -120,6 +120,13 @@
 (use-package guru-mode
   :ensure t)
 
+(use-package helpful
+  :ensure t
+  :bind (("C-h f" . helpful-callable)
+         ("C-h v" . helpful-variable)
+         ("C-h k" . helpful-key)
+         ("C-h x" . helpful-command)))
+
 (use-package imenu-anywhere
   :ensure t)
 
