@@ -441,6 +441,15 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :init (global-flycheck-mode))
 
+(use-package flyover
+  :ensure t
+  :config
+  (add-hook 'flycheck-mode-hook #'flyover-mode)
+  (setq flyover-levels '(error warning))
+  (setq flyover-use-theme-colors t)
+  (setq flyover-show-at-eol nil)
+  (setq flyover-virtual-line-type 'curved-arrow))
+
 (use-package dash
   :ensure t)
 
