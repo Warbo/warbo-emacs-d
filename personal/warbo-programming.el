@@ -132,7 +132,7 @@
 
 (use-package xref-union
   :ensure t
-  :hook haskell-mode
+  :hook (haskell-mode . xref-union-mode)
   :config
   (setq tags-revert-without-query 1)
 
