@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Fri, 14 Nov 2025 20:23:11 +0000
+State: new
+Subject: Haskell support for combobulate
+Message-Id: <a66c73d8c9219751-0-artemis@nixos-amd64>
+
+If we find combobulate useful, maybe nice to add Haskell support.
+
+I imagine doing this with LOADS of regression tests.
