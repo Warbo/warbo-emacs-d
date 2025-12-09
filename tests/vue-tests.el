@@ -23,14 +23,14 @@
            (f-mkdir types-dir)
            (with-temp-buffer
              (insert "<template>
-  <div class="container">
+  <div class=\"container\">
     <h1>{{ message }}</h1>
     <p>{{ computedMessage }}</p>
-    <another-component :value="message"></another-component>
+    <another-component :value=\"message\"></another-component>
   </div>
 </template>
 
-<script lang="ts">
+<script lang=\"ts\">
 import { defineComponent, computed } from 'vue';
 import type { MyType } from '../types';
 import { unusedFunction } from './utils'; // Unused import for a code action
