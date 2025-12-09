@@ -37,3 +37,6 @@ elpy
 /personal-cache
 /games
 /projects
+/.pre-commit-config.yaml
+/.editorconfig
+/.yamlfmt
