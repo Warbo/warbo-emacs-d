@@ -31,9 +31,11 @@
 (use-package aider
   :ensure
   :config
-
+  (setq aider-program "/home/chris/repos/warbo-utilities/result/bin/aider-claude")
   (setq aider-args
-        (append '("--no-gitignore" "--no-auto-lint")
+        (append '("--no-gitignore"
+                  "--no-auto-lint"
+                  "--edit-format" "diff")
                 (pcase machine-id
                   ('wsl-ubuntu
                    `("--model" ,(concat "ollama_chat/" warbo-local-llm)
@@ -41,7 +43,8 @@
                      "--set-env" "OLLAMA_API_BASE=http://127.0.0.1:11434"
                      ))
                   (_
-                   '("--model" "gemini/gemini-2.5-flash")))))
+                   '("--model" "anthropic/claude-opus-4-5"
+                     "--weak-model" "anthropic/claude-haiku-4-5")))))
   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 (provide 'warbo-llm)
