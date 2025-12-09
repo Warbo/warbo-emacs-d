@@ -610,11 +610,14 @@ If point is already at the beginning of text, move it to the beginning of line."
             ((equal machine-id 'manjaro)
              "EnvyCodeR Nerd Font Mono-11")
 
-            ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
-             "EnvyCodeR Nerd Font Mono-8")
+            ((font-utils-exists-p "Droid Sans Mono-8")
+             "Droid Sans Mono-8")
 
-            ((font-utils-exists-p "Droid Sans Mono-9")
-             "Droid Sans Mono-9"))))
+            ((font-utils-exists-p "DroidSansM Nerd Font Mono-8")
+             "DroidSansM Nerd Font Mono-8")
+
+            ((font-utils-exists-p "EnvyCodeR Nerd Font Mono-8")
+             "EnvyCodeR Nerd Font Mono-8"))))
 
     ;; Declare desired-font. Will not replace a value that's already defined.
     (defvar desired-font
