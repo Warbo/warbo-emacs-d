@@ -14,31 +14,6 @@
               (re-search-backward comint-prompt-regexp nil t))
       (error "Prompt not found in %s" comint-buffer))))
 
-(ert-deftest warbo-wait-for-comint-detects-prompt ()
-  "warbo-wait-for-comint should detect when the prompt appears."
-  (in-shell-buffer
-    (insert "echo 'test output'")
-    (comint-send-input)
-    ;; This should not raise an error if the prompt is detected
-    (warbo-wait-for-comint (current-buffer))
-    ;; If we get here, the prompt was found
-    (should t)))
-
-(ert-deftest warbo-wait-for-comint-timeout ()
-  "warbo-wait-for-comint should timeout if prompt never appears."
-  (let ((shell-buf (bash)))
-    (unwind-protect
-        (with-current-buffer shell-buf
-          (warbo-wait-for-comint shell-buf)
-          ;; Simulate a hung process by deleting the prompt
-          (goto-char (point-max))
-          (let ((inhibit-read-only t))
-            (delete-region (line-beginning-position) (point-max)))
-          ;; This should raise an error
-          (should-error (warbo-wait-for-comint shell-buf)))
-      (let ((kill-buffer-query-functions nil))
-        (kill-buffer shell-buf)))))
-
 (defmacro in-shell-buffer (&rest body)
   "Run BODY in a new shell buffer, with setup and teardown."
   `(let ((shell-buf (bash)))
@@ -67,14 +42,39 @@
     (rename-buffer "*test-buffer-1*")
     (should (equal (free-name-num "test-buffer") "*test-buffer-2*"))))
 
+(ert-deftest warbo-wait-for-comint-detects-prompt ()
+  "warbo-wait-for-comint should detect when the prompt appears."
+  (in-shell-buffer
+   (insert "echo 'test output'")
+   (comint-send-input)
+   ;; This should not raise an error if the prompt is detected
+   (warbo-wait-for-comint (current-buffer))
+   ;; If we get here, the prompt was found
+   (should t)))
+
+(ert-deftest warbo-wait-for-comint-timeout ()
+  "warbo-wait-for-comint should timeout if prompt never appears."
+  (let ((shell-buf (bash)))
+    (unwind-protect
+        (with-current-buffer shell-buf
+          (warbo-wait-for-comint shell-buf)
+          ;; Simulate a hung process by deleting the prompt
+          (goto-char (point-max))
+          (let ((inhibit-read-only t))
+            (delete-region (line-beginning-position) (point-max)))
+          ;; This should raise an error
+          (should-error (warbo-wait-for-comint shell-buf)))
+      (let ((kill-buffer-query-functions nil))
+        (kill-buffer shell-buf)))))
+
 (ert-deftest warbo-shell-query-working-directory ()
   "Explicitly update the working directory."
   (in-shell-buffer
-    (insert "ls > /dev/null && cd \"$(echo /)\"")
-    (comint-send-input)
-    (warbo-wait-for-comint (current-buffer))
-    (dirs)
-    (should (equal "/" default-directory))))
+   (insert "ls > /dev/null && cd \"$(echo /)\"")
+   (comint-send-input)
+   (warbo-wait-for-comint (current-buffer))
+   (dirs)
+   (should (equal "/" default-directory))))
 
 ;; (ert-deftest warbo-shell-tracks-working-directory ()
 ;;   "Moving around the filesystem should get tracked by shell-mode"
