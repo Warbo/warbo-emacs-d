@@ -1,10 +1,22 @@
-;;; -*- lexical-binding: t; -*-
-;; reduce the frequency of garbage collection by making it happen on
+;;; generic --- Core things required before others -*- lexical-binding: t; -*-
+;;;
+;;; Commentary:
+;;; Provides things that must be in place before we start loading the rest of
+;;; our init.el contents, etc.
+;;;
+;;; Code:
+
+;; Reduce the frequency of garbage collection by making it happen on
 ;; each 50MB of allocated data (the default is on every 0.76MB)
 (setq gc-cons-threshold 50000000)
 
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
+
+(defun dbg (&rest args)
+  "Send ARGS to `message', but only when env var DEBUG=1."
+  (when (equal "1" (getenv "DEBUG"))
+    (message args)))
 
 (defun defer (f)
   "Defer calling the function F until Emacs has finished initialising."
@@ -26,6 +38,7 @@
     'wsl-ubuntu)
    (t
     'unknown)))
+(dbg "Set machine-id to %s" machine-id)
 
 ;; See which per-machine options we should enable
 (defmacro thinkpad-only (&rest body)
