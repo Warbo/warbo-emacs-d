@@ -623,7 +623,7 @@ The result is JSON, so we derive from json-mode."
   ;; Clear the buffer and replace with 'nix show-derivation' run on the file
   (erase-buffer)
   (shell-command
-   (concat "nix derivation show "
+   (concat "nix derivation show --pretty "
            "--extra-experimental-features nix-command "
            (buffer-file-name)
            "^*")
@@ -636,6 +636,8 @@ The result is JSON, so we derive from json-mode."
   (read-only-mode 1)
 
   (run-hooks 'nix-derivation-mode-hook))
+;; TODO: Why isn't nix-derivation-mode starting automatically?
+;; TEST IT!
 (add-to-list 'auto-mode-alist '("/nix/store/.*\\.drv" . nix-derivation-mode))
 
 ;; We can hook into prog-mode to affect any programming-related buffer
