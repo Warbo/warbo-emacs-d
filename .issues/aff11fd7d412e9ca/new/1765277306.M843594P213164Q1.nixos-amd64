@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:47:59 +0000
+State: new
+Subject: Duplicate company configuration across files
+Message-Id: <aff11fd7d412e9ca-0-artemis@nixos-amd64>
+
+The `company` package is configured in multiple files:
+- warbo-generic.el has a use-package company block
+- warbo-rust.el also has a use-package company block (currently disabled)
+
+This duplication should be consolidated into a single configuration location to
+avoid maintenance issues and conflicting settings.

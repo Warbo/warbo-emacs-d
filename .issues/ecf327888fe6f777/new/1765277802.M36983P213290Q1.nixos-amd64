@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:48:55 +0000
+State: new
+Subject: Avoid hardcoded paths in warbo-llm.el
+Message-Id: <ecf327888fe6f777-0-artemis@nixos-amd64>
+
+Check whether certain commands exist (like `aider-claude`), with fallbacks.

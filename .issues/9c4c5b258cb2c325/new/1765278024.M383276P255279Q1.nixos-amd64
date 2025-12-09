@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 11:00:11 +0000
+State: new
+Subject: Implement global mistty buffer keybinding
+Message-Id: <9c4c5b258cb2c325-0-artemis@nixos-amd64>
+
+warbo-shells.el has a TODO about globally binding <f2> to create or switch to
+a mistty buffer depending on context. This would provide quick access
+to mistty buffers from anywhere in Emacs.

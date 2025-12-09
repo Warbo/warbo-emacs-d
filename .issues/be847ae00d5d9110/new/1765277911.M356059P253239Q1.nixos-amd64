@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:58:14 +0000
+State: new
+Subject: Clarify browse-url-secondary-browser-function in warbo-web.el
+Message-Id: <be847ae00d5d9110-0-artemis@nixos-amd64>
+
+In warbo-web.el, there is a FIXME comment next to:
+  (setq browse-url-secondary-browser-function 'browse-url-firefox)
+
+The purpose and necessity of this setting should be clarified. It may be
+outdated or need reconsideration.

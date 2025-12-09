@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:59:13 +0000
+State: new
+Subject: Improve eglot configuration for per-project settings
+Message-Id: <cd1bf33b17d41257-0-artemis@nixos-amd64>
+
+warbo-programming.el has a TODO suggesting that
+`eglot-workspace-configuration` should be used instead of the current
+approach to enable per-project settings. This would allow different
+projects to have different eglot configurations.

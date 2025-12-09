@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:57:19 +0000
+State: new
+Subject: Terminal-friendly keybinding needed for warbo-generic.el
+Message-Id: <991efc9185f3becc-0-artemis@nixos-amd64>
+
+There is a FIXME comment indicating that a terminal-friendly keybinding is
+needed for a feature in warbo-generic.el. The current binding may not
+work properly in terminal environments and should be reviewed and
+updated.

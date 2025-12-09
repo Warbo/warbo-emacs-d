@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:59:45 +0000
+State: new
+Subject: Automate window layout selection based on frame size
+Message-Id: <c447616c5dc86225-0-artemis@nixos-amd64>
+
+warbo-generic.el has a TODO about creating a keybinding that automatically
+picks an appropriate window layout (from warbo-windows.el) based on
+the current frame size. This would improve usability by adapting the
+layout to the available space.

@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:48:34 +0000
+State: new
+Subject: Keybindings should be moved into use-package blocks
+Message-Id: <f4c0b0c381b2fe3e-0-artemis@nixos-amd64>
+
+Several files have keybindings defined outside of use-package blocks:
+- warbo-web.el: eww-increase-width and eww-decrease-width bindings
+- warbo-writing.el: Has a TODO comment about this
+- warbo-shells.el: eshell C-l binding
+
+These should be organized within their respective use-package declarations for
+better maintainability and consistency.

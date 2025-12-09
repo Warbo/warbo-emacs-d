@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Tue, 09 Dec 2025 10:58:42 +0000
+State: new
+Subject: Review which-func mode enablement strategy
+Message-Id: <c38eeec445129365-0-artemis@nixos-amd64>
+
+warbo-programming.el has a TODO asking whether major modes should be appended
+to the which-func list as they benefit from it, rather than having a
+static list. This needs a decision on the best approach for managing
+which-func across different major modes.
