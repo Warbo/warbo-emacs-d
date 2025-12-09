@@ -6,10 +6,10 @@
           (timeout-start (float-time))
           (prompt-found nil))
       ;; Give the process initial time to start producing output
-      (message "warbo-wait-for-comint: Starting, buffer=%s" comint-buffer)
+      (dbg "warbo-wait-for-comint: Starting, buffer=%s" comint-buffer)
       (accept-process-output process 1)
-      (message "warbo-wait-for-comint: After initial accept-process-output, buffer content length=%d" (length (buffer-string)))
-      (message "warbo-wait-for-comint: Buffer content: %s" (buffer-string))
+      (dbg "warbo-wait-for-comint: After initial accept-process-output, buffer content length=%d" (length (buffer-string)))
+      (dbg "warbo-wait-for-comint: Buffer content: %s" (buffer-string))
       (while (and (not prompt-found)
                   (< (- (float-time) timeout-start) 4.0)) ; 4s timeout
         (save-excursion
@@ -56,7 +56,7 @@
   "Check that comint-prompt-regexp is defined and has a value."
   (should (boundp 'comint-prompt-regexp))
   (should comint-prompt-regexp)
-  (message "comint-prompt-regexp value: %s" comint-prompt-regexp))
+  (dbg "comint-prompt-regexp value: %s" comint-prompt-regexp))
 
 (ert-deftest shell-buffer-contains-text ()
   "Check that a shell buffer actually contains text."
@@ -67,8 +67,8 @@
           (accept-process-output (get-buffer-process shell-buf) 1)
           (let ((buffer-content (buffer-string)))
             (should (> (length buffer-content) 0))
-            (message "Shell buffer content length: %d" (length buffer-content))
-            (message "Shell buffer content: %s" buffer-content)))
+            (dbg "Shell buffer content length: %d" (length buffer-content))
+            (dbg "Shell buffer content: %s" buffer-content)))
       (let ((kill-buffer-query-functions nil))
         (kill-buffer shell-buf)))))
 
@@ -80,8 +80,8 @@
           (accept-process-output (get-buffer-process shell-buf) 1)
           (let ((buffer-content (buffer-string)))
             (if (string-match comint-prompt-regexp buffer-content)
-                (message "Prompt regexp MATCHED in buffer")
-              (message "Prompt regexp DID NOT MATCH in buffer"))
+                (dbg "Prompt regexp MATCHED in buffer")
+              (dbg "Prompt regexp DID NOT MATCH in buffer"))
             (should (string-match comint-prompt-regexp buffer-content))))
       (let ((kill-buffer-query-functions nil))
         (kill-buffer shell-buf)))))
@@ -95,8 +95,8 @@
           (goto-char (point-min))
           (let ((found (re-search-forward comint-prompt-regexp nil t)))
             (if found
-                (message "re-search-forward FOUND prompt at position %d" found)
-              (message "re-search-forward DID NOT FIND prompt"))
+                (dbg "re-search-forward FOUND prompt at position %d" found)
+              (dbg "re-search-forward DID NOT FIND prompt"))
             (should found)))
       (let ((kill-buffer-query-functions nil))
         (kill-buffer shell-buf)))))
@@ -110,8 +110,8 @@
           (goto-char (point-max))
           (let ((found (re-search-backward comint-prompt-regexp nil t)))
             (if found
-                (message "re-search-backward FOUND prompt at position %d" found)
-              (message "re-search-backward DID NOT FIND prompt"))
+                (dbg "re-search-backward FOUND prompt at position %d" found)
+              (dbg "re-search-backward DID NOT FIND prompt"))
             (should found)))
       (let ((kill-buffer-query-functions nil))
         (kill-buffer shell-buf)))))
@@ -123,19 +123,19 @@
         (with-current-buffer shell-buf
           (accept-process-output (get-buffer-process shell-buf) 1)
           (let ((buffer-content (buffer-string)))
-            (message "Full buffer content: %s" buffer-content)
-            (message "Buffer length: %d" (length buffer-content))
+            (dbg "Full buffer content: %s" buffer-content)
+            (dbg "Buffer length: %d" (length buffer-content))
             (goto-char (point-max))
-            (message "point-max: %d" (point-max))
+            (dbg "point-max: %d" (point-max))
             (beginning-of-line)
-            (message "After beginning-of-line, point: %d" (point))
-            (message "Content from beginning-of-line to point-max: %s"
+            (dbg "After beginning-of-line, point: %d" (point))
+            (dbg "Content from beginning-of-line to point-max: %s"
                      (buffer-substring (point) (point-max)))
             (goto-char (point-max))
-            (message "Searching backward for newline from point-max...")
+            (dbg "Searching backward for newline from point-max...")
             (if (re-search-backward "\n" nil t)
-                (message "Found newline at position %d" (point))
-              (message "No newline found, buffer starts at position 1"))))
+                (dbg "Found newline at position %d" (point))
+              (dbg "No newline found, buffer starts at position 1"))))
       (let ((kill-buffer-query-functions nil))
         (kill-buffer shell-buf)))))
 
@@ -171,6 +171,7 @@
    (comint-send-input)
    (warbo-wait-for-comint (current-buffer))
    (dirs)
+   (dbg "/ ")
    (should (equal "/" default-directory))))
 
 ;; (ert-deftest warbo-shell-tracks-working-directory ()
@@ -237,12 +238,15 @@
    (warbo-wait-for-comint (current-buffer))
 
    (execute-kbd-macro (kbd "C-<up>"))
+   (dbg "History item: 1")
    (should-line "echo command2")
 
    (execute-kbd-macro (kbd "C-<up>"))
+   (dbg "History item: 2")
    (should-line "echo command1")
 
    (execute-kbd-macro (kbd "C-<down>"))
+   (dbg "History item: 1")
    (should-line "echo command2")))
 
 (ert-deftest warbo-shell-C-a-at-prompt ()
