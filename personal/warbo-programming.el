@@ -474,30 +474,36 @@ with the string S. Unlike `replace-region-contents' this maintains text
         (require 's))
       (require 'dash)
       (require 's)
+      ;; TODO: Use `eglot-workspace-configuration` instead, so we can have per-project settings
+      (setf (alist-get 'haskell-mode eglot-server-programs)
+            `("haskell-language-server-9.12.2" "lsp"
+              :initializationOptions
+              (:haskell ( :formattingProvider "fourmolu"
+                          :checkProject nil
+                          :sessionLoading "multipleComponents"))))
       (let* ((root (car (-filter (lambda (entry)
                                    (and (not (s-starts-with? "yesod" entry))
                                         (not (s-starts-with? "." entry))))
                                  (directory-files "~/src"))))
              (tsdk (file-name-concat
                     projects root "webpack" "node_modules" "typescript" "lib")))
-        (add-to-list 'eglot-server-programs
-                     `(vue-mode . ("vue-language-server" "--stdio"
-                                   :initializationOptions
-                                   (:typescript (:tsdk ,tsdk)
-                                                :vue (:hybridMode :json-false)
-                                                :languageFeatures (:completion
-                                                                   (:defaultTagNameCase "both"
-                                                                                        :defaultAttrNameCase "kebabCase"
-                                                                                        :getDocumentNameCasesRequest nil
-                                                                                        :getDocumentSelectionRequest nil)
-                                                                   :diagnostics
-                                                                   (:getDocumentVersionRequest nil))
-                                                :documentFeatures (:documentFormatting
-                                                                   (:defaultPrintWidth 100
-                                                                                       :getDocumentPrintWidthRequest nil)
-                                                                   :documentSymbol t
-                                                                   :documentColor t))
-                                   ))))))
+        (setf (alist-get 'vue-mode eglot-server-programs)
+              `("vue-language-server" "--stdio"
+                :initializationOptions
+                (:typescript (:tsdk ,tsdk)
+                             :vue (:hybridMode :json-false)
+                             :languageFeatures (:completion
+                                                (:defaultTagNameCase "both"
+                                                                     :defaultAttrNameCase "kebabCase"
+                                                                     :getDocumentNameCasesRequest nil
+                                                                     :getDocumentSelectionRequest nil)
+                                                :diagnostics
+                                                (:getDocumentVersionRequest nil))
+                             :documentFeatures (:documentFormatting
+                                                (:defaultPrintWidth 100
+                                                                    :getDocumentPrintWidthRequest nil)
+                                                :documentSymbol t
+                                                :documentColor t)))))))
   :custom
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
   (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
