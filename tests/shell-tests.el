@@ -9,8 +9,8 @@
                   (< (- (float-time) timeout-start) 4.0)) ; 4s timeout
         (save-excursion
           (goto-char (point-max))
-          ;; Check if prompt exists near the end of buffer
-          (if (re-search-backward comint-prompt-regexp (max (point-min) (- (point-max) 200)) t)
+          ;; Check if prompt exists on the last line
+          (if (re-search-backward comint-prompt-regexp (line-beginning-position) t)
               (setq prompt-found t)))
         (unless prompt-found
           (accept-process-output process 0.1)))
