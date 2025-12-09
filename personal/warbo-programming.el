@@ -90,13 +90,13 @@
   :ensure t
   :mode "\\.dart\\'")
 
-;(use-package direnv
-;  :ensure t
-;  :init
-;  (add-hook 'prog-mode-hook #'direnv-update-environment)
-;  :config
-;  (add-to-list 'direnv-non-file-modes 'shell-mode)
-;  (direnv-mode))
+(use-package direnv
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook #'direnv-update-environment)
+  :config
+  (add-to-list 'direnv-non-file-modes 'shell-mode)
+  (direnv-mode))
 
 (use-package dockerfile-mode
   :ensure t
@@ -483,30 +483,36 @@ with the string S. Unlike `replace-region-contents' this maintains text
         (require 's))
       (require 'dash)
       (require 's)
+      ;; TODO: Use `eglot-workspace-configuration` instead, so we can have per-project settings
+      (setf (alist-get 'haskell-mode eglot-server-programs)
+            `("haskell-language-server-9.12.2" "lsp"
+              :initializationOptions
+              (:haskell ( :formattingProvider "fourmolu"
+                          :checkProject nil
+                          :sessionLoading "multipleComponents"))))
       (let* ((root (car (-filter (lambda (entry)
                                    (and (not (s-starts-with? "yesod" entry))
                                         (not (s-starts-with? "." entry))))
                                  (directory-files "~/src"))))
              (tsdk (file-name-concat
                     projects root "webpack" "node_modules" "typescript" "lib")))
-        (add-to-list 'eglot-server-programs
-                     `(vue-mode . ("vue-language-server" "--stdio"
-                                   :initializationOptions
-                                   (:typescript (:tsdk ,tsdk)
-                                                :vue (:hybridMode :json-false)
-                                                :languageFeatures (:completion
-                                                                   (:defaultTagNameCase "both"
-                                                                                        :defaultAttrNameCase "kebabCase"
-                                                                                        :getDocumentNameCasesRequest nil
-                                                                                        :getDocumentSelectionRequest nil)
-                                                                   :diagnostics
-                                                                   (:getDocumentVersionRequest nil))
-                                                :documentFeatures (:documentFormatting
-                                                                   (:defaultPrintWidth 100
-                                                                                       :getDocumentPrintWidthRequest nil)
-                                                                   :documentSymbol t
-                                                                   :documentColor t))
-                                   ))))))
+        (setf (alist-get 'vue-mode eglot-server-programs)
+              `("vue-language-server" "--stdio"
+                :initializationOptions
+                (:typescript (:tsdk ,tsdk)
+                             :vue (:hybridMode :json-false)
+                             :languageFeatures (:completion
+                                                (:defaultTagNameCase "both"
+                                                                     :defaultAttrNameCase "kebabCase"
+                                                                     :getDocumentNameCasesRequest nil
+                                                                     :getDocumentSelectionRequest nil)
+                                                :diagnostics
+                                                (:getDocumentVersionRequest nil))
+                             :documentFeatures (:documentFormatting
+                                                (:defaultPrintWidth 100
+                                                                    :getDocumentPrintWidthRequest nil)
+                                                :documentSymbol t
+                                                :documentColor t)))))))
   :custom
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
   (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
@@ -676,21 +682,22 @@ If non-nil, this function will be called with no arguments to run
 tests for the current buffer. It is intended to be set via
 .dir-locals.el or similar.")
 (make-variable-buffer-local 'warbo-run-buffer-tests-function)
+(put 'warbo-run-buffer-tests-function
+     'safe-local-variable
+     (lambda (v) (member v '(warbo-run-selenium
+                             warbo-run-haskell-tests
+                             warbo-run-ts-tests))))
 
-(defun warbo-find-and-run-tests ()
-  "Look for a test runner in the current dir (or parents) and run it.
-If `warbo-run-buffer-tests-function' is non-nil, call that instead."
-  (interactive)
+(defun warbo-find-and-run-tests (arg)
+  "Run `warbo-run-buffer-tests-function' if it's non-nil. Otherwise, look for a
+test runner in the current git repo and run it if found. Allows prefix arg to be
+passed along."
+  (interactive "P")
   (if warbo-run-buffer-tests-function
-      (funcall warbo-run-buffer-tests-function)
-    (let ((dir (s-chomp (shell-command-to-string
-                         "git rev-parse --show-toplevel"))))
-      (when (and (s-starts-with-p "/" dir)
-                 (not (s-starts-with-p "fatal:" dir)))
+      (funcall warbo-run-buffer-tests-function arg)
+    (let ((dir (magit-toplevel)))
+      (when dir
         (let ((cmd (cond
-                    ;; TODO: Check for more things here, e.g. the existence of a
-                    ;; .cabal file containing a test suite, the existence of a
-                    ;; Python project with tests, etc.
                     ((file-exists-p (concat dir "/test.sh"))
                      "./test.sh")
                     ((file-exists-p (concat dir "/tests.sh"))
@@ -707,7 +714,7 @@ If `warbo-run-buffer-tests-function' is non-nil, call that instead."
                            (async-shell-command cmd output-buffer)
                            (get-buffer-process output-buffer))))
               (if (process-live-p proc)
-                  (set-process-sentinel  proc warbo-find-and-run-tests-sentinel)
+                  (set-process-sentinel proc warbo-find-and-run-tests-sentinel)
                 (message "Tests finished immediately")))))))))
 (keymap-global-set "<f6>" 'warbo-find-and-run-tests)
 

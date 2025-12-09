@@ -1,0 +1,18 @@
+From: Your Name
+Date: Thu, 09 Oct 2025 16:10:45 +0100
+State: new
+Subject: Spaces being inserted in shell-mode are annoying
+Message-Id: <b351cfda64b23b2d-0-artemis@TRAC-AAD-5340>
+
+Auto-complete of commands seems to be causing spaces to get inserted. For
+example, typing the literal characters `command -v bash` (to see where `bash` is
+available) will result in `comm and -v bash` since some auto-complete thing has
+decided that `comm` is the intended command.
+
+Also happens to e.g. `ls -lh`, which becomes `ls -l h` since auto-complete
+inserts a space after the `-l` option matches.
+
+I think this is related to an option which is about auto-inserting a space after
+completing a filename. I think the distinction I want is that manual triggering,
+like pressing TAB, should use a space when it's unambiguous; but simply typing
+in the full thing myslf should not.

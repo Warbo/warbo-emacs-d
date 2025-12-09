@@ -1,0 +1,21 @@
+From: Your Name
+Date: Fri, 31 Oct 2025 10:38:25 +0000
+State: new
+Subject: Switching buffer should start with complete match
+Message-Id: <c65878b4cdb56ba0-0-artemis@TRAC-AAD-5340>
+
+If I have a buffer called 'home' (a shell-mode buffer which hangs around in ~),
+and I also have other buffers visiting files with prefix 'home', like
+'home.nix<wsl-ubuntu>' and 'home-manager.nix', then typing 'home' will narrow
+down the buffer list to just those which begin with 'home'. Fine.
+
+The top-most entry is highlighted by default (if I don't press <down>, etc.), so
+pressing RET will choose that one. Annoyingly, an exact match *doesn't* get
+selected as default; so if I've been editing 'home-manager.nix' more recently
+than I've used the 'home' shell, then doing 'C-x b home RET' will switch to the
+'home-manager.nix' buffer!
+
+I don't mind the most-recent ordering, but if I type an exact buffer name then I
+expect that the buffer with that exact name will be selected!
+
+Write tests for this (using dummy buffer names, etc.), then implement a fix.
