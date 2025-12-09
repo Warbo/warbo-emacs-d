@@ -44,7 +44,7 @@
           (fset 'browse-url-firefox
                 (lambda (url &rest args)
                   (setq captured-url url)
-                  nil)) 
+                  nil))
 
           (cl-letf ((eww-data (list :url test-url)) ;; Correctly bind eww-data as a variable
                     ;; Ensure browse-url-secondary-browser-function is set as warbo-web.el would

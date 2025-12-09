@@ -9,13 +9,13 @@
           (switch-to-buffer buf-exact)
           (switch-to-buffer buf-prefix-a)
           (switch-to-buffer buf-prefix-b)
-          
+
           ;; Switch away so we can test switching back
           (switch-to-buffer (get-buffer-create "*scratch*"))
 
           ;; Simulate user typing "C-x b warbo-test-buffer-1 RET"
           (execute-kbd-macro (kbd "C-x b warbo-test-buffer-1 RET"))
-          
+
           ;; Check that we switched to the exact match, not a prefix match
           (should (equal (buffer-name (current-buffer)) "warbo-test-buffer-1")))
       ;; Cleanup
@@ -34,7 +34,7 @@
           (switch-to-buffer buf-exact)
           (switch-to-buffer buf-prefix-b)
           (switch-to-buffer buf-prefix-a)
-          
+
           ;; Switch away so we can test switching back
           (switch-to-buffer (get-buffer-create "*scratch*"))
 
@@ -58,7 +58,7 @@
           ;; Make warbo-test-buffer-3-manager.nix the most recently used
           (switch-to-buffer buf-prefix-a)
           (switch-to-buffer buf-prefix-b)
-          
+
           ;; Switch away so we can test switching back
           (switch-to-buffer (get-buffer-create "*scratch*"))
 
