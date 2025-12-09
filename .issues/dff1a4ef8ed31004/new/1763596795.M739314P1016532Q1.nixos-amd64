@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Wed, 19 Nov 2025 23:58:49 +0000
+State: new
+Subject: Render .drv files over TRAMP
+Message-Id: <dff1a4ef8ed31004-0-artemis@nixos-amd64>
+
+Looks like we're giving the TRAMP path to 'nix derivation show', which doesn't
+understand things like '/me@server:/nix/store/foo.drv'

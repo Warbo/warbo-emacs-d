@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Sun, 07 Dec 2025 17:05:43 +0000
+State: new
+Subject: nix-derivation-mode not loading in .html.drv files
+Message-Id: <94859ef7b3d6d276-0-artemis@nixos-amd64>
+
+Seems to load web-mode or something?

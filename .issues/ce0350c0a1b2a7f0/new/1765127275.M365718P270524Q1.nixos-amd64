@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Sun, 07 Dec 2025 17:06:09 +0000
+State: new
+Subject: We should remove nix-drv-mode from alist if present
+Message-Id: <ce0350c0a1b2a7f0-0-artemis@nixos-amd64>
+
+When we add nix-derivation-mode. The latter is ours. Would be nice if
+the former worked, but the `nix derivation show` command seems to have
+changed since (renamed from 'derivation-show', and now requires a
+'--pretty' argument to pretty-print when not outputting to a TTY)
