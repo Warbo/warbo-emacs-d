@@ -155,11 +155,15 @@
     (unwind-protect
         (with-current-buffer shell-buf
           (warbo-wait-for-comint shell-buf)
-          ;; Simulate a hung process by deleting the prompt
+          ;; Send a command that will hang (sleep for longer than timeout)
+          (insert "sleep 10")
+          (comint-send-input)
+          ;; Delete the prompt that was just sent, simulating output without a prompt
           (goto-char (point-max))
           (let ((inhibit-read-only t))
-            (delete-region (line-beginning-position) (point-max)))
-          ;; This should raise an error
+            (when (re-search-backward comint-prompt-regexp nil t)
+              (delete-region (match-beginning 0) (point-max))))
+          ;; This should raise an error due to timeout
           (should-error (warbo-wait-for-comint shell-buf)))
       (let ((kill-buffer-query-functions nil))
         (kill-buffer shell-buf)))))
