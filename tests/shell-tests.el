@@ -5,12 +5,17 @@
     (let ((process (get-buffer-process comint-buffer))
           (timeout-start (float-time))
           (prompt-found nil))
+      ;; Give the process initial time to start producing output
+      (message "warbo-wait-for-comint: Starting, buffer=%s" comint-buffer)
+      (accept-process-output process 1)
+      (message "warbo-wait-for-comint: After initial accept-process-output, buffer content length=%d" (length (buffer-string)))
+      (message "warbo-wait-for-comint: Buffer content: %s" (buffer-string))
       (while (and (not prompt-found)
                   (< (- (float-time) timeout-start) 4.0)) ; 4s timeout
         (save-excursion
           (goto-char (point-max))
-          ;; Check if prompt exists on the last line
-          (if (re-search-backward comint-prompt-regexp (line-beginning-position) t)
+          ;; Search backwards from the end for the prompt
+          (if (re-search-backward comint-prompt-regexp nil t)
               (setq prompt-found t)))
         (unless prompt-found
           (accept-process-output process 0.1)))
@@ -44,6 +49,92 @@
   (with-temp-buffer
     (rename-buffer "*test-buffer-1*")
     (should (equal (free-name-num "test-buffer") "*test-buffer-2*"))))
+(ert-deftest comint-prompt-regexp-is-defined ()
+  "Check that comint-prompt-regexp is defined and has a value."
+  (should (boundp 'comint-prompt-regexp))
+  (should comint-prompt-regexp)
+  (message "comint-prompt-regexp value: %s" comint-prompt-regexp))
+
+(ert-deftest shell-buffer-contains-text ()
+  "Check that a shell buffer actually contains text."
+  (let ((shell-buf (bash)))
+    (unwind-protect
+        (with-current-buffer shell-buf
+          ;; Give the shell process time to initialize
+          (accept-process-output (get-buffer-process shell-buf) 1)
+          (let ((buffer-content (buffer-string)))
+            (should (> (length buffer-content) 0))
+            (message "Shell buffer content length: %d" (length buffer-content))
+            (message "Shell buffer content: %s" buffer-content)))
+      (let ((kill-buffer-query-functions nil))
+        (kill-buffer shell-buf)))))
+
+(ert-deftest prompt-regexp-matches-in-shell-buffer ()
+  "Check if comint-prompt-regexp actually matches anything in a shell buffer."
+  (let ((shell-buf (bash)))
+    (unwind-protect
+        (with-current-buffer shell-buf
+          (accept-process-output (get-buffer-process shell-buf) 1)
+          (let ((buffer-content (buffer-string)))
+            (if (string-match comint-prompt-regexp buffer-content)
+                (message "Prompt regexp MATCHED in buffer")
+              (message "Prompt regexp DID NOT MATCH in buffer"))
+            (should (string-match comint-prompt-regexp buffer-content))))
+      (let ((kill-buffer-query-functions nil))
+        (kill-buffer shell-buf)))))
+
+(ert-deftest find-prompt-with-re-search-forward ()
+  "Check if we can find the prompt using re-search-forward."
+  (let ((shell-buf (bash)))
+    (unwind-protect
+        (with-current-buffer shell-buf
+          (accept-process-output (get-buffer-process shell-buf) 1)
+          (goto-char (point-min))
+          (let ((found (re-search-forward comint-prompt-regexp nil t)))
+            (if found
+                (message "re-search-forward FOUND prompt at position %d" found)
+              (message "re-search-forward DID NOT FIND prompt"))
+            (should found)))
+      (let ((kill-buffer-query-functions nil))
+        (kill-buffer shell-buf)))))
+
+(ert-deftest find-prompt-with-re-search-backward ()
+  "Check if we can find the prompt using re-search-backward from end."
+  (let ((shell-buf (bash)))
+    (unwind-protect
+        (with-current-buffer shell-buf
+          (accept-process-output (get-buffer-process shell-buf) 1)
+          (goto-char (point-max))
+          (let ((found (re-search-backward comint-prompt-regexp nil t)))
+            (if found
+                (message "re-search-backward FOUND prompt at position %d" found)
+              (message "re-search-backward DID NOT FIND prompt"))
+            (should found)))
+      (let ((kill-buffer-query-functions nil))
+        (kill-buffer shell-buf)))))
+
+(ert-deftest diagnose-beginning-of-line ()
+  "Diagnose what beginning-of-line actually does in a shell buffer."
+  (let ((shell-buf (bash)))
+    (unwind-protect
+        (with-current-buffer shell-buf
+          (accept-process-output (get-buffer-process shell-buf) 1)
+          (let ((buffer-content (buffer-string)))
+            (message "Full buffer content: %s" buffer-content)
+            (message "Buffer length: %d" (length buffer-content))
+            (goto-char (point-max))
+            (message "point-max: %d" (point-max))
+            (beginning-of-line)
+            (message "After beginning-of-line, point: %d" (point))
+            (message "Content from beginning-of-line to point-max: %s"
+                     (buffer-substring (point) (point-max)))
+            (goto-char (point-max))
+            (message "Searching backward for newline from point-max...")
+            (if (re-search-backward "\n" nil t)
+                (message "Found newline at position %d" (point))
+              (message "No newline found, buffer starts at position 1"))))
+      (let ((kill-buffer-query-functions nil))
+        (kill-buffer shell-buf)))))
 
 (ert-deftest warbo-wait-for-comint-detects-prompt ()
   "warbo-wait-for-comint should detect when the prompt appears."
