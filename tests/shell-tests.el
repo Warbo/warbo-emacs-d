@@ -140,7 +140,7 @@
         (kill-buffer shell-buf)))))
 
 (ert-deftest warbo-wait-for-comint-detects-prompt ()
-  "warbo-wait-for-comint should detect when the prompt appears."
+  "The `warbo-wait-for-comint' function should detect when the prompt appears."
   (in-shell-buffer
    (insert "echo 'test output'")
    (comint-send-input)
@@ -150,7 +150,7 @@
    (should t)))
 
 (ert-deftest warbo-wait-for-comint-timeout ()
-  "warbo-wait-for-comint should timeout if prompt never appears."
+  "The `warbo-wait-for-comint' function should timeout if prompt never appears."
   (let ((shell-buf (bash)))
     (unwind-protect
         (with-current-buffer shell-buf
