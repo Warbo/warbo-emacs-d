@@ -15,8 +15,11 @@
         (save-excursion
           (goto-char (point-max))
           ;; Search backwards from the end for the prompt
-          (if (re-search-backward comint-prompt-regexp nil t)
-              (setq prompt-found t)))
+          ;; Only accept it if it's at the very end of the buffer
+          (when (re-search-backward comint-prompt-regexp nil t)
+            (goto-char (match-end 0))
+            (when (= (point) (point-max))
+              (setq prompt-found t))))
         (unless prompt-found
           (accept-process-output process 0.1)))
       (unless prompt-found
