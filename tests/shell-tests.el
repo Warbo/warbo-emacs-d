@@ -3,16 +3,19 @@
   (with-current-buffer comint-buffer
     ;; Wait for the initial prompt to appear.
     (let ((process (get-buffer-process comint-buffer))
-          (timeout-start (float-time)))
-      (while (and (not (save-excursion
-                         (goto-char (point-max))
-                         (re-search-backward comint-prompt-regexp nil t)))
+          (timeout-start (float-time))
+          (prompt-found nil))
+      (while (and (not prompt-found)
                   (< (- (float-time) timeout-start) 4.0)) ; 4s timeout
-        (accept-process-output process 0.1)))
-    (unless (save-excursion
-              (goto-char (point-max))
-              (re-search-backward comint-prompt-regexp nil t))
-      (error "Prompt not found in %s" comint-buffer))))
+        (save-excursion
+          (goto-char (point-max))
+          ;; Check if prompt exists near the end of buffer
+          (if (re-search-backward comint-prompt-regexp (max (point-min) (- (point-max) 200)) t)
+              (setq prompt-found t)))
+        (unless prompt-found
+          (accept-process-output process 0.1)))
+      (unless prompt-found
+        (error "Prompt not found in %s" comint-buffer)))))
 
 (defmacro in-shell-buffer (&rest body)
   "Run BODY in a new shell buffer, with setup and teardown."
