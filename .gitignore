@@ -40,3 +40,4 @@ elpy
 /.pre-commit-config.yaml
 /.editorconfig
 /.yamlfmt
+flycheck_*
