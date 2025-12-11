@@ -1,7 +1,7 @@
 From: Chris Warburton
 Date: Mon, 16 Sep 2019 01:33:35 +0100
 State: new
-Subject: Makr config readable by emacs-overlay
+Subject: Make config readable by emacs-overlay
 Message-Id: <fa65c7f0f7e76c61-0-artemis@nixos>
 
 The "emacs overlay" for nixpkgs can read use-package declarations from a config
