@@ -16,7 +16,7 @@
 (defun dbg (&rest args)
   "Send ARGS to `message', but only when env var DEBUG=1."
   (when (equal "1" (getenv "DEBUG"))
-    (message args)))
+    (apply 'message args)))
 
 (defun defer (f)
   "Defer calling the function F until Emacs has finished initialising."
