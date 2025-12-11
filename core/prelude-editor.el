@@ -73,7 +73,7 @@
   (setq require-final-newline t)
 
   ;; delete the selection with a keypress
-  (delete-selection-mode t)
+  (delete-selection-mode 1)
 
   ;; disable annoying blink-matching-paren
   (setq blink-matching-paren nil)
