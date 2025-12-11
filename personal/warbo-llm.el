@@ -31,7 +31,7 @@
 (use-package aider
   :ensure
   :config
-  (setq aider-program "/home/chris/repos/warbo-utilities/result/bin/aider-claude")
+  (setq aider-program "aider-pass")
   (setq aider-args
         (append '("--no-gitignore"
                   "--no-auto-lint"

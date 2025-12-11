@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 11 Dec 2025 11:15:52 +0000
+Subject: Re: Avoid hardcoded paths in warbo-llm.el
+Message-Id: <ecf327888fe6f777-9d6e9462aeb5d0d0-artemis@nixos-amd64>
+References: <ecf327888fe6f777-0-artemis@nixos-amd64>
+In-Reply-To: <ecf327888fe6f777-0-artemis@nixos-amd64>
+
+Using unified aider-pass now, and taking it from $PATH
