@@ -102,6 +102,11 @@
   ;; enable erase-buffer command
   (put 'erase-buffer 'disabled nil)
 
+  ;; Always enable transient-mark-mode. Emacs 23+ enables this by default, but
+  ;; NOT when using '--batch'/'--script'. Since we use the latter to run tests,
+  ;; we enable it here to make sure everything is consistent.
+  (transient-mark-mode 1)
+
   ;; highlight the current line
   (global-hl-line-mode +1)
 
