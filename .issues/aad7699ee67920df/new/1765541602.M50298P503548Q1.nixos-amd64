@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Fri, 12 Dec 2025 12:12:44 +0000
+State: new
+Subject: Add pre-commit hook for elisp-autoformat.py
+Message-Id: <aad7699ee67920df-0-artemis@nixos-amd64>
+
+https://github.com/emacsmirror/elisp-autofmt/blob/master/elisp-autofmt-cmd.py
+
+Can live in here, rather than nix-helpers.
