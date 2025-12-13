@@ -31,22 +31,16 @@
 (use-package aider
   :ensure
   :config
-  (setq aider-program "aider-pass")
+  (setq aider-program "aider")
   (setq aider-args
-        (append '("--no-gitignore"
-                  "--git-commit-verify"
-                  "--no-auto-lint"
-                  "--edit-format" "diff"
-                  "--watch-files")
-                (pcase machine-id
-                  ('wsl-ubuntu
-                   `("--model" ,(concat "ollama_chat/" warbo-local-llm)
-                     "--no-auto-commits"
-                     "--set-env" "OLLAMA_API_BASE=http://127.0.0.1:11434"
-                     ))
-                  (_
-                   '("--model" "anthropic/claude-sonnet-4-5"
-                     "--weak-model" "anthropic/claude-haiku-4-5")))))
+        (pcase machine-id
+          ('wsl-ubuntu
+           `("--model" ,(concat "ollama_chat/" warbo-local-llm)
+             "--set-env" "OLLAMA_API_BASE=http://127.0.0.1:11434"
+             ))
+          (_
+           '("--model" "anthropic/claude-sonnet-4-5"
+             "--weak-model" "anthropic/claude-haiku-4-5"))))
   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 (provide 'warbo-llm)
