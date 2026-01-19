@@ -400,6 +400,10 @@
       ("warbo-utilities" "~/repos/warbo-utilities")
       ("home" "~")))
 
+    ('framework
+     '(("home" "~")
+       ("nix-config" "~/Code/nix-config")))
+
     ('wsl
      '(("deleteme" "~/deleteme")
        ("home" "~")

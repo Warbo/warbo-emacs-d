@@ -26,6 +26,8 @@
   (cond
    ((equal (system-name) "nixos-amd64")
     'nixos-amd64)
+   ((equal (system-name) "nixos-framework")
+    'framework)
    ((file-directory-p "/home/chris")
     'thinkpad)
    ((file-directory-p "/home/manjaro")
