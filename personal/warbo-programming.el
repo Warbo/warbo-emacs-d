@@ -684,9 +684,7 @@ tests for the current buffer. It is intended to be set via
 (make-variable-buffer-local 'warbo-run-buffer-tests-function)
 (put 'warbo-run-buffer-tests-function
      'safe-local-variable
-     (lambda (v) (member v '(warbo-run-selenium
-                             warbo-run-haskell-tests
-                             warbo-run-ts-tests))))
+     (lambda (v) (member v '(warbo-run-tests))))
 
 (defun warbo-find-and-run-tests (arg)
   "Run `warbo-run-buffer-tests-function' if it's non-nil. Otherwise, look for a
