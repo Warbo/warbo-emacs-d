@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Sun, 25 Jan 2026 12:22:41 +0000
+State: new
+Subject: Warnings about load-path
+Message-Id: <f4d3c791e2620c47-0-artemis@nixos-framework>
+
+```
+⛔ Warning (initialization): Your ‘load-path’ seems to contain
+your ‘user-emacs-directory’: /home/chris/.emacs.d
+This is likely to cause problems...
+Consider using a subdirectory instead, e.g.: /home/chris/.emacs.d/lisp
+````
