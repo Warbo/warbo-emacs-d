@@ -7,7 +7,6 @@
 (require 'ert)
 (require 'f)
 (require 's)
-(require 'vue-mode)
 
 (defmacro with-vue-project (&rest body)
   "Create a temporary Vue.js project and execute BODY within it."
