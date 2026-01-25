@@ -105,9 +105,6 @@
 (use-package fill-column-indicator
   :ensure t)
 
-(use-package flycheck
-  :ensure t)
-
 (use-package git-timemachine
   :ensure t)
 
