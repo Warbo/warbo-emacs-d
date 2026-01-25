@@ -475,7 +475,7 @@
         )
 
 (use-package ffap-goto-line
-  :load-path "."
+  :load-path (file-name-directory load-file-name)
   :demand t
   :bind ("C-x C-f" . find-file-at-point)
   :config
