@@ -401,8 +401,12 @@
       ("home" "~")))
 
     ('framework
-     '(("home" "~")
-       ("nix-config" "~/Code/nix-config")))
+     '(("blog" "~/Code/chriswarbo-net")
+       ("home" "~")
+       ("nix-config" "~/Code/nix-config")
+       ("nix-helpers" "~/Code/nix-helpers")
+       ("warbo-packages" "~/Code/warbo-packages")
+       ("warbo-utilities" "~/Code/warbo-utilities")))
 
     ('wsl
      '(("deleteme" "~/deleteme")
