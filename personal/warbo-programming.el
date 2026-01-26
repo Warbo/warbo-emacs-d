@@ -533,15 +533,38 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :init
   (vertico-mode)
-  (keymap-set vertico-map "TAB" #'minibuffer-complete))
+  (keymap-set vertico-map "TAB" #'minibuffer-complete)
+  :config
+  ;; When typing an exact buffer name, it should be the default selection.
+  ;; Consult adds U+200000 as invisible suffix for multi-category support.
+  ;; Buffer completion sets display-sort-function to `identity`, so we must
+  ;; use vertico-sort-override-function to take precedence.
+  (defun warbo-vertico-sort-prefer-exact (candidates)
+    "Sort CANDIDATES with exact match first, then by history/length/alpha."
+    (let* ((sorted (vertico-sort-history-length-alpha candidates))
+           (input (minibuffer-contents-no-properties)))
+      (if (and input (not (string-empty-p input)))
+          (let ((exact (seq-find (lambda (c)
+                                   ;; Consult adds U+200000 as invisible suffix
+                                   ;; for multi-category support. Strip it.
+                                   (let ((visible (string-trim-right
+                                                   (substring-no-properties c)
+                                                   (string ?\x200000))))
+                                     (string= input visible)))
+                                 sorted)))
+            (if exact
+                (cons exact (delete exact sorted))
+              sorted))
+        sorted)))
+  (setq vertico-sort-override-function #'warbo-vertico-sort-prefer-exact))
 
 (use-package orderless
   :ensure t
   :custom
   (completion-styles '(basic partial-completion emacs22))
   (completion-category-defaults nil)
-  ;(completion-category-overrides '((file (styles literal-prefix))))
-  )
+  ;; Prefer exact matches for buffer names, then fall back to orderless
+  (completion-category-overrides '((buffer (styles basic orderless)))))
 
 (use-package corfu
   :ensure t
