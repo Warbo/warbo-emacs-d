@@ -1,3 +1,4 @@
+;; TODO: Selects "warbo-test-buffer-1-manager.nix" instead of exact match "warbo-test-buffer-1"
 (ert-deftest warbo-test-buffer-exact-match-selected ()
   "Test that typing an exact buffer name selects that buffer by default."
   (let ((buf-exact (generate-new-buffer "warbo-test-buffer-1"))
@@ -23,6 +24,7 @@
       (kill-buffer buf-prefix-a)
       (kill-buffer buf-prefix-b))))
 
+;; TODO: Selects "warbo-test-buffer-2-file.el" instead of exact match "warbo-test-buffer-2"
 (ert-deftest warbo-test-buffer-completion-prefers-exact-match ()
   "Test that buffer completion prefers exact matches over prefix matches."
   (let ((buf-exact (generate-new-buffer "warbo-test-buffer-2"))

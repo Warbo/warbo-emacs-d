@@ -9,6 +9,7 @@
   (interactive)
   (list start end))
 
+;; TODO: Returns (nil nil) instead of (1 21) - advice not applying START/END args
 (ert-deftest crux-with-region-or-buffer-non-interactive-no-args-no-region ()
   "Test `crux-with-region-or-buffer` non-interactively with no args or region."
   (crux-with-region-or-buffer crux-buffer-test-function)
@@ -18,6 +19,7 @@
         (should (equal (list 1 21) (crux-buffer-test-function))))
     (advice-remove 'crux-buffer-test-function 'with-region-or-buffer)))
 
+;; TODO: Returns (nil nil) instead of (8 14) - advice not applying START/END args
 (ert-deftest crux-with-region-or-buffer-non-interactive-no-args-with-region ()
   "Test `crux-with-region-or-buffer` non-interactively with no args but a region."
   (crux-with-region-or-buffer crux-buffer-test-function)
@@ -67,6 +69,7 @@
   (interactive)
   (list start end))
 
+;; TODO: Returns (nil nil) instead of (8 15) - advice not applying START/END args
 (ert-deftest crux-with-region-or-line-non-interactive-no-args ()
   "Test `crux-with-region-or-line` non-interactively with no args."
   (crux-with-region-or-line crux-line-test-function)
@@ -116,6 +119,7 @@
   (interactive)
   (list start end))
 
+;; TODO: Returns (nil nil) instead of (1 10) - advice not applying START/END args
 (ert-deftest crux-with-region-or-sexp-or-line-non-interactive-sexp ()
   "Test `crux-with-region-or-sexp-or-line` non-interactively on a sexp."
   (crux-with-region-or-sexp-or-line crux-sexp-test-function)
@@ -126,6 +130,7 @@
         (should (equal (list 1 10) (crux-sexp-test-function))))
     (advice-remove 'crux-sexp-test-function 'with-region-or-sexp-or-line)))
 
+;; TODO: Returns (nil nil) instead of (1 10) - advice not applying START/END args
 (ert-deftest crux-with-region-or-sexp-or-line-non-interactive-string ()
   "Test `crux-with-region-or-sexp-or-line` non-interactively on a string."
   (crux-with-region-or-sexp-or-line crux-sexp-test-function)
@@ -136,6 +141,7 @@
         (should (equal (list 1 10) (crux-sexp-test-function))))
     (advice-remove 'crux-sexp-test-function 'with-region-or-sexp-or-line)))
 
+;; TODO: Returns (nil nil) instead of (11 14) - advice not applying START/END args
 (ert-deftest crux-with-region-or-sexp-or-line-non-interactive-line ()
   "Test `crux-with-region-or-sexp-or-line` non-interactively on a line."
   (crux-with-region-or-sexp-or-line crux-sexp-test-function)
@@ -164,6 +170,7 @@
   (interactive)
   (list start end))
 
+;; TODO: Returns (nil nil) instead of (10 14) - advice not applying START/END args
 (ert-deftest crux-with-region-or-point-to-eol-non-interactive-no-args ()
   "Test `crux-with-region-or-point-to-eol` non-interactively with no args."
   (crux-with-region-or-point-to-eol crux-eol-test-function)

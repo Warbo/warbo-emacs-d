@@ -103,6 +103,7 @@ The waiting process will repeatedly accept process output and sit for a short du
        (unless ,condition
          (ert-fail (format "Timeout waiting for condition: %s" ',condition))))))
 
+;; TODO: Timeout waiting for "command2" to appear after executing commands
 (ert-deftest mistty-C-up-down-cycle-history ()
   "C-up and C-down should cycle history when on the command line."
   (in-mistty-buffer
@@ -123,6 +124,7 @@ The waiting process will repeatedly accept process output and sit for a short du
    (warbo-wait-for (string-equal "echo command2" (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
    (should-line "echo command2")))
 
+;; TODO: Timeout waiting for point to reach original-location after C-a
 (ert-deftest mistty-C-a-at-prompt ()
   "C-a at the prompt should move to the beginning of the command."
   (in-mistty-buffer
@@ -132,6 +134,7 @@ The waiting process will repeatedly accept process output and sit for a short du
      (warbo-wait-for (= (point) original-location))
      (should (= (point) original-location)))))
 
+;; TODO: Timeout waiting for "  hello world" to appear in buffer after printf
 (ert-deftest mistty-C-a-elsewhere ()
   "C-a elsewhere should move to the first non-whitespace character."
   (in-mistty-buffer
@@ -156,6 +159,7 @@ The waiting process will repeatedly accept process output and sit for a short du
      (accept-process-output)
      (should (string-match-p (regexp-quote input-string) (buffer-string))))))
 
+;; TODO: Control chars (SOH/STX) not appearing in buffer - terminal processes them
 (ert-deftest mistty-test-emulate-terminal-control-chars ()
   "Test how `mistty--emulate-terminal' handles SOH and STX control characters."
   (in-mistty-buffer
