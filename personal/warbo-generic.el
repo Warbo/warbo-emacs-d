@@ -5,10 +5,8 @@
 ;; Emacs configuration, and generally-useful packages
 
 ;;; Code:
-;; TODO: Remove deprecated Package cl usage
 ;; TODO: Replace projectile-global-mode with projectile-mode
 ;; TODO: Fix free variable warning for editorconfig-exclude-regexps
-;; TODO: Replace obsolete whitespace-indentation variable with face
 ;; TODO: Fix use-package error for ffap-goto-line (file-name-directory void)
 ;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
 ;; TODO: Ensure functions are defined at runtime: sp-pair, prelude-wrap-with, sp-wrap-with-pair, smartrep-define-key, ov-set
@@ -360,7 +358,6 @@
                              lines-tail
                              space-before-tab
                              space-after-tab)
-          whitespace-indentation 'whitespace-trailing
           whitespace-line-column 80)
 
     (add-hook 'conf-mode-hook 'whitespace-mode)
@@ -373,7 +370,6 @@
 ;; "clean" when it was opened. This way, editing files which already contain
 ;; dodgy whitespace won't cause all of that to be stripped (which would pollute
 ;; diffs and git commits, for example)
-(require 'cl-lib)
 (use-package whitespace-cleanup-mode
   :ensure t
   :config
@@ -556,7 +552,6 @@ If point is already at the beginning of text, move it to the beginning of line."
 (my-global-fci-mode 1)
 
 (require 'dash)
-(require 'cl-lib)
 (defun font-strings-match (x y)
   "Check if the strings X and Y (in XLFD format) match, allowing wildcards."
   (-all? 'identity
