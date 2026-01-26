@@ -5,7 +5,6 @@
 ;; Emacs configuration, and generally-useful packages
 
 ;;; Code:
-;; TODO: Replace projectile-global-mode with projectile-mode
 ;; TODO: Fix free variable warning for editorconfig-exclude-regexps
 ;; TODO: Fix use-package error for ffap-goto-line (file-name-directory void)
 ;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
@@ -175,7 +174,7 @@
   ;; projectile is a project management mode
   (unless noninteractive
     (setq projectile-cache-file (expand-file-name  "projectile.cache" prelude-savefile-dir))
-    (projectile-global-mode t)))
+    (projectile-mode t)))
 
 (use-package smartrep
   ;; TODO: smartrep.el uses obsolete destructuring-bind and loop
