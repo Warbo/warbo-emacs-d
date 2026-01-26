@@ -1,7 +1,6 @@
 ;;; warbo-web --- Setup for Web browsing in Emacs -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
-;; TODO: Replace obsolete shr-external-browser with browse-url-secondary-browser-function
 
 ;; From https://github.com/GriffinSchneider/emacs-config eww-customizations.el
 (require 'eww)
@@ -35,9 +34,8 @@
 ;; with "&"
 ;;(setq browse-url-browser-function 'eww-browse-url)
 (setq browse-url-browser-function 'browse-url-firefox)
-(setq browse-url-secondary-browser-function 'browse-url-firefox) ;; FIXME??
-(setq browse-url-generic-program (executable-find "firefox")
-      shr-external-browser 'browse-url-generic)
+(setq browse-url-secondary-browser-function 'browse-url-firefox)
+(setq browse-url-generic-program (executable-find "firefox"))
 
 ;; Set the default browser to Debian's default.
 ;; W3M and Firefox are good choices.

@@ -5,7 +5,6 @@
 ;; Emacs configuration, and generally-useful packages
 
 ;;; Code:
-;; TODO: Replace defadvice with advice-add or define-advice (3 occurrences)
 ;; TODO: Remove deprecated Package cl usage
 ;; TODO: Replace projectile-global-mode with projectile-mode
 ;; TODO: Fix free variable warning for editorconfig-exclude-regexps
@@ -54,7 +53,7 @@
 (use-package crux
   ;; TODO: 2025-08-19 This is our fork which avoids deprecation warnings
   ;; TODO: ace-window.el has Case warnings for 'visible, 'global, 'frame
-  ;; TODO: browse-kill-ring.el uses obsolete defadvice
+  ;; TODO: browse-kill-ring.el uses obsolete defadvice (upstream package issue)
   :quelpa (crux :fetcher github
                 :repo "Warbo/crux"
                 :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f")
