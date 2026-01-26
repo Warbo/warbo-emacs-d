@@ -4,6 +4,9 @@
 ;;; Inspired by https://robert.kra.hn/posts/rust-emacs-setup/
 
 ;;; Code:
+;; TODO: Replace obsolete yas/fallback-behavior with yas-fallback-behavior
+;; TODO: Replace obsolete yas/expand with yas-expand
+;; TODO: Replace obsolete yas/minor-mode with yas-minor-mode
 (use-package rustic
   :ensure
   :bind (:map rustic-mode-map

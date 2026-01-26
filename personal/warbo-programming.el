@@ -1,6 +1,14 @@
-;;; warbo-programming --- Generic programming-related stuff
+;;; warbo-programming --- Generic programming-related stuff -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Fix defcustom warnings for *-format-on-save-mode-lighter (specify containing group)
+;; TODO: Fix 'make-variable-buffer-local' not called at toplevel warnings (6 occurrences)
+;; TODO: Replace font-lock-fontify-buffer with font-lock-ensure or font-lock-flush
+;; TODO: slim-mode.el uses obsolete return-from and loop
+;; TODO: Fix free variable warnings for nxml-child-indent, nxml-slash-auto-complete-flag, nxml-bind-meta-tab-to-complete-flag
+;; TODO: Fix free variable reference to warbo-find-and-run-tests-sentinel
+;; TODO: Ensure functions are defined: warbo-vertico-sort-prefer-exact, nix-repl-completion-at-point@warbo-filter-bel, command-in-rolling-buffer, case-sensitive-xref-find-definitions-advice
+;; TODO: Ensure reformatter functions are available at runtime
 
 ;; Define some reformatters, used by various modes below
 

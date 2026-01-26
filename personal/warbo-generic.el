@@ -1,10 +1,18 @@
-;;; warbo-generic --- General Emacs settings, useful in all modes
+;;; warbo-generic --- General Emacs settings, useful in all modes -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
 ;; Emacs configuration, and generally-useful packages
 
 ;;; Code:
+;; TODO: Replace defadvice with advice-add or define-advice (3 occurrences)
+;; TODO: Remove deprecated Package cl usage
+;; TODO: Replace projectile-global-mode with projectile-mode
+;; TODO: Fix free variable warning for editorconfig-exclude-regexps
+;; TODO: Replace obsolete whitespace-indentation variable with face
+;; TODO: Fix use-package error for ffap-goto-line (file-name-directory void)
+;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
+;; TODO: Ensure functions are defined at runtime: sp-pair, prelude-wrap-with, sp-wrap-with-pair, smartrep-define-key, ov-set
 
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
@@ -45,6 +53,8 @@
 
 (use-package crux
   ;; TODO: 2025-08-19 This is our fork which avoids deprecation warnings
+  ;; TODO: ace-window.el has Case warnings for 'visible, 'global, 'frame
+  ;; TODO: browse-kill-ring.el uses obsolete defadvice
   :quelpa (crux :fetcher github
                 :repo "Warbo/crux"
                 :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f")
@@ -171,6 +181,8 @@
     (projectile-global-mode t)))
 
 (use-package smartrep
+  ;; TODO: smartrep.el uses obsolete destructuring-bind and loop
+  ;; TODO: ag.el should use -zip-pair instead of -zip
   :ensure t
   :config
   (smartrep-define-key global-map "C-c ."
@@ -608,7 +620,7 @@ If point is already at the beginning of text, move it to the beginning of line."
              "EnvyCodeR Nerd Font Mono-11")
 
             ((equal machine-id 'framework)
-             "DroidSansM Nerd Font Mono-9")
+             "DroidSansM Nerd Font Mono-11")
 
             ((font-utils-exists-p "Droid Sans Mono-8")
              "Droid Sans Mono-8")

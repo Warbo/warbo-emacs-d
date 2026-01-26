@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;;; Configuration for Emacs modeline display.
 ;;; Code:
+;; TODO: Fix "Cannot load diminish" error
 
 (line-number-mode t)
 (column-number-mode t)

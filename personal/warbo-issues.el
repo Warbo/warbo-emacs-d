@@ -1,4 +1,4 @@
-;;; warbo-issues --- Emacs UI for the Artemis issue tracker
+;;; warbo-issues --- Emacs UI for the Artemis issue tracker -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -7,6 +7,7 @@
 (require 'seq)
 
 ;;; Code:
+;; TODO: Ensure issues-parse-comment is defined before use
 
 (defvar issue-artemis-command-output nil
   "The output of `artemis list -a'.

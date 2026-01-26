@@ -1,6 +1,9 @@
-;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term
+;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Add prefix to global/dynamic var 'sources'
+;; TODO: Replace (lambda () ...) quoted with ' with #'
+;; TODO: Ensure eshell/cd is available at runtime
 
 ;; Interpret and use ansi color codes in shell output windows. We use
 ;; https://github.com/atomontage/xterm-color rather than Emacs's built-in ansi

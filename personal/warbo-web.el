@@ -1,6 +1,7 @@
-;;; warbo-web --- Setup for Web browsing in Emacs
+;;; warbo-web --- Setup for Web browsing in Emacs -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Replace obsolete shr-external-browser with browse-url-secondary-browser-function
 
 ;; From https://github.com/GriffinSchneider/emacs-config eww-customizations.el
 (require 'eww)

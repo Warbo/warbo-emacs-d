@@ -1,6 +1,7 @@
 ;;; warbo-scala --- Programming functionality specific to Scala -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Fix free variable warning for lsp-prefer-flymake
 
 (use-package scala-mode
   :ensure t

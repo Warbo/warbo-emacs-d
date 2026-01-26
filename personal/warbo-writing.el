@@ -1,6 +1,10 @@
-;;; warbo-writing --- Setup for writing documents
+;;; warbo-writing --- Setup for writing documents -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Remove obsolete ebib-file-field (standard file field can no longer be customised)
+;; TODO: Fix free variable warning for ebib-file-field
+;; TODO: epresent.el uses obsolete org-re macro
+;; TODO: Ensure functions are defined: org-present-small, org-present-big, org-save-and-show-pdf
 
 (use-package ebib
   :ensure t)
