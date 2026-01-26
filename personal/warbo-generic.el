@@ -5,7 +5,6 @@
 ;; Emacs configuration, and generally-useful packages
 
 ;;; Code:
-;; TODO: Fix free variable warning for editorconfig-exclude-regexps
 ;; TODO: Fix use-package error for ffap-goto-line (file-name-directory void)
 ;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
 ;; TODO: Ensure functions are defined at runtime: sp-pair, prelude-wrap-with, sp-wrap-with-pair, smartrep-define-key, ov-set
@@ -294,12 +293,11 @@
 ;; Honour .editorconfig file settings
 (use-package editorconfig
   :ensure t
+  :custom
+  (editorconfig-exclude-regexps '(".*/recentf$"
+                                  ".*\\.zip$"))
   :config
-  (setq editorconfig-exclude-regexps
-        '(".*/recentf$"
-          ".*\.zip$"))
-  (add-hook 'prog-mode-hook 'editorconfig-mode)
-  )
+  (add-hook 'prog-mode-hook 'editorconfig-mode))
 
 (use-package consult
   :ensure t
