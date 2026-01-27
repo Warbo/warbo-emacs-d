@@ -13,7 +13,6 @@
   (mapcar 'diminish '(editorconfig-mode
                       whitespace-cleanup-mode
                       flyspell-mode
-                      company-mode
                       projectile-mode
                       eldoc-mode
                       visual-line-mode

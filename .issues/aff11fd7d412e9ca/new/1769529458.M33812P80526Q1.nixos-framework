@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 27 Jan 2026 15:57:31 +0000
+Subject: Re: Duplicate company configuration across files
+Message-Id: <aff11fd7d412e9ca-bccae5cdb1b01a34-artemis@nixos-framework>
+References: <aff11fd7d412e9ca-0-artemis@nixos-amd64>
+In-Reply-To: <aff11fd7d412e9ca-0-artemis@nixos-amd64>
+
+Remove company entirely

@@ -532,23 +532,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
 ;;   :config
 ;;   (eglot-booster-mode))
 
-(use-package company
-  :disabled
-  :ensure t
-  :hook (prog-mode . company-mode)
-  :custom
-  (company-idle-delay 0.5) ;; how long to wait until popup
-  ;; (company-begin-commands nil) ;; uncomment to disable popup
-  :bind
-  (:map company-active-map
-        ("C-n". company-select-next)
-        ("C-p". company-select-previous)
-        ("M-<". company-select-first)
-        ("M->". company-select-last))
-  (:map company-mode-map
-        ("<tab>". tab-indent-or-complete)
-        ("TAB". tab-indent-or-complete)))
-
 (use-package vertico
   :ensure t
   :init
