@@ -9,11 +9,6 @@
   :bind (:map scala-mode-map
               ("C-c C-c" . sbt-run-previous-command)))
 
-;; Enable nice rendering of diagnostics like compile errors.
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))
-
 (use-package lsp-mode
   :ensure t
   ;; Optional - enable lsp-mode automatically in scala files
