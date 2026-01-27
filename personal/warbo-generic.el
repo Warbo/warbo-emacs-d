@@ -52,8 +52,8 @@
   ;; TODO: browse-kill-ring.el uses obsolete defadvice (upstream package issue)
   :quelpa (crux :fetcher github
                 :repo "Warbo/crux"
-                :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f")
-  :ensure t
+                :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f"
+                :upgrade t)
   :bind (("C-^" . crux-top-join-line)
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c r" . crux-rename-buffer-and-file))
