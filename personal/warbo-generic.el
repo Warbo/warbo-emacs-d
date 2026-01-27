@@ -475,12 +475,18 @@
         ;;       (executable-find command))))
         )
 
-(use-package ffap-goto-line
-  :load-path (file-name-directory load-file-name)
-  :demand t
-  :bind ("C-x C-f" . find-file-at-point)
-  :config
-  (ffap-goto-line-mode 1))
+(cl-macrolet
+    ((use-package-here (name &rest args)
+       `(progn ;;(message "load-file-name: %S" load-file-name)
+               ;;(message "fnd: %S" (file-name-directory load-file-name))
+               (use-package ,name
+                 :load-path ,(file-name-directory load-file-name)
+                 ,@args))))
+  (use-package-here ffap-goto-line
+    :ensure
+    :bind ("C-x C-f" . find-file-at-point)
+    :config
+    (ffap-goto-line-mode 1)))
 
 ;; We don't want C-a to go all of the way back; drop us on the actual code
 ;; (Taken from https://stackoverflow.com/a/7250027/884682 )
