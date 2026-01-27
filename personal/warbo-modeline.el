@@ -18,7 +18,6 @@
                       visual-line-mode
                       smartparens-mode
                       flycheck-mode
-                      lsp-lens-mode
                       beacon-mode
                       pretty-sha-path-mode
                       volatile-highlights-mode

@@ -607,18 +607,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package posframe
   :ensure t)
 
-;; Use the Debug Adapter Protocol for running tests and debugging
-;; (use-package dap-mode
-;;   ;; Includes dap-python
-;;   :disabled
-;;   :ensure t
-;;   :defer  t
-;;   :hook
-;;   (lsp-mode . dap-mode)
-;;   (lsp-mode . dap-ui-mode)
-;;   :config
-;;   (require 'dap-ui))
-
 (use-package typescript-mode
   :ensure t
   :mode (("\\.ts\\'"  . typescript-mode)
