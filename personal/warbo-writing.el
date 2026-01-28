@@ -1,10 +1,6 @@
 ;;; warbo-writing --- Setup for writing documents -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
-;; TODO: Remove obsolete ebib-file-field (standard file field can no longer be customised)
-;; TODO: Fix free variable warning for ebib-file-field
-;; TODO: epresent.el uses obsolete org-re macro
-;; TODO: Ensure functions are defined: org-present-small, org-present-big, org-save-and-show-pdf
 
 (use-package ebib
   :ensure t)
@@ -38,7 +34,7 @@
 (use-package org
   :mode (("\\.org$" . org-mode))
   ;:ensure org-plus-contrib
-  :bind (("<f9>" . 'org-save-and-show-pdf)
+  :bind (("<f9>" . org-save-and-show)
 
          ;; Don't clobber windmove bindings
          :map org-mode-map
@@ -103,7 +99,6 @@
 
 ;; Open our master Bibtex file in ebib
 (setq ebib-hide-cursor nil)
-(setq ebib-file-field "localfile")
 (setq ebib-file-associations '(("pdf" . "mupdf-x11") ("ps" . "gv")))
 (defun bib ()
   "Opens our main Bibtex file."
@@ -122,6 +117,7 @@
 
 (use-package org-present
   :ensure t
+  :functions (org-present-big org-present-small)
   :config
   (with-eval-after-load 'org-present
     (add-hook 'org-present-mode-hook (lambda ()

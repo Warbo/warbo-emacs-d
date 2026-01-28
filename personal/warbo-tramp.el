@@ -1,9 +1,11 @@
 ;;; warbo-tramp --- Useful config for editing remote files -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
-;; TODO: Fix free variable warnings for projectile-mode-line, tramp-use-scp-direct-remote-copying, tramp-copy-size-limit, tramp-ssh-controlmaster-options
 
 (require 'tramp)
+
+;; Declare variable from projectile to silence byte-compiler
+(defvar projectile-mode-line)
 
 ;; Don't run Flymake over TRAMP
 (if (boundp 'flymake-allowed-file-name-masks)
