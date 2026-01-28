@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 20 Jun 2018 11:45:19 +0100
-State: new
+State: resolved
 Subject: Optimise line splitting in shell
 Message-Id: <8ed48d684a2c0675-0-artemis@nixos>
+resolution: fixed
 
 We split long lines, but the way we're doing it is wasteful according to
 Emacs's profiler. Start profiling with:

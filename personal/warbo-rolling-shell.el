@@ -1,6 +1,7 @@
-;;; warbo-rolling-shell --- Custom shell-mode with rolling contents
+;;; warbo-rolling-shell --- Custom shell-mode with rolling contents -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Fix free variable references to at-end and old-line in rolling-shell-output-filter
 
 (require 's)
 

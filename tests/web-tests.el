@@ -33,6 +33,7 @@
   (should t) ;; Placeholder: This test requires manual execution and observation.
   )
 
+;; TODO: captured-url is nil - browse-url-firefox not called or eww-data binding issue
 (ert-deftest warbo-web-external-browser-dispatch-via-keypress ()
   "Test that pressing '&' in EWW mode dispatches to `browse-url-firefox` with the correct URL."
   (let (captured-url

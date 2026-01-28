@@ -1,6 +1,7 @@
 ;;; warbo-llm --- Large Language Model support -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Ensure make-llm-ollama is available at runtime
 
 (use-package llm
   :ensure t)

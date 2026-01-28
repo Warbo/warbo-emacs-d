@@ -1,4 +1,6 @@
 ;;; prelude-filesystem.el --- Filesystem settings. -*- lexical-binding: t; -*-
+;; TODO: Fix free variable warnings for save-place-file, savehist-*, recentf-*, semanticdb-default-save-directory
+;; TODO: Ensure -any-p function is available at compile time
 ;;
 ;; This file contains file and buffer history management functionality,
 ;; extracted from Emacs Prelude.

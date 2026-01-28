@@ -1,6 +1,9 @@
-;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term
+;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Add prefix to global/dynamic var 'sources'
+;; TODO: Replace (lambda () ...) quoted with ' with #'
+;; TODO: Ensure eshell/cd is available at runtime
 
 ;; Interpret and use ansi color codes in shell output windows. We use
 ;; https://github.com/atomontage/xterm-color rather than Emacs's built-in ansi
@@ -203,8 +206,6 @@
 
   ;; Wrap at edge of the screen, not at last whitespace
   (visual-line-mode -1)
-
-  ;;(company-mode 1)
 
   ;; Avoid overriding prompt colours
   ;; https://stackoverflow.com/a/50776528/884682
@@ -440,6 +441,14 @@
       ("warbo-packages" "~/repos/warbo-packages")
       ("warbo-utilities" "~/repos/warbo-utilities")
       ("home" "~")))
+
+    ('framework
+     '(("blog" "~/Code/chriswarbo-net")
+       ("home" "~")
+       ("nix-config" "~/Code/nix-config")
+       ("nix-helpers" "~/Code/nix-helpers")
+       ("warbo-packages" "~/Code/warbo-packages")
+       ("warbo-utilities" "~/Code/warbo-utilities")))
 
     ('wsl
      '(("deleteme" "~/deleteme")

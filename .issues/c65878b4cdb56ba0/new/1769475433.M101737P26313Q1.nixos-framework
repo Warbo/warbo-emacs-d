@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Tue, 27 Jan 2026 00:50:28 +0000
+Subject: Re: Switching buffer should start with complete match
+Message-Id: <c65878b4cdb56ba0-e6808e16f9c40e2c-artemis@nixos-framework>
+References: <c65878b4cdb56ba0-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <c65878b4cdb56ba0-0-artemis@TRAC-AAD-5340>
+
+I've added tests for this, and implemented it by setting a
+vertico-sort-override-function variable.

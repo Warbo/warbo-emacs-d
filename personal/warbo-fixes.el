@@ -1,6 +1,7 @@
-;;; warbo-fixes --- Prevent known breakages
+;;; warbo-fixes --- Prevent known breakages -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Fix free variable warning for desktop-path
 
 ;; Try to prevent "undo-tree-mapc: Wrong type argument: listp, \.\.\."
 ;; From http://defindit.com/readme_files/tom_emacs.html

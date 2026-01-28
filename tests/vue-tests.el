@@ -7,7 +7,6 @@
 (require 'ert)
 (require 'f)
 (require 's)
-(require 'vue-mode)
 
 (defmacro with-vue-project (&rest body)
   "Create a temporary Vue.js project and execute BODY within it."
@@ -171,6 +170,7 @@ console.log(aliasedValue); // Usage of aliasedValue")
       (with-current-buffer (find-file-noselect vue-file)
         (should (s-contains? "<script lang=\"ts\">" (buffer-string)))))))
 
+;; TODO: .vue files open in fundamental-mode instead of vue-mode
 (ert-deftest vue-mode-activation-test ()
   "Test that vue-mode is correctly activated for .vue files."
   (with-vue-project
@@ -197,6 +197,7 @@ console.log(aliasedValue); // Usage of aliasedValue")
         (newline-and-indent)
         (should (= (current-indentation) 0))))))
 
+;; TODO: .vue files open in fundamental-mode instead of vue-mode
 (ert-deftest vue-html-tag-balancing-test ()
   "Test that HTML tag balancing works within the <template> block."
   (with-vue-project
@@ -208,6 +209,7 @@ console.log(aliasedValue); // Usage of aliasedValue")
         (forward-char 1) ;; Move past '<'
         (should (equal (web-mode-tag-match) (point-at-bol 2)))))))
 
+;; TODO: .vue files open in fundamental-mode instead of vue-mode
 (ert-deftest vue-css-indentation-test ()
   "Test CSS indentation within the <style> block."
   (with-vue-project
@@ -220,6 +222,7 @@ console.log(aliasedValue); // Usage of aliasedValue")
         (newline-and-indent)
         (should (= (current-indentation) 2))))))
 
+;; TODO: .vue files open in fundamental-mode instead of vue-mode
 (ert-deftest vue-html-template-indentation-test ()
   "Test HTML/template indentation within the <template> block."
   (with-vue-project
@@ -232,6 +235,7 @@ console.log(aliasedValue); // Usage of aliasedValue")
         (newline-and-indent)
         (should (= (current-indentation) 2))))))
 
+;; TODO: Indentation is 4 instead of 0 after closing brace
 (ert-deftest vue-typescript-editing-test ()
   "Test TypeScript file editing, including mode activation and indentation."
   (with-vue-project

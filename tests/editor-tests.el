@@ -115,6 +115,7 @@
    (execute-kbd-macro (kbd "C-y"))
    (should (string-equal (buffer-string) "foo = 'goodbye world'"))))
 
+;; TODO: C-<left> produces "foo(w, bar(x,), y z)" instead of "foo(w, bar(x), y, z)"
 (ert-deftest warbo-test-expand-and-contract-brackets ()
   "Test that C-<left> and C-<right> expand/contract bracketssexps."
   (with-temp-buffer-selected

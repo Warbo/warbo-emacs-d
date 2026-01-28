@@ -92,8 +92,6 @@
 
 ;; (use-package logito)
 
-;; (use-package lsp-haskell)
-
 ;; (use-package macrostep)
 
 ;; (use-package makey)

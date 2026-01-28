@@ -1,6 +1,8 @@
-;;; warbo-documents --- Helpers for reading PDFs, etc.
+;;; warbo-documents --- Helpers for reading PDFs, etc. -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+;; TODO: Fix free variable warning for doc-view-continuous
+;; TODO: Ensure doc-view-fit-width-to-window is available at runtime
 
 ;; Make doc-view continuous
 (setq doc-view-continuous t)
