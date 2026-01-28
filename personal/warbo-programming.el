@@ -475,6 +475,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
          (c-ts-base-mode . eglot-ensure)
          (haskell-mode . eglot-ensure)
          (js-base-mode . eglot-ensure)
+         (typescript-mode . eglot-ensure)
          (typescript-ts-base-mode . eglot-ensure))
   :config
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
@@ -484,6 +485,8 @@ with the string S. Unlike `replace-region-contents' this maintains text
   ;; From https://www.reddit.com/r/emacs/comments/1b25904/is_there_anything_i_can_do_to_make_eglots/
   ;(setf (plist-get eglot-events-buffer-config :size) 0)
   ;(eldoc-echo-area-use-multiline-p nil)
+  (setf (alist-get 'typescript-mode eglot-server-programs)
+        '("typescript-language-server" "--stdio"))
   (let ((projects (expand-file-name "~/src")))
     (when (file-directory-p projects)
       (eval-when-compile
