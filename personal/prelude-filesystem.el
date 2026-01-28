@@ -35,85 +35,59 @@
 
 ;;; Code:
 
-;; Declare variables defined in other packages to silence byte-compiler warnings
-(defvar save-place-file)
-(defvar savehist-additional-variables)
-(defvar savehist-autosave-interval)
-(defvar savehist-file)
-(defvar recentf-save-file)
-(defvar recentf-max-saved-items)
-(defvar recentf-max-menu-items)
-(defvar recentf-auto-cleanup)
-(defvar recentf-exclude)
-(defvar semanticdb-default-save-directory)
-
 (use-package files
   :config
-  ;; revert buffers automatically when underlying files are changed externally
-  (global-auto-revert-mode t)
+  (global-auto-revert-mode t))
 
-  ;; meaningful names for buffers with the same name
-  (require 'uniquify) ; uniquify is built-in, but require is good practice
-  (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
-  (setq uniquify-separator "/")
-  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
-  (setq uniquify-ignore-buffers-re "^\*") ; don't muck with special buffers
+(use-package uniquify
+  :custom
+  (uniquify-buffer-name-style 'post-forward-angle-brackets)
+  (uniquify-separator "/")
+  (uniquify-after-kill-buffer-p t)
+  (uniquify-ignore-buffers-re "^\*"))
 
-  ;; saveplace remembers your location in a file when saving files
-  ;; save-place is built-in
-  (setq save-place-file (expand-file-name "saveplace" prelude-savefile-dir))
-  ;; activate it for all buffers
+(use-package saveplace
+  :custom
+  (save-place-file (expand-file-name "saveplace" prelude-savefile-dir))
+  :config
   (if (< emacs-major-version 25)
-      (progn (require 'saveplace)
-             (setq-default save-place t))
-    (save-place-mode 1))
+      (setq-default save-place t)
+    (save-place-mode 1)))
 
-  ;; savehist keeps track of some history
-  ;; savehist is built-in
-  (require 'savehist)
-  (setq savehist-additional-variables
-        ;; search entries
-        '(search-ring regexp-search-ring)
-        ;; save every minute
-        savehist-autosave-interval 60
-        ;; keep the home clean
-        savehist-file (expand-file-name "savehist" prelude-savefile-dir))
-  (savehist-mode +1)
+(use-package savehist
+  :custom
+  (savehist-additional-variables '(search-ring regexp-search-ring))
+  (savehist-autosave-interval 60)
+  (savehist-file (expand-file-name "savehist" prelude-savefile-dir))
+  :config
+  (savehist-mode +1))
 
-  ;; save recent files
-  ;; recentf is built-in
-  (require 'recentf)
-  (setq recentf-save-file (expand-file-name "recentf" prelude-savefile-dir)
-        recentf-max-saved-items 500
-        recentf-max-menu-items 15
-        ;; disable recentf-cleanup on Emacs start, because it can cause
-        ;; problems with remote files
-        recentf-auto-cleanup 'never)
-
+(use-package recentf
+  :custom
+  (recentf-save-file (expand-file-name "recentf" prelude-savefile-dir))
+  (recentf-max-saved-items 500)
+  (recentf-max-menu-items 15)
+  (recentf-auto-cleanup 'never)
+  :config
   (defun prelude-recentf-exclude-p (file)
     "A predicate to decide whether to exclude FILE from recentf."
     (let ((file-dir (file-truename (file-name-directory file))))
       (seq-some (lambda (dir)
                   (string-prefix-p dir file-dir))
                 (mapcar 'file-truename (list prelude-savefile-dir package-user-dir)))))
-
   (add-to-list 'recentf-exclude 'prelude-recentf-exclude-p)
+  (recentf-mode +1))
 
-  (recentf-mode +1)
+(use-package bookmark
+  :custom
+  (bookmark-default-file (expand-file-name "bookmarks" prelude-savefile-dir))
+  (bookmark-save-flag 1))
 
-  ;; bookmarks
-  ;; bookmark is built-in
-  (require 'bookmark)
-  (setq bookmark-default-file (expand-file-name "bookmarks" prelude-savefile-dir)
-        bookmark-save-flag 1)
+(use-package midnight)
 
-  ;; clean up obsolete buffers automatically
-  ;; midnight is built-in
-  (require 'midnight)
-
-  ;; semanticdb
-  (setq semanticdb-default-save-directory
-        (expand-file-name "semanticdb" prelude-savefile-dir)))
+(use-package semantic/db
+  :custom
+  (semanticdb-default-save-directory (expand-file-name "semanticdb" prelude-savefile-dir)))
 
 (provide 'prelude-filesystem)
 ;;; prelude-filesystem.el ends here
