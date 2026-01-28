@@ -83,9 +83,7 @@ Checks:
             (sleep-for 0.5)
 
             ;; Check if it worked
-            (if (eglot-managed-p)
-                (message "SUCCESS: Eglot started.")
-
+            (unless (eglot-managed-p)
               ;; IF NOT: Dump *Messages* to see if the hook swallowed an error
               (let ((logs (with-current-buffer (messages-buffer)
                             (buffer-substring-no-properties msg-start (point-max)))))
@@ -116,16 +114,13 @@ This determines if the issue is 'Starting' vs 'Deciding to start'."
               ;; eglot--guess-contact returns (MANAGED-MODE PROJECT CLASS CONTACT)
               ;; Note: API for eglot--guess-contact changed slightly in versions,
               ;; but usually returns list.
-              (message "DEBUG: Contact info: %S" contact)
 
               (condition-case err
-                  (progn
-                    ;; Emacs 29/30 signature for eglot--connect is (PROJECT CLASS CONTACT LANGUAGES)
-                    (eglot--connect (nth 1 contact) ;; Project
-                                    (nth 2 contact) ;; Class
-                                    (nth 3 contact) ;; Contact info
-                                    (list (nth 0 contact))) ;; Language ID
-                    (message "DEBUG: eglot--connect returned without error"))
+                  ;; Emacs 29/30 signature for eglot--connect is (PROJECT CLASS CONTACT LANGUAGES)
+                  (eglot--connect (nth 1 contact) ;; Project
+                                  (nth 2 contact) ;; Class
+                                  (nth 3 contact) ;; Contact info
+                                  (list (nth 0 contact))) ;; Language ID
                 (error
                  (ert-fail (format "FORCE CONNECT CRASHED: %S" err))))
 

@@ -41,7 +41,6 @@
           (unwind-protect
               (progn
                 (execute-kbd-macro (kbd "C-x b warbo-test-sort RET"))
-                (message "Sort calls: %S" sort-calls)
                 (should sort-calls))
             (advice-remove 'warbo-vertico-sort-prefer-exact 'test-spy-outer)
             (advice-remove 'vertico-sort-history-length-alpha 'test-spy-inner)))
@@ -79,9 +78,7 @@
                                         suffix-info)))))))
                       '((name . test-spy)))
           (unwind-protect
-              (progn
-                (execute-kbd-macro (kbd "C-x b warbo-test-suffix RET"))
-                (message "Suffix info: %S" suffix-info))
+            (execute-kbd-macro (kbd "C-x b warbo-test-suffix RET"))
             (advice-remove 'warbo-vertico-sort-prefer-exact 'test-spy)))
       (kill-buffer buf))))
 
@@ -107,9 +104,7 @@ The exact match IS present but has an invisible suffix character."
                               sort-calls))
                       '((name . test-spy)))
           (unwind-protect
-              (progn
-                (execute-kbd-macro (kbd "C-x b warbo-test-buffer-4 RET"))
-                (message "Candidates at each step: %S" sort-calls))
+            (execute-kbd-macro (kbd "C-x b warbo-test-buffer-4 RET"))
             (advice-remove 'warbo-vertico-sort-prefer-exact 'test-spy)))
       (kill-buffer buf-exact)
       (kill-buffer buf-prefix-a)
@@ -127,9 +122,7 @@ The exact match IS present but has an invisible suffix character."
                         metadata-seen))
                 '((name . test-spy)))
     (unwind-protect
-        (progn
-          (execute-kbd-macro (kbd "C-x b test RET"))
-          (message "Metadata seen: %S" metadata-seen))
+      (execute-kbd-macro (kbd "C-x b test RET"))
       (advice-remove 'vertico--sort-function 'test-spy))))
 
 (ert-deftest warbo-test-buffer-vertico-sort-function-called ()
@@ -141,7 +134,6 @@ The exact match IS present but has an invisible suffix character."
     (unwind-protect
         (progn
           (execute-kbd-macro (kbd "C-x b test RET"))
-          (message "vertico--sort-function called: %S" called)
           (should called))
       (advice-remove 'vertico--sort-function 'test-spy))))
 
