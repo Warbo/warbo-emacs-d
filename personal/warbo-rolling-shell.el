@@ -1,9 +1,13 @@
 ;;; warbo-rolling-shell --- Custom shell-mode with rolling contents -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
-;; TODO: Fix free variable references to at-end and old-line in rolling-shell-output-filter
 
 (require 's)
+
+(defvar-local rolling-shell-at-end nil
+  "Whether point was at end of buffer before output.")
+(defvar-local rolling-shell-old-line nil
+  "Line number before output.")
 
 (defvar rolling-shell-max-lines 10000
   "Maximum number of lines to keep in the rolling shell buffer.")
@@ -24,22 +28,22 @@ Returns the number of lines truncated."
 (defun rolling-shell-preoutput-filter (text)
   "Return TEXT unchanged, but also update the old-point."
   (prog1 text
-    (setq-local old-point (point))
-    (setq-local at-end (= old-point (point-max)))
-    (setq-local old-line (line-number-at-pos))))
+    (let ((old-point (point)))
+      (setq rolling-shell-at-end (= old-point (point-max)))
+      (setq rolling-shell-old-line (line-number-at-pos)))))
 
-(defun rolling-shell-output-filter (text)
-  "Filter to insert TEXT into rolling shell."
+(defun rolling-shell-output-filter (_text)
+  "Filter to insert output into rolling shell.  _TEXT is ignored."
   ;; Insert the new text
   (goto-char (point-max))
 
   ;; Truncate if necessary and get number of truncated lines
   (let ((truncated-lines (rolling-shell-truncate-buffer)))
     ;; Adjust point based on where it was
-    (if at-end
+    (if rolling-shell-at-end
         (goto-char (point-max))       ; Keep point at end if it was there
       (goto-char (point-min))
-      (forward-line (- old-line truncated-lines 1))))
+      (forward-line (- rolling-shell-old-line truncated-lines 1))))
 
   ;; Ensure point is visible
   (when (and (< (point) (window-start))

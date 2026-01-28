@@ -1,9 +1,8 @@
 ;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
-;; TODO: Add prefix to global/dynamic var 'sources'
-;; TODO: Replace (lambda () ...) quoted with ' with #'
-;; TODO: Ensure eshell/cd is available at runtime
+
+(declare-function eshell/cd "em-dirs")
 
 ;; Interpret and use ansi color codes in shell output windows. We use
 ;; https://github.com/atomontage/xterm-color rather than Emacs's built-in ansi
@@ -233,8 +232,7 @@ If in a mistty buffer, create another with same context but new number."
       ;; (e.g. we may be using its IP instead; or it may be a missing a `.local'
       ;; domain; or we may be using multi-hop, or `sudo', etc.).
       (when (file-remote-p default-directory)
-        (let* ((vec (tramp-dissect-file-name default-directory))
-               (new-localname (tramp-file-name-localname vec)))
+        (let ((vec (tramp-dissect-file-name default-directory)))
           (setf (tramp-file-name-localname vec) path)
           (setq default-directory (tramp-make-tramp-file-name vec)))))))
 
@@ -458,7 +456,7 @@ If in a mistty buffer, create another with same context but new number."
         (rename-buffer name)))
     name))
 
-(defconst sources
+(defconst warbo-shells-sources
   (if (file-directory-p "~/src")
       (cl-remove-if (lambda (d) (or (s-starts-with-p "." d) (s-starts-with-p "y" d)))
                     (directory-files "~/src")))
@@ -535,7 +533,7 @@ If in a mistty buffer, create another with same context but new number."
        ("emacs-d" "~/.emacs.d")
        ("nix-config" "~/nix-config")
        ("notes" "~/notes")
-       ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
+       ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) warbo-shells-sources)))
 
     (_ '(("home" "~"))))
   "Useful buffers to open at startup.")
@@ -573,11 +571,11 @@ If in a mistty buffer, create another with same context but new number."
 
 ;; TODO: Set bindings via use-package
 (add-hook 'eshell-mode-hook
-          '(lambda()
-             (local-set-key (kbd "C-l") 'eshell/clear)))
+          #'(lambda()
+              (local-set-key (kbd "C-l") 'eshell/clear)))
 
 (define-advice shell-command
-    (:after (command &optional output-buffer error-buffer))
+    (:after (_command &optional _output-buffer _error-buffer))
   "From https://stackoverflow.com/a/6895517/884682 ."
   (when (get-buffer "*Async Shell Command*")
     (with-current-buffer "*Async Shell Command*"
