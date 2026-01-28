@@ -245,10 +245,13 @@ The waiting process will repeatedly accept process output and sit for a short du
   (with-f2-test-env "/tmp/"
     (let* ((first-buf (warbo-f2-press))
            (first-buf-name (buffer-name first-buf)))
-      ;; Switch away
-      (switch-to-buffer "*scratch*")
-      ;; Press <f2> again (use call-interactively, not execute-kbd-macro)
-      (call-interactively #'warbo-mistty-switch-or-create)
+      ;; Switch away to a buffer with same default-directory
+      (let ((temp-buf (generate-new-buffer "*temp-test*")))
+        (with-current-buffer temp-buf
+          (setq default-directory "/tmp/"))
+        (switch-to-buffer temp-buf))
+      ;; Press <f2> again
+      (warbo-f2-press)
       ;; Should switch back to existing buffer, not create new one
       (should (string-equal (buffer-name) first-buf-name)))))
 
