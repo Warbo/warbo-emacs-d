@@ -1,14 +1,9 @@
 ;;; warbo-programming --- Generic programming-related stuff -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
-;; TODO: Fix defcustom warnings for *-format-on-save-mode-lighter (specify containing group)
-;; TODO: Fix 'make-variable-buffer-local' not called at toplevel warnings (6 occurrences)
-;; TODO: Replace font-lock-fontify-buffer with font-lock-ensure or font-lock-flush
-;; TODO: slim-mode.el uses obsolete return-from and loop
-;; TODO: Fix free variable warnings for nxml-child-indent, nxml-slash-auto-complete-flag, nxml-bind-meta-tab-to-complete-flag
-;; TODO: Fix free variable reference to warbo-find-and-run-tests-sentinel
-;; TODO: Ensure functions are defined: warbo-vertico-sort-prefer-exact, nix-repl-completion-at-point@warbo-filter-bel, command-in-rolling-buffer, case-sensitive-xref-find-definitions-advice
-;; TODO: Ensure reformatter functions are available at runtime
+
+;; Declare functions defined later or in other files
+(declare-function command-in-rolling-buffer "warbo-rolling-shell")
 
 ;; Define some reformatters, used by various modes below
 
@@ -17,28 +12,34 @@
   :config
   (reformatter-define cue-format
     :program "cue"
-    :args '("fmt" "-"))
+    :args '("fmt" "-")
+    :group 'reformatter)
 
   (reformatter-define nix-format
     :program "nixfmt"
-    :args '("-w" "80"))
+    :args '("-w" "80")
+    :group 'reformatter)
 
   (reformatter-define scala-format
     :program "scalafmt"
     :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
             "--stdin"
-            "--stdout"))
+            "--stdout")
+    :group 'reformatter)
 
   (reformatter-define sh-format
-    :program "shfmt")
+    :program "shfmt"
+    :group 'reformatter)
 
   (reformatter-define xmllint-format
     :program "xmllint"
-    :args '("--format" "-"))
+    :args '("--format" "-")
+    :group 'reformatter)
 
   (reformatter-define yamlfix-format
     :program "yamlfix"
-    :args '("-")))
+    :args '("-")
+    :group 'reformatter))
 
 ;; These modes are built-in, so we don't need use-package to run add-hook
 (add-hook 'sh-mode-hook 'sh-format-on-save-mode)
@@ -207,7 +208,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
                       ;; Enable a simple prog-mode like json-mode, which will
                       ;; give us rainbow-delimiters and rainbow-identifiers
                       (json-mode)
-                      (font-lock-fontify-buffer)
+                      (font-lock-ensure)
 
                       (buffer-string)))))
         (when new
@@ -629,8 +630,8 @@ after `::'."
 
   (defun do-yas-expand ()
     "Try to expand a yasnippet snippet, returning nil on failure."
-    (let ((yas/fallback-behavior 'return-nil))
-      (yas/expand)))
+    (let ((yas-fallback-behavior 'return-nil))
+      (yas-expand)))
 
   (defun tab-indent-or-complete ()
     "Indent the current line, or complete the current symbol.
@@ -641,7 +642,7 @@ invoked.  Otherwise, the current line is indented."
     (interactive)
     (if (minibufferp)
         (minibuffer-complete)
-      (if (or (not yas/minor-mode)
+      (if (or (not yas-minor-mode)
               (null (do-yas-expand)))
           (if (check-expansion)
               (completion-at-point)
@@ -665,12 +666,10 @@ invoked.  Otherwise, the current line is indented."
   :init
   ;; Mapping xml to nxml
   (fset 'xml-mode 'nxml-mode)
-
-  :config
-  (setq nxml-child-indent 2
-        ;;nxml-auto-insert-xml-declaration-flag t
-        nxml-slash-auto-complete-flag t
-        nxml-bind-meta-tab-to-complete-flag t))
+  :custom
+  (nxml-child-indent 2)
+  (nxml-slash-auto-complete-flag t)
+  (nxml-bind-meta-tab-to-complete-flag t))
 
 (define-derived-mode nix-derivation-mode prog-mode "nix-derivation-mode"
   "Custom major mode, which runs Nix .drv files through `nix show-derivation'.
@@ -719,7 +718,6 @@ The result is JSON, so we derive from json-mode."
     (global-flycheck-mode +1)
   (add-hook 'prog-mode-hook 'flycheck-mode))
 
-;; Bind a key to look for 'test.sh' and run it
 (defun warbo-find-and-run-tests-sentinel (process signal)
   "A process sentinel suitable for `set-process-sentinel'.
 The returned sentinel will send a notification when the attached (asynchronous)
@@ -770,7 +768,7 @@ passed along."
                            (async-shell-command cmd output-buffer)
                            (get-buffer-process output-buffer))))
               (if (process-live-p proc)
-                  (set-process-sentinel proc warbo-find-and-run-tests-sentinel)
+                  (set-process-sentinel proc #'warbo-find-and-run-tests-sentinel)
                 (message "Tests finished immediately")))))))))
 (keymap-global-set "<f6>" 'warbo-find-and-run-tests)
 
