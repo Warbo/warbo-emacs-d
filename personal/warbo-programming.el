@@ -473,10 +473,10 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :hook ((vue-mode . eglot-ensure)
          (c-mode-common . eglot-ensure)
          (c-ts-base-mode . eglot-ensure)
+         (haskell-mode . eglot-ensure)
          (js-base-mode . eglot-ensure)
          (typescript-ts-base-mode . eglot-ensure))
   :config
-  (add-hook 'haskell-mode-hook 'eglot-ensure)
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
   ;; From https://gluer.org/blog/improving-eglot-performance/
   (define-advice jsonrpc--log-event (:override (&rest _))
@@ -739,9 +739,7 @@ tests for the current buffer. It is intended to be set via
 (make-variable-buffer-local 'warbo-run-buffer-tests-function)
 (put 'warbo-run-buffer-tests-function
      'safe-local-variable
-     (lambda (v) (member v '(warbo-run-selenium
-                             warbo-run-haskell-tests
-                             warbo-run-ts-tests))))
+     (lambda (v) (member v '(warbo-run-tests))))
 
 (defun warbo-find-and-run-tests (arg)
   "Run `warbo-run-buffer-tests-function' if it's non-nil. Otherwise, look for a

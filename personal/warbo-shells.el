@@ -366,6 +366,47 @@ If in a mistty buffer, create another with same context but new number."
             (shx--restart-shell))
         (shx--restart-shell)))))
 
+(defun find-start-of-env-vars (output)
+  "Drop lines from start of OUTPUT which don't contain an '=' character."
+  (let* ((has-trailing-newline (and (> (length output) 0)
+                                    (char-equal (aref output (1- (length output))) ?\n)))
+         (lines (split-string output "\n"))
+         (idx 0)
+         (n (length lines)))
+    (while (and (< idx n)
+                (not (string-match-p "=" (nth idx lines))))
+      (setq idx (1+ idx)))
+    (if (>= idx n)
+        ""
+      (let ((out (mapconcat #'identity (nthcdr idx lines) "\n")))
+        (if has-trailing-newline (concat out "\n") out)))))
+
+(defun refresh-emacs-env-vars-from-shell ()
+  "Run a shell and copy its env vars into the Emacs environment."
+  (interactive)
+  (message "Refreshing environment variables...")
+  ;; Use 'env -i HOME=$HOME' to make a fresh environment, with only HOME set.
+  ;; Everything else will be built up from scratch, via the login shell.
+  (let* ((shell-command (concat "env -i HOME=" (getenv "HOME") " "
+                                (or ;;(executable-find "bash")
+                                    (getenv "SHELL")
+                                    "/bin/sh")
+                                " -l -c 'printenv -0'"))
+         (output (find-start-of-env-vars
+                  (shell-command-to-string shell-command)))
+         ;; Split by null byte to handle values with newlines safely
+         (env-lines (split-string output "\0" t)))
+    (dolist (line env-lines)
+      (when (string-match "^\\([^=]+\\)=\\(.*\\)" line)
+        (let ((var (match-string 1 line))
+              (val (match-string 2 line)))
+          ;; Skip strict Emacs-specific vars to avoid confusing Emacs
+          (unless (member var '("_" "PWD" "SHLVL" "TERM"))
+            (setenv var val)))))
+    ;; Crucial: Sync exec-path with the new PATH env var
+    (setq exec-path (split-string (getenv "PATH") path-separator)))
+  (message "Environment variables refreshed."))
+
 (defun eshell/emacs (file)
   "Replace Emacs command in eshell, so FILE is opened in this instance."
   (find-file file))

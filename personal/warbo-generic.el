@@ -572,8 +572,7 @@ If point is already at the beginning of text, move it to the beginning of line."
             ;; wls-ubuntu is awkward, since the WSL X server can crash and lose
             ;; access to bitmap fonts other than 'fixed'...
             ((equal machine-id 'wsl-ubuntu)
-             (let* ((font-exists-env "FONT_EXISTS_CMD")
-                    (cmd (getenv font-exists-env))
+             (let* ((cmd (executable-find "font-exists"))
                     (want "-jmk-neep-medium-r-semicondensed--11-*-*-*-*-*-*-*"))
                (if (and (boundp 'desired-font)
                         (equal want desired-font)
@@ -597,15 +596,14 @@ If point is already at the beginning of text, move it to the beginning of line."
                    want
                  ;; We need to pick a font. We'd like `want', but it may not be
                  ;; available (e.g. if the WSL X server crashed), so run the
-                 ;; FONT_EXISTS_CMD to check. Note that pops up an xfontsel
+                 ;; font-exists cmd to check. Note that pops up an xfontsel
                  ;; window momentarily, which may change the focused window!
                  (with-temp-buffer
                    (if (and cmd (equal 0 (call-process cmd nil t nil want)))
                        want
                      (if cmd
                          (message "%s" (buffer-string))
-                       (message "Env var %s not set by Home Manager"
-                                font-exists-env))
+                       (message "'font-exists' command not in PATH"))
                      (message "Font '%s' not found (%s), falling back to %s"
                               want
                               "see *Messages* for details"
