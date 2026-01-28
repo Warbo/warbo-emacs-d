@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-;; Declare functions defined later or in other files
+;; Declare functions defined in other files
 (declare-function command-in-rolling-buffer "warbo-rolling-shell")
 
 ;; Define some reformatters, used by various modes below

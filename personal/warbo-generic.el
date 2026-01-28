@@ -493,7 +493,6 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
                  :load-path ,(file-name-directory load-file-name)
                  ,@args))))
   (use-package-here ffap-goto-line
-    :ensure
     :functions (ffap-goto-line-mode)
     :bind ("C-x C-f" . find-file-at-point)
     :config
