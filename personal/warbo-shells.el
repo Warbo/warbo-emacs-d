@@ -60,22 +60,93 @@
     "/bin/sh")
   "A list of paths where we might find a shell binary, in order of preference.")
 
-;; TODO: Globally bind <f2> to create/switch-to a mistty buffer, depending on
-;; CWD:
-;;  - If CWD is in a git repo, look for mistty buffers named for that repo (and
-;;    this TRAMP host, if we're using one)
-;;    - If there are multiple (disambiguated with numbers), choose interactively
-;;    - If we're not in a git repo, use CWD in its place
-;;    - If there are no existing buffers found, create one
-;;  - When creating, the buffer name should include:
-;;    - The current TRAMP host, if there is one
-;;    - The name of the git repo we're inside, or CWD if we're not in one
-;;    - Optionally a number to disambiguate, if we already have mistty buffers
-;;      for this host & repo/CWD.
-;;  - If we're already in a mistty buffer, open another one with the same TRAMP
-;;    host & repo/CWD, and use a fresh number to disambiguate.
-;;  - The CWD of a freshly created mistty buffer should be the same as where we
-;;    opened it from; e.g. don't go to the git toplevel, that's just for naming.
+(defun warbo-mistty-context ()
+  "Return (HOST . REPO-OR-DIR) for current buffer's context.
+HOST is nil for local, REPO-OR-DIR is git repo name or directory name."
+  (let* ((remote (file-remote-p default-directory))
+         (host (when remote
+                 (tramp-file-name-host (tramp-dissect-file-name default-directory))))
+         (local-dir (expand-file-name
+                     (or (file-remote-p default-directory 'localname)
+                         default-directory)))
+         (git-toplevel
+          (ignore-errors
+            (let ((default-directory local-dir))
+              (with-temp-buffer
+                (when (zerop (call-process "git" nil t nil
+                                           "rev-parse" "--show-toplevel"))
+                  (string-trim (buffer-string)))))))
+         (repo-or-dir (if (and git-toplevel (not (string-empty-p git-toplevel)))
+                          (file-name-nondirectory git-toplevel)
+                        (file-name-nondirectory (directory-file-name local-dir)))))
+    (cons host repo-or-dir)))
+
+(defun warbo-mistty-buffer-name (host repo-or-dir &optional num)
+  "Construct mistty buffer name from HOST, REPO-OR-DIR, and optional NUM.
+Format: repo@host.mistty<N> or repo.mistty<N> for local."
+  (let ((base (if host
+                  (format "%s@%s.mistty" repo-or-dir host)
+                (format "%s.mistty" repo-or-dir))))
+    (if num
+        (format "%s<%d>" base num)
+      base)))
+
+(defun warbo-mistty-find-buffers (host repo-or-dir)
+  "Find all mistty buffers matching HOST and REPO-OR-DIR."
+  (let ((pattern (regexp-quote (if host
+                                   (format "%s@%s.mistty" repo-or-dir host)
+                                 (format "%s.mistty" repo-or-dir)))))
+    (cl-remove-if-not
+     (lambda (buf)
+       (and (string-match-p pattern (buffer-name buf))
+            (with-current-buffer buf (derived-mode-p 'mistty-mode))))
+     (buffer-list))))
+
+(defun warbo-mistty-next-number (host repo-or-dir)
+  "Find next available number for mistty buffer with HOST and REPO-OR-DIR."
+  (let* ((bufs (warbo-mistty-find-buffers host repo-or-dir))
+         (nums (mapcar (lambda (buf)
+                         (let ((name (buffer-name buf)))
+                           (if (string-match "<\\([0-9]+\\)>$" name)
+                               (string-to-number (match-string 1 name))
+                             1)))
+                       bufs)))
+    (if nums (1+ (apply #'max nums)) 2)))
+
+(defun warbo-mistty-switch-or-create ()
+  "Switch to or create a mistty buffer based on current context.
+If in a mistty buffer, create another with same context but new number."
+  (interactive)
+  (let* ((ctx (warbo-mistty-context))
+         (host (car ctx))
+         (repo-or-dir (cdr ctx))
+         (existing (warbo-mistty-find-buffers host repo-or-dir))
+         (in-matching-mistty (and (derived-mode-p 'mistty-mode)
+                                  (member (current-buffer) existing))))
+    (cond
+     ;; Already in a matching mistty buffer: create new one with next number
+     (in-matching-mistty
+      (let* ((num (warbo-mistty-next-number host repo-or-dir))
+             (name (warbo-mistty-buffer-name host repo-or-dir num)))
+        (mistty-create nil nil)
+        (rename-buffer name t)))
+     ;; Multiple existing buffers: choose interactively
+     ((> (length existing) 1)
+      (let ((chosen (completing-read "Switch to mistty: "
+                                     (mapcar #'buffer-name existing)
+                                     nil t)))
+        (switch-to-buffer chosen)))
+     ;; One existing buffer: switch to it
+     ((= (length existing) 1)
+      (switch-to-buffer (car existing)))
+     ;; No existing buffers: create one
+     (t
+      (let ((name (warbo-mistty-buffer-name host repo-or-dir nil)))
+        (mistty-create nil nil)
+        (rename-buffer name t))))))
+
+(global-set-key (kbd "<f2>") #'warbo-mistty-switch-or-create)
+
 (use-package mistty
   :ensure t
   :bind ((:map mistty-prompt-map
