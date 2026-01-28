@@ -48,8 +48,8 @@ PROMPT sets the `read-string prompt."
               (read-string prompt))))))
 
 (defmacro prelude-install-search-engine (search-engine-name search-engine-url search-engine-prompt)
-  ;; TODO: Docstring wider than 80 characters
-  "Given some information regarding a search engine (SEARCH-ENGINE-NAME, SEARCH-ENGINE-URL, SEARCH-ENGINE-PROMPT), install the interactive command to search through them."
+  "Install an interactive command to search via SEARCH-ENGINE-NAME.
+SEARCH-ENGINE-URL is the base URL, SEARCH-ENGINE-PROMPT is shown to the user."
   `(defun ,(intern (format "prelude-%s" search-engine-name)) ()
        ,(format "Search %s with a query or region if any." search-engine-name)
        (interactive)
