@@ -45,7 +45,7 @@
         (should (stringp program))
         (should (executable-find program))))))
 
-(ert-deftest test-diagnose-ensure-failure ()
+(ert-deftest warbo-test-haskell-diagnose-ensure-failure ()
   "Diagnose why eglot-ensure exits early.
 Checks:
 1. Is 'haskell-mode' ignored via eglot-stay-out-of?
@@ -91,7 +91,7 @@ Checks:
                                   (if (string-empty-p logs) "[No logs produced]" logs)))))))
       (delete-directory dir t))))
 
-(ert-deftest test-force-connection ()
+(ert-deftest warbo-test-haskell-force-connection ()
   "Bypass eglot-ensure and force a connection to see if it explodes.
 This determines if the issue is 'Starting' vs 'Deciding to start'."
   (let* ((dir (make-temp-file "test-force-" t))
@@ -138,7 +138,7 @@ This determines if the issue is 'Starting' vs 'Deciding to start'."
       ;; Cleanup
       (delete-directory dir t))))
 
-(ert-deftest test-debug-eglot-internals ()
+(ert-deftest warbo-test-haskell-debug-eglot-internals ()
   "Diagnose the silent failure of eglot-ensure and inspect eglot--connect."
   (let* ((dir (make-temp-file "test-env-" t))
          (file (expand-file-name "Main.hs" dir))
