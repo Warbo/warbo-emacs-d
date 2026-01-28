@@ -1,6 +1,4 @@
 ;;; prelude-filesystem.el --- Filesystem settings. -*- lexical-binding: t; -*-
-;; TODO: Fix free variable warnings for save-place-file, savehist-*, recentf-*, semanticdb-default-save-directory
-;; TODO: Ensure -any-p function is available at compile time
 ;;
 ;; This file contains file and buffer history management functionality,
 ;; extracted from Emacs Prelude.
@@ -36,6 +34,18 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+
+;; Declare variables defined in other packages to silence byte-compiler warnings
+(defvar save-place-file)
+(defvar savehist-additional-variables)
+(defvar savehist-autosave-interval)
+(defvar savehist-file)
+(defvar recentf-save-file)
+(defvar recentf-max-saved-items)
+(defvar recentf-max-menu-items)
+(defvar recentf-auto-cleanup)
+(defvar recentf-exclude)
+(defvar semanticdb-default-save-directory)
 
 (use-package files
   :config
@@ -83,9 +93,9 @@
   (defun prelude-recentf-exclude-p (file)
     "A predicate to decide whether to exclude FILE from recentf."
     (let ((file-dir (file-truename (file-name-directory file))))
-      (-any-p (lambda (dir)
-                (string-prefix-p dir file-dir))
-              (mapcar 'file-truename (list prelude-savefile-dir package-user-dir)))))
+      (seq-some (lambda (dir)
+                  (string-prefix-p dir file-dir))
+                (mapcar 'file-truename (list prelude-savefile-dir package-user-dir)))))
 
   (add-to-list 'recentf-exclude 'prelude-recentf-exclude-p)
 
