@@ -33,32 +33,27 @@
   (should t) ;; Placeholder: This test requires manual execution and observation.
   )
 
-;; TODO: captured-url is nil - browse-url-firefox not called or eww-data binding issue
 (ert-deftest warbo-web-external-browser-dispatch-via-keypress ()
   "Test that pressing '&' in EWW mode dispatches to `browse-url-firefox` with the correct URL."
   (let (captured-url
         (test-url "http://example.com/test-page")
-        (original-browse-url-firefox (symbol-function 'browse-url-firefox))) ;; Store original function
+        (original-browse-url-firefox (symbol-function 'browse-url-firefox)))
     (unwind-protect
         (progn
-          ;; Set our mock function for browse-url-firefox using fset
           (fset 'browse-url-firefox
                 (lambda (url &rest args)
                   (setq captured-url url)
                   nil))
 
-          (cl-letf ((eww-data (list :url test-url)) ;; Correctly bind eww-data as a variable
-                    ;; Ensure browse-url-secondary-browser-function is set as warbo-web.el would
-                    (browse-url-secondary-browser-function #'browse-url-firefox))
+          (let ((browse-url-secondary-browser-function #'browse-url-firefox))
             (with-temp-buffer
-              (eww-mode) ;; Activate eww-mode
+              (eww-mode)
+              ;; Set eww-data as buffer-local after mode activation
+              (setq-local eww-data (list :url test-url))
 
-              ;; Simulate pressing '&' in eww-mode
               (execute-kbd-macro (kbd "&"))
 
-              ;; Assert that browse-url-firefox was called with the correct URL
               (should (equal captured-url test-url)))))
-      ;; Restore original function definition
       (fset 'browse-url-firefox original-browse-url-firefox))))
 
 (provide 'web-tests)

@@ -199,9 +199,10 @@ The waiting process will repeatedly accept process output and sit for a short du
 (defun warbo-f2-kill-matching-buffers (pattern)
   "Kill all buffers whose names match PATTERN."
   (dolist (buf (buffer-list))
-    (when (string-match-p pattern (buffer-name buf))
-      (let ((kill-buffer-query-functions nil))
-        (kill-buffer buf)))))
+    (let ((name (buffer-name buf)))
+      (when (and name (string-match-p pattern name))
+        (let ((kill-buffer-query-functions nil))
+          (kill-buffer buf))))))
 
 (defmacro with-f2-test-env (dir &rest body)
   "Run BODY in directory DIR with real mistty, cleaning up created buffers."
@@ -242,13 +243,14 @@ The waiting process will repeatedly accept process output and sit for a short du
 (ert-deftest warbo-f2-switches-to-existing-buffer ()
   "Pressing <f2> switches to existing mistty buffer for same context."
   (with-f2-test-env "/tmp/"
-    (let ((first-buf (warbo-f2-press)))
+    (let* ((first-buf (warbo-f2-press))
+           (first-buf-name (buffer-name first-buf)))
       ;; Switch away
       (switch-to-buffer "*scratch*")
       ;; Press <f2> again (use call-interactively, not execute-kbd-macro)
       (call-interactively #'warbo-mistty-switch-or-create)
       ;; Should switch back to existing buffer, not create new one
-      (should (eq (current-buffer) first-buf)))))
+      (should (string-equal (buffer-name) first-buf-name)))))
 
 (ert-deftest warbo-f2-creates-numbered-buffer-when-in-mistty ()
   "Pressing <f2> while in a mistty buffer creates another with incremented number."
@@ -305,8 +307,9 @@ The waiting process will repeatedly accept process output and sit for a short du
         (when (buffer-live-p buf-a) (kill-buffer buf-a))
         (when (get-buffer "*test-scratch*") (kill-buffer "*test-scratch*"))
         (dolist (buf (buffer-list))
-          (when (string-match-p "\\.mistty" (buffer-name buf))
-            (kill-buffer buf))))
+          (let ((name (buffer-name buf)))
+            (when (and name (string-match-p "\\.mistty" name))
+              (kill-buffer buf)))))
       (delete-directory dir-a t)
       (delete-directory dir-b t))))
 

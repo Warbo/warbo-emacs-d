@@ -242,9 +242,10 @@ console.log(aliasedValue); // Usage of aliasedValue")
   "Test that vue-mode and eglot are activated for .vue files."
   (unless vue-language-server-available (ert-skip "vue-language-server not found"))
   (with-vue-project
-      (with-current-buffer (find-file-noselect vue-file)
-        (should (eq major-mode 'vue-mode))
-        (should (bound-and-true-p eglot--managed-mode)))))
+   (let ((vue-file (f-join temp-dir "src" "components" "MyComponent.vue")))
+     (with-current-buffer (find-file-noselect vue-file)
+       (should (eq major-mode 'vue-mode))
+       (should (bound-and-true-p eglot--managed-mode))))))
 
 (ert-deftest vue-file-content-test ()
   "Test that the temporary Vue project is created with expected files and content."
