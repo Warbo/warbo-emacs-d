@@ -4,13 +4,37 @@
 (require 'haskell-mode)
 (require 'flymake)
 
+(defun warbo-haskell-test-setup-nix-project (dir)
+  "Set up DIR as a Nix-based Haskell project with HLS and direnv.
+Creates shell.nix, .envrc, and .dir-locals.el for eglot configuration."
+  (with-temp-file (expand-file-name "shell.nix" dir)
+    (insert "{ pkgs ? import <nixpkgs> {} }:\n"
+            "pkgs.mkShell {\n"
+            "  buildInputs = [\n"
+            "    pkgs.haskell-language-server\n"
+            "    pkgs.ormolu\n"
+            "    pkgs.ghc\n"
+            "    pkgs.cabal-install\n"
+            "  ];\n"
+            "}\n"))
+  (with-temp-file (expand-file-name ".envrc" dir)
+    (insert "use nix\n"))
+  (with-temp-file (expand-file-name ".dir-locals.el" dir)
+    (insert "((haskell-mode . ((eglot-server-programs . ((haskell-mode . (\"haskell-language-server-wrapper\" \"--lsp\")))))))\n"))
+  (let ((default-directory dir))
+    (call-process "direnv" nil nil nil "allow")))
+
 (defmacro with-haskell-eglot-test (content &rest body)
   "Create a temporary Haskell file with CONTENT, open it and run BODY."
   (declare (indent 1))
-  `(let ((file (make-temp-file "test-hls-" nil ".hs"))
-         (buffer (current-buffer)))
+  `(let* ((dir (make-temp-file "test-hls-" t))
+          (file (expand-file-name "Main.hs" dir))
+          (buffer (current-buffer)))
      (unwind-protect
          (progn
+           (warbo-haskell-test-setup-nix-project dir)
+           (let ((default-directory dir))
+             (call-process "git" nil nil nil "init"))
            (with-current-buffer (find-file file)
              (should (equal major-mode 'haskell-mode))
              (insert ,content)
@@ -24,7 +48,7 @@
              ,@body))
        (let ((buf (find-buffer-visiting file)))
          (when buf (kill-buffer buf)))
-       (delete-file file))))
+       (delete-directory dir t))))
 
 (ert-deftest warbo-test-haskell-eglot-command-is-executable ()
   "Test that the command Eglot resolves for Haskell actually exists."
