@@ -158,6 +158,35 @@
   (advice-add 'xref-find-definitions-other-window
               :around #'case-sensitive-xref-find-definitions-advice))
 
+(defvar warbo-haskell-eglot-args
+  '("haskell-language-server" "lsp"
+    :initializationOptions
+    (:haskell (:formattingProvider "fourmolu"
+               :checkProject :json-false
+               :sessionLoading "multipleComponents")))
+  "Eglot server program entry for haskell-mode.
+Use in .dir-locals.el: (eglot-server-programs . ((haskell-mode . ,warbo-haskell-eglot-args)))")
+
+(defvar warbo-vue-eglot-args
+  '("vue-language-server" "--stdio"
+    :initializationOptions
+    (:typescript (:tsdk "node_modules/typescript/lib")
+     :vue (:hybridMode :json-false)
+     :languageFeatures (:completion
+                        (:defaultTagNameCase "both"
+                         :defaultAttrNameCase "kebabCase"
+                         :getDocumentNameCasesRequest nil
+                         :getDocumentSelectionRequest nil)
+                        :diagnostics
+                        (:getDocumentVersionRequest nil))
+     :documentFeatures (:documentFormatting
+                        (:defaultPrintWidth 100
+                         :getDocumentPrintWidthRequest nil)
+                        :documentSymbol t
+                        :documentColor t)))
+  "Eglot server program entry for vue-mode.
+Use in .dir-locals.el: (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-args)))")
+
 (defun warbo-haskell-tags ()
   "Run command to generate TAGS file in root directory of current repo."
   (let ((default-directory (vc-root-dir)))
@@ -488,47 +517,9 @@ with the string S. Unlike `replace-region-contents' this maintains text
   ;(eldoc-echo-area-use-multiline-p nil)
   (setf (alist-get 'typescript-mode eglot-server-programs)
         '("typescript-language-server" "--stdio"))
-  (let ((projects (expand-file-name "~/src")))
-    (when (file-directory-p projects)
-      (eval-when-compile
-        (require 'dash)
-        (require 's))
-      (require 'dash)
-      (require 's)
-      ;; TODO: Use `eglot-workspace-configuration` instead, so we can have per-project settings
-      (setf (alist-get 'haskell-mode eglot-server-programs)
-            `("haskell-language-server-9.12.2" "lsp"
-              :initializationOptions
-              (:haskell ( :formattingProvider "fourmolu"
-                          :checkProject nil
-                          :sessionLoading "multipleComponents"))))
-      (let* ((root (car (-filter (lambda (entry)
-                                   (and (not (s-starts-with? "yesod" entry))
-                                        (not (s-starts-with? "." entry))))
-                                 (directory-files "~/src"))))
-             (tsdk (file-name-concat
-                    projects root "webpack" "node_modules" "typescript" "lib")))
-        (setf (alist-get 'vue-mode eglot-server-programs)
-              `("vue-language-server" "--stdio"
-                :initializationOptions
-                (:typescript (:tsdk ,tsdk)
-                             :vue (:hybridMode :json-false)
-                             :languageFeatures (:completion
-                                                (:defaultTagNameCase "both"
-                                                                     :defaultAttrNameCase "kebabCase"
-                                                                     :getDocumentNameCasesRequest nil
-                                                                     :getDocumentSelectionRequest nil)
-                                                :diagnostics
-                                                (:getDocumentVersionRequest nil))
-                             :documentFeatures (:documentFormatting
-                                                (:defaultPrintWidth 100
-                                                                    :getDocumentPrintWidthRequest nil)
-                                                :documentSymbol t
-                                                :documentColor t)))))))
   :custom
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
-  (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
-  )
+  (eglot-confirm-server-initiated-edits nil))  ;; allow edits without confirmation
 
 ;; (use-package eglot-booster
 ;;   :ensure t
