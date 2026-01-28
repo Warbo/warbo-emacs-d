@@ -60,7 +60,11 @@
   :config
   (crux-with-region-or-buffer indent-region)
   (crux-with-region-or-buffer untabify)
-  (crux-with-region-or-line kill-region))
+  (crux-with-region-or-line kill-region)
+  ;; Declare functions created by crux macros to silence byte-compiler
+  (declare-function indent-region@with-region-or-buffer "crux")
+  (declare-function untabify@with-region-or-buffer "crux")
+  (declare-function kill-region@with-region-or-line "crux"))
 
 (use-package diff-hl
   :ensure t
@@ -145,11 +149,13 @@
 
 (use-package ov
   :ensure t
+  :functions (ov-set ov-reset)
   :config
-  (defun prelude-todo-ov-evaporate (_ov _after _beg _end &optional _length)
-    "Helper for `prelude-annotate-todo'."
+  (defun prelude-todo-ov-evaporate (ov after _beg _end &optional _length)
+    "Helper for `prelude-annotate-todo'.
+OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
     (let ((inhibit-modification-hooks t))
-      (if _after (ov-reset _ov))))
+      (if after (ov-reset ov))))
 
   (defun prelude-annotate-todo ()
     "Put fringe marker on TODO: lines in the curent buffer."
@@ -179,6 +185,7 @@
   ;; TODO: smartrep.el uses obsolete destructuring-bind and loop
   ;; TODO: ag.el should use -zip-pair instead of -zip
   :ensure t
+  :functions (smartrep-define-key)
   :config
   (smartrep-define-key global-map "C-c ."
     '(("+" . apply-operation-to-number-at-point)
@@ -261,6 +268,7 @@
 (use-package smartparens
   :ensure t
   :hook (prog-mode . smartparens-mode)
+  :functions (sp-wrap-with-pair sp-pair sp-use-paredit-bindings)
   :custom
   (sp-base-key-bindings 'paredit)
   (sp-autoskip-closing-pair 'always)
@@ -268,13 +276,14 @@
   :config
   (defun prelude-wrap-with (s)
     "Create a wrapper function for smartparens using S."
-    (lambda (&optional arg)
+    (lambda (&optional _arg)
        (interactive "P")
        (sp-wrap-with-pair s)))
 
   (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
 
+  (declare-function prelude-wrap-with "warbo-generic")
   (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
   ;; FIXME: pick terminal friendly binding
   ;; (define-key prog-mode-map (kbd "M-[") (prelude-wrap-with "["))
@@ -475,6 +484,7 @@
         ;;       (executable-find command))))
         )
 
+(require 'cl-lib)
 (cl-macrolet
     ((use-package-here (name &rest args)
        `(progn ;;(message "load-file-name: %S" load-file-name)
@@ -484,6 +494,7 @@
                  ,@args))))
   (use-package-here ffap-goto-line
     :ensure
+    :functions (ffap-goto-line-mode)
     :bind ("C-x C-f" . find-file-at-point)
     :config
     (ffap-goto-line-mode 1)))
@@ -551,7 +562,8 @@ If point is already at the beginning of text, move it to the beginning of line."
                ;; fci can have problems when Emacs daemon has GUI and CLI
                ;; clients, so stick to only showing it in GUIs for now
                (display-graphic-p))
-      (turn-on-fci-mode))))
+      (turn-on-fci-mode)))
+  :group 'fill-column-indicator)
 (my-global-fci-mode 1)
 
 (require 'dash)
