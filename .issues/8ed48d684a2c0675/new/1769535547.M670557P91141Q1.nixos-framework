@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Tue, 27 Jan 2026 17:37:07 +0000
+Subject: Re: Optimise line splitting in shell
+Message-Id: <8ed48d684a2c0675-c1d6f584cd082990-artemis@nixos-framework>
+References: <8ed48d684a2c0675-0-artemis@nixos>
+In-Reply-To: <8ed48d684a2c0675-0-artemis@nixos>
+
+I worked around this by wrapping Bash in a the 'fold' command from coreutils,
+patched to be zero-allocation. That was awkward, as it required 'expect' to fake
+the TTY/PTY stuff that pipes don't have by default.
+
+Anyway, that's all gone now, since recent versions of Emacs handle long lines
+much better than before.

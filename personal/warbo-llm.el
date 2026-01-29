@@ -2,6 +2,8 @@
 ;;; Commentary:
 ;;; Code:
 
+(declare-function make-llm-ollama "llm-ollama")
+
 (use-package llm
   :ensure t)
 

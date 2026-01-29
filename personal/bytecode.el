@@ -25,7 +25,7 @@
              (make-directory (file-name-directory dest) t)
              dest))))
     (message "Byte-compiling files from %s into %s..." source-dir target-cache-dir)
-    (byte-recompile-directory source-dir 0)))
+    (byte-recompile-directory source-dir 0 t)))
 
 (provide 'bytecode)
 

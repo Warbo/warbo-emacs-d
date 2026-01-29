@@ -1,10 +1,13 @@
-;;; warbo-generic --- General Emacs settings, useful in all modes
+;;; warbo-generic --- General Emacs settings, useful in all modes -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
 ;; Emacs configuration, and generally-useful packages
 
 ;;; Code:
+;; TODO: Fix use-package error for ffap-goto-line (file-name-directory void)
+;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
+;; TODO: Ensure functions are defined at runtime: sp-pair, prelude-wrap-with, sp-wrap-with-pair, smartrep-define-key, ov-set
 
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
@@ -45,17 +48,23 @@
 
 (use-package crux
   ;; TODO: 2025-08-19 This is our fork which avoids deprecation warnings
+  ;; TODO: ace-window.el has Case warnings for 'visible, 'global, 'frame
+  ;; TODO: browse-kill-ring.el uses obsolete defadvice (upstream package issue)
   :quelpa (crux :fetcher github
                 :repo "Warbo/crux"
-                :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f")
-  :ensure t
+                :commit "f21b2974df1218c782dbed321b8cb38e325d1a8f"
+                :upgrade t)
   :bind (("C-^" . crux-top-join-line)
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c r" . crux-rename-buffer-and-file))
   :config
   (crux-with-region-or-buffer indent-region)
   (crux-with-region-or-buffer untabify)
-  (crux-with-region-or-line kill-region))
+  (crux-with-region-or-line kill-region)
+  ;; Declare functions created by crux macros to silence byte-compiler
+  (declare-function indent-region@with-region-or-buffer "crux")
+  (declare-function untabify@with-region-or-buffer "crux")
+  (declare-function kill-region@with-region-or-line "crux"))
 
 (use-package diff-hl
   :ensure t
@@ -105,9 +114,6 @@
 (use-package fill-column-indicator
   :ensure t)
 
-(use-package flycheck
-  :ensure t)
-
 (use-package git-timemachine
   :ensure t)
 
@@ -143,11 +149,13 @@
 
 (use-package ov
   :ensure t
+  :functions (ov-set ov-reset)
   :config
-  (defun prelude-todo-ov-evaporate (_ov _after _beg _end &optional _length)
-    "Helper for `prelude-annotate-todo'."
+  (defun prelude-todo-ov-evaporate (ov after _beg _end &optional _length)
+    "Helper for `prelude-annotate-todo'.
+OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
     (let ((inhibit-modification-hooks t))
-      (if _after (ov-reset _ov))))
+      (if after (ov-reset ov))))
 
   (defun prelude-annotate-todo ()
     "Put fringe marker on TODO: lines in the curent buffer."
@@ -171,10 +179,13 @@
   ;; projectile is a project management mode
   (unless noninteractive
     (setq projectile-cache-file (expand-file-name  "projectile.cache" prelude-savefile-dir))
-    (projectile-global-mode t)))
+    (projectile-mode t)))
 
 (use-package smartrep
+  ;; TODO: smartrep.el uses obsolete destructuring-bind and loop
+  ;; TODO: ag.el should use -zip-pair instead of -zip
   :ensure t
+  :functions (smartrep-define-key)
   :config
   (smartrep-define-key global-map "C-c ."
     '(("+" . apply-operation-to-number-at-point)
@@ -257,6 +268,7 @@
 (use-package smartparens
   :ensure t
   :hook (prog-mode . smartparens-mode)
+  :functions (sp-wrap-with-pair sp-pair sp-use-paredit-bindings)
   :custom
   (sp-base-key-bindings 'paredit)
   (sp-autoskip-closing-pair 'always)
@@ -264,13 +276,14 @@
   :config
   (defun prelude-wrap-with (s)
     "Create a wrapper function for smartparens using S."
-    (lambda (&optional arg)
+    (lambda (&optional _arg)
        (interactive "P")
        (sp-wrap-with-pair s)))
 
   (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
 
+  (declare-function prelude-wrap-with "warbo-generic")
   (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
   ;; FIXME: pick terminal friendly binding
   ;; (define-key prog-mode-map (kbd "M-[") (prelude-wrap-with "["))
@@ -289,12 +302,11 @@
 ;; Honour .editorconfig file settings
 (use-package editorconfig
   :ensure t
+  :custom
+  (editorconfig-exclude-regexps '(".*/recentf$"
+                                  ".*\\.zip$"))
   :config
-  (setq editorconfig-exclude-regexps
-        '(".*/recentf$"
-          ".*\.zip$"))
-  (add-hook 'prog-mode-hook 'editorconfig-mode)
-  )
+  (add-hook 'prog-mode-hook 'editorconfig-mode))
 
 (use-package consult
   :ensure t
@@ -352,7 +364,6 @@
                              lines-tail
                              space-before-tab
                              space-after-tab)
-          whitespace-indentation 'whitespace-trailing
           whitespace-line-column 80)
 
     (add-hook 'conf-mode-hook 'whitespace-mode)
@@ -365,7 +376,6 @@
 ;; "clean" when it was opened. This way, editing files which already contain
 ;; dodgy whitespace won't cause all of that to be stripped (which would pollute
 ;; diffs and git commits, for example)
-(require 'cl-lib)
 (use-package whitespace-cleanup-mode
   :ensure t
   :config
@@ -474,12 +484,19 @@
         ;;       (executable-find command))))
         )
 
-(use-package ffap-goto-line
-  :load-path "."
-  :demand t
-  :bind ("C-x C-f" . find-file-at-point)
-  :config
-  (ffap-goto-line-mode 1))
+(require 'cl-lib)
+(cl-macrolet
+    ((use-package-here (name &rest args)
+       `(progn ;;(message "load-file-name: %S" load-file-name)
+               ;;(message "fnd: %S" (file-name-directory load-file-name))
+               (use-package ,name
+                 :load-path ,(file-name-directory load-file-name)
+                 ,@args))))
+  (use-package-here ffap-goto-line
+    :functions (ffap-goto-line-mode)
+    :bind ("C-x C-f" . find-file-at-point)
+    :config
+    (ffap-goto-line-mode 1)))
 
 ;; We don't want C-a to go all of the way back; drop us on the actual code
 ;; (Taken from https://stackoverflow.com/a/7250027/884682 )
@@ -544,11 +561,11 @@ If point is already at the beginning of text, move it to the beginning of line."
                ;; fci can have problems when Emacs daemon has GUI and CLI
                ;; clients, so stick to only showing it in GUIs for now
                (display-graphic-p))
-      (turn-on-fci-mode))))
+      (turn-on-fci-mode)))
+  :group 'fill-column-indicator)
 (my-global-fci-mode 1)
 
 (require 'dash)
-(require 'cl-lib)
 (defun font-strings-match (x y)
   "Check if the strings X and Y (in XLFD format) match, allowing wildcards."
   (-all? 'identity
@@ -566,8 +583,7 @@ If point is already at the beginning of text, move it to the beginning of line."
             ;; wls-ubuntu is awkward, since the WSL X server can crash and lose
             ;; access to bitmap fonts other than 'fixed'...
             ((equal machine-id 'wsl-ubuntu)
-             (let* ((font-exists-env "FONT_EXISTS_CMD")
-                    (cmd (getenv font-exists-env))
+             (let* ((cmd (executable-find "font-exists"))
                     (want "-jmk-neep-medium-r-semicondensed--11-*-*-*-*-*-*-*"))
                (if (and (boundp 'desired-font)
                         (equal want desired-font)
@@ -591,15 +607,14 @@ If point is already at the beginning of text, move it to the beginning of line."
                    want
                  ;; We need to pick a font. We'd like `want', but it may not be
                  ;; available (e.g. if the WSL X server crashed), so run the
-                 ;; FONT_EXISTS_CMD to check. Note that pops up an xfontsel
+                 ;; font-exists cmd to check. Note that pops up an xfontsel
                  ;; window momentarily, which may change the focused window!
                  (with-temp-buffer
                    (if (and cmd (equal 0 (call-process cmd nil t nil want)))
                        want
                      (if cmd
                          (message "%s" (buffer-string))
-                       (message "Env var %s not set by Home Manager"
-                                font-exists-env))
+                       (message "'font-exists' command not in PATH"))
                      (message "Font '%s' not found (%s), falling back to %s"
                               want
                               "see *Messages* for details"
@@ -609,6 +624,9 @@ If point is already at the beginning of text, move it to the beginning of line."
             ;; This seems to depend on whether our monitor is connected...
             ((equal machine-id 'manjaro)
              "EnvyCodeR Nerd Font Mono-11")
+
+            ((equal machine-id 'framework)
+             "DroidSansM Nerd Font Mono-11")
 
             ((font-utils-exists-p "Droid Sans Mono-8")
              "Droid Sans Mono-8")

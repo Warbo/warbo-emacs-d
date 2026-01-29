@@ -103,6 +103,7 @@ The waiting process will repeatedly accept process output and sit for a short du
        (unless ,condition
          (ert-fail (format "Timeout waiting for condition: %s" ',condition))))))
 
+;; TODO: Timeout waiting for "command2" to appear after executing commands
 (ert-deftest mistty-C-up-down-cycle-history ()
   "C-up and C-down should cycle history when on the command line."
   (in-mistty-buffer
@@ -123,6 +124,7 @@ The waiting process will repeatedly accept process output and sit for a short du
    (warbo-wait-for (string-equal "echo command2" (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
    (should-line "echo command2")))
 
+;; TODO: Timeout waiting for point to reach original-location after C-a
 (ert-deftest mistty-C-a-at-prompt ()
   "C-a at the prompt should move to the beginning of the command."
   (in-mistty-buffer
@@ -132,6 +134,7 @@ The waiting process will repeatedly accept process output and sit for a short du
      (warbo-wait-for (= (point) original-location))
      (should (= (point) original-location)))))
 
+;; TODO: Timeout waiting for "  hello world" to appear in buffer after printf
 (ert-deftest mistty-C-a-elsewhere ()
   "C-a elsewhere should move to the first non-whitespace character."
   (in-mistty-buffer
@@ -156,6 +159,7 @@ The waiting process will repeatedly accept process output and sit for a short du
      (accept-process-output)
      (should (string-match-p (regexp-quote input-string) (buffer-string))))))
 
+;; TODO: Control chars (SOH/STX) not appearing in buffer - terminal processes them
 (ert-deftest mistty-test-emulate-terminal-control-chars ()
   "Test how `mistty--emulate-terminal' handles SOH and STX control characters."
   (in-mistty-buffer
@@ -173,6 +177,144 @@ The waiting process will repeatedly accept process output and sit for a short du
      (sleep-for 0.5)
      (accept-process-output)
      (should (string-match-p "line2\n" (buffer-string))))))
+
+;; Integration tests for <f2> mistty functionality
+
+(require 'warbo-shells)
+
+(defvar warbo-f2-test-buffers nil
+  "Track buffers created during <f2> tests for cleanup.")
+
+(defun warbo-f2-wait-for-mistty (buf &optional timeout)
+  "Wait for BUF to have a live mistty process, up to TIMEOUT seconds."
+  (let ((timeout-val (or timeout 4.0))
+        (start-time (float-time)))
+    (while (and (< (- (float-time) start-time) timeout-val)
+                (not (and (buffer-live-p buf)
+                          (buffer-local-value 'mistty-proc buf)
+                          (process-live-p (buffer-local-value 'mistty-proc buf)))))
+      (accept-process-output nil 0.1)
+      (sit-for 0.05))))
+
+(defun warbo-f2-kill-matching-buffers (pattern)
+  "Kill all buffers whose names match PATTERN."
+  (dolist (buf (buffer-list))
+    (let ((name (buffer-name buf)))
+      (when (and name (string-match-p pattern name))
+        (let ((kill-buffer-query-functions nil))
+          (kill-buffer buf))))))
+
+(defmacro with-f2-test-env (dir &rest body)
+  "Run BODY in directory DIR with real mistty, cleaning up created buffers."
+  (declare (indent 1))
+  `(let ((warbo-f2-test-buffers nil)
+         (default-directory ,dir)
+         (original-buf (current-buffer))
+         (ctx (let ((default-directory ,dir)) (warbo-mistty-context))))
+     ;; Kill any pre-existing buffers that would collide
+     (warbo-f2-kill-matching-buffers
+      (regexp-quote (format "%s.mistty" (cdr ctx))))
+     (unwind-protect
+         (progn ,@body)
+       ;; Clean up any mistty buffers we created
+       (dolist (buf warbo-f2-test-buffers)
+         (when (buffer-live-p buf)
+           (let ((kill-buffer-query-functions nil))
+             (kill-buffer buf))))
+       (when (buffer-live-p original-buf)
+         (switch-to-buffer original-buf)))))
+
+(defun warbo-f2-press ()
+  "Press <f2> and track the resulting buffer."
+  (let ((buf-before (current-buffer)))
+    (call-interactively #'warbo-mistty-switch-or-create)
+    (unless (eq (current-buffer) buf-before)
+      (push (current-buffer) warbo-f2-test-buffers))
+    (warbo-f2-wait-for-mistty (current-buffer))
+    (current-buffer)))
+
+(ert-deftest warbo-f2-creates-buffer-in-non-git-dir ()
+  "Pressing <f2> in a non-git directory creates a named mistty buffer."
+  (with-f2-test-env "/tmp/"
+    (warbo-f2-press)
+    (should (derived-mode-p 'mistty-mode))
+    (should (string-match-p "^tmp\\.mistty$" (buffer-name)))))
+
+(ert-deftest warbo-f2-switches-to-existing-buffer ()
+  "Pressing <f2> switches to existing mistty buffer for same context."
+  (with-f2-test-env "/tmp/"
+    (let* ((first-buf (warbo-f2-press))
+           (first-buf-name (buffer-name first-buf)))
+      ;; Switch away to a buffer with same default-directory
+      (let ((temp-buf (generate-new-buffer "*temp-test*")))
+        (with-current-buffer temp-buf
+          (setq default-directory "/tmp/"))
+        (switch-to-buffer temp-buf))
+      ;; Press <f2> again
+      (warbo-f2-press)
+      ;; Should switch back to existing buffer, not create new one
+      (should (string-equal (buffer-name) first-buf-name)))))
+
+(ert-deftest warbo-f2-creates-numbered-buffer-when-in-mistty ()
+  "Pressing <f2> while in a mistty buffer creates another with incremented number."
+  (with-f2-test-env "/tmp/"
+    (let ((first-buf (warbo-f2-press)))
+      ;; Press <f2> again while still in mistty buffer
+      (let ((second-buf (warbo-f2-press)))
+        ;; Should be in a different buffer
+        (should-not (eq second-buf first-buf))
+        ;; New buffer should have a number suffix
+        (should (string-match-p "^tmp\\.mistty<[0-9]+>$" (buffer-name)))))))
+
+(ert-deftest warbo-f2-uses-git-repo-name ()
+  "Pressing <f2> in a git repo uses the repo name, not the subdirectory."
+  (with-f2-test-env (expand-file-name "~/.emacs.d/personal/")
+    (warbo-f2-press)
+    ;; Should use the git repo name (.emacs.d), not "personal"
+    (should (string-match-p "emacs.*\\.mistty" (buffer-name)))))
+
+(ert-deftest warbo-f2-creates-correctly-named-buffer ()
+  "Calling warbo-mistty-switch-or-create should create a properly named buffer."
+  (let* ((dir-a (make-temp-file "mistty-test-a" t))
+         (dir-b (make-temp-file "mistty-test-b" t))
+         (dir-a-name (file-name-nondirectory (directory-file-name dir-a)))
+         (dir-b-name (file-name-nondirectory (directory-file-name dir-b)))
+         buf-a buf-a-name)
+    (unwind-protect
+        (progn
+          ;; Call function in directory A
+          (let ((default-directory dir-a))
+            (call-interactively #'warbo-mistty-switch-or-create)
+            (warbo-f2-wait-for-mistty (current-buffer))
+            (setq buf-a (current-buffer))
+            (setq buf-a-name (buffer-name buf-a))
+            ;; Buffer should be named after the directory, not "*mistty*"
+            (should (string-match-p (regexp-quote dir-a-name) buf-a-name))
+            (should-not (string-equal "*mistty*" buf-a-name)))
+
+          ;; Switch to a scratch buffer in directory B
+          (let ((default-directory dir-b))
+            (switch-to-buffer (get-buffer-create "*test-scratch*"))
+            ;; Call function again
+            (call-interactively #'warbo-mistty-switch-or-create)
+            (warbo-f2-wait-for-mistty (current-buffer))
+            ;; Should be in a different buffer
+            (should-not (eq (current-buffer) buf-a))
+            ;; New buffer should be named after dir-b
+            (should (string-match-p (regexp-quote dir-b-name) (buffer-name)))
+            ;; Original buffer should still exist with its original name
+            (should (buffer-live-p buf-a))
+            (should (string-equal buf-a-name (buffer-name buf-a)))))
+      ;; Cleanup
+      (let ((kill-buffer-query-functions nil))
+        (when (buffer-live-p buf-a) (kill-buffer buf-a))
+        (when (get-buffer "*test-scratch*") (kill-buffer "*test-scratch*"))
+        (dolist (buf (buffer-list))
+          (let ((name (buffer-name buf)))
+            (when (and name (string-match-p "\\.mistty" name))
+              (kill-buffer buf)))))
+      (delete-directory dir-a t)
+      (delete-directory dir-b t))))
 
 (provide 'mistty-tests)
 

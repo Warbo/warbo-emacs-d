@@ -1,8 +1,11 @@
-;;; warbo-tramp --- Useful config for editing remote files
+;;; warbo-tramp --- Useful config for editing remote files -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 
 (require 'tramp)
+
+;; Declare variable from projectile to silence byte-compiler
+(defvar projectile-mode-line)
 
 ;; Don't run Flymake over TRAMP
 (if (boundp 'flymake-allowed-file-name-masks)
@@ -63,7 +66,9 @@
 
 ;; Make sure this is set in the same way as a normal shell (in case Emacs was
 ;; started as a SystemD unit in a different environment)
-(setenv "SSH_AUTH_SOCK" (shell-command-to-string "bash -c 'printf $SSH_AUTH_SOCK'"))
+(let ((sock (string-trim (shell-command-to-string "bash -c 'printf \"%s\" \"$SSH_AUTH_SOCK\"'"))))
+  (when (and sock (not (string-empty-p sock)))
+    (setenv "SSH_AUTH_SOCK" sock)))
 
 ;; Add all the many non-FHS PATH entries we might want
 (dolist (user '("chris" "chrisw" "jo" "manjaro" "user" "nixos"))

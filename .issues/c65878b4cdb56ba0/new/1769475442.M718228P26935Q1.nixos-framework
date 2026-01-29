@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 27 Jan 2026 00:57:16 +0000
+Subject: Re: Switching buffer should start with complete match
+Message-Id: <c65878b4cdb56ba0-d9bd46041a497a3b-artemis@nixos-framework>
+References: <c65878b4cdb56ba0-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <c65878b4cdb56ba0-0-artemis@TRAC-AAD-5340>
+
+Seems to work :)

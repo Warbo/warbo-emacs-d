@@ -19,14 +19,6 @@
   ;(proof-locked-face ((t (:background "#add8e6"))))
   )
 
-(use-package company-coq
-  :ensure t
-  :hook
-  (coq-mode . company-coq-mode)
-  :init
-  ;(setq company-coq-disabled-features '(hello prettify-symbols))
-  )
-
 (use-package tla-mode
   :quelpa (tla-mode
            :fetcher github

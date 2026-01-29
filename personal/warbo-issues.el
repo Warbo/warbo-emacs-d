@@ -1,4 +1,4 @@
-;;; warbo-issues --- Emacs UI for the Artemis issue tracker
+;;; warbo-issues --- Emacs UI for the Artemis issue tracker -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -7,6 +7,8 @@
 (require 'seq)
 
 ;;; Code:
+
+(declare-function issues-parse-comment "warbo-issues")
 
 (defvar issue-artemis-command-output nil
   "The output of `artemis list -a'.
@@ -252,7 +254,7 @@ Any timezone information is ignored; we assume the timestamp is UTC."
                         (nth 1 (split-string default-directory
                                              (regexp-quote "/.issues/")))
                         "/")))
-           (details (issues-parse-comment (current-buffer))))
+           (details (issues-parse-comment (buffer-string))))
        (list issue (plist-get details 'message-id))))))
 
 (defun issues-add-comment ()

@@ -1,6 +1,8 @@
-;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term
+;;; warbo-shells --- Customisations for shell-mode, eshell and ansi-term -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+
+(declare-function eshell/cd "em-dirs")
 
 ;; Interpret and use ansi color codes in shell output windows. We use
 ;; https://github.com/atomontage/xterm-color rather than Emacs's built-in ansi
@@ -57,22 +59,93 @@
     "/bin/sh")
   "A list of paths where we might find a shell binary, in order of preference.")
 
-;; TODO: Globally bind <f2> to create/switch-to a mistty buffer, depending on
-;; CWD:
-;;  - If CWD is in a git repo, look for mistty buffers named for that repo (and
-;;    this TRAMP host, if we're using one)
-;;    - If there are multiple (disambiguated with numbers), choose interactively
-;;    - If we're not in a git repo, use CWD in its place
-;;    - If there are no existing buffers found, create one
-;;  - When creating, the buffer name should include:
-;;    - The current TRAMP host, if there is one
-;;    - The name of the git repo we're inside, or CWD if we're not in one
-;;    - Optionally a number to disambiguate, if we already have mistty buffers
-;;      for this host & repo/CWD.
-;;  - If we're already in a mistty buffer, open another one with the same TRAMP
-;;    host & repo/CWD, and use a fresh number to disambiguate.
-;;  - The CWD of a freshly created mistty buffer should be the same as where we
-;;    opened it from; e.g. don't go to the git toplevel, that's just for naming.
+(defun warbo-mistty-context ()
+  "Return (HOST . REPO-OR-DIR) for current buffer's context.
+HOST is nil for local, REPO-OR-DIR is git repo name or directory name."
+  (let* ((remote (file-remote-p default-directory))
+         (host (when remote
+                 (tramp-file-name-host (tramp-dissect-file-name default-directory))))
+         (local-dir (expand-file-name
+                     (or (file-remote-p default-directory 'localname)
+                         default-directory)))
+         (git-toplevel
+          (ignore-errors
+            (let ((default-directory local-dir))
+              (with-temp-buffer
+                (when (zerop (call-process "git" nil t nil
+                                           "rev-parse" "--show-toplevel"))
+                  (string-trim (buffer-string)))))))
+         (repo-or-dir (if (and git-toplevel (not (string-empty-p git-toplevel)))
+                          (file-name-nondirectory git-toplevel)
+                        (file-name-nondirectory (directory-file-name local-dir)))))
+    (cons host repo-or-dir)))
+
+(defun warbo-mistty-buffer-name (host repo-or-dir &optional num)
+  "Construct mistty buffer name from HOST, REPO-OR-DIR, and optional NUM.
+Format: repo@host.mistty<N> or repo.mistty<N> for local."
+  (let ((base (if host
+                  (format "%s@%s.mistty" repo-or-dir host)
+                (format "%s.mistty" repo-or-dir))))
+    (if num
+        (format "%s<%d>" base num)
+      base)))
+
+(defun warbo-mistty-find-buffers (host repo-or-dir)
+  "Find all mistty buffers matching HOST and REPO-OR-DIR."
+  (let ((pattern (regexp-quote (if host
+                                   (format "%s@%s.mistty" repo-or-dir host)
+                                 (format "%s.mistty" repo-or-dir)))))
+    (cl-remove-if-not
+     (lambda (buf)
+       (and (string-match-p pattern (buffer-name buf))
+            (with-current-buffer buf (derived-mode-p 'mistty-mode))))
+     (buffer-list))))
+
+(defun warbo-mistty-next-number (host repo-or-dir)
+  "Find next available number for mistty buffer with HOST and REPO-OR-DIR."
+  (let* ((bufs (warbo-mistty-find-buffers host repo-or-dir))
+         (nums (mapcar (lambda (buf)
+                         (let ((name (buffer-name buf)))
+                           (if (string-match "<\\([0-9]+\\)>$" name)
+                               (string-to-number (match-string 1 name))
+                             1)))
+                       bufs)))
+    (if nums (1+ (apply #'max nums)) 2)))
+
+(defun warbo-mistty-switch-or-create ()
+  "Switch to or create a mistty buffer based on current context.
+If in a mistty buffer, create another with same context but new number."
+  (interactive)
+  (let* ((ctx (warbo-mistty-context))
+         (host (car ctx))
+         (repo-or-dir (cdr ctx))
+         (existing (warbo-mistty-find-buffers host repo-or-dir))
+         (in-matching-mistty (and (derived-mode-p 'mistty-mode)
+                                  (member (current-buffer) existing))))
+    (cond
+     ;; Already in a matching mistty buffer: create new one with next number
+     (in-matching-mistty
+      (let* ((num (warbo-mistty-next-number host repo-or-dir))
+             (name (warbo-mistty-buffer-name host repo-or-dir num)))
+        (mistty-create nil nil)
+        (rename-buffer name t)))
+     ;; Multiple existing buffers: choose interactively
+     ((> (length existing) 1)
+      (let ((chosen (completing-read "Switch to mistty: "
+                                     (mapcar #'buffer-name existing)
+                                     nil t)))
+        (switch-to-buffer chosen)))
+     ;; One existing buffer: switch to it
+     ((= (length existing) 1)
+      (switch-to-buffer (car existing)))
+     ;; No existing buffers: create one
+     (t
+      (let ((name (warbo-mistty-buffer-name host repo-or-dir nil)))
+        (mistty-create nil nil)
+        (rename-buffer name t))))))
+
+(global-set-key (kbd "<f2>") #'warbo-mistty-switch-or-create)
+
 (use-package mistty
   :ensure t
   :bind ((:map mistty-prompt-map
@@ -159,8 +232,7 @@
       ;; (e.g. we may be using its IP instead; or it may be a missing a `.local'
       ;; domain; or we may be using multi-hop, or `sudo', etc.).
       (when (file-remote-p default-directory)
-        (let* ((vec (tramp-dissect-file-name default-directory))
-               (new-localname (tramp-file-name-localname vec)))
+        (let ((vec (tramp-dissect-file-name default-directory)))
           (setf (tramp-file-name-localname vec) path)
           (setq default-directory (tramp-make-tramp-file-name vec)))))))
 
@@ -203,8 +275,6 @@
 
   ;; Wrap at edge of the screen, not at last whitespace
   (visual-line-mode -1)
-
-  ;;(company-mode 1)
 
   ;; Avoid overriding prompt colours
   ;; https://stackoverflow.com/a/50776528/884682
@@ -294,6 +364,47 @@
             (shx--restart-shell))
         (shx--restart-shell)))))
 
+(defun find-start-of-env-vars (output)
+  "Drop lines from start of OUTPUT which don't contain an '=' character."
+  (let* ((has-trailing-newline (and (> (length output) 0)
+                                    (char-equal (aref output (1- (length output))) ?\n)))
+         (lines (split-string output "\n"))
+         (idx 0)
+         (n (length lines)))
+    (while (and (< idx n)
+                (not (string-match-p "=" (nth idx lines))))
+      (setq idx (1+ idx)))
+    (if (>= idx n)
+        ""
+      (let ((out (mapconcat #'identity (nthcdr idx lines) "\n")))
+        (if has-trailing-newline (concat out "\n") out)))))
+
+(defun refresh-emacs-env-vars-from-shell ()
+  "Run a shell and copy its env vars into the Emacs environment."
+  (interactive)
+  (message "Refreshing environment variables...")
+  ;; Use 'env -i HOME=$HOME' to make a fresh environment, with only HOME set.
+  ;; Everything else will be built up from scratch, via the login shell.
+  (let* ((shell-command (concat "env -i HOME=" (getenv "HOME") " "
+                                (or ;;(executable-find "bash")
+                                    (getenv "SHELL")
+                                    "/bin/sh")
+                                " -l -c 'printenv -0'"))
+         (output (find-start-of-env-vars
+                  (shell-command-to-string shell-command)))
+         ;; Split by null byte to handle values with newlines safely
+         (env-lines (split-string output "\0" t)))
+    (dolist (line env-lines)
+      (when (string-match "^\\([^=]+\\)=\\(.*\\)" line)
+        (let ((var (match-string 1 line))
+              (val (match-string 2 line)))
+          ;; Skip strict Emacs-specific vars to avoid confusing Emacs
+          (unless (member var '("_" "PWD" "SHLVL" "TERM"))
+            (setenv var val)))))
+    ;; Crucial: Sync exec-path with the new PATH env var
+    (setq exec-path (split-string (getenv "PATH") path-separator)))
+  (message "Environment variables refreshed."))
+
 (defun eshell/emacs (file)
   "Replace Emacs command in eshell, so FILE is opened in this instance."
   (find-file file))
@@ -345,7 +456,7 @@
         (rename-buffer name)))
     name))
 
-(defconst sources
+(defconst warbo-shells-sources
   (if (file-directory-p "~/src")
       (cl-remove-if (lambda (d) (or (s-starts-with-p "." d) (s-starts-with-p "y" d)))
                     (directory-files "~/src")))
@@ -400,6 +511,14 @@
       ("warbo-utilities" "~/repos/warbo-utilities")
       ("home" "~")))
 
+    ('framework
+     '(("blog" "~/Code/chriswarbo-net")
+       ("home" "~")
+       ("nix-config" "~/Code/nix-config")
+       ("nix-helpers" "~/Code/nix-helpers")
+       ("warbo-packages" "~/Code/warbo-packages")
+       ("warbo-utilities" "~/Code/warbo-utilities")))
+
     ('wsl
      '(("deleteme" "~/deleteme")
        ("home" "~")
@@ -414,7 +533,7 @@
        ("emacs-d" "~/.emacs.d")
        ("nix-config" "~/nix-config")
        ("notes" "~/notes")
-       ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) sources)))
+       ,@(mapcar (lambda (d) `(,d ,(concat "~/src/" d))) warbo-shells-sources)))
 
     (_ '(("home" "~"))))
   "Useful buffers to open at startup.")
@@ -452,11 +571,11 @@
 
 ;; TODO: Set bindings via use-package
 (add-hook 'eshell-mode-hook
-          '(lambda()
-             (local-set-key (kbd "C-l") 'eshell/clear)))
+          #'(lambda()
+              (local-set-key (kbd "C-l") 'eshell/clear)))
 
 (define-advice shell-command
-    (:after (command &optional output-buffer error-buffer))
+    (:after (_command &optional _output-buffer _error-buffer))
   "From https://stackoverflow.com/a/6895517/884682 ."
   (when (get-buffer "*Async Shell Command*")
     (with-current-buffer "*Async Shell Command*"

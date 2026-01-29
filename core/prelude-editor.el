@@ -211,6 +211,9 @@
   ;; current subdir, instead of the current subdir of this dired buffer
   (setq dired-dwim-target t)
 
+  ; Show readable sizes
+  (setq dired-listing-switches "-al --si")
+
   ;; enable some really cool extensions like C-x C-j(dired-jump)
   (require 'dired-x)) ; dired-x is built-in
 

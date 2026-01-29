@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;;; Configuration for Emacs modeline display.
 ;;; Code:
+;; TODO: Fix "Cannot load diminish" error
 
 (line-number-mode t)
 (column-number-mode t)
@@ -12,13 +13,11 @@
   (mapcar 'diminish '(editorconfig-mode
                       whitespace-cleanup-mode
                       flyspell-mode
-                      company-mode
                       projectile-mode
                       eldoc-mode
                       visual-line-mode
                       smartparens-mode
                       flycheck-mode
-                      lsp-lens-mode
                       beacon-mode
                       pretty-sha-path-mode
                       volatile-highlights-mode

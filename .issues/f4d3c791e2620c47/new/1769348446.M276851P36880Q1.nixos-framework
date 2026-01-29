@@ -1,0 +1,19 @@
+From: Chris Warburton
+Date: Sun, 25 Jan 2026 13:36:22 +0000
+Subject: Re: Warnings about load-path
+Message-Id: <f4d3c791e2620c47-9f40ca3cec9c5d84-artemis@nixos-framework>
+References: <f4d3c791e2620c47-0-artemis@nixos-framework>
+In-Reply-To: <f4d3c791e2620c47-0-artemis@nixos-framework>
+
+The problems was using ':load-path "."' in a use-package declaration for
+ffap-goto-line in personal/warbo-generic.el. The intent was to load
+personal/ffap-goto-line.el from the personal/ directory, which is the directory
+that warbo-generic.el is already in, hence using ".". However, since the
+bytecode compiler doesn't *run* code, the current directory doesn't change when
+it's processing files, so it interprets that "." as being wherever the bytecode
+compiler was run from, which will be ~/.emacs.d. Hence why ~/.emacs.d was
+appearing in the load-path.
+
+The solution is to be more explicit in saying "the path of the file we are
+currently loading" (i.e. personal/, since we're currently loading
+personal/warbo-generic.el)

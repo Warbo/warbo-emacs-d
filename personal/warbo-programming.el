@@ -1,6 +1,9 @@
-;;; warbo-programming --- Generic programming-related stuff
+;;; warbo-programming --- Generic programming-related stuff -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+
+;; Declare functions defined in other files
+(declare-function command-in-rolling-buffer "warbo-rolling-shell")
 
 ;; Define some reformatters, used by various modes below
 
@@ -9,28 +12,34 @@
   :config
   (reformatter-define cue-format
     :program "cue"
-    :args '("fmt" "-"))
+    :args '("fmt" "-")
+    :group 'reformatter)
 
   (reformatter-define nix-format
     :program "nixfmt"
-    :args '("-w" "80"))
+    :args '("-w" "80")
+    :group 'reformatter)
 
   (reformatter-define scala-format
     :program "scalafmt"
     :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
             "--stdin"
-            "--stdout"))
+            "--stdout")
+    :group 'reformatter)
 
   (reformatter-define sh-format
-    :program "shfmt")
+    :program "shfmt"
+    :group 'reformatter)
 
   (reformatter-define xmllint-format
     :program "xmllint"
-    :args '("--format" "-"))
+    :args '("--format" "-")
+    :group 'reformatter)
 
   (reformatter-define yamlfix-format
     :program "yamlfix"
-    :args '("-")))
+    :args '("-")
+    :group 'reformatter))
 
 ;; These modes are built-in, so we don't need use-package to run add-hook
 (add-hook 'sh-mode-hook 'sh-format-on-save-mode)
@@ -149,6 +158,35 @@
   (advice-add 'xref-find-definitions-other-window
               :around #'case-sensitive-xref-find-definitions-advice))
 
+(defvar warbo-haskell-eglot-args
+  '("haskell-language-server" "lsp"
+    :initializationOptions
+    (:haskell (:formattingProvider "fourmolu"
+               :checkProject :json-false
+               :sessionLoading "multipleComponents")))
+  "Eglot server program entry for haskell-mode.
+Use in .dir-locals.el: (eglot-server-programs . ((haskell-mode . ,warbo-haskell-eglot-args)))")
+
+(defvar warbo-vue-eglot-args
+  '("vue-language-server" "--stdio"
+    :initializationOptions
+    (:typescript (:tsdk "node_modules/typescript/lib")
+     :vue (:hybridMode :json-false)
+     :languageFeatures (:completion
+                        (:defaultTagNameCase "both"
+                         :defaultAttrNameCase "kebabCase"
+                         :getDocumentNameCasesRequest nil
+                         :getDocumentSelectionRequest nil)
+                        :diagnostics
+                        (:getDocumentVersionRequest nil))
+     :documentFeatures (:documentFormatting
+                        (:defaultPrintWidth 100
+                         :getDocumentPrintWidthRequest nil)
+                        :documentSymbol t
+                        :documentColor t)))
+  "Eglot server program entry for vue-mode.
+Use in .dir-locals.el: (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-args)))")
+
 (defun warbo-haskell-tags ()
   "Run command to generate TAGS file in root directory of current repo."
   (let ((default-directory (vc-root-dir)))
@@ -199,7 +237,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
                       ;; Enable a simple prog-mode like json-mode, which will
                       ;; give us rainbow-delimiters and rainbow-identifiers
                       (json-mode)
-                      (font-lock-fontify-buffer)
+                      (font-lock-ensure)
 
                       (buffer-string)))))
         (when new
@@ -465,10 +503,11 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :hook ((vue-mode . eglot-ensure)
          (c-mode-common . eglot-ensure)
          (c-ts-base-mode . eglot-ensure)
+         (haskell-mode . eglot-ensure)
          (js-base-mode . eglot-ensure)
+         (typescript-mode . eglot-ensure)
          (typescript-ts-base-mode . eglot-ensure))
   :config
-  (add-hook 'haskell-mode-hook 'eglot-ensure)
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
   ;; From https://gluer.org/blog/improving-eglot-performance/
   (define-advice jsonrpc--log-event (:override (&rest _))
@@ -476,47 +515,11 @@ with the string S. Unlike `replace-region-contents' this maintains text
   ;; From https://www.reddit.com/r/emacs/comments/1b25904/is_there_anything_i_can_do_to_make_eglots/
   ;(setf (plist-get eglot-events-buffer-config :size) 0)
   ;(eldoc-echo-area-use-multiline-p nil)
-  (let ((projects (expand-file-name "~/src")))
-    (when (file-directory-p projects)
-      (eval-when-compile
-        (require 'dash)
-        (require 's))
-      (require 'dash)
-      (require 's)
-      ;; TODO: Use `eglot-workspace-configuration` instead, so we can have per-project settings
-      (setf (alist-get 'haskell-mode eglot-server-programs)
-            `("haskell-language-server-9.12.2" "lsp"
-              :initializationOptions
-              (:haskell ( :formattingProvider "fourmolu"
-                          :checkProject nil
-                          :sessionLoading "multipleComponents"))))
-      (let* ((root (car (-filter (lambda (entry)
-                                   (and (not (s-starts-with? "yesod" entry))
-                                        (not (s-starts-with? "." entry))))
-                                 (directory-files "~/src"))))
-             (tsdk (file-name-concat
-                    projects root "webpack" "node_modules" "typescript" "lib")))
-        (setf (alist-get 'vue-mode eglot-server-programs)
-              `("vue-language-server" "--stdio"
-                :initializationOptions
-                (:typescript (:tsdk ,tsdk)
-                             :vue (:hybridMode :json-false)
-                             :languageFeatures (:completion
-                                                (:defaultTagNameCase "both"
-                                                                     :defaultAttrNameCase "kebabCase"
-                                                                     :getDocumentNameCasesRequest nil
-                                                                     :getDocumentSelectionRequest nil)
-                                                :diagnostics
-                                                (:getDocumentVersionRequest nil))
-                             :documentFeatures (:documentFormatting
-                                                (:defaultPrintWidth 100
-                                                                    :getDocumentPrintWidthRequest nil)
-                                                :documentSymbol t
-                                                :documentColor t)))))))
+  (setf (alist-get 'typescript-mode eglot-server-programs)
+        '("typescript-language-server" "--stdio"))
   :custom
   (eglot-autoshutdown t)  ;; shutdown language server after closing last file
-  (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
-  )
+  (eglot-confirm-server-initiated-edits nil))  ;; allow edits without confirmation
 
 ;; (use-package eglot-booster
 ;;   :ensure t
@@ -524,24 +527,42 @@ with the string S. Unlike `replace-region-contents' this maintains text
 ;;   :config
 ;;   (eglot-booster-mode))
 
-(use-package company
-  :disabled
-  :ensure t
-  :hook (prog-mode . company-mode))
-
 (use-package vertico
   :ensure t
   :init
   (vertico-mode)
-  (keymap-set vertico-map "TAB" #'minibuffer-complete))
+  (keymap-set vertico-map "TAB" #'minibuffer-complete)
+  :config
+  ;; When typing an exact buffer name, it should be the default selection.
+  ;; Consult adds U+200000 as invisible suffix for multi-category support.
+  ;; Buffer completion sets display-sort-function to `identity`, so we must
+  ;; use vertico-sort-override-function to take precedence.
+  (defun warbo-vertico-sort-prefer-exact (candidates)
+    "Sort CANDIDATES with exact match first, then by history/length/alpha."
+    (let* ((sorted (vertico-sort-history-length-alpha candidates))
+           (input (minibuffer-contents-no-properties)))
+      (if (and input (not (string-empty-p input)))
+          (let ((exact (seq-find (lambda (c)
+                                   ;; Consult adds U+200000 as invisible suffix
+                                   ;; for multi-category support. Strip it.
+                                   (let ((visible (string-trim-right
+                                                   (substring-no-properties c)
+                                                   (string ?\x200000))))
+                                     (string= input visible)))
+                                 sorted)))
+            (if exact
+                (cons exact (delete exact sorted))
+              sorted))
+        sorted)))
+  (setq vertico-sort-override-function #'warbo-vertico-sort-prefer-exact))
 
 (use-package orderless
   :ensure t
   :custom
   (completion-styles '(basic partial-completion emacs22))
   (completion-category-defaults nil)
-  ;(completion-category-overrides '((file (styles literal-prefix))))
-  )
+  ;; Prefer exact matches for buffer names, then fall back to orderless
+  (completion-category-overrides '((buffer (styles basic orderless)))))
 
 (use-package corfu
   :ensure t
@@ -575,23 +596,52 @@ with the string S. Unlike `replace-region-contents' this maintains text
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (use-package yasnippet
-  :ensure t)
+  :ensure t
+  :config
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (add-hook 'text-mode-hook 'yas-minor-mode)
+
+  (defun yasnippet-or-completion ()
+    "Try to expand a yasnippet snippet, otherwise invoke completion."
+    (interactive)
+    (or (do-yas-expand)
+        (completion-at-point)))
+
+  (defun check-expansion ()
+    "Return t if point is at a location where completion is likely.
+This is the case if point is at the end of a symbol, or after a `.', or
+after `::'."
+    (save-excursion
+      (if (looking-at "\\_>") t
+        (backward-char 1)
+        (if (looking-at "\\.") t
+          (backward-char 1)
+          (if (looking-at "::") t nil)))))
+
+  (defun do-yas-expand ()
+    "Try to expand a yasnippet snippet, returning nil on failure."
+    (let ((yas-fallback-behavior 'return-nil))
+      (yas-expand)))
+
+  (defun tab-indent-or-complete ()
+    "Indent the current line, or complete the current symbol.
+If the minibuffer is active, then completion is performed.  Otherwise,
+if yasnippet is active and a snippet can be expanded, that is done.
+Otherwise, if at a point where completion is likely, completion is
+invoked.  Otherwise, the current line is indented."
+    (interactive)
+    (if (minibufferp)
+        (minibuffer-complete)
+      (if (or (not yas-minor-mode)
+              (null (do-yas-expand)))
+          (if (check-expansion)
+              (completion-at-point)
+            (indent-for-tab-command))))))
 
 ;; Posframe is a pop-up tool that must be manually installed for dap-mode
 (use-package posframe
   :ensure t)
-
-;; Use the Debug Adapter Protocol for running tests and debugging
-;; (use-package dap-mode
-;;   ;; Includes dap-python
-;;   :disabled
-;;   :ensure t
-;;   :defer  t
-;;   :hook
-;;   (lsp-mode . dap-mode)
-;;   (lsp-mode . dap-ui-mode)
-;;   :config
-;;   (require 'dap-ui))
 
 (use-package typescript-mode
   :ensure t
@@ -607,12 +657,10 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :init
   ;; Mapping xml to nxml
   (fset 'xml-mode 'nxml-mode)
-
-  :config
-  (setq nxml-child-indent 2
-        ;;nxml-auto-insert-xml-declaration-flag t
-        nxml-slash-auto-complete-flag t
-        nxml-bind-meta-tab-to-complete-flag t))
+  :custom
+  (nxml-child-indent 2)
+  (nxml-slash-auto-complete-flag t)
+  (nxml-bind-meta-tab-to-complete-flag t))
 
 (define-derived-mode nix-derivation-mode prog-mode "nix-derivation-mode"
   "Custom major mode, which runs Nix .drv files through `nix show-derivation'.
@@ -661,7 +709,6 @@ The result is JSON, so we derive from json-mode."
     (global-flycheck-mode +1)
   (add-hook 'prog-mode-hook 'flycheck-mode))
 
-;; Bind a key to look for 'test.sh' and run it
 (defun warbo-find-and-run-tests-sentinel (process signal)
   "A process sentinel suitable for `set-process-sentinel'.
 The returned sentinel will send a notification when the attached (asynchronous)
@@ -684,9 +731,7 @@ tests for the current buffer. It is intended to be set via
 (make-variable-buffer-local 'warbo-run-buffer-tests-function)
 (put 'warbo-run-buffer-tests-function
      'safe-local-variable
-     (lambda (v) (member v '(warbo-run-selenium
-                             warbo-run-haskell-tests
-                             warbo-run-ts-tests))))
+     (lambda (v) (member v '(warbo-run-tests))))
 
 (defun warbo-find-and-run-tests (arg)
   "Run `warbo-run-buffer-tests-function' if it's non-nil. Otherwise, look for a
@@ -714,7 +759,7 @@ passed along."
                            (async-shell-command cmd output-buffer)
                            (get-buffer-process output-buffer))))
               (if (process-live-p proc)
-                  (set-process-sentinel proc warbo-find-and-run-tests-sentinel)
+                  (set-process-sentinel proc #'warbo-find-and-run-tests-sentinel)
                 (message "Tests finished immediately")))))))))
 (keymap-global-set "<f6>" 'warbo-find-and-run-tests)
 

@@ -1,4 +1,4 @@
-;;; warbo-writing --- Setup for writing documents
+;;; warbo-writing --- Setup for writing documents -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 
@@ -34,7 +34,7 @@
 (use-package org
   :mode (("\\.org$" . org-mode))
   ;:ensure org-plus-contrib
-  :bind (("<f9>" . 'org-save-and-show-pdf)
+  :bind (("<f9>" . org-save-and-show)
 
          ;; Don't clobber windmove bindings
          :map org-mode-map
@@ -99,7 +99,6 @@
 
 ;; Open our master Bibtex file in ebib
 (setq ebib-hide-cursor nil)
-(setq ebib-file-field "localfile")
 (setq ebib-file-associations '(("pdf" . "mupdf-x11") ("ps" . "gv")))
 (defun bib ()
   "Opens our main Bibtex file."
@@ -118,6 +117,7 @@
 
 (use-package org-present
   :ensure t
+  :functions (org-present-big org-present-small)
   :config
   (with-eval-after-load 'org-present
     (add-hook 'org-present-mode-hook (lambda ()
