@@ -41,3 +41,4 @@ elpy
 /.editorconfig
 /.yamlfmt
 flycheck_*
+/*.sqlite
