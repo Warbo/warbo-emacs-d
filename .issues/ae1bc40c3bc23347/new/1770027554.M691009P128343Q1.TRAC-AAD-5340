@@ -1,0 +1,17 @@
+From: Chris Warburton
+Date: Mon, 02 Feb 2026 10:15:45 +0000
+State: new
+Subject: Editing .vue files keeps hitting eglot timeouts
+Message-Id: <ae1bc40c3bc23347-0-artemis@TRAC-AAD-5340>
+
+For example, if I'm trying to type a bunch of code, I'll press Enter for a new
+line and keep on typing; but Emacs will just freeze for a few seconds (with the
+mouse cursor becoming a busy spinner), then it shows a message like:
+
+```
+jsonrpc-request: jsonrpc-error: "request id=101 failed:", (jsonrpc-error-message . "Timed out")
+```
+
+It will also swallow all the key presses I made after the Enter, which makes it
+very annoying to type! (I can work around this with C-q Enter, but would like a
+proper fix)
