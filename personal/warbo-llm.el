@@ -23,12 +23,15 @@
 
 (use-package aidermacs
   :ensure
+  :custom
+  (aidermacs-show-diff-after-change t)
+  (aidermacs-watch-files t)
+  (aidermacs-backend 'vterm) ;; Required for watch-files
+  (aidermacs-default-chat-mode 'architect)
+  (aidermacs-default-model "anthopic/claude-opus-4-5")
+  (aidermacs-weak-model "anthopic/claude-haiku-4-5")
   :config
-  (global-set-key (kbd "C-c a") 'aidermacs-transient-menu)
-  (setq aidermacs-show-diff-after-change t)
-  (setq aidermacs-watch-files t)
-  (setq aidermacs-backend 'vterm) ;; Required for watch-files
-  (setq aidermacs-project-read-only-files '("CONVENTIONS.md" "GEMINI.md")))
+  (global-set-key (kbd "C-c a") 'aidermacs-transient-menu))
 
 (provide 'warbo-llm)
 ;;; warbo-llm.el ends here
