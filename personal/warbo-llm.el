@@ -2,22 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-(use-package aider
-  :ensure
-  :disabled
-  :config
-  (setq aider-program "aider")
-  (setq aider-args
-        (pcase machine-id
-          ('wsl-ubuntu
-           `("--model" ,(concat "ollama_chat/" warbo-local-llm)
-             "--set-env" "OLLAMA_API_BASE=http://127.0.0.1:11434"
-             ))
-          (_
-           '("--model" "anthropic/claude-sonnet-4-5"
-             "--weak-model" "anthropic/claude-haiku-4-5"))))
-  (global-set-key (kbd "C-c a") 'aider-transient-menu))
-
 (use-package vterm
   :ensure)
 
