@@ -17,5 +17,9 @@
   :config
   (global-set-key (kbd "C-c a") 'aidermacs-transient-menu))
 
+(use-package pi-coding-agent
+  :ensure t
+  :init (defalias 'pi 'pi-coding-agent))
+
 (provide 'warbo-llm)
 ;;; warbo-llm.el ends here
