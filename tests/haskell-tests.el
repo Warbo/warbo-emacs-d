@@ -245,3 +245,114 @@ Creates shell.nix, .envrc, and .dir-locals.el for eglot configuration."
      (when diags
        (message "First diagnostic text: %s" (flymake-diagnostic-text (car diags))))
      (should (> (length diags) 0)))))
+
+;;; New test stubs for multi-package and realistic scenarios
+
+(ert-deftest warbo-test-haskell-multi-package-project ()
+  "Test cross-package jump-to-definition in a multi-package cabal project."
+  ;; TODO: Create a project with 2+ packages (e.g., lib and exe)
+  ;; - Setup cabal.project file listing multiple .cabal files
+  ;; - Package A exports a function, Package B imports and uses it
+  ;; - Test jumping from B's usage to A's definition
+  ;; - Verify HLS indexes all packages (may need to build first with cabal build)
+  ;; - Check that diagnostics work across package boundaries
+  ;; - Test that changes in A trigger re-check in B
+  (ert-skip "TODO: Implement multi-package project test"))
+
+(ert-deftest warbo-test-haskell-stack-project ()
+  "Test Haskell Language Server with a Stack-based project."
+  ;; TODO: Create stack.yaml with resolver and package list
+  ;; - Test that HLS uses Stack's GHC and package set
+  ;; - Verify stack.yaml takes precedence over .cabal in project root
+  ;; - Test with stack-based dependencies (not in cabal's package list)
+  ;; - Check that 'stack build' integration works
+  ;; - May need to run 'stack setup' first in the test environment
+  (ert-skip "TODO: Implement Stack project test"))
+
+(ert-deftest warbo-test-haskell-import-completion ()
+  "Test that completion suggests imported modules and functions."
+  ;; TODO: Create file importing Data.List, test completion after typing "sor"
+  ;; - Should suggest 'sort', 'sortBy', 'sortOn' from Data.List
+  ;; - Test unqualified vs qualified imports (Data.List vs import qualified)
+  ;; - Test that completion works for both module names (import Data.<TAB>)
+  ;;   and function names (sor<TAB> after import)
+  ;; - Use company-mode or completion-at-point to trigger completion
+  ;; - May need to wait for HLS to finish indexing before completion works
+  (ert-skip "TODO: Implement import completion test"))
+
+(ert-deftest warbo-test-haskell-refactoring-rename ()
+  "Test renaming a function across multiple occurrences."
+  ;; TODO: Define function 'oldName' used in multiple places
+  ;; - Position cursor on definition, invoke eglot-rename
+  ;; - Verify all occurrences renamed to 'newName'
+  ;; - Test with references across multiple functions/scopes
+  ;; - Should preserve syntax and not break code
+  ;; - Check that rename works for local variables, parameters, and top-level defs
+  (ert-skip "TODO: Implement refactoring rename test"))
+
+(ert-deftest warbo-test-haskell-repl-integration ()
+  "Test loading Haskell modules into GHCi REPL."
+  ;; TODO: Open a .hs file, start inferior-haskell-mode or similar
+  ;; - Use C-c C-l or similar to load current buffer into GHCi
+  ;; - Verify module loads without errors
+  ;; - Test evaluating expressions in REPL that use module functions
+  ;; - Check that REPL shows results correctly
+  ;; - May need haskell-mode's interactive mode or dante/intero integration
+  ;; - Consider whether this is config-specific (not all setups use REPL)
+  (ert-skip "TODO: Implement REPL integration test"))
+
+(ert-deftest warbo-test-haskell-documentation-lookup ()
+  "Test accessing Haddock documentation for library functions."
+  ;; TODO: Position cursor on 'map' or other Prelude function
+  ;; - Invoke eglot-code-action or similar to show documentation
+  ;; - Verify documentation buffer/popup contains type signature
+  ;; - Check for description text from Haddock
+  ;; - Test with both Prelude (built-in) and external package functions
+  ;; - May use eldoc, hover, or dedicated doc command
+  ;; - Note: Currently eldoc tests are failing, may need HLS initialization fix
+  (ert-skip "TODO: Implement documentation lookup test"))
+
+(ert-deftest warbo-test-haskell-type-at-point ()
+  "Test displaying inferred types for expressions."
+  ;; TODO: Write expression like 'let x = map (+1) [1,2,3]'
+  ;; - Position cursor on 'x', request type info
+  ;; - Should show 'x :: [Integer]' or similar
+  ;; - Test on sub-expressions: 'map' should show '(a -> b) -> [a] -> [b]'
+  ;; - Test on partial applications and complex expressions
+  ;; - Use eglot's hover or dedicated type-at-point command
+  ;; - Related to eldoc tests which are currently failing
+  (ert-skip "TODO: Implement type-at-point test"))
+
+(ert-deftest warbo-test-haskell-error-location-precision ()
+  "Test that diagnostics point to correct line and column."
+  ;; TODO: Create file with error at specific position (e.g., line 5 col 10)
+  ;; - Introduce type error like 'x = "string" + 123'
+  ;; - Verify flymake-diagnostics returns error at exact position
+  ;; - Check that error underline/highlight covers correct span
+  ;; - Test with multiple errors to ensure all are located correctly
+  ;; - Verify column offsets match (zero-indexed vs one-indexed)
+  (ert-skip "TODO: Implement error location precision test"))
+
+(ert-deftest warbo-test-haskell-external-dependencies ()
+  "Test projects with external dependencies from Hackage/Stackage."
+  ;; TODO: Create .cabal with dependency like 'text' or 'aeson'
+  ;; - Import from external package: 'import Data.Text'
+  ;; - Test that HLS can resolve imports (may need 'cabal build' first)
+  ;; - Verify jump-to-definition works for external package functions
+  ;; - Check completion suggests functions from external packages
+  ;; - Test that type errors involving external types are reported correctly
+  ;; - May be slow if cabal needs to download/build dependencies
+  ;; - Consider using common packages available in Nix environment
+  (ert-skip "TODO: Implement external dependencies test"))
+
+(ert-deftest warbo-test-haskell-cross-module-references ()
+  "Test importing from local modules and navigating between them."
+  ;; TODO: Create two files: Lib.hs (exports functions) and Main.hs (imports Lib)
+  ;; - Main.hs: 'import Lib' and use functions from Lib
+  ;; - Test jump-to-definition from Main to Lib
+  ;; - Test that changes in Lib trigger diagnostics in Main
+  ;; - Verify completion in Main suggests Lib's exported functions
+  ;; - Test with qualified imports: 'import qualified Lib as L'
+  ;; - Check that refactoring/rename works across module boundaries
+  ;; - Ensure HLS tracks both files and updates appropriately
+  (ert-skip "TODO: Implement cross-module references test"))
