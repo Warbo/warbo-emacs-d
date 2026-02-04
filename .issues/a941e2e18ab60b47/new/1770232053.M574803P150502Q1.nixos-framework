@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Wed, 04 Feb 2026 19:06:59 +0000
+State: new
+Subject: Turn on native compilation
+Message-Id: <a941e2e18ab60b47-0-artemis@nixos-framework>
+
+Do it the same way we do for bytecompilation.
