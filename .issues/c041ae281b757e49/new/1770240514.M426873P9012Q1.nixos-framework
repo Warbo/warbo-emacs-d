@@ -1,0 +1,62 @@
+From: Chris Warburton
+Date: Wed, 04 Feb 2026 21:28:34 +0000
+Subject: Re: comment
+Message-Id: <c041ae281b757e49-9f1ad8692068b45f-artemis@nixos-framework>
+References: <c041ae281b757e49-0-artemis@nixos-framework>
+In-Reply-To: <c041ae281b757e49-0-artemis@nixos-framework>
+
+## Investigation Summary
+
+### Git Diff Analysis
+The unstaged changes show significant test refactoring by Claude:
+- Added extensive debug logging via `message` calls throughout test functions
+- Created new helper functions for LSP readiness checking (checking events buffer, waiting for "initialized" notifications, etc.)
+- Restructured several test cases with more detailed diagnostics
+- Created new test macros `with-haskell-eglot-test` and `with-haskell-eglot-test-indexed`
+
+However, **the core issue wasn't addressed**: all Haskell tests are still failing because eglot is never activating (eglot--managed-mode stays nil).
+
+### Test Failures
+Running `./test-runner.sh` shows systematic Haskell test failures:
+- **warbo-test-haskell-eglot-command-is-executable**: PASSES ✓
+- **warbo-test-haskell-hook-registration**: PASSES ✓
+- **warbo-test-haskell-eglot-server-programs**: PASSES ✓
+- **warbo-test-haskell-manual-eglot-start**: PASSES ✓
+- **warbo-test-haskell-mode-enables-eglot**: FAILS ✗
+- **warbo-test-haskell-eglot-diagnostics**: FAILS ✗
+- **warbo-test-haskell-eglot-docs**: FAILS ✗
+- **warbo-test-haskell-eglot-find-definition**: FAILS ✗
+
+All fail with: `eglot-managed: nil`, `server-running: nil`, timing out waiting for `eglot--managed-mode` to activate.
+
+### README.md Test Philosophy Violations
+The config README emphasizes:
+1. **Tests must operate at functional level**: e.g., "opening a file should produce working behavior" not "check that eglot--managed-mode was set"
+2. **Tests must NOT invoke config responsibilities**: "If opening a file does not start the correct mode automatically, then that is a failure we should know about!" — but tests shouldn't call eglot-ensure themselves
+3. **Must not check implementation details**: Checking `eglot--managed-mode` as a variable is an implementation detail; what matters is the functional capability (hover works, diagnostics appear, etc.)
+
+### Config Analysis (personal/warbo-programming.el)
+The config is correctly set up:
+```elisp
+(use-package haskell-mode
+  :ensure t
+  :hook (haskell-mode . eglot-ensure)  ; ← eglot-ensure should trigger automatically
+  :config
+  (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
+
+(defvar warbo-haskell-eglot-args ...)  ; ← Defined but must be used in .dir-locals.el
+```
+
+The problem is that:
+1. `eglot-ensure` uses `post-command-hook` in batch mode, which may not fire
+2. Tests need to manually trigger initialization in batch mode
+3. Tests are checking implementation details (eglot--managed-mode) rather than testing if the config works functionally
+
+### Root Cause
+The tests are **over-testing implementation details** and **under-testing functional behavior**. Per the README:
+- ✗ Bad: "Test that eglot--managed-mode is set" (implementation detail)
+- ✓ Good: "Opening a Haskell file should enable features like diagnostics/hover" (functional behavior)
+
+The real issue is that batch mode doesn't properly simulate interactive eglot activation, but instead of working around that limitation, the tests should verify actual functionality (can we get diagnostics? can we hover? can we jump to definition?) rather than checking if eglot--managed-mode is truthy.
+
+Claude's additions of comprehensive diagnostic helpers are useful for debugging, but the fundamental test structure needs rethinking to focus on what users actually depend on (features working) rather than implementation state variables.

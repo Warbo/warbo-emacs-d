@@ -318,8 +318,18 @@ Use this for tests that need hover, jump-to-definition, or code actions."
   "Test that HLS executable exists in PATH."
   (should (executable-find "haskell-language-server-wrapper")))
 
-(ert-deftest warbo-test-haskell-mode-enables-eglot ()
-  "Test that opening a Haskell file in a Git project enables Eglot."
+(ert-deftest warbo-test-haskell-hook-registration ()
+  "Test that eglot-ensure is registered in haskell-mode-hook."
+  (should (memq 'eglot-ensure haskell-mode-hook)))
+
+(ert-deftest warbo-test-haskell-eglot-server-programs ()
+  "Test that eglot knows how to handle haskell-mode."
+  (message "eglot-server-programs for haskell-mode: %S"
+           (alist-get 'haskell-mode eglot-server-programs))
+  (should (alist-get 'haskell-mode eglot-server-programs)))
+
+(ert-deftest warbo-test-haskell-manual-eglot-start ()
+  "Test that we can manually start eglot in a Haskell buffer."
   (let* ((dir (make-temp-file "test-git-project-" t))
          (file (expand-file-name "Main.hs" dir)))
     (unwind-protect
@@ -328,6 +338,67 @@ Use this for tests that need hover, jump-to-definition, or code actions."
             (call-process "git" nil nil nil "init"))
           (with-temp-file file (insert ""))
           (with-current-buffer (find-file-noselect file)
+            (message "Before eglot:")
+            (message "  buffer-file-name: %S" buffer-file-name)
+            (message "  file-exists-p: %S" (file-exists-p buffer-file-name))
+            (message "  project-current: %S" (project-current))
+            (message "  major-mode: %S" major-mode)
+            (message "  eglot-server-programs entry: %S"
+                     (alist-get 'haskell-mode eglot-server-programs))
+            (message "  eglot--managed-mode: %S" (bound-and-true-p eglot--managed-mode))
+            ;; Try to manually start eglot
+            (condition-case err
+                (progn
+                  (message "Calling eglot-ensure...")
+                  (eglot-ensure)
+                  (message "After eglot-ensure:")
+                  (message "  eglot--managed-mode: %S" (bound-and-true-p eglot--managed-mode))
+                  ;; eglot-ensure uses post-command-hook in batch mode
+                  ;; We need to manually trigger it
+                  (message "Running post-command-hook...")
+                  (run-hooks 'post-command-hook)
+                  (message "After post-command-hook:")
+                  (message "  eglot--managed-mode: %S" (bound-and-true-p eglot--managed-mode))
+                  (message "  eglot-current-server: %S" (eglot-current-server)))
+              (error (message "eglot-ensure error: %S" err)))
+            ;; Wait a bit for it to connect
+            (sit-for 2)
+            (message "After waiting:")
+            (message "  eglot--managed-mode: %S" (bound-and-true-p eglot--managed-mode))
+            (message "  eglot-current-server: %S" (eglot-current-server))))
+      (when-let ((buf (get-file-buffer file)))
+        (kill-buffer buf))
+      (delete-directory dir t))))
+
+(ert-deftest warbo-test-haskell-mode-enables-eglot ()
+  "Test that opening a Haskell file in a Git project enables Eglot."
+  (let* ((dir (make-temp-file "test-git-project-" t))
+         (file (expand-file-name "Main.hs" dir)))
+    (unwind-protect
+        (progn
+          (warbo-haskell-test-setup-nix-project dir)
+          (let ((default-directory dir))
+            (call-process "git" nil nil nil "init"))
+          (with-temp-file file (insert ""))
+          (with-current-buffer (find-file-noselect file)
+            (message "major-mode: %S" major-mode)
+            (message "haskell-mode-hook: %S" haskell-mode-hook)
+            (message "eglot-ensure in hook: %S" (memq 'eglot-ensure haskell-mode-hook))
+            ;; direnv should update the environment when prog-mode-hook runs
+            ;; but let's make sure
+            (when (fboundp 'direnv-update-environment)
+              (direnv-update-environment))
+            ;; Give direnv a moment to fully update
+            (sit-for 0.5)
+            (message "exec-path after direnv: %S" (mapconcat 'identity exec-path ":"))
+            (message "haskell-language-server-wrapper in PATH: %S"
+                     (executable-find "haskell-language-server-wrapper"))
+            (message "About to run post-command-hook, current exec-path has HLS: %S"
+                     (member "/nix/store/c7a6fyhh52kpwksxf46wqxpl3vzkirqf-haskell-language-server-2.12.0.0/bin/" exec-path))
+            ;; Manually trigger post-command-hook since we're in batch mode
+            (let ((result (run-hooks 'post-command-hook)))
+              (message "post-command-hook returned: %S" result))
+            (message "After post-command-hook, eglot managed: %S" (bound-and-true-p eglot--managed-mode))
             (warbo-haskell-test-wait-assert
              (lambda () (bound-and-true-p eglot--managed-mode))
              :timeout 10
