@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 04 Feb 2026 17:48:55 +0000
-State: new
+State: resolved
 Subject: Reduce wait times in Haskell tests
 Message-Id: <c041ae281b757e49-0-artemis@nixos-framework>
+resolution: fixed
 
 The current Haskell tests use hard-coded sleep-for and timeouts (5-15 seconds) which make the test suite slow. Tests also wait blindly rather than checking for actual readiness.
 
