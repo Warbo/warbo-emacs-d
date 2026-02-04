@@ -1,0 +1,16 @@
+From: Chris Warburton
+Date: Wed, 04 Feb 2026 17:48:55 +0000
+State: new
+Subject: Reduce wait times in Haskell tests
+Message-Id: <c041ae281b757e49-0-artemis@nixos-framework>
+
+The current Haskell tests use hard-coded sleep-for and timeouts (5-15 seconds) which make the test suite slow. Tests also wait blindly rather than checking for actual readiness.
+
+Improvements needed:
+- Poll HLS readiness more intelligently by checking for specific LSP notifications (e.g., "initialized" or "indexing complete")
+- Replace hard sleep-for calls with condition-based waiting that exits early when ready
+- Check *EGLOT events* buffer to verify HLS has actually processed requests before asserting results
+- Add diagnostic helpers to determine why HLS isn't responding (not initialized, still indexing, etc.)
+- Consider whether tests need compilation step (cabal build) before HLS can provide full functionality
+
+Current failures in eldoc, hover, and jump-to-definition may be timing-related rather than actual config problems.

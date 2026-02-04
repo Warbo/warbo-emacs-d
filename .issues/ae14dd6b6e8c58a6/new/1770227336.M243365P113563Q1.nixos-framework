@@ -1,0 +1,22 @@
+From: Chris Warburton
+Date: Wed, 04 Feb 2026 17:48:56 +0000
+State: new
+Subject: Add realistic multi-file multi-package Haskell tests
+Message-Id: <ae14dd6b6e8c58a6-0-artemis@nixos-framework>
+
+The existing Haskell tests only create single-file projects with trivial code like "f x = x" or "foo = 5". The original issue e9cbc4d1d87f6e7f specifically asks for "realistic" tests that "cover e.g. projects containing multiple packages."
+
+Need to implement the stub tests added in tests/haskell-tests.el:
+- warbo-test-haskell-multi-package-project (cabal.project with multiple packages)
+- warbo-test-haskell-stack-project (stack.yaml based projects)
+- warbo-test-haskell-cross-module-references (multiple .hs files importing each other)
+- warbo-test-haskell-external-dependencies (projects using text, aeson, etc.)
+
+These should test realistic scenarios:
+- Multiple modules with imports between them
+- Cross-package jump-to-definition and refactoring
+- Real library dependencies from Hackage/Stackage
+- Proper module hierarchies (e.g., MyProject.Lib.Utils)
+- Verify HLS can handle complex project structures
+
+The with-haskell-eglot-test macro may need extension to support multi-file/multi-package setup.
