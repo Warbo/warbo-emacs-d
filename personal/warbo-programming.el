@@ -204,6 +204,7 @@ Use in .dir-locals.el: (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-ar
 
 (use-package haskell-mode
   :ensure t
+  :hook (haskell-mode . eglot-ensure)
   :config
   (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
 
@@ -535,7 +536,6 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :hook ((vue-mode . eglot-ensure)
          (c-mode-common . eglot-ensure)
          (c-ts-base-mode . eglot-ensure)
-         (haskell-mode . eglot-ensure)
          (js-base-mode . eglot-ensure)
          (typescript-mode . eglot-ensure)
          (typescript-ts-base-mode . eglot-ensure))
