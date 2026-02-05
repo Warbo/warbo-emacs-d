@@ -102,12 +102,26 @@ Returns non-nil if HLS connected successfully."
         (direnv-mode 1)))))
 
 (defun warbo-haskell-test-wait-for-indexing ()
-  "Wait for HLS to be ready (diagnostics available).
-Returns non-nil when ready, nil on timeout."
-  (warbo-haskell-test-poll
-   #'flymake-diagnostics
-   warbo-haskell-test-timeout
-   "HLS indexing"))
+  "Wait for HLS to be ready.
+Returns non-nil when ready, nil on timeout.
+For files with errors, waits for diagnostics.
+For error-free files, waits for hover to work."
+  (or
+   ;; First try: wait for diagnostics (works for files with errors)
+   (warbo-haskell-test-poll
+    #'flymake-diagnostics
+    5  ; Short timeout - if no errors, won't get diagnostics
+    "diagnostics")
+   ;; Second try: test if hover works (works for all files once indexed)
+   (warbo-haskell-test-poll
+    (lambda ()
+      (let ((result nil))
+        (eglot-hover-eldoc-function
+         (lambda (doc &rest _) (setq result doc)))
+        (accept-process-output nil 1.0)
+        result))
+    warbo-haskell-test-timeout
+    "hover response")))
 
 (defun warbo-haskell-test-get-documentation-buffer ()
   "Get documentation at point.
@@ -140,7 +154,8 @@ Returns non-nil if we jumped to a different location."
           (start-file buffer-file-name))
       (condition-case nil
           (progn
-            (execute-kbd-macro (kbd "M-."))
+            ;; FIXME: Press M-. like a user would
+            (xref-find-definitions (xref-backend-identifier-at-point (xref-find-backend)))
             (accept-process-output nil 0.5)
             (or (not (equal buffer-file-name start-file))
                 (not (= (point) start-pos))))
