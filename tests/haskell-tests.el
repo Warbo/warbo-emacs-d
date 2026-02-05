@@ -130,20 +130,17 @@ Returns non-nil if HLS connected successfully."
    warbo-haskell-test-timeout
    "HLS indexing"))
 
-(defun warbo-haskell-test-hover-at-point ()
-  "Request hover info at point. Returns content string or nil."
-  (when-let ((server (eglot-current-server)))
-    (condition-case nil
-        (let* ((params (eglot--TextDocumentPositionParams))
-               (response (jsonrpc-request server :textDocument/hover params
-                                          :timeout 5)))
-          (when response
-            (let ((contents (plist-get response :contents)))
-              (cond
-               ((stringp contents) contents)
-               ((plist-get contents :value) (plist-get contents :value))
-               (t (format "%S" contents))))))
-      (error nil))))
+(defun warbo-haskell-test-get-documentation-buffer ()
+  "Get documentation at point."
+  (when (eglot-current-server)
+    (eldoc-doc-buffer)
+    (accept-process-output nil 0.5)
+    ;; Return contents of eldoc buffer if it exists and has content
+    (when-let ((buf (get-buffer "*eldoc*")))
+      (with-current-buffer buf
+        (let ((content (buffer-substring-no-properties (point-min) (point-max))))
+          (when (> (length content) 0)
+            content))))))
 
 (defun warbo-haskell-test-definition-at-point ()
   "Request definition location at point. Returns location plist or nil."
@@ -250,8 +247,8 @@ installed (it may only be available via direnv in project directories)."
                                         (flymake-diagnostic-text d)))
                       diags)))))
 
-(ert-deftest warbo-test-haskell-hover-shows-type-info ()
-  "Hovering over a standard function shows its type."
+(ert-deftest warbo-test-haskell-eldoc-shows-type-info ()
+  "Documentation buffer shows type info for standard functions."
   (with-haskell-test-file
    "main = putStrLn \"hello\""
 
@@ -259,15 +256,14 @@ installed (it may only be available via direnv in project directories)."
    (goto-char (point-min))
    (search-forward "putStrLn")
    (backward-char 1)
-   ;; Functional test: hover shows useful type information
-   (let ((hover (warbo-haskell-test-poll
-                 (lambda ()
-                   (let ((h (warbo-haskell-test-hover-at-point)))
-                     (and h (string-match-p "String\\|IO\\|putStrLn" h) h)))
-                 10
-                 "hover info")))
-     (should hover)
-     (should (stringp hover)))))
+   (let ((doc (warbo-haskell-test-poll
+               (lambda ()
+                 (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                   (and d (string-match-p "String\\|IO\\|putStrLn" d) d)))
+               10
+               "documentation")))
+     (should doc)
+     (should (stringp doc)))))
 
 (ert-deftest warbo-test-haskell-jump-to-definition ()
   "M-. can jump to a local definition."
