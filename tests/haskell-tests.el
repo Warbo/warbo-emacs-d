@@ -142,20 +142,20 @@ Returns non-nil if HLS connected successfully."
           (when (> (length content) 0)
             content))))))
 
-(defun warbo-haskell-test-definition-at-point ()
-  "Request definition location at point. Returns location plist or nil."
-  (when-let ((server (eglot-current-server)))
-    (condition-case nil
-        (let* ((params (eglot--TextDocumentPositionParams))
-               (response (jsonrpc-request server :textDocument/definition params
-                                          :timeout 5)))
-          (cond
-           ((null response) nil)
-           ((vectorp response) (aref response 0))
-           ((plist-get response :uri) response)
-           ((listp response) (car response))
-           (t response)))
-      (error nil))))
+(defun warbo-haskell-test-jump-to-definition ()
+  "Jump to definition using xref (M-.).
+Returns non-nil if we jumped to a different location."
+  (when (eglot-current-server)
+    (let ((start-pos (point))
+          (start-file buffer-file-name))
+      (condition-case nil
+          (progn
+            (xref-find-definitions (xref-backend-identifier-at-point (xref-find-backend)))
+            (accept-process-output nil 0.5)
+            ;; Check if we moved to a different location
+            (or (not (equal buffer-file-name start-file))
+                (not (= (point) start-pos))))
+        (error nil)))))
 
 (defmacro with-haskell-test-file (content &rest body)
   "Create temp Haskell project with CONTENT in Main.hs, run BODY.
@@ -266,24 +266,24 @@ installed (it may only be available via direnv in project directories)."
      (should (stringp doc)))))
 
 (ert-deftest warbo-test-haskell-jump-to-definition ()
-  "M-. can jump to a local definition."
+  "Keyboard shortcut can jump to a local definition."
   (with-haskell-test-file
    "myFunc :: Int\nmyFunc = 10\n\nmain = print myFunc"
 
    ;; Position on myFunc usage in main
    (goto-char (point-max))
    (search-backward "myFunc")
-   ;; Functional test: HLS knows where myFunc is defined
-   (let ((def (warbo-haskell-test-poll
-               #'warbo-haskell-test-definition-at-point
-               10
-               "definition location")))
-     (should def)
-     ;; Verify it points to line 1 or 2 (the definition, not the usage on line 4)
-     (let* ((range (plist-get def :range))
-            (start (plist-get range :start))
-            (line (plist-get start :line)))  ; 0-indexed
-       (should (< line 2))))))
+   (let ((usage-line (line-number-at-pos)))
+     ;; M-. should jump to definition
+     (let ((jumped (warbo-haskell-test-poll
+                    #'warbo-haskell-test-jump-to-definition
+                    10
+                    "jump to definition")))
+       (should jumped)
+       ;; Should be on line 1 or 2 (the definition, not the usage on line 4)
+       (let ((def-line (line-number-at-pos)))
+         (should (< def-line usage-line))
+         (should (<= def-line 2)))))))
 
 (ert-deftest warbo-test-haskell-formatting ()
   "Formatting command cleans up whitespace."
@@ -291,7 +291,6 @@ installed (it may only be available via direnv in project directories)."
    "foo=   5"
 
    (call-interactively 'eglot-format-buffer)
-   ;; Functional test: buffer content is properly formatted
    (let ((formatted (warbo-haskell-test-poll
                      (lambda () (string-match-p "foo = 5" (buffer-string)))
                      5
