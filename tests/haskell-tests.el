@@ -1,35 +1,25 @@
-;; -*- lexical-binding: t; -*-
+;;; haskell-tests --- Test Haskell editing -*- lexical-binding: t; -*-
+;;;
+;;; Commentary:
+;;; Batch mode limitation: In interactive Emacs, opening a .hs file triggers
+;;; haskell-mode-hook which runs eglot-ensure, and post-command-hook fires
+;;; automatically.  In batch mode, we must explicitly trigger these hooks.
+;;; This is acceptable because we're still testing the config's hooks work.
+;;;
+;;; Code:
 (require 'ert)
 (require 'eglot)
 (require 'haskell-mode)
 (require 'flymake)
 
-;;; ============================================================================
-;;; Test Philosophy
-;;; ============================================================================
-;;
-;; These tests verify that our Emacs config provides working Haskell development
-;; features. Per README.md guidelines:
-;;
-;; - Tests check FUNCTIONAL outcomes (hover shows type info, diagnostics appear)
-;; - Tests do NOT check implementation details (eglot--managed-mode value)
-;; - Tests do NOT mock; they use real HLS
-;;
-;; Batch mode limitation: In interactive Emacs, opening a .hs file triggers
-;; haskell-mode-hook which runs eglot-ensure, and post-command-hook fires
-;; automatically. In batch mode, we must explicitly trigger these hooks.
-;; This is acceptable because we're still testing the config's hooks work.
-
-;;; ============================================================================
-;;; Test Helpers
-;;; ============================================================================
+;; Helpers
 
 (defvar warbo-haskell-test-timeout 20
   "Timeout in seconds for waiting on HLS operations.")
 
-(defun warbo-haskell-test-poll (predicate timeout message)
+(defun warbo-haskell-test-poll (predicate timeout _message)
   "Poll PREDICATE until true or TIMEOUT seconds elapse.
-MESSAGE describes what we're waiting for. Returns predicate result or nil."
+MESSAGE describes what we're waiting for.  Returns predicate result or nil."
   (let ((start (float-time))
         (result nil))
     (while (and (not (setq result (funcall predicate)))
@@ -52,7 +42,7 @@ MESSAGE describes what we're waiting for. Returns predicate result or nil."
             "  build-depends: base\n"
             "  default-language: Haskell2010\n"
             "  ghc-options: -Wall\n"))
-  ;; Nix shell with HLS and hasktags
+  ;; Nix shell with HLS and other tools
   (with-temp-file (expand-file-name "shell.nix" dir)
     (insert "{ pkgs ? import <nixpkgs> {} }:\n"
             "pkgs.mkShell {\n"
@@ -83,9 +73,9 @@ MESSAGE describes what we're waiting for. Returns predicate result or nil."
 (defun warbo-haskell-test-start-hls ()
   "Start HLS for the current buffer, working around batch mode limitations.
 This simulates what happens interactively when opening a Haskell file:
-1. direnv updates environment (via prog-mode-hook in config)
-2. eglot-ensure is called (via haskell-mode-hook in config)
-3. post-command-hook fires (triggers actual eglot connection)
+1. direnv updates environment
+2. `eglot-ensure' is called
+3. `post-command-hook' fires (triggers actual eglot connection)
 Returns non-nil if HLS connected successfully."
   ;; Disable direnv auto-switching to prevent it from unloading the environment
   ;; when post-command-hook runs (direnv-mode hooks into post-command-hook and
@@ -150,6 +140,11 @@ Returns non-nil if we jumped to a different location."
           (start-file buffer-file-name))
       (condition-case nil
           (progn
+            ;; FIXME: This isn't pressing M-. like the docstring claims.
+            ;; Users will not be typing
+            ;; '(xref-find-definitions
+            ;;   (xref-backend-identifier-at-point (xref-find-backend)))' so
+            ;; this is not testing the functionality we care about!
             (xref-find-definitions (xref-backend-identifier-at-point (xref-find-backend)))
             (accept-process-output nil 0.5)
             ;; Check if we moved to a different location
@@ -159,9 +154,7 @@ Returns non-nil if we jumped to a different location."
 
 (defmacro with-haskell-test-file (content &rest body)
   "Create temp Haskell project with CONTENT in Main.hs, run BODY.
-HLS is started and ready before BODY runs. Tests in BODY should
-check functional outcomes (hover works, diagnostics appear), not
-implementation details (eglot--managed-mode)."
+HLS is started and ready before BODY runs."
   (declare (indent 1))
   `(let* ((dir (make-temp-file "haskell-test-" t))
           (file (expand-file-name "Main.hs" dir)))
@@ -182,30 +175,29 @@ implementation details (eglot--managed-mode)."
          (kill-buffer buf))
        (delete-directory dir t))))
 
-;;; ============================================================================
-;;; Configuration Tests - verify our config is set up correctly
-;;; ============================================================================
+;; Configuration tests
 
 (ert-deftest warbo-test-haskell-eglot-command-is-executable ()
-  "HLS executable is configured correctly for eglot.
-This verifies the config sets up the right command, not that HLS is globally
-installed (it may only be available via direnv in project directories)."
+  "HLS executable is configured correctly for eglot."
   ;; Check the configured command - the actual executable availability is
   ;; tested implicitly by the functional tests (diagnostics, hover, etc.)
   (let ((server-cmd (alist-get 'haskell-mode eglot-server-programs)))
     (should server-cmd)
-    ;; The command should reference haskell-language-server-wrapper
     (should (cl-some (lambda (part)
                        (and (stringp part)
                             (string-match-p "haskell-language-server" part)))
                      (if (listp server-cmd) server-cmd (list server-cmd))))))
 
 (ert-deftest warbo-test-haskell-hook-registration ()
-  "Our config registers eglot-ensure in haskell-mode-hook."
+  "Our config registers `eglot-ensure' in haskell-mode-hook."
+  ;; FIXME: This information should appear in failure diagnostics, but should
+  ;; not be asserted in a test!
   (should (memq 'eglot-ensure haskell-mode-hook)))
 
 (ert-deftest warbo-test-haskell-eglot-server-programs ()
   "Eglot knows how to start HLS for haskell-mode."
+  ;; FIXME: This information should appear in failure diagnostics, but should
+  ;; not be asserted in a test!
   (should (alist-get 'haskell-mode eglot-server-programs)))
 
 (ert-deftest warbo-test-haskell-project-root-detection ()
@@ -226,16 +218,16 @@ installed (it may only be available via direnv in project directories)."
                                        (expand-file-name (project-root proj)))))))
       (delete-directory dir t))))
 
-;;; ============================================================================
-;;; Functional Tests - verify LSP features work with our config
-;;; ============================================================================
+;; LSP tests
 
 (ert-deftest warbo-test-haskell-diagnostics-show-type-errors ()
   "Opening a Haskell file with type errors shows diagnostics."
   (with-haskell-test-file
    "main :: IO ()\nmain = putStrLn 42"  ; Type error: 42 isn't a String
 
-   ;; Functional test: flymake shows the error to the user
+   ;; FIXME: Users will not run '(flymake-start)', so neither should this test.
+   ;; If our Emacs config is not causing type errors to show, then that's a bug
+   ;; in our Emacs config, so tests like this SHOULD FAIL!
    (flymake-start)
    (let ((diags (warbo-haskell-test-poll
                  #'flymake-diagnostics
@@ -274,7 +266,6 @@ installed (it may only be available via direnv in project directories)."
    (goto-char (point-max))
    (search-backward "myFunc")
    (let ((usage-line (line-number-at-pos)))
-     ;; M-. should jump to definition
      (let ((jumped (warbo-haskell-test-poll
                     #'warbo-haskell-test-jump-to-definition
                     10
@@ -302,6 +293,9 @@ installed (it may only be available via direnv in project directories)."
   (with-haskell-test-file
    "f x = x"  ; Missing signature
 
+   ;; FIXME: Users will not be calling '(flymake-start)'. If our Emacs config
+   ;; won't cause warnings to appear, then this test MUST FAIL; otherwise it's
+   ;; not testing our config at all!
    (flymake-start)
    (let ((diags (warbo-haskell-test-poll
                  #'flymake-diagnostics
