@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Wed, 04 Feb 2026 22:13:05 +0000
+State: resolved
+Subject: pi-coding-agent has unreadable yellow background
+Message-Id: <ca48baad4951a05d-0-artemis@nixos-framework>
+resolution: fixed
+
+The chat buffer gets a yellow background near the bottom.
+Maybe to highlight recently-added content or something, since it
+disappears after a while, or if we move the cursor through it.
+
+Either way, it's unreadable in my dark theme (since I have white
+text).

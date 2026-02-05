@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 05 Feb 2026 00:26:34 +0000
+Subject: Re: pi-coding-agent has unreadable yellow background
+Message-Id: <ca48baad4951a05d-8f16d9c1f3ceb689-artemis@nixos-framework>
+References: <ca48baad4951a05d-0-artemis@nixos-framework>
+In-Reply-To: <ca48baad4951a05d-0-artemis@nixos-framework>
+
+Fixed. It was caused by global-whitespace-mode
