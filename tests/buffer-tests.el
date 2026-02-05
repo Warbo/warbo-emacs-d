@@ -275,7 +275,7 @@ multiple times in different orders."
           (switch-to-buffer buf-1)
           (switch-to-buffer buf-2)
           (switch-to-buffer buf-3)
-          
+
           ;; Switch away and back - should get buf-3 (most recent)
           (switch-to-buffer scratch)
           (execute-kbd-macro (kbd "C-x b warbo-mru-order RET"))
@@ -283,7 +283,7 @@ multiple times in different orders."
 
           ;; Now switch to buf-1 to make it most recent
           (switch-to-buffer buf-1)
-          
+
           ;; Switch away and back - should now get buf-1
           (switch-to-buffer scratch)
           (execute-kbd-macro (kbd "C-x b warbo-mru-order RET"))
@@ -303,14 +303,14 @@ most recently visited before the current one."
         (progn
           ;; Start at first buffer
           (switch-to-buffer buf-first)
-          
+
           ;; Switch to second buffer
           (switch-to-buffer buf-second)
-          
+
           ;; Now C-x b RET should take us back to first buffer
           (execute-kbd-macro (kbd "C-x b RET"))
           (should (equal (buffer-name (current-buffer)) "warbo-previous-test-first"))
-          
+
           ;; And doing it again should take us back to second buffer
           (execute-kbd-macro (kbd "C-x b RET"))
           (should (equal (buffer-name (current-buffer)) "warbo-previous-test-second")))
