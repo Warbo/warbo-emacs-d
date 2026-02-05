@@ -231,3 +231,116 @@ The exact match IS present but has an invisible suffix character."
       ;; Cleanup
       (kill-buffer buf-prefix-a)
       (kill-buffer buf-prefix-b))))
+
+;; Tests for issue 94e28d5e88cf6b0d: MRU sorting when no exact match
+
+(ert-deftest warbo-test-buffer-mru-without-exact-match ()
+  "Test that buffer completion defaults to MRU when there's no exact match.
+When typing a prefix that matches multiple buffers but doesn't match any
+buffer exactly, pressing RET should select the most-recently-used buffer."
+  (let ((buf-a (generate-new-buffer "warbo-mru-test-alpha.txt"))
+        (buf-b (generate-new-buffer "warbo-mru-test-beta.txt"))
+        (buf-c (generate-new-buffer "warbo-mru-test-gamma.txt")))
+    (unwind-protect
+        (progn
+          ;; Establish MRU order: buf-a (oldest), buf-b, buf-c (most recent)
+          (switch-to-buffer buf-a)
+          (switch-to-buffer buf-b)
+          (switch-to-buffer buf-c)
+
+          ;; Switch away so we can test switching back
+          (switch-to-buffer (get-buffer-create "*scratch*"))
+
+          ;; Type prefix "warbo-mru-test" which matches all three but none exactly
+          (execute-kbd-macro (kbd "C-x b warbo-mru-test RET"))
+
+          ;; Should switch to buf-c (the most recently used)
+          (should (equal (buffer-name (current-buffer)) "warbo-mru-test-gamma.txt")))
+      ;; Cleanup
+      (kill-buffer buf-a)
+      (kill-buffer buf-b)
+      (kill-buffer buf-c))))
+
+(ert-deftest warbo-test-buffer-mru-ordering-preserved ()
+  "Test that MRU ordering is preserved across multiple switches.
+This tests that the MRU list stays correct even after switching buffers
+multiple times in different orders."
+  (let ((buf-1 (generate-new-buffer "warbo-mru-order-1.el"))
+        (buf-2 (generate-new-buffer "warbo-mru-order-2.el"))
+        (buf-3 (generate-new-buffer "warbo-mru-order-3.el"))
+        (scratch (get-buffer-create "*scratch*")))
+    (unwind-protect
+        (progn
+          ;; First access pattern
+          (switch-to-buffer buf-1)
+          (switch-to-buffer buf-2)
+          (switch-to-buffer buf-3)
+          
+          ;; Switch away and back - should get buf-3 (most recent)
+          (switch-to-buffer scratch)
+          (execute-kbd-macro (kbd "C-x b warbo-mru-order RET"))
+          (should (equal (buffer-name (current-buffer)) "warbo-mru-order-3.el"))
+
+          ;; Now switch to buf-1 to make it most recent
+          (switch-to-buffer buf-1)
+          
+          ;; Switch away and back - should now get buf-1
+          (switch-to-buffer scratch)
+          (execute-kbd-macro (kbd "C-x b warbo-mru-order RET"))
+          (should (equal (buffer-name (current-buffer)) "warbo-mru-order-1.el")))
+      ;; Cleanup
+      (kill-buffer buf-1)
+      (kill-buffer buf-2)
+      (kill-buffer buf-3))))
+
+(ert-deftest warbo-test-buffer-previous-buffer-shortcut ()
+  "Test that empty buffer switch defaults to the previously open buffer.
+Pressing C-x b RET (with no input) should switch to the buffer that was
+most recently visited before the current one."
+  (let ((buf-first (generate-new-buffer "warbo-previous-test-first"))
+        (buf-second (generate-new-buffer "warbo-previous-test-second")))
+    (unwind-protect
+        (progn
+          ;; Start at first buffer
+          (switch-to-buffer buf-first)
+          
+          ;; Switch to second buffer
+          (switch-to-buffer buf-second)
+          
+          ;; Now C-x b RET should take us back to first buffer
+          (execute-kbd-macro (kbd "C-x b RET"))
+          (should (equal (buffer-name (current-buffer)) "warbo-previous-test-first"))
+          
+          ;; And doing it again should take us back to second buffer
+          (execute-kbd-macro (kbd "C-x b RET"))
+          (should (equal (buffer-name (current-buffer)) "warbo-previous-test-second")))
+      ;; Cleanup
+      (kill-buffer buf-first)
+      (kill-buffer buf-second))))
+
+(ert-deftest warbo-test-buffer-mru-with-mixed-names ()
+  "Test MRU sorting with buffers that have varying prefix overlap.
+This ensures that the sorting works correctly even when buffer names
+have different levels of similarity to the typed prefix."
+  (let ((buf-exact-prefix (generate-new-buffer "proj-foo"))
+        (buf-longer-name (generate-new-buffer "proj-foobar.txt"))
+        (buf-different-suffix (generate-new-buffer "proj-foo-manager.el")))
+    (unwind-protect
+        (progn
+          ;; Access in order: exact-prefix (oldest), longer-name, different-suffix (newest)
+          (switch-to-buffer buf-exact-prefix)
+          (switch-to-buffer buf-longer-name)
+          (switch-to-buffer buf-different-suffix)
+
+          ;; Switch away
+          (switch-to-buffer (get-buffer-create "*scratch*"))
+
+          ;; Type "proj-fo" which matches all three
+          (execute-kbd-macro (kbd "C-x b proj-fo RET"))
+
+          ;; Should get the most recently used: buf-different-suffix
+          (should (equal (buffer-name (current-buffer)) "proj-foo-manager.el")))
+      ;; Cleanup
+      (kill-buffer buf-exact-prefix)
+      (kill-buffer buf-longer-name)
+      (kill-buffer buf-different-suffix))))
