@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 02 Feb 2026 17:26:06 +0000
-State: new
+State: resolved
 Subject: Switching buffer should default to the previously open one
 Message-Id: <94e28d5e88cf6b0d-0-artemis@nixos-framework>
+resolution: fixed
 
 We go out of our way to ensure that exact matches become selected, but when
 there's no exact match then the list should show most-recently-used.

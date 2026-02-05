@@ -542,8 +542,16 @@ with the string S. Unlike `replace-region-contents' this maintains text
   ;; Buffer completion sets display-sort-function to `identity`, so we must
   ;; use vertico-sort-override-function to take precedence.
   (defun warbo-vertico-sort-prefer-exact (candidates)
-    "Sort CANDIDATES with exact match first, then by history/length/alpha."
-    (let* ((sorted (vertico-sort-history-length-alpha candidates))
+    "Sort CANDIDATES with exact match first, preserving MRU when appropriate.
+When the completion source provides its own sorting (display-sort-function is
+identity), we preserve that order and only move exact matches to front. This
+respects MRU ordering from sources like consult. For other completions, we sort
+by history/length/alpha."
+    (let* ((display-sort-fn (vertico--metadata-get 'display-sort-function))
+           ;; If source provides its own sorting (identity), preserve it
+           (sorted (if (eq display-sort-fn #'identity)
+                       candidates
+                     (vertico-sort-history-length-alpha candidates)))
            (input (minibuffer-contents-no-properties)))
       (if (and input (not (string-empty-p input)))
           (let ((exact (seq-find (lambda (c)
