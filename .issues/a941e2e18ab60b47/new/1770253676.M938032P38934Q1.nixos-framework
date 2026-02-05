@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Thu, 05 Feb 2026 01:05:53 +0000
+Subject: Re: Turn on native compilation
+Message-Id: <a941e2e18ab60b47-a640f3779e609012-artemis@nixos-framework>
+References: <a941e2e18ab60b47-0-artemis@nixos-framework>
+In-Reply-To: <a941e2e18ab60b47-0-artemis@nixos-framework>
+
+Update the warbo-bytecode-compile-directory function in
+personal/bytecode.el to perform native compilation.
+
+See how it's invoked in init.el
