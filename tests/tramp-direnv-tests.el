@@ -3,40 +3,49 @@
 ;;; Regression test for issue bc0929953fb2b107:
 ;;; direnv should not complain when opening remote files via TRAMP
 ;;;
-;;; NOTE: These tests require a TRAMP method that works without interactive
-;;; authentication. Options include:
-;;; - /sudo:: if sudo is configured for passwordless access (NOPASSWD in sudoers)
-;;; - SSH to localhost with key-based authentication configured
-;;; - A custom TRAMP method configured for local testing
-;;;
-;;; If running these tests interactively requires entering a password,
-;;; you may want to set up passwordless sudo for testing or skip these tests.
+;;; These tests use a custom "dummy" TRAMP method that accesses local files
+;;; without requiring any authentication, making them suitable for automated
+;;; testing.
 
 (require 'ert)
 (require 'tramp)
 (require 'direnv)
 
-(defvar tramp-direnv-test-method "sudo"
-  "TRAMP method to use for testing.
-Should be a method that provides local loopback access without
-requiring interactive authentication. Common options:
-  - \"sudo\" (if passwordless sudo is configured)
-  - \"su\" (if passwordless su is configured)
-  - A custom method configured specifically for testing")
+;;; ----------------------------------------------------------------------------
+;;; Dummy TRAMP method setup
+;;; ----------------------------------------------------------------------------
 
-(defun tramp-direnv-test-can-access-without-password-p ()
-  "Check if we can access files via TRAMP without a password prompt.
-Returns t if passwordless TRAMP access works, nil otherwise."
-  (condition-case nil
-      (let* ((test-file "/tmp/.tramp-test-canary")
-             (tramp-path (format "/%s::%s" tramp-direnv-test-method test-file))
-             ;; Suppress all TRAMP messages and prompts
-             (tramp-verbose 0)
-             (process-connection-type nil))
-        ;; Try to check if file exists via TRAMP with a timeout
-        (with-timeout (2 nil)  ; 2 second timeout
-          (file-exists-p tramp-path)))
-    (error nil)))
+(defvar tramp-direnv-test-method "dummy"
+  "TRAMP method to use for testing.
+Uses a custom 'dummy' method that provides local loopback access
+without requiring any authentication.")
+
+(defun tramp-direnv-test-setup-dummy-method ()
+  "Set up a dummy TRAMP method for testing.
+This method accesses local files through TRAMP without requiring
+authentication, making it suitable for automated testing."
+  (unless (assoc "dummy" tramp-methods)
+    (add-to-list 'tramp-methods
+                 '("dummy"
+                   (tramp-login-program "sh")
+                   (tramp-login-args (("-i")))
+                   (tramp-remote-shell "/bin/sh")
+                   (tramp-remote-shell-login ("-l"))
+                   (tramp-remote-shell-args ("-c"))
+                   (tramp-connection-timeout 10))))
+  ;; Also need to register it with tramp-default-host-alist so that
+  ;; empty host works (e.g., /dummy::/path)
+  (unless (assoc "dummy" tramp-default-host-alist)
+    (add-to-list 'tramp-default-host-alist '("dummy" nil "localhost"))))
+
+(defun tramp-direnv-test-cleanup-dummy-connections ()
+  "Clean up any TRAMP connections made during testing."
+  (when (fboundp 'tramp-cleanup-all-connections)
+    (tramp-cleanup-all-connections)))
+
+;;; ----------------------------------------------------------------------------
+;;; Test utilities
+;;; ----------------------------------------------------------------------------
 
 (defvar tramp-direnv-test-messages nil
   "List to capture messages during tests.")
@@ -57,18 +66,19 @@ Returns t if passwordless TRAMP access works, nil otherwise."
   "Execute BODY while capturing all messages and errors."
   `(let ((tramp-direnv-test-messages nil))
      (unwind-protect
-         (advice-add 'message :around #'tramp-direnv-test-capture-message)
-       (advice-add 'user-error :around #'tramp-direnv-test-capture-user-error)
-       (condition-case err
-           (progn ,@body)
-         (error
-          ;; Capture the error
-          (push (cons 'error (error-message-string err)) tramp-direnv-test-messages)
-          ;; Re-signal if it's not a user-error we already captured
-          (unless (eq (car err) 'user-error)
-            (signal (car err) (cdr err))))))
-     (advice-remove 'message #'tramp-direnv-test-capture-message)
-     (advice-remove 'user-error #'tramp-direnv-test-capture-user-error)
+         (progn
+           (advice-add 'message :around #'tramp-direnv-test-capture-message)
+           (advice-add 'user-error :around #'tramp-direnv-test-capture-user-error)
+           (condition-case err
+               (progn ,@body)
+             (user-error
+              ;; user-error already captured, just continue
+              nil)
+             (error
+              ;; Capture unexpected errors
+              (push (cons 'error (error-message-string err)) tramp-direnv-test-messages))))
+       (advice-remove 'message #'tramp-direnv-test-capture-message)
+       (advice-remove 'user-error #'tramp-direnv-test-capture-user-error))
      tramp-direnv-test-messages))
 
 (defun tramp-direnv-test-has-direnv-error-p (messages)
@@ -78,22 +88,29 @@ Returns t if passwordless TRAMP access works, nil otherwise."
                 (string-match-p "Cannot use direnv for remote files" text)))
             messages))
 
-(ert-deftest tramp-direnv-opening-remote-file-should-not-error ()
+;;; ----------------------------------------------------------------------------
+;;; Tests
+;;; ----------------------------------------------------------------------------
+
+(ert-deftest warbo-tramp-direnv-opening-remote-file-should-not-error ()
   "Opening a file via TRAMP should not cause direnv to complain.
 
 Regression test for issue bc0929953fb2b107.
 
-This test uses a local TRAMP method that acts as a loopback.
-It will be skipped if passwordless TRAMP access is not available."
+This test uses a dummy TRAMP method that provides local loopback
+access without requiring authentication."
   :tags '(tramp direnv regression)
 
-  (skip-unless (tramp-direnv-test-can-access-without-password-p))
+  ;; Set up the dummy TRAMP method
+  (tramp-direnv-test-setup-dummy-method)
 
   (let* ((test-dir (make-temp-file "tramp-direnv-test-" t))
          (envrc-file (expand-file-name ".envrc" test-dir))
          (test-file (expand-file-name "test.txt" test-dir))
          (tramp-test-file (format "/%s::%s" tramp-direnv-test-method test-file))
-         (test-buffer nil))
+         (test-buffer nil)
+         ;; Reduce TRAMP verbosity for cleaner test output
+         (tramp-verbose 0))
 
     (unwind-protect
         (progn
@@ -127,27 +144,30 @@ It will be skipped if passwordless TRAMP access is not available."
       (when (buffer-live-p test-buffer)
         (kill-buffer test-buffer))
       (when (file-exists-p test-dir)
-        (delete-directory test-dir t)))))
+        (delete-directory test-dir t))
+      (tramp-direnv-test-cleanup-dummy-connections))))
 
-(ert-deftest tramp-direnv-switching-to-remote-buffer-should-not-error ()
+(ert-deftest warbo-tramp-direnv-switching-to-remote-buffer-should-not-error ()
   "Switching to a buffer visiting a TRAMP file should not cause direnv to complain.
 
 Regression test for issue bc0929953fb2b107.
 
 This tests the scenario where direnv-mode is active and we switch to
 a buffer that's visiting a file via TRAMP. The direnv hooks should
-handle this gracefully without errors.
-It will be skipped if passwordless TRAMP access is not available."
+handle this gracefully without errors."
   :tags '(tramp direnv regression)
 
-  (skip-unless (tramp-direnv-test-can-access-without-password-p))
+  ;; Set up the dummy TRAMP method
+  (tramp-direnv-test-setup-dummy-method)
 
   (let* ((test-dir (make-temp-file "tramp-direnv-test-" t))
          (envrc-file (expand-file-name ".envrc" test-dir))
          (test-file (expand-file-name "test.py" test-dir))  ; Use .py to trigger prog-mode
          (tramp-test-file (format "/%s::%s" tramp-direnv-test-method test-file))
          (test-buffer nil)
-         (other-buffer nil))
+         (other-buffer nil)
+         ;; Reduce TRAMP verbosity for cleaner test output
+         (tramp-verbose 0))
 
     (unwind-protect
         (progn
@@ -191,6 +211,7 @@ It will be skipped if passwordless TRAMP access is not available."
       (when (buffer-live-p other-buffer)
         (kill-buffer other-buffer))
       (when (file-exists-p test-dir)
-        (delete-directory test-dir t)))))
+        (delete-directory test-dir t))
+      (tramp-direnv-test-cleanup-dummy-connections))))
 
 (provide 'tramp-direnv-tests)
