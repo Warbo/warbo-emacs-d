@@ -102,7 +102,12 @@
 (use-package direnv
   :ensure t
   :init
-  (add-hook 'prog-mode-hook #'direnv-update-environment)
+  (defun warbo-direnv-update-environment ()
+    "Update direnv environment, but only for local files.
+Avoids errors when visiting remote files via TRAMP."
+    (unless (file-remote-p default-directory)
+      (direnv-update-environment)))
+  (add-hook 'prog-mode-hook #'warbo-direnv-update-environment)
   :config
   (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))

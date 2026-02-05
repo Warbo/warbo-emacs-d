@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Thu, 05 Feb 2026 22:08:17 +0000
+Subject: Re: TRAMP complains when trying to run direnv
+Message-Id: <bc0929953fb2b107-da7996db7d0d0fa6-artemis@nixos-framework>
+References: <bc0929953fb2b107-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <bc0929953fb2b107-0-artemis@TRAC-AAD-5340>
+
+Fixed. We're trying to update direnv using a prog-mode hook, but that
+was complaining if the file happens to be remote. Added a wrapper to
+only do it for local files, and the error seems to be gone.

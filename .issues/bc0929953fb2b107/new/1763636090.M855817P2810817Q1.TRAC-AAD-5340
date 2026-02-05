@@ -1,8 +1,9 @@
 From: Your Name
 Date: Thu, 20 Nov 2025 10:52:30 +0000
-State: new
+State: resolved
 Subject: TRAMP complains when trying to run direnv
 Message-Id: <bc0929953fb2b107-0-artemis@TRAC-AAD-5340>
+resolution: fixed
 
 Seems to prevent major-modes starting properly:
 
