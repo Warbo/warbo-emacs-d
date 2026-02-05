@@ -200,6 +200,12 @@ Use in .dir-locals.el: (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-ar
 
 (defun warbo-haskell-setup ()
   "Custom hook to setup `haskell-mode'."
+  ;; Generate TAGS if they don't exist yet
+  (let* ((root (vc-root-dir))
+         (tags-file (when root (expand-file-name "TAGS" root))))
+    (when (and tags-file (not (file-exists-p tags-file)))
+      (warbo-haskell-tags)))
+  ;; Keep TAGS updated when we save
   (add-hook 'after-save-hook 'warbo-haskell-tags nil t))
 
 (use-package haskell-mode

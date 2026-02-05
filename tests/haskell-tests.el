@@ -52,7 +52,7 @@ MESSAGE describes what we're waiting for. Returns predicate result or nil."
             "  build-depends: base\n"
             "  default-language: Haskell2010\n"
             "  ghc-options: -Wall\n"))
-  ;; Nix shell with HLS
+  ;; Nix shell with HLS and hasktags
   (with-temp-file (expand-file-name "shell.nix" dir)
     (insert "{ pkgs ? import <nixpkgs> {} }:\n"
             "pkgs.mkShell {\n"
@@ -61,6 +61,7 @@ MESSAGE describes what we're waiting for. Returns predicate result or nil."
             "    pkgs.ormolu\n"
             "    pkgs.ghc\n"
             "    pkgs.cabal-install\n"
+            "    pkgs.haskellPackages.hasktags\n"
             "  ];\n"
             "}\n"))
   ;; Direnv integration
@@ -68,6 +69,16 @@ MESSAGE describes what we're waiting for. Returns predicate result or nil."
     (insert "use nix\n"))
   (let ((default-directory dir))
     (call-process "direnv" nil nil nil "allow")))
+
+(defun warbo-haskell-test-wait-for-tags ()
+  "Wait for TAGS file to appear."
+  (let* ((root (vc-root-dir))
+         (tags-file (when root (expand-file-name "TAGS" root))))
+    (when tags-file
+      (warbo-haskell-test-poll
+       (lambda () (file-exists-p tags-file))
+       5
+       "TAGS file generation"))))
 
 (defun warbo-haskell-test-start-hls ()
   "Start HLS for the current buffer, working around batch mode limitations.
@@ -162,6 +173,7 @@ implementation details (eglot--managed-mode)."
            (warbo-haskell-test-setup-project dir)
            (with-temp-file file (insert ,content))
            (with-current-buffer (find-file-noselect file)
+             (warbo-haskell-test-wait-for-tags)
              (unless (warbo-haskell-test-start-hls)
                (ert-fail "HLS failed to start - check haskell-language-server-wrapper is available"))
              (warbo-haskell-test-wait-for-indexing)
