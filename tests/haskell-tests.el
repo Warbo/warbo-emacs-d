@@ -304,46 +304,506 @@ HLS is started and ready before BODY runs."
      ;; HLS should produce at least a warning
      (should (> (length diags) 0)))))
 
-;;; ============================================================================
-;;; Stubs for future tests
-;;; ============================================================================
-
 (ert-deftest warbo-test-haskell-multi-package-project ()
-  "Test cross-package navigation in multi-package cabal project."
-  (ert-skip "TODO"))
+  "Test cross-package navigation in multi-package cabal project.
+This verifies HLS can navigate to definitions in sibling packages."
+  (let* ((dir (make-temp-file "haskell-multipackage-" t))
+         (pkg1-dir (expand-file-name "pkg1" dir))
+         (pkg2-dir (expand-file-name "pkg2" dir))
+         (file1 (expand-file-name "Lib.hs" pkg1-dir))
+         (file2 (expand-file-name "Main.hs" pkg2-dir)))
+    (unwind-protect
+        (progn
+          ;; TODO: We could maybe extend the common test setup function to
+          ;; accept extra definitions, etc. rather than having so much copypasta
+
+          ;; Create project structure
+          (make-directory pkg1-dir t)
+          (make-directory pkg2-dir t)
+          (let ((default-directory dir))
+            (call-process "git" nil nil nil "init"))
+
+          ;; Root cabal.project linking both packages
+          (with-temp-file (expand-file-name "cabal.project" dir)
+            (insert "packages: pkg1/*.cabal\n          pkg2/*.cabal\n"))
+
+          ;; Package 1: library with exported function
+          (with-temp-file (expand-file-name "pkg1.cabal" pkg1-dir)
+            (insert "cabal-version: 2.4\n"
+                    "name: pkg1\n"
+                    "version: 0.1.0.0\n"
+                    "library\n"
+                    "  exposed-modules: Lib\n"
+                    "  build-depends: base\n"
+                    "  default-language: Haskell2010\n"))
+          (with-temp-file file1
+            (insert "module Lib (sharedFunc) where\n\n"
+                    "sharedFunc :: String -> String\n"
+                    "sharedFunc s = \"shared: \" ++ s\n"))
+
+          ;; Package 2: executable using pkg1
+          (with-temp-file (expand-file-name "pkg2.cabal" pkg2-dir)
+            (insert "cabal-version: 2.4\n"
+                    "name: pkg2\n"
+                    "version: 0.1.0.0\n"
+                    "executable pkg2\n"
+                    "  main-is: Main.hs\n"
+                    "  build-depends: base, pkg1\n"
+                    "  default-language: Haskell2010\n"))
+          (with-temp-file file2
+            (insert "module Main where\n"
+                    "import Lib\n\n"
+                    "main :: IO ()\n"
+                    "main = putStrLn (sharedFunc \"test\")\n"))
+
+          ;; Nix shell with HLS and other tools
+          (with-temp-file (expand-file-name "shell.nix" dir)
+            (insert "{ pkgs ? import <nixpkgs> {} }:\n"
+                    "pkgs.mkShell {\n"
+                    "  buildInputs = [\n"
+                    "    pkgs.haskell-language-server\n"
+                    "    pkgs.ghc\n"
+                    "    pkgs.cabal-install\n"
+                    "    pkgs.haskellPackages.hasktags\n"
+                    "  ];\n"
+                    "}\n"))
+
+          (with-temp-file (expand-file-name ".envrc" dir)
+            (insert "use nix\n"))
+          (let ((default-directory dir))
+            (call-process "direnv" nil nil nil "allow"))
+
+          ;; Test navigation from pkg2 to pkg1
+          (with-current-buffer (find-file-noselect file2)
+            (warbo-haskell-test-wait-for-tags)
+            (unless (warbo-haskell-test-start-hls)
+              (ert-fail "HLS failed to start in multi-package project"))
+            (warbo-haskell-test-wait-for-indexing)
+
+            ;; Navigate to sharedFunc definition
+            (goto-char (point-min))
+            (search-forward "sharedFunc")
+            (backward-char 1)
+
+            (let ((jumped (warbo-haskell-test-poll
+                           #'warbo-haskell-test-jump-to-definition
+                           warbo-haskell-test-timeout
+                           "cross-package definition")))
+              (should jumped)
+              ;; Should have jumped to pkg1/Lib.hs
+              (should (string-match-p "pkg1.*Lib\\.hs" buffer-file-name)))))
+
+      ;; Cleanup
+      (dolist (file (list file1 file2))
+        (when-let ((buf (find-buffer-visiting file)))
+          (with-current-buffer buf
+            (when (eglot-current-server)
+              (ignore-errors (eglot-shutdown (eglot-current-server)))))
+          (kill-buffer buf)))
+      (delete-directory dir t))))
 
 (ert-deftest warbo-test-haskell-stack-project ()
-  "Test HLS with Stack-based project."
-  (ert-skip "TODO"))
+  "Test HLS with Stack-based project.
+Verifies stack.yaml projects work with HLS."
+  (let* ((dir (make-temp-file "haskell-stack-" t))
+         (file (expand-file-name "Main.hs" dir)))
+    (unwind-protect
+        (progn
+          (let ((default-directory dir))
+            (call-process "git" nil nil nil "init"))
+
+          ;; TODO: Maybe extend the shared test data setup function to accept
+          ;; extra parameters, so we can avoid much of this copypasta.
+          ;; Stack configuration
+          (with-temp-file (expand-file-name "stack.yaml" dir)
+            (insert "resolver: lts-20.0\n"
+                    "packages:\n  - .\n"))
+
+          (with-temp-file (expand-file-name "package.yaml" dir)
+            (insert "name: stack-test\n"
+                    "version: 0.1.0.0\n"
+                    "dependencies:\n  - base\n"
+                    "executables:\n"
+                    "  stack-test:\n"
+                    "    main: Main.hs\n"))
+
+          (with-temp-file (expand-file-name "shell.nix" dir)
+            (insert "{ pkgs ? import <nixpkgs> {} }:\n"
+                    "pkgs.mkShell {\n"
+                    "  buildInputs = [\n"
+                    "    pkgs.haskell-language-server\n"
+                    "    pkgs.stack\n"
+                    "    pkgs.haskellPackages.hasktags\n"
+                    "  ];\n"
+                    "}\n"))
+
+          (with-temp-file (expand-file-name ".envrc" dir)
+            (insert "use nix\n"))
+          (let ((default-directory dir))
+            (call-process "direnv" nil nil nil "allow"))
+
+          (with-temp-file file
+            (insert "main :: IO ()\nmain = putStrLn \"stack project\"\n"))
+
+          (with-current-buffer (find-file-noselect file)
+            (warbo-haskell-test-wait-for-tags)
+            (unless (warbo-haskell-test-start-hls)
+              (ert-fail "HLS failed to start in stack project"))
+            (warbo-haskell-test-wait-for-indexing)
+
+            ;; Documentation should work in stack project
+            (goto-char (point-min))
+            (search-forward "putStrLn")
+            (backward-char 1)
+
+            (let ((doc (warbo-haskell-test-poll
+                        (lambda ()
+                          (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                            (and d (string-match-p "String\\|IO" d) d)))
+                        warbo-haskell-test-timeout
+                        "documentation in stack project")))
+              (should doc))))
+
+      (when-let ((buf (find-buffer-visiting file)))
+        (with-current-buffer buf
+          (when (eglot-current-server)
+            (ignore-errors (eglot-shutdown (eglot-current-server)))))
+        (kill-buffer buf))
+      (delete-directory dir t))))
 
 (ert-deftest warbo-test-haskell-import-completion ()
-  "Test completion suggests imported functions."
-  (ert-skip "TODO"))
+  "Test completion suggests imported functions.
+Verifies `completion-at-point' provides relevant suggestions."
+  (with-haskell-test-file
+   "import Data.List\n\nmain = print (interc)"
+
+   ;; Position at incomplete "interc"
+   (goto-char (point-max))
+   (backward-char 1)
+
+   ;; completion-at-point should offer "intercalate"
+   (let* ((completion-result (completion-at-point))
+          (start (nth 0 completion-result))
+          (end (nth 1 completion-result))
+          (completions (nth 2 completion-result)))
+     (should start)
+     (should end)
+     (should completions)
+     ;; Get completion strings
+     (let ((completion-list (if (functionp completions)
+                                (funcall completions "" nil t)
+                              completions)))
+       ;; Should include "intercalate" from Data.List
+       (should (cl-some (lambda (item)
+                          (string-match-p "intercalate"
+                                          (if (stringp item) item
+                                            (car item))))
+                        completion-list))))))
 
 (ert-deftest warbo-test-haskell-refactoring-rename ()
-  "Test renaming across occurrences."
-  (ert-skip "TODO"))
+  "Test renaming across occurrences.
+Verifies eglot-rename updates all references to a symbol."
+  (with-haskell-test-file
+   "foo :: Int\nfoo = 42\n\nmain = print foo"
+
+   ;; Position on first occurrence of 'foo'
+   (goto-char (point-min))
+   (search-forward "foo")
+   (backward-char 1)
+
+   (when (eglot-current-server)
+     (condition-case err
+         (progn
+           ;; Provide newname via cl-letf
+           (cl-letf (((symbol-function 'read-string)
+                      (lambda (&rest _) "bar")))
+             (eglot-rename "bar"))
+           (accept-process-output nil 0.5)
+
+           ;; All occurrences should be renamed
+           (let ((content (buffer-string)))
+             (should (string-match-p "bar :: Int" content))
+             (should (string-match-p "bar = 42" content))
+             (should (string-match-p "print bar" content))
+             (should-not (string-match-p "foo" content))))
+       (error
+        (ert-fail (format "Rename failed: %S" err)))))))
 
 (ert-deftest warbo-test-haskell-repl-integration ()
-  "Test loading modules into GHCi."
-  (ert-skip "TODO"))
+  "Test loading modules into GHCi.
+Verifies haskell-mode can load current file and evaluate expressions."
+  (with-haskell-test-file
+   "module Test where\n\ntestFunc :: String\ntestFunc = \"works\"\n"
+
+   (require 'haskell-interactive-mode)
+   (require 'haskell-process)
+
+   ;; Start inferior haskell process
+   (haskell-process-load-file)
+
+   ;; Wait for process to be ready
+   (let ((proc-ready
+          (warbo-haskell-test-poll
+           (lambda ()
+             (and (haskell-session-maybe)
+                  (haskell-process-process (haskell-process))))
+           10
+           "GHCi process")))
+     (should proc-ready)
+
+     ;; Evaluate a simple expression
+     ;; FIXME: This is not how a user would interact with a REPL. They would
+     ;; type stuff into a buffer and press return.
+     (let* ((process (haskell-process))
+            (result-output nil))
+       (should process)
+
+       (haskell-process-queue-command
+        process
+        (make-haskell-command
+         :state (list (current-buffer))
+         :go (lambda (state)
+               (haskell-process-send-string (haskell-process) "1 + 2"))
+         :complete (lambda (state response)
+                     (setq result-output response))))
+
+       ;; Wait for result
+       (let ((got-result
+              (warbo-haskell-test-poll
+               (lambda () result-output)
+               5
+               "REPL evaluation")))
+         (should got-result)
+         (should (string-match-p "3" got-result)))))))
 
 (ert-deftest warbo-test-haskell-documentation-lookup ()
-  "Test accessing Haddock documentation."
-  (ert-skip "TODO"))
+  "Test accessing documentation via eldoc-doc-buffer.
+Verifies eldoc documentation buffer shows info for standard library functions."
+  (with-haskell-test-file
+   "main = putStrLn \"hello\""
+
+   ;; Position on putStrLn
+   (goto-char (point-min))
+   (search-forward "putStrLn")
+   (backward-char 1)
+
+   ;; eldoc-doc-buffer should show documentation
+   (let ((doc (warbo-haskell-test-poll
+               (lambda ()
+                 (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                   ;; Documentation should mention String, IO, or describe the function
+                   (and d
+                        (or (string-match-p "String.*IO\\|IO.*String" d)
+                            (string-match-p "putStrLn" d))
+                        d)))
+               warbo-haskell-test-timeout
+               "documentation")))
+     (should doc)
+     (should (stringp doc))
+     ;; Should contain signature or description
+     (should (or (string-match-p "String" doc)
+                 (string-match-p "IO" doc))))))
 
 (ert-deftest warbo-test-haskell-type-at-point ()
-  "Test displaying inferred types."
-  (ert-skip "TODO"))
+  "Test displaying inferred types via eldoc-doc-buffer.
+Verifies documentation buffer shows types for unannotated local definitions."
+  (with-haskell-test-file
+   "myValue = 42\n\nmain = print myValue"
+
+   ;; Position on myValue (no type signature, should infer)
+   (goto-char (point-min))
+   (search-forward "myValue")
+   (backward-char 1)
+
+   ;; eldoc-doc-buffer should show inferred type
+   (let ((doc (warbo-haskell-test-poll
+               (lambda ()
+                 (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                   ;; Should show inferred type
+                   (and d (string-match-p "Num" d) d)))
+               warbo-haskell-test-timeout
+               "inferred type")))
+     (should doc)
+     (should (string-match-p "Num" doc)))))
 
 (ert-deftest warbo-test-haskell-error-location-precision ()
-  "Test diagnostics point to correct positions."
-  (ert-skip "TODO"))
+  "Test diagnostics point to correct positions.
+Verifies diagnostics highlight the exact location of errors."
+  (with-haskell-test-file
+   "foo :: String\nfoo = 42\n\nmain = print foo"
+
+   ;; FIXME: Users would not type '(flymake-start)'. If our Emacs config doesn't
+   ;; show errors, then that is a bug in our Emacs config, so tests like this
+   ;; MUST FAIL.
+   (flymake-start)
+   (let ((diags (warbo-haskell-test-poll
+                 #'flymake-diagnostics
+                 warbo-haskell-test-timeout
+                 "diagnostics")))
+     (should diags)
+
+     ;; Error should be on line 2 (foo = 42)
+     (let ((error-diag (cl-find-if
+                        (lambda (d)
+                          (string-match-p "Couldn't match\\|type"
+                                          (flymake-diagnostic-text d)))
+                        diags)))
+       (should error-diag)
+
+       ;; Check the diagnostic points to line 2
+       (let* ((region (flymake-diagnostic-beg error-diag))
+              (line (line-number-at-pos region)))
+         (should (= line 2)))))))
 
 (ert-deftest warbo-test-haskell-external-dependencies ()
-  "Test projects with Hackage dependencies."
-  (ert-skip "TODO"))
+  "Test projects with Hackage dependencies.
+Verifies HLS can provide info about imported library functions."
+  (let* ((dir (make-temp-file "haskell-deps-" t))
+         (file (expand-file-name "Main.hs" dir)))
+    (unwind-protect
+        ;; TODO: Again, extending the test data setup function would avoid lots
+        ;; of this copypasta.
+        (progn
+          (let ((default-directory dir))
+            (call-process "git" nil nil nil "init"))
+
+          ;; Project with text dependency
+          (with-temp-file (expand-file-name "test.cabal" dir)
+            (insert "cabal-version: 2.4\n"
+                    "name: test\n"
+                    "version: 0.1.0.0\n"
+                    "executable test\n"
+                    "  main-is: Main.hs\n"
+                    "  build-depends: base, text\n"
+                    "  default-language: Haskell2010\n"))
+
+          (with-temp-file (expand-file-name "shell.nix" dir)
+            (insert "{ pkgs ? import <nixpkgs> {} }:\n"
+                    "pkgs.mkShell {\n"
+                    "  buildInputs = [\n"
+                    "    pkgs.haskell-language-server\n"
+                    "    pkgs.ghc\n"
+                    "    pkgs.cabal-install\n"
+                    "    pkgs.haskellPackages.hasktags\n"
+                    "    (pkgs.haskellPackages.ghcWithPackages (ps: [ ps.text ]))\n"
+                    "  ];\n"
+                    "}\n"))
+
+          (with-temp-file (expand-file-name ".envrc" dir)
+            (insert "use nix\n"))
+          (let ((default-directory dir))
+            (call-process "direnv" nil nil nil "allow"))
+
+          (with-temp-file file
+            (insert "import Data.Text (pack)\n\n"
+                    "main = print (pack \"test\")\n"))
+
+          (with-current-buffer (find-file-noselect file)
+            (warbo-haskell-test-wait-for-tags)
+            (unless (warbo-haskell-test-start-hls)
+              (ert-fail "HLS failed to start with external deps"))
+            (warbo-haskell-test-wait-for-indexing)
+
+            ;; Documentation should work on external library function
+            (goto-char (point-min))
+            (search-forward "pack")
+            (backward-char 1)
+
+            (let ((doc (warbo-haskell-test-poll
+                        (lambda ()
+                          (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                            (and d (string-match-p "String\\|Text\\|pack" d) d)))
+                        warbo-haskell-test-timeout
+                        "documentation for external function")))
+              (should doc))))
+
+      (when-let ((buf (find-buffer-visiting file)))
+        (with-current-buffer buf
+          (when (eglot-current-server)
+            (ignore-errors (eglot-shutdown (eglot-current-server)))))
+        (kill-buffer buf))
+      (delete-directory dir t))))
 
 (ert-deftest warbo-test-haskell-cross-module-references ()
-  "Test navigation between local modules."
-  (ert-skip "TODO"))
+  "Test navigation between local modules.
+Verifies jump-to-definition works across local module boundaries."
+  (let* ((dir (make-temp-file "haskell-modules-" t))
+         (file1 (expand-file-name "Utils.hs" dir))
+         (file2 (expand-file-name "Main.hs" dir)))
+    (unwind-protect
+        ;; TODO: Again, test data setup should be extended to allow tests like
+        ;; this to specify the extra parts they want without having to copypaste
+        ;; everything else that's common.
+        (progn
+          (let ((default-directory dir))
+            (call-process "git" nil nil nil "init"))
+
+          (with-temp-file (expand-file-name "test.cabal" dir)
+            (insert "cabal-version: 2.4\n"
+                    "name: test\n"
+                    "version: 0.1.0.0\n"
+                    "executable test\n"
+                    "  main-is: Main.hs\n"
+                    "  other-modules: Utils\n"
+                    "  build-depends: base\n"
+                    "  default-language: Haskell2010\n"))
+
+          (with-temp-file (expand-file-name "shell.nix" dir)
+            (insert "{ pkgs ? import <nixpkgs> {} }:\n"
+                    "pkgs.mkShell {\n"
+                    "  buildInputs = [\n"
+                    "    pkgs.haskell-language-server\n"
+                    "    pkgs.ghc\n"
+                    "    pkgs.cabal-install\n"
+                    "    pkgs.haskellPackages.hasktags\n"
+                    "  ];\n"
+                    "}\n"))
+
+          (with-temp-file (expand-file-name ".envrc" dir)
+            (insert "use nix\n"))
+          (let ((default-directory dir))
+            (call-process "direnv" nil nil nil "allow"))
+
+          ;; Utils module with helper function
+          (with-temp-file file1
+            (insert "module Utils (helper) where\n\n"
+                    "helper :: String -> String\n"
+                    "helper x = \"Helper: \" ++ x\n"))
+
+          ;; Main module importing Utils
+          (with-temp-file file2
+            (insert "module Main where\n"
+                    "import Utils\n\n"
+                    "main :: IO ()\n"
+                    "main = putStrLn (helper \"test\")\n"))
+
+          ;; Test navigation from Main to Utils
+          (with-current-buffer (find-file-noselect file2)
+            (warbo-haskell-test-wait-for-tags)
+            (unless (warbo-haskell-test-start-hls)
+              (ert-fail "HLS failed to start in multi-module project"))
+            (warbo-haskell-test-wait-for-indexing)
+
+            ;; Position on 'helper' in Main
+            (goto-char (point-max))
+            (search-backward "helper")
+
+            ;; Jump to definition in Utils
+            (let ((jumped (warbo-haskell-test-poll
+                           #'warbo-haskell-test-jump-to-definition
+                           warbo-haskell-test-timeout
+                           "cross-module definition")))
+              (should jumped)
+              ;; Should have jumped to Utils.hs
+              (should (string-match-p "Utils\\.hs" buffer-file-name)))))
+
+      ;; Cleanup
+      (dolist (file (list file1 file2))
+        (when-let ((buf (find-buffer-visiting file)))
+          (with-current-buffer buf
+            (when (eglot-current-server)
+              (ignore-errors (eglot-shutdown (eglot-current-server)))))
+          (kill-buffer buf)))
+      (delete-directory dir t))))
+
+;;; haskell-tests.el ends here
