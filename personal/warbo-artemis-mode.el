@@ -25,7 +25,9 @@
 
 (define-derived-mode artemis-mode message-mode "Artemis"
   "Major mode for editing Artemis issues (which are maildir under the hood)."
-  (set-syntax-table artemis-mode-syntax-table))
+  (set-syntax-table artemis-mode-syntax-table)
+  ;; Use default fill-paragraph to prevent unwanted indentation when using M-q
+  (setq-local fill-paragraph-function nil))
 
 (defun switch-to-artemis (filename)
   "Look for a buffer with the given FILENAME and switch it to artemis-mode."

@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sun, 17 Aug 2025 16:34:27 +0100
-State: new
+State: resolved
 Subject: Weird indentation when using M-q for artemis issues
 Message-Id: <ac34bade4f0e9bc1-0-artemis@nixos-amd64>
+resolution: fixed
 
 When writing a long artemis issue or comment, pressing M-q to spread it out
 	over multiple lines (based on current fill-column, which I always set
