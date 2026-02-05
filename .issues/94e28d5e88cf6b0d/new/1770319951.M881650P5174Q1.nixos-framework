@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Thu, 05 Feb 2026 19:30:49 +0000
+Subject: Re: Switching buffer should default to the previously open one
+Message-Id: <94e28d5e88cf6b0d-ddbd810e400c3114-artemis@nixos-framework>
+References: <94e28d5e88cf6b0d-0-artemis@nixos-framework>
+In-Reply-To: <94e28d5e88cf6b0d-0-artemis@nixos-framework>
+
+Note that we already have tests for the 'exact match' functionality, so
+we should add some more tests for this; show that they fail (thus
+demonstrating the problem); then fix the issue.
