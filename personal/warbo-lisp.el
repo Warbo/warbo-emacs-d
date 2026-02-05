@@ -27,7 +27,13 @@
                   racket-mode-hook
                   scheme-mode-hook))
     (add-hook hook 'paredit-mode))
-  :diminish paredit-mode)
+  :hook (paredit-mode . warbo-paredit-scroll-keys)
+  :diminish paredit-mode
+  :config
+  (defun warbo-paredit-scroll-keys ()
+    "Ensure M-<up>/M-<down> are bound to scroll commands in Paredit buffers."
+    (local-set-key (kbd "M-<up>")   #'scroll-up-line)
+    (local-set-key (kbd "M-<down>") #'scroll-down-line)))
 
 (use-package rainbow-delimiters
   :ensure t
