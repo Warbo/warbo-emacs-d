@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Fri, 06 Feb 2026 13:44:29 +0000
+State: new
+Subject: native compilation seems to cause crashes
+Message-Id: <816fdbecc8ae774d-0-artemis@nixos-framework>
+
+We've disabled native compilation in tests
+(e.g. warbo-test-haskell-jump-to-definition), since it's causing a
+crash.  Let's investigate why, so we can re-enable it.
+
+(It's probably caused by a mixture of personal/bytecode.el being stupid,
+and maybe interacting badly with some of my other stupid code!)
