@@ -537,24 +537,15 @@ Verifies `completion-at-point' provides relevant suggestions."
    (goto-char (point-max))
    (backward-char 1)
 
-   ;; completion-at-point should offer "intercalate"
-   (let* ((completion-result (completion-at-point))
-          (start (nth 0 completion-result))
-          (end (nth 1 completion-result))
-          (completions (nth 2 completion-result)))
-     (should start)
-     (should end)
-     (should completions)
-     ;; Get completion strings
-     (let ((completion-list (if (functionp completions)
-                                (funcall completions "" nil t)
-                              completions)))
-       ;; Should include "intercalate" from Data.List
-       (should (cl-some (lambda (item)
-                          (string-match-p "intercalate"
-                                          (if (stringp item) item
-                                            (car item))))
-                        completion-list))))))
+   ;; Invoke completion like a user would
+   (completion-at-point)
+
+   ;; Buffer should now contain "intercalate"
+   (let ((content (buffer-string)))
+     (unless (string-match-p "intercalate" content)
+       (ert-fail (format "Expected buffer to contain 'intercalate' after completion, but got: %S"
+                         content)))
+     (should (string-match-p "intercalate" content)))))
 
 (ert-deftest warbo-test-haskell-refactoring-rename ()
   "Test renaming across occurrences.
