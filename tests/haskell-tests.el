@@ -420,10 +420,11 @@ This verifies HLS can navigate to definitions in sibling packages."
             (call-process "direnv" nil nil nil "allow"))
 
           ;; Test navigation from pkg2 to pkg1
-          (with-current-buffer (find-file-noselect file2)
-            (warbo-haskell-test-wait-for-tags)
-            (unless (warbo-haskell-test-start-hls)
-              (ert-fail "HLS failed to start in multi-package project"))
+          ;; Open file like a user would (C-x C-f), so direnv and hooks run
+          (find-file file2)
+          (warbo-haskell-test-wait-for-tags)
+          (unless (warbo-haskell-test-start-hls)
+            (ert-fail "HLS failed to start in multi-package project"))
           ;; Position on an identifier so hover-based readiness detection
           ;; works (HLS returns nothing for keywords like `module')
           (goto-char (point-min))
@@ -519,10 +520,11 @@ Revisit this when the next stable Nixpkgs comes out."
           (with-temp-file file
             (insert "main :: IO ()\nmain = putStrLn \"stack project\"\n"))
 
-          (with-current-buffer (find-file-noselect file)
-            (warbo-haskell-test-wait-for-tags)
-            (unless (warbo-haskell-test-start-hls)
-              (ert-fail "HLS failed to start in stack project"))
+          ;; Open file like a user would (C-x C-f), so direnv and hooks run
+          (find-file file)
+          (warbo-haskell-test-wait-for-tags)
+          (unless (warbo-haskell-test-start-hls)
+            (ert-fail "HLS failed to start in stack project"))
           ;; Position on an identifier so hover-based readiness detection
           ;; works (HLS returns nothing for keywords like `module')
           (goto-char (point-min))
@@ -798,10 +800,11 @@ Verifies HLS can provide info about imported library functions."
             (insert "import Data.Text (pack)\n\n"
                     "main = print (pack \"test\")\n"))
 
-          (with-current-buffer (find-file-noselect file)
-            (warbo-haskell-test-wait-for-tags)
-            (unless (warbo-haskell-test-start-hls)
-              (ert-fail "HLS failed to start with external deps"))
+          ;; Open file like a user would (C-x C-f), so direnv and hooks run
+          (find-file file)
+          (warbo-haskell-test-wait-for-tags)
+          (unless (warbo-haskell-test-start-hls)
+            (ert-fail "HLS failed to start with external deps"))
           ;; Position on an identifier so hover-based readiness detection
           ;; works (HLS returns nothing for keywords like `module')
           (goto-char (point-min))
@@ -883,10 +886,11 @@ Verifies jump-to-definition works across local module boundaries."
                     "main = putStrLn (helper \"test\")\n"))
 
           ;; Test navigation from Main to Utils
-          (with-current-buffer (find-file-noselect file2)
-            (warbo-haskell-test-wait-for-tags)
-            (unless (warbo-haskell-test-start-hls)
-              (ert-fail "HLS failed to start in multi-module project"))
+          ;; Open file like a user would (C-x C-f), so direnv and hooks run
+          (find-file file2)
+          (warbo-haskell-test-wait-for-tags)
+          (unless (warbo-haskell-test-start-hls)
+            (ert-fail "HLS failed to start in multi-module project"))
           ;; Position on an identifier so hover-based readiness detection
           ;; works (HLS returns nothing for keywords like `module')
           (goto-char (point-max))
