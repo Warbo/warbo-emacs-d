@@ -115,24 +115,22 @@ Returns non-nil if HLS connected successfully."
 (defun warbo-haskell-test-wait-for-indexing ()
   "Wait for HLS to be ready.
 Returns non-nil when ready, nil on timeout.
-For files with errors, waits for diagnostics.
-For error-free files, waits for hover to work."
-  (or
-   ;; First try: wait for diagnostics (works for files with errors)
-   (warbo-haskell-test-poll
-    #'flymake-diagnostics
-    5  ; Short timeout - if no errors, won't get diagnostics
-    "diagnostics")
-   ;; Second try: test if hover works (works for all files once indexed)
-   (warbo-haskell-test-poll
-    (lambda ()
+Each iteration checks both diagnostics and hover, so either signal
+suffices.  Point should be on an identifier before calling this, since
+HLS returns no hover info for keywords like `module'."
+  (warbo-haskell-test-poll
+   (lambda ()
+     (or
+      ;; Diagnostics appear for files with errors/warnings
+      (flymake-diagnostics)
+      ;; Hover works for any identifier once HLS has indexed
       (let ((result nil))
         (eglot-hover-eldoc-function
          (lambda (doc &rest _) (setq result doc)))
         (accept-process-output nil 1.0)
-        result))
-    warbo-haskell-test-timeout
-    "hover response")))
+        result)))
+   warbo-haskell-test-timeout
+   "diagnostics or hover"))
 
 (defun warbo-haskell-test-get-documentation-buffer ()
   "Get documentation at point.
@@ -182,10 +180,14 @@ override that auto-selects the first candidate."
                 (not (= (point) start-pos))))
         (error nil)))))
 
-(defmacro with-haskell-test-file (content &rest body)
+(defmacro with-haskell-test-file (content point-on &rest body)
   "Create temp Haskell project with CONTENT in Main.hs, run BODY.
+POINT-ON is a string to search for in the buffer; point is positioned
+on its first occurrence before waiting for HLS.  This matters because
+`warbo-haskell-test-wait-for-indexing' uses hover-at-point to detect
+readiness, and HLS returns nothing for keywords like `module'.
 HLS is started and ready before BODY runs."
-  (declare (indent 1))
+  (declare (indent 2))
   `(let* ((dir (make-temp-file "haskell-test-" t))
           (file (expand-file-name "Main.hs" dir)))
      (unwind-protect
@@ -198,6 +200,11 @@ HLS is started and ready before BODY runs."
            (warbo-haskell-test-wait-for-tags)
            (unless (warbo-haskell-test-start-hls)
              (ert-fail "HLS failed to start - check haskell-language-server-wrapper is available"))
+           ;; Position point on an identifier so hover-based readiness
+           ;; detection works (HLS returns nothing for keywords)
+           (goto-char (point-min))
+           (search-forward ,point-on)
+           (goto-char (match-beginning 0))
            (unless (warbo-haskell-test-wait-for-indexing)
              (let ((events-buf (get-buffer
                                 ;; FIXME: This assumes we're using haskell-mode.
@@ -254,7 +261,8 @@ HLS is started and ready before BODY runs."
 (ert-deftest warbo-test-haskell-diagnostics-show-type-errors ()
   "Opening a Haskell file with type errors shows diagnostics."
   (with-haskell-test-file
-   "main :: IO ()\nmain = putStrLn 42"  ; Type error: 42 isn't a String
+      "main :: IO ()\nmain = putStrLn 42"  ; Type error: 42 isn't a String
+      "putStrLn"
 
    (let ((diags (flymake-diagnostics)))
      (should diags)
@@ -266,7 +274,8 @@ HLS is started and ready before BODY runs."
 (ert-deftest warbo-test-haskell-eldoc-shows-type-info ()
   "Documentation buffer shows type info for standard functions."
   (with-haskell-test-file
-   "main = putStrLn \"hello\""
+      "main = putStrLn \"hello\""
+      "putStrLn"
 
    ;; Position on putStrLn
    (goto-char (point-min))
@@ -284,7 +293,8 @@ HLS is started and ready before BODY runs."
 (ert-deftest warbo-test-haskell-jump-to-definition ()
   "Keyboard shortcut can jump to a local definition."
   (with-haskell-test-file
-   "myFunc :: Int\nmyFunc = 10\n\nmain = print myFunc"
+      "myFunc :: Int\nmyFunc = 10\n\nmain = print myFunc"
+      "myFunc"
 
    ;; Position on myFunc usage in main
    (goto-char (point-max))
@@ -303,7 +313,8 @@ HLS is started and ready before BODY runs."
 (ert-deftest warbo-test-haskell-formatting ()
   "Formatting command cleans up whitespace."
   (with-haskell-test-file
-   "foo=   5"
+      "foo=   5"
+      "foo"
 
    (call-interactively 'eglot-format-buffer)
    (let ((formatted (warbo-haskell-test-poll
@@ -315,8 +326,9 @@ HLS is started and ready before BODY runs."
 (ert-deftest warbo-test-haskell-missing-signature-warning ()
   "HLS warns about missing type signatures."
   (with-haskell-test-file
-   ;; Valid Main.hs with a helper function that lacks a type signature
-   "module Main where\n\nhelper x = x  -- Missing type signature\n\nmain :: IO ()\nmain = print (helper 42)"
+      ;; Valid Main.hs with a helper function that lacks a type signature
+      "module Main where\n\nhelper x = x  -- Missing type signature\n\nmain :: IO ()\nmain = print (helper 42)"
+      "helper"
 
    (let ((diags (warbo-haskell-test-poll
                  #'flymake-diagnostics
@@ -412,20 +424,21 @@ This verifies HLS can navigate to definitions in sibling packages."
             (warbo-haskell-test-wait-for-tags)
             (unless (warbo-haskell-test-start-hls)
               (ert-fail "HLS failed to start in multi-package project"))
-            (warbo-haskell-test-wait-for-indexing)
+          ;; Position on an identifier so hover-based readiness detection
+          ;; works (HLS returns nothing for keywords like `module')
+          (goto-char (point-min))
+          (search-forward "sharedFunc")
+          (goto-char (match-beginning 0))
+          (warbo-haskell-test-wait-for-indexing)
 
-            ;; Navigate to sharedFunc definition
-            (goto-char (point-min))
-            (search-forward "sharedFunc")
-            (backward-char 1)
-
-            (let ((jumped (warbo-haskell-test-poll
-                           #'warbo-haskell-test-jump-to-definition
-                           warbo-haskell-test-timeout
-                           "cross-package definition")))
-              (should jumped)
-              ;; Should have jumped to pkg1/Lib.hs
-              (should (string-match-p "pkg1.*Lib\\.hs" buffer-file-name)))))
+          ;; Navigate to sharedFunc definition (point is already on it)
+          (let ((jumped (warbo-haskell-test-poll
+                         #'warbo-haskell-test-jump-to-definition
+                         warbo-haskell-test-timeout
+                         "cross-package definition")))
+            (should jumped)
+            ;; Should have jumped to pkg1/Lib.hs
+            (should (string-match-p "pkg1.*Lib\\.hs" buffer-file-name))))
 
       ;; Cleanup
       (dolist (file (list file1 file2))
@@ -510,20 +523,21 @@ Revisit this when the next stable Nixpkgs comes out."
             (warbo-haskell-test-wait-for-tags)
             (unless (warbo-haskell-test-start-hls)
               (ert-fail "HLS failed to start in stack project"))
-            (warbo-haskell-test-wait-for-indexing)
+          ;; Position on an identifier so hover-based readiness detection
+          ;; works (HLS returns nothing for keywords like `module')
+          (goto-char (point-min))
+          (search-forward "putStrLn")
+          (goto-char (match-beginning 0))
+          (warbo-haskell-test-wait-for-indexing)
 
-            ;; Documentation should work in stack project
-            (goto-char (point-min))
-            (search-forward "putStrLn")
-            (backward-char 1)
-
-            (let ((doc (warbo-haskell-test-poll
-                        (lambda ()
-                          (let ((d (warbo-haskell-test-get-documentation-buffer)))
-                            (and d (string-match-p "String\\|IO" d) d)))
-                        warbo-haskell-test-timeout
-                        "documentation in stack project")))
-              (should doc))))
+          ;; Documentation should work in stack project
+          (let ((doc (warbo-haskell-test-poll
+                      (lambda ()
+                        (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                          (and d (string-match-p "String\\|IO" d) d)))
+                      warbo-haskell-test-timeout
+                      "documentation in stack project")))
+            (should doc)))
 
       (when-let ((buf (find-buffer-visiting file)))
         (with-current-buffer buf
@@ -540,7 +554,8 @@ Revisit this when the next stable Nixpkgs comes out."
   "Test completion suggests imported functions.
 Verifies `completion-at-point' provides relevant suggestions."
   (with-haskell-test-file
-   "import Data.List\n\nmain = print (interc)"
+      "import Data.List\n\nmain = print (interc)"
+      "print"
 
    ;; Position at incomplete "interc"
    (goto-char (point-max))
@@ -560,7 +575,8 @@ Verifies `completion-at-point' provides relevant suggestions."
   "Test renaming across occurrences.
 Verifies eglot-rename updates all references to a symbol."
   (with-haskell-test-file
-   "foo :: Int\nfoo = 42\n\nmain = print foo"
+      "foo :: Int\nfoo = 42\n\nmain = print foo"
+      "foo"
 
    ;; Position on first occurrence of 'foo'
    (goto-char (point-min))
@@ -591,10 +607,11 @@ Verifies we can load current file and evaluate expressions.
 Note: Uses internal API for evaluation since batch mode cannot handle
 the interactive 'Hit space to flush' prompts that block on user input."
   (with-haskell-test-file
-   ;; Use module Main (matching filename Main.hs) and omit the type signature
-   ;; so -Wall produces a missing-signature diagnostic, which lets
-   ;; wait-for-indexing detect that HLS is ready.
-   "module Main where\n\ntestFunc = \"works\"\n\nmain = putStrLn testFunc\n"
+      ;; Use module Main (matching filename Main.hs) and omit the type signature
+      ;; so -Wall produces a missing-signature diagnostic, which lets
+      ;; wait-for-indexing detect that HLS is ready.
+      "module Main where\n\ntestFunc = \"works\"\n\nmain = putStrLn testFunc\n"
+      "testFunc"
 
    (require 'haskell-interactive-mode)
    (require 'haskell-process)
@@ -633,7 +650,8 @@ the interactive 'Hit space to flush' prompts that block on user input."
   "Test accessing documentation via eldoc-doc-buffer.
 Verifies eldoc documentation buffer shows info for standard library functions."
   (with-haskell-test-file
-   "main = putStrLn \"hello\""
+      "main = putStrLn \"hello\""
+      "putStrLn"
 
    ;; Position on putStrLn
    (goto-char (point-min))
@@ -683,7 +701,8 @@ Verifies eldoc documentation buffer shows info for standard library functions."
   "Test displaying inferred types via eldoc-doc-buffer.
 Verifies documentation buffer shows types for unannotated local definitions."
   (with-haskell-test-file
-   "myValue = 42\n\nmain = print myValue"
+      "myValue = 42\n\nmain = print myValue"
+      "myValue"
 
    ;; Position on myValue (no type signature, should infer)
    (goto-char (point-min))
@@ -711,7 +730,8 @@ Verifies documentation buffer shows types for unannotated local definitions."
   "Test diagnostics point to correct positions.
 Verifies diagnostics highlight the exact location of errors."
   (with-haskell-test-file
-   "foo :: String\nfoo = 42\n\nmain = print foo"
+      "foo :: String\nfoo = 42\n\nmain = print foo"
+      "foo"
 
    (let ((diags (warbo-haskell-test-poll
                  #'flymake-diagnostics
@@ -782,20 +802,21 @@ Verifies HLS can provide info about imported library functions."
             (warbo-haskell-test-wait-for-tags)
             (unless (warbo-haskell-test-start-hls)
               (ert-fail "HLS failed to start with external deps"))
-            (warbo-haskell-test-wait-for-indexing)
+          ;; Position on an identifier so hover-based readiness detection
+          ;; works (HLS returns nothing for keywords like `module')
+          (goto-char (point-min))
+          (search-forward "pack")
+          (goto-char (match-beginning 0))
+          (warbo-haskell-test-wait-for-indexing)
 
-            ;; Documentation should work on external library function
-            (goto-char (point-min))
-            (search-forward "pack")
-            (backward-char 1)
-
-            (let ((doc (warbo-haskell-test-poll
-                        (lambda ()
-                          (let ((d (warbo-haskell-test-get-documentation-buffer)))
-                            (and d (string-match-p "String\\|Text\\|pack" d) d)))
-                        warbo-haskell-test-timeout
-                        "documentation for external function")))
-              (should doc))))
+          ;; Documentation should work on external library function
+          (let ((doc (warbo-haskell-test-poll
+                      (lambda ()
+                        (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                          (and d (string-match-p "String\\|Text\\|pack" d) d)))
+                      warbo-haskell-test-timeout
+                      "documentation for external function")))
+            (should doc)))
 
       (when-let ((buf (find-buffer-visiting file)))
         (with-current-buffer buf
@@ -866,20 +887,20 @@ Verifies jump-to-definition works across local module boundaries."
             (warbo-haskell-test-wait-for-tags)
             (unless (warbo-haskell-test-start-hls)
               (ert-fail "HLS failed to start in multi-module project"))
-            (warbo-haskell-test-wait-for-indexing)
+          ;; Position on an identifier so hover-based readiness detection
+          ;; works (HLS returns nothing for keywords like `module')
+          (goto-char (point-max))
+          (search-backward "helper")
+          (warbo-haskell-test-wait-for-indexing)
 
-            ;; Position on 'helper' in Main
-            (goto-char (point-max))
-            (search-backward "helper")
-
-            ;; Jump to definition in Utils
-            (let ((jumped (warbo-haskell-test-poll
-                           #'warbo-haskell-test-jump-to-definition
-                           warbo-haskell-test-timeout
-                           "cross-module definition")))
-              (should jumped)
-              ;; Should have jumped to Utils.hs
-              (should (string-match-p "Utils\\.hs" buffer-file-name)))))
+          ;; Jump to definition in Utils (point is already on 'helper')
+          (let ((jumped (warbo-haskell-test-poll
+                         #'warbo-haskell-test-jump-to-definition
+                         warbo-haskell-test-timeout
+                         "cross-module definition")))
+            (should jumped)
+            ;; Should have jumped to Utils.hs
+            (should (string-match-p "Utils\\.hs" buffer-file-name))))
 
       ;; Cleanup
       (dolist (file (list file1 file2))
