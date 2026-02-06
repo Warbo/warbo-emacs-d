@@ -1,9 +1,9 @@
 ;;; haskell-tests --- Test Haskell editing -*- lexical-binding: t; -*-
 ;;;
 ;;; Commentary:
-;;; Batch mode limitation: In interactive Emacs, opening a .hs file triggers
-;;; haskell-mode-hook which runs eglot-ensure, and post-command-hook fires
-;;; automatically.  In batch mode, we must explicitly trigger these hooks.
+;;; Batch mode limitation: In interactive Emacs, when eglot-ensure runs the
+;;; post-command-hook fires automatically.  In batch mode, we must explicitly
+;;; trigger these hooks.
 ;;; This is acceptable because we're still testing the config's hooks work.
 ;;;
 ;;; Code:
@@ -100,8 +100,7 @@ Returns non-nil if HLS connected successfully."
           ;; Step 1: Load direnv environment for this buffer's directory
           (when (fboundp 'direnv-update-environment)
             (direnv-update-environment default-directory))
-          ;; Step 2: The config's haskell-mode-hook includes eglot-ensure
-          ;; In batch mode, eglot-ensure defers to post-command-hook
+          ;; Step 2: We rely on Emacs config to start eglot
           ;; Step 3: Fire post-command-hook to trigger the deferred connection
           (run-hooks 'post-command-hook)
           ;; Wait for connection
@@ -193,8 +192,8 @@ HLS is started and ready before BODY runs."
          (progn
            (warbo-haskell-test-setup-project dir)
            (with-temp-file file (insert ,content))
-           ;; Use find-file (not find-file-noselect) because eglot-ensure
-           ;; in haskell-mode-hook needs the buffer to be selected
+           ;; Use find-file (not find-file-noselect) because eglot needs the
+           ;; buffer to be selected when it starts
            (find-file file)
            (warbo-haskell-test-wait-for-tags)
            (unless (warbo-haskell-test-start-hls)
@@ -231,18 +230,6 @@ HLS is started and ready before BODY runs."
        (delete-directory dir t))))
 
 ;; Configuration tests
-
-(ert-deftest warbo-test-haskell-eglot-command-is-executable ()
-  "HLS executable is configured correctly for eglot."
-  ;; Check the configured command - the actual executable availability is
-  ;; tested implicitly by the functional tests (diagnostics, hover, etc.)
-  (let ((server-cmd (alist-get 'haskell-mode eglot-server-programs)))
-    (should server-cmd)
-    (should (cl-some (lambda (part)
-                       (and (stringp part)
-                            (string-match-p "haskell-language-server" part)))
-                     (if (listp server-cmd) server-cmd (list server-cmd))))))
-
 
 (ert-deftest warbo-test-haskell-project-root-detection ()
   "Emacs detects project root in a git repo with cabal file."
@@ -600,7 +587,7 @@ Verifies eglot-rename updates all references to a symbol."
 
 (ert-deftest warbo-test-haskell-repl-integration ()
   "Test loading modules into GHCi.
-Verifies haskell-mode can load current file and evaluate expressions.
+Verifies we can load current file and evaluate expressions.
 Note: Uses internal API for evaluation since batch mode cannot handle
 the interactive 'Hit space to flush' prompts that block on user input."
   (with-haskell-test-file
