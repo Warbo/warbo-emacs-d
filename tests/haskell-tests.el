@@ -316,7 +316,8 @@ HLS is started and ready before BODY runs."
 (ert-deftest warbo-test-haskell-missing-signature-warning ()
   "HLS warns about missing type signatures."
   (with-haskell-test-file
-   "f x = x"  ; Missing signature
+   ;; Valid Main.hs with a helper function that lacks a type signature
+   "module Main where\n\nhelper x = x  -- Missing type signature\n\nmain :: IO ()\nmain = print (helper 42)"
 
    (let ((diags (warbo-haskell-test-poll
                  #'flymake-diagnostics
@@ -326,8 +327,17 @@ HLS is started and ready before BODY runs."
        (ert-fail (format "No diagnostics for missing signature. flymake-mode: %s, eglot: %s"
                          flymake-mode
                          (eglot-current-server))))
-     ;; HLS should produce at least a warning
-     (should (> (length diags) 0)))))
+     ;; Verify we got a missing signature diagnostic specifically
+     ;; HLS reports: "Top-level binding with no type signature: ..."
+     (let ((has-sig-warning
+            (cl-some (lambda (d)
+                       (string-match-p "\\(no\\|missing\\|lacks?\\).*type signature"
+                                       (downcase (flymake-diagnostic-text d))))
+                     diags)))
+       (unless has-sig-warning
+         (ert-fail (format "Expected missing signature warning but got diagnostics: %s"
+                           (mapcar #'flymake-diagnostic-text diags))))
+       (should has-sig-warning)))))
 
 (ert-deftest warbo-test-haskell-multi-package-project ()
   "Test cross-package navigation in multi-package cabal project.
