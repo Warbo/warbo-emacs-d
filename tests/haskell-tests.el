@@ -591,7 +591,10 @@ Verifies haskell-mode can load current file and evaluate expressions.
 Note: Uses internal API for evaluation since batch mode cannot handle
 the interactive 'Hit space to flush' prompts that block on user input."
   (with-haskell-test-file
-   "module Test where\n\ntestFunc :: String\ntestFunc = \"works\"\n"
+   ;; Use module Main (matching filename Main.hs) and omit the type signature
+   ;; so -Wall produces a missing-signature diagnostic, which lets
+   ;; wait-for-indexing detect that HLS is ready.
+   "module Main where\n\ntestFunc = \"works\"\n\nmain = putStrLn testFunc\n"
 
    (require 'haskell-interactive-mode)
    (require 'haskell-process)
