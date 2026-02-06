@@ -214,7 +214,10 @@ HLS is started and ready before BODY runs."
              (warbo-haskell-test-poll
               (lambda () (not (eglot-current-server)))
               10
-              "eglot shutdown")))
+              "eglot shutdown"))
+           ;; Prevent kill-buffer prompting about unsaved changes (e.g.
+           ;; after completion-at-point modifies the buffer)
+           (set-buffer-modified-p nil))
          (kill-buffer buf))
        (delete-directory dir t))))
 
