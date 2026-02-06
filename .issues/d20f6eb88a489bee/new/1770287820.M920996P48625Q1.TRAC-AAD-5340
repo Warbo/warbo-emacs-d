@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 05 Feb 2026 10:36:03 +0000
+State: new
+Subject: Make ediff open in a new tab
+Message-Id: <d20f6eb88a489bee-0-artemis@TRAC-AAD-5340>
+
+It's annoying to lose our existing windows. Since we use tabs anyway, we can
+have ediff put its windows in one.
