@@ -208,7 +208,13 @@ HLS is started and ready before BODY runs."
        (when-let ((buf (find-buffer-visiting file)))
          (with-current-buffer buf
            (when (eglot-current-server)
-             (ignore-errors (eglot-shutdown (eglot-current-server)))))
+             (ignore-errors (eglot-shutdown (eglot-current-server)))
+             ;; Wait for the server process to actually exit, so stale state
+             ;; doesn't leak into subsequent tests
+             (warbo-haskell-test-poll
+              (lambda () (not (eglot-current-server)))
+              10
+              "eglot shutdown")))
          (kill-buffer buf))
        (delete-directory dir t))))
 
@@ -417,7 +423,11 @@ This verifies HLS can navigate to definitions in sibling packages."
         (when-let ((buf (find-buffer-visiting file)))
           (with-current-buffer buf
             (when (eglot-current-server)
-              (ignore-errors (eglot-shutdown (eglot-current-server)))))
+              (ignore-errors (eglot-shutdown (eglot-current-server)))
+              (warbo-haskell-test-poll
+               (lambda () (not (eglot-current-server)))
+               10
+               "eglot shutdown")))
           (kill-buffer buf)))
       (delete-directory dir t))))
 
@@ -509,7 +519,11 @@ Revisit this when the next stable Nixpkgs comes out."
       (when-let ((buf (find-buffer-visiting file)))
         (with-current-buffer buf
           (when (eglot-current-server)
-            (ignore-errors (eglot-shutdown (eglot-current-server)))))
+            (ignore-errors (eglot-shutdown (eglot-current-server)))
+            (warbo-haskell-test-poll
+             (lambda () (not (eglot-current-server)))
+             10
+             "eglot shutdown")))
         (kill-buffer buf))
       (delete-directory dir t))))
 
@@ -783,7 +797,11 @@ Verifies HLS can provide info about imported library functions."
       (when-let ((buf (find-buffer-visiting file)))
         (with-current-buffer buf
           (when (eglot-current-server)
-            (ignore-errors (eglot-shutdown (eglot-current-server)))))
+            (ignore-errors (eglot-shutdown (eglot-current-server)))
+            (warbo-haskell-test-poll
+             (lambda () (not (eglot-current-server)))
+             10
+             "eglot shutdown")))
         (kill-buffer buf))
       (delete-directory dir t))))
 
@@ -865,7 +883,11 @@ Verifies jump-to-definition works across local module boundaries."
         (when-let ((buf (find-buffer-visiting file)))
           (with-current-buffer buf
             (when (eglot-current-server)
-              (ignore-errors (eglot-shutdown (eglot-current-server)))))
+              (ignore-errors (eglot-shutdown (eglot-current-server)))
+              (warbo-haskell-test-poll
+               (lambda () (not (eglot-current-server)))
+               10
+               "eglot shutdown")))
           (kill-buffer buf)))
       (delete-directory dir t))))
 
