@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Fri, 06 Feb 2026 11:48:01 +0000
+Subject: Re: Jump to definition sometimes gives
+Message-Id: <ba19a9bd56efb1af-9af879b3a65f8252-artemis@TRAC-AAD-5340>
+References: <ba19a9bd56efb1af-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <ba19a9bd56efb1af-0-artemis@TRAC-AAD-5340>
+
+We should write a regression test (in haskell-tests.el) which reproduces this
+behaviour, then try to fix it.

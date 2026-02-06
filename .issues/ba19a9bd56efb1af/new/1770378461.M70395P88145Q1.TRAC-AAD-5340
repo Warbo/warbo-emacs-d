@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Fri, 06 Feb 2026 11:45:27 +0000
+State: new
+Subject: Jump to definition sometimes gives
+Message-Id: <ba19a9bd56efb1af-0-artemis@TRAC-AAD-5340>
+
+In Haskell buffers, C-u M-. (jump to definition, prompting for the name) is
+sometimes giving:
+
+```
+haskell-mode-jump-to-tag: Wrong type argument: stringp, nil
+```
+
+Yet M-. (jump to definition of whatever's under point) still works...
