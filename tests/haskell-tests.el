@@ -200,10 +200,19 @@ HLS is started and ready before BODY runs."
            (unless (warbo-haskell-test-start-hls)
              (ert-fail "HLS failed to start - check haskell-language-server-wrapper is available"))
            (unless (warbo-haskell-test-wait-for-indexing)
-             (ert-fail (format "HLS not ready within %ds timeout. Server: %s, flymake-diagnostics: %s"
-                               warbo-haskell-test-timeout
-                               (eglot-current-server)
-                               (flymake-diagnostics))))
+             (let ((events-buf (get-buffer
+                                ;; FIXME: This assumes we're using haskell-mode.
+                                ;; We should be agnostic.
+                                (format "*EGLOT (%s/(haskell-mode)) events*"
+                                        (file-name-nondirectory
+                                         (directory-file-name dir))))))
+               (ert-fail (format "HLS not ready within %ds timeout. flymake-diags: %s, eglot-managed: %s, events(full): %S"
+                                 warbo-haskell-test-timeout
+                                 (flymake-diagnostics)
+                                 (eglot-managed-p)
+                                 (when (and events-buf (buffer-live-p events-buf))
+                                   (with-current-buffer events-buf
+                                     (buffer-string)))))))
            ,@body)
        (when-let ((buf (find-buffer-visiting file)))
          (with-current-buffer buf
