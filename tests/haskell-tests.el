@@ -61,14 +61,22 @@ MESSAGE describes what we're waiting for.  Returns predicate result or nil."
     (call-process "direnv" nil nil nil "allow")))
 
 (defun warbo-haskell-test-wait-for-tags ()
-  "Wait for TAGS file to appear."
-  (let* ((root (vc-root-dir))
-         (tags-file (when root (expand-file-name "TAGS" root))))
-    (when tags-file
-      (warbo-haskell-test-poll
-       (lambda () (file-exists-p tags-file))
-       5
-       "TAGS file generation"))))
+  "Generate TAGS file synchronously for the current project, then visit it.
+The async `warbo-haskell-tags' hook may not run in batch mode (e.g. if
+`vc-root-dir' returns nil before an initial commit).  We generate TAGS
+ourselves and call `visit-tags-table' so that the etags xref backend
+can find it without prompting \"Visit tags table\"."
+  ;; FIXME: Our Emacs config should be ensuring files like this are being
+  ;; created. Otherwise we're not testing our Emacs config!
+  (let* ((root (or (vc-root-dir) default-directory))
+         (tags-file (expand-file-name "TAGS" root)))
+    ;; Generate TAGS synchronously if not already present
+    (unless (file-exists-p tags-file)
+      (let ((default-directory root))
+        (call-process "hasktags" nil nil nil "--etags" ".")))
+    (unless (file-exists-p tags-file)
+      (ert-fail (format "TAGS file was not created in %s" root)))
+    (visit-tags-table tags-file)))
 
 (defun warbo-haskell-test-start-hls ()
   "Start HLS for the current buffer, working around batch mode limitations.
@@ -148,10 +156,20 @@ Returns buffer contents as string, or nil if not yet available."
 
 (defun warbo-haskell-test-jump-to-definition ()
   "Jump to definition using xref (M-.).
-Returns non-nil if we jumped to a different location."
+Returns non-nil if we jumped to a different location.
+In batch mode, multiple xref results (e.g. type signature + definition from
+etags, plus eglot's result) would trigger an interactive prompt that hangs.
+We use `xref-show-definitions-completing-read' with a `completing-read'
+override that auto-selects the first candidate."
   (when (eglot-current-server)
     (let ((start-pos (point))
-          (start-file buffer-file-name))
+          (start-file buffer-file-name)
+          (xref-show-definitions-function #'xref-show-definitions-completing-read)
+          (xref-show-xrefs-function #'xref-show-definitions-completing-read)
+          ;; Auto-select first candidate in batch mode
+          (completing-read-function
+           (lambda (_prompt collection &rest _args)
+             (car (all-completions "" collection)))))
       (condition-case nil
           (progn
             ;; FIXME: Press M-. like a user would
