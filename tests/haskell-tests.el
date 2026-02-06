@@ -76,6 +76,10 @@ can find it without prompting \"Visit tags table\"."
         (call-process "hasktags" nil nil nil "--etags" ".")))
     (unless (file-exists-p tags-file)
       (ert-fail (format "TAGS file was not created in %s" root)))
+    ;; Clear existing tags tables to avoid "Keep current list of tags tables
+    ;; also?" prompt when switching between test projects
+    (setq tags-file-name nil)
+    (setq tags-table-list nil)
     (visit-tags-table tags-file)))
 
 (defun warbo-haskell-test-start-hls ()
