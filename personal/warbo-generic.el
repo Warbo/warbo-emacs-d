@@ -15,6 +15,12 @@
 (global-set-key (kbd "S-C-<down>")  'shrink-window)
 (global-set-key (kbd "S-C-<up>")    'enlarge-window)
 
+;; Scrolling one line at a time, without having to move the cursor to top/bottom
+(global-unset-key (kbd "M-<up>"))
+(global-unset-key (kbd "M-<down>"))
+(global-set-key (kbd "M-<up>")   'scroll-up-line)
+(global-set-key (kbd "M-<down>") 'scroll-down-line)
+
 ;; Easily toggle truncation; helps on narrow phone screens
 (global-set-key (kbd "C-c C-t") 'toggle-truncate-lines)
 
@@ -267,7 +273,8 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
 (use-package smartparens
   :ensure t
-  :hook (prog-mode . smartparens-mode)
+  :hook ((prog-mode . smartparens-mode)
+         (smartparens-mode . warbo-smartparens-scroll-keys))
   :functions (sp-wrap-with-pair sp-pair sp-use-paredit-bindings)
   :custom
   (sp-base-key-bindings 'paredit)
@@ -279,6 +286,11 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
     (lambda (&optional _arg)
        (interactive "P")
        (sp-wrap-with-pair s)))
+
+  (defun warbo-smartparens-scroll-keys ()
+    "Ensure M-<up>/M-<down> scroll in smartparens buffers."
+    (local-set-key (kbd "M-<up>")   #'scroll-up-line)
+    (local-set-key (kbd "M-<down>") #'scroll-down-line))
 
   (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
