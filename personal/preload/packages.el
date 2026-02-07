@@ -38,12 +38,6 @@
 
 ;; (use-package flx-ido)
 
-;; (use-package flycheck-haskell)
-
-;; (use-package flymake-easy)
-
-;; (use-package flymake-haskell-multi)
-
 ;; (use-package fold-dwim)
 
 ;; (use-package fsm)

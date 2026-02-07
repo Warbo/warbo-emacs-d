@@ -7,12 +7,6 @@
 ;; Declare variable from projectile to silence byte-compiler
 (defvar projectile-mode-line)
 
-;; Don't run Flymake over TRAMP
-(if (boundp 'flymake-allowed-file-name-masks)
-    (setq flymake-allowed-file-name-masks
-          (cons '("^/ssh:" (lambda () nil))
-                flymake-allowed-file-name-masks)))
-
 ;; Don't go looking for version-control metadata on remotes (we can still call
 ;; magit whenever we like)
 ;; From https://www.gnu.org/software/tramp/#Frequently-Asked-Questions-1

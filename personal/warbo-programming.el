@@ -479,10 +479,33 @@ with the string S. Unlike `replace-region-contents' this maintains text
     ;(setq which-func-modes nil)
     (which-function-mode 1)))
 
-;; Enable nice rendering of diagnostics like compile errors.
+(use-package flymake
+  ;; Flymake itself is less powerful than flycheck but eglot can feed it via LSP
+  :hook ((eglot-managed-mode . flymake-mode))
+  :bind (:map flymake-mode-map
+              ("M-n" . flymake-goto-next-error)
+              ("M-p" . flymake-goto-prev-error)
+              ("C-c ! l" . flymake-show-buffer-diagnostics))
+  :config
+  (setq flymake-no-changes-timeout 0.5)
+  ;; Don't run Flymake over TRAMP
+  ;; TODO: Is there a nicer way to upsert this value?
+  (if (boundp 'flymake-allowed-file-name-masks)
+      (setq flymake-allowed-file-name-masks
+            (cons '("^/ssh:" (lambda () nil))
+                  flymake-allowed-file-name-masks))))
+
 (use-package flycheck
+  ;; Non-eglot/LSP modes should use flycheck as it's more powerful than flymake
   :ensure t
-  :init (global-flycheck-mode))
+  :init
+  (defun warbo-maybe-enable-flycheck ()
+    "Enable flycheck only if eglot is not managing this buffer."
+    (unless (bound-and-true-p eglot--managed-mode)
+      (flycheck-mode 1)))
+  :hook (prog-mode . warbo-maybe-enable-flycheck)
+  :config
+  (add-to-list 'flycheck-checkers 'nix))
 
 (use-package flyover
   :ensure t
@@ -494,8 +517,8 @@ with the string S. Unlike `replace-region-contents' this maintains text
   (flyover-show-at-eol t)
   (flyover-virtual-line-type nil)
   (flyover-background-lightness 45)
-  :config
-  (add-hook 'flycheck-mode-hook #'flyover-mode))
+  :hook ((flycheck-mode . flyover-mode)
+         (flymake-mode . flyover-mode)))
 
 (use-package dash
   :ensure t)
@@ -720,11 +743,6 @@ The result is JSON, so we derive from json-mode."
             (font-lock-add-keywords
              nil '(("\\<\\(\\(FIX\\(ME\\)?\\|TODO\\|OPTIMIZE\\|HACK\\|REFACTOR\\):\\)"
                     1 font-lock-warning-face t)))))
-
-;; Enable on-the-fly syntax checking
-(if (fboundp 'global-flycheck-mode)
-    (global-flycheck-mode +1)
-  (add-hook 'prog-mode-hook 'flycheck-mode))
 
 (defun warbo-find-and-run-tests-sentinel (process signal)
   "A process sentinel suitable for `set-process-sentinel'.
