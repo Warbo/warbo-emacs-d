@@ -1308,7 +1308,6 @@ Pressing M-? on 'myFunc' should show references via xref."
   "Test renaming a symbol across the project.
 Renaming 'myFunc' to 'newFunc' should update all occurrences."
   :tags '(:rename :refactor)
-  ;; TODO: Should work via eglot-rename
   (with-haskell-test-file
    "myFunc = 42\n\nmain = print myFunc"
    "myFunc"
@@ -1316,13 +1315,17 @@ Renaming 'myFunc' to 'newFunc' should update all occurrences."
    (goto-char (point-min))
    (search-forward "myFunc")
    (backward-word)
-   (let ((inhibit-message t))
-     (cl-letf (((symbol-function 'read-string)
-                (lambda (&rest _) "newFunc")))
-       (call-interactively 'eglot-rename)
-       (sleep-for 1)
-       (should (not (string-match-p "myFunc" (buffer-string))))
-       (should (string-match-p "newFunc" (buffer-string)))))))
+   (condition-case err
+       (progn
+         ;; Call eglot-rename directly with new name to avoid interactive prompt
+         (eglot-rename "newFunc")
+         (accept-process-output nil 0.5)
+
+         ;; All occurrences should be renamed
+         (should (not (string-match-p "myFunc" (buffer-string))))
+         (should (string-match-p "newFunc" (buffer-string))))
+     (error
+      (ert-fail (format "Rename failed: %S" err))))))
 
 (ert-deftest warbo-test-haskell-complete-pragma ()
   "Test completions in a LANGUAGE pragma.
