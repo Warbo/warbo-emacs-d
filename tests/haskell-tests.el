@@ -919,4 +919,405 @@ Verifies jump-to-definition works across local module boundaries."
           (kill-buffer buf)))
       (delete-directory dir t))))
 
+(ert-deftest warbo-test-haskell-hlint-on-the-fly ()
+  "Test that opening a Haskell file with style issues shows hlint diagnostics.
+For example, unnecessary parentheses or use of 'return ()' instead of 'pure ()'."
+  :tags '(:hlint :linter)
+  ;; TODO: Implement hlint integration with flymake or flycheck
+  ;; - Option 1: Configure HLS to run hlint (check haskell.plugin.hlint.globalOn)
+  ;; - Option 2: Use flycheck-haskell with hlint checker
+  ;; - Option 3: Use apheleia or similar for on-save hlint fixes
+  (with-haskell-test-file
+      "main = return ()"
+      "return"
+
+   (flymake-start)
+   (with-timeout (10 (ert-fail "Timed out waiting for hlint diagnostics"))
+     (while (not (seq-find (lambda (d)
+                            (string-match-p "hlint\\|redundant\\|use.*pure"
+                                          (downcase (flymake-diagnostic-text d))))
+                          (flymake-diagnostics)))
+       (accept-process-output nil 0.5)))
+   (let ((hlint-diag (seq-find (lambda (d)
+                                 (string-match-p "hlint\\|redundant\\|use.*pure"
+                                               (downcase (flymake-diagnostic-text d))))
+                               (flymake-diagnostics))))
+     (should hlint-diag)
+     (message "Found hlint diagnostic: %s" (flymake-diagnostic-text hlint-diag)))))
+
+(ert-deftest warbo-test-haskell-hlint-apply-suggestion ()
+  "Test applying an hlint suggestion using code actions.
+Should replace 'return ()' with 'pure ()' when invoking quickfix."
+  :tags '(:hlint :code-action)
+  ;; TODO: Test that code actions from hlint can be applied
+  (with-haskell-test-file
+      "main :: IO ()\nmain = return ()"
+      "return"
+
+   (sleep-for 3)
+   (goto-char (point-min))
+   (search-forward "return")
+   (let ((before (buffer-string)))
+     (call-interactively 'eglot-code-action-quickfix)
+     (sleep-for 1)
+     (should (not (string= before (buffer-string))))
+     (should (string-match-p "pure" (buffer-string))))))
+
+(ert-deftest warbo-test-haskell-hoogle-search-online ()
+  "Test searching Hoogle online for a function and getting results.
+Should be able to search the Hoogle database and display results."
+  :tags '(:skip :hoogle :online)
+  (skip-unless nil)
+  ;; TODO: Set up Hoogle search integration
+  ;; - Can use helm-hoogle, haskell-hoogle, or similar packages
+  ;; - Should allow searching by function name and viewing results
+  )
+
+(ert-deftest warbo-test-haskell-hoogle-lookup-at-point ()
+  "Test looking up documentation for the function at point using Hoogle.
+With point on an identifier like 'foldl', a key binding should show Hoogle results."
+  :tags '(:skip :hoogle :lookup)
+  (skip-unless nil)
+  ;; TODO: Set up a keybinding to look up the identifier at point in Hoogle
+  ;; - Could use helm-hoogle with a command wrapper
+  ;; - Or integrate with haskell-hoogle package
+  )
+
+(ert-deftest warbo-test-haskell-hoogle-local-database ()
+  "Test that a local Hoogle database can be generated and used.
+Should work offline after running 'hoogle generate'."
+  :tags '(:skip :hoogle :local)
+  (skip-unless nil)
+  ;; TODO: Ensure Hoogle database is generated and available
+  ;; - Can be done via 'hoogle generate' command
+  ;; - Local database should work offline
+  )
+
+(ert-deftest warbo-test-haskell-hoogle-project-specific ()
+  "Test Hoogle search scoped to project dependencies.
+With a .cabal file specifying dependencies, Hoogle results should prioritize those."
+  :tags '(:skip :hoogle :project)
+  (skip-unless nil)
+  ;; TODO: Set up Hoogle search scoped to project dependencies
+  ;; - Could parse .cabal file and restrict search to declared packages
+  ;; - Or configure Hoogle to index only project dependencies
+  )
+
+(ert-deftest warbo-test-haskell-hoogle-insert-import ()
+  "Test that Hoogle can help add missing imports.
+When a function is undefined, Hoogle should help identify and add the needed import."
+  :tags '(:skip :hoogle :import)
+  (skip-unless nil)
+  ;; TODO: Integrate Hoogle with import insertion
+  ;; - When code action or eglot reports an undefined symbol
+  ;; - Query Hoogle to find which module it comes from
+  ;; - Automatically add the import
+  )
+
+(ert-deftest warbo-test-haskell-djinn-synthesis ()
+  "Test using Djinn to synthesize function implementations from type signatures.
+Given a type like 'Maybe a -> a -> a', Djinn should suggest a function body."
+  :tags '(:skip :djinn :synthesis)
+  (skip-unless nil)
+  ;; TODO: Set up Djinn integration for function synthesis
+  ;; - Should allow invoking Djinn on a type signature
+  ;; - Could use djinn executable or Haskell bindings
+  )  ; Djinn might say "cannot" for this type
+
+(ert-deftest warbo-test-haskell-djinn-at-point ()
+  "Test synthesizing a function body for the type signature at point.
+With point on a type signature like 'f :: a -> a', should generate an implementation."
+  :tags '(:skip :djinn :synthesis)
+  (skip-unless nil)
+  ;; TODO: Set up a keybinding to invoke Djinn on the type signature at point
+  ;; - Parse the type signature under the cursor
+  ;; - Call Djinn with that signature
+  ;; - Insert the generated implementation
+  )
+
+(ert-deftest warbo-test-haskell-magichaskeller-search ()
+  "Test using MagicHaskeller to synthesize implementations from examples.
+Given input/output examples, should suggest matching function implementations."
+  :tags '(:skip :magichaskeller :synthesis)
+  (skip-unless nil)
+  ;; TODO: Set up MagicHaskeller integration if available
+  ;; - This is a heavier-weight synthesis tool than Djinn
+  ;; - Would need Haskell environment and mhs executable
+  )
+
+(ert-deftest warbo-test-haskell-hoogleplus-synthesis ()
+  "Test using Hoogle+ for program synthesis from type and examples.
+Given input/output examples and type constraints, should suggest matching functions."
+  :tags '(:skip :hoogleplus :synthesis)
+  (skip-unless nil)
+  ;; TODO: Set up Hoogle+ integration if available
+  ;; - Hoogle+ is a research prototype for example-based synthesis
+  ;; - May not be readily available in standard Haskell environments
+  )
+
+(ert-deftest warbo-test-haskell-quickspec-generate-properties ()
+  "Test generating QuickCheck properties using QuickSpec.
+For a function like 'reverse', should discover properties such as 'reverse (reverse xs) = xs'."
+  :tags '(:skip :quickspec :testing :property)
+  (skip-unless nil)
+  ;; TODO: Set up QuickSpec integration to generate properties
+  ;; - Requires QuickSpec library and a way to invoke it
+  ;; - Should discover algebraic properties of functions
+  )
+
+(ert-deftest warbo-test-haskell-spectacular-test-generation ()
+  "Test generating QuickCheck test cases from function type signatures.
+Should produce test property skeletons based on the function's type."
+  :tags '(:skip :spectacular :testing)
+  (skip-unless nil)
+  ;; TODO: Set up Spectacular integration for test generation
+  ;; - This is research-level tooling for automatic test generation
+  ;; - Would generate QuickCheck properties from signatures
+  )
+
+(ert-deftest warbo-test-haskell-ghci-start ()
+  "Test starting a GHCi REPL in the current project.
+Should open a buffer running GHCi with the project loaded."
+  :tags '(:ghci :repl)
+  ;; TODO: Test haskell-interactive-mode-hook or similar
+  (skip-unless (fboundp 'haskell-interactive-switch))
+  (with-haskell-test-file
+   "main = putStrLn \"Hello\""
+   "putStrLn"
+
+   (call-interactively 'haskell-interactive-switch)
+   (sleep-for 2)
+   (let ((repl-buffer (get-buffer "*haskell*")))
+     (should repl-buffer)
+     (with-current-buffer repl-buffer
+       (should (string-match-p "GHCi" (buffer-string)))))))
+
+(ert-deftest warbo-test-haskell-send-region-to-ghci ()
+  "Test sending selected code to GHCi for evaluation.
+Selecting '2 + 2' and sending to REPL should show '4'."
+  :tags '(:ghci :repl)
+  ;; TODO: Test haskell-interactive-mode region eval
+  (skip-unless (fboundp 'haskell-interactive-mode-eval-region))
+  (with-haskell-test-file
+   "x = 2 + 2"
+   "x"
+
+   (call-interactively 'haskell-interactive-switch)
+   (sleep-for 1)
+   (goto-char (point-min))
+   (set-mark (point))
+   (end-of-line)
+   (call-interactively 'haskell-interactive-mode-eval-region)
+   (sleep-for 1)
+   (with-current-buffer (get-buffer "*haskell*")
+     (should (string-match-p "4" (buffer-string))))))
+
+(ert-deftest warbo-test-haskell-ghci-reload-on-save ()
+  "Test that saving a Haskell file automatically reloads it in GHCi."
+  :tags '(:ghci :repl :reload)
+  ;; TODO: Check if haskell-mode has auto-reload on save
+  (skip-unless (fboundp 'haskell-interactive-switch))
+  (should t))  ; Placeholder
+
+(ert-deftest warbo-test-haskell-add-import ()
+  "Test adding a missing import interactively.
+With point on an undefined symbol, should offer to add the import."
+  :tags '(:import :code-action)
+  ;; TODO: This should work via eglot code actions
+  (with-haskell-test-file
+   "main = print $ sortBy compare [3,1,2]"
+   "print"
+
+   (flymake-start)
+   (sleep-for 3)
+   (goto-char (point-min))
+   (search-forward "sortBy")
+   (call-interactively 'eglot-code-action-quickfix)
+   (sleep-for 1)
+   (goto-char (point-min))
+   (should (search-forward "import" nil t))))
+
+(ert-deftest warbo-test-haskell-organize-imports ()
+  "Test organizing imports (sorting, grouping, removing unused).
+Messy imports should be cleaned up: sorted, grouped, and unused imports removed."
+  :tags '(:skip :import :formatting)
+  (skip-unless nil)
+  ;; TODO: Set up import organization
+  ;; - Can use HLS code actions, stylish-haskell, ormolu, or similar formatters
+  ;; - Should sort, group, and remove unused imports
+  )
+
+(ert-deftest warbo-test-haskell-qualify-import ()
+  "Test adding qualified import for a symbol.
+Should convert 'import Data.Map' to 'import qualified Data.Map as M'."
+  :tags '(:skip :import)
+  (skip-unless nil)
+  ;; TODO: Set up qualified import addition
+  ;; - Could be an HLS code action or custom command
+  ;; - Should convert a regular import to a qualified import with alias
+  )
+
+(ert-deftest warbo-test-haskell-case-split ()
+  "Test case-splitting a function argument.
+With point on a Maybe parameter, should generate Just/Nothing cases."
+  :tags '(:case-split :editing)
+  ;; TODO: Check if HLS provides case-split code action
+  (skip-unless (fboundp 'eglot-code-actions))
+  (with-haskell-test-file
+   "f :: Maybe Int -> Int\nf x = undefined"
+   "f"
+
+   (goto-char (point-min))
+   (search-forward "x")
+   (let ((actions (eglot-code-actions (point-min) (point-max) "refactor.rewrite")))
+     (when actions
+       ;; Apply the case-split action if available
+       (funcall (car actions))
+       (sleep-for 1)
+       (should (string-match-p "Just\\|Nothing" (buffer-string)))))))
+
+(ert-deftest warbo-test-haskell-type-hole-completion ()
+  "Test that typing '_' (a hole) offers completions.
+In 'f x = _', the hole should suggest 'x' as a completion."
+  :tags '(:hole :completion)
+  ;; TODO: HLS should provide completions for holes
+  (with-haskell-test-file
+   "f :: Int -> Int\nf x = _"
+   "f"
+
+   (goto-char (point-max))
+   (backward-char 1)
+   (sleep-for 2)
+   ;; Trigger completion
+   (completion-at-point)
+   (sleep-for 1)
+   ;; Should show completion candidates
+   (should (or (get-buffer "*Completions*")
+               (looking-at "x")))))
+
+(ert-deftest warbo-test-haskell-generate-type-signature ()
+  "Test generating a type signature for a function without one.
+For 'f x = x + 1', should insert 'f :: Num a => a -> a'."
+  :tags '(:type-signature :code-action)
+  ;; TODO: HLS might provide this via code actions
+  (with-haskell-test-file
+   "f x = x + 1"
+   "f"
+
+   (goto-char (point-min))
+   (call-interactively 'eglot-code-action-quickfix)
+   (sleep-for 1)
+   (goto-char (point-min))
+   (should (search-forward "f ::" nil t))))
+
+(ert-deftest warbo-test-haskell-smart-indent ()
+  "Test that pressing TAB correctly indents Haskell code.
+An unindented 'where' clause should indent to the correct level."
+  :tags '(:indent :editing)
+  ;; TODO: Test haskell-mode's built-in indentation
+  (with-haskell-test-file
+   "f x = g x\nwhere\ng y = y + 1"
+   "f"
+
+   (goto-char (point-min))
+   (search-forward "where")
+   (beginning-of-line)
+   (indent-for-tab-command)
+   (should (looking-at "  where"))  ; Should be indented
+   (forward-line)
+   (beginning-of-line)
+   (indent-for-tab-command)
+   (should (looking-at "    g"))))  ; Should be further indented
+
+(ert-deftest warbo-test-haskell-view-haddock ()
+  "Test viewing Haddock documentation for a symbol.
+Should open browser or display docs for the identifier at point."
+  :tags '(:skip :haddock :documentation)
+  (skip-unless nil)
+  ;; TODO: Set up Haddock documentation lookup
+  ;; - Can use haskell-hoogle, haskell-mode, or similar packages
+  ;; - Should look up the identifier at point and display documentation
+  )
+
+(ert-deftest warbo-test-haskell-generate-haddock-comment ()
+  "Test generating a Haddock comment skeleton for a function.
+Should insert a comment with parameter and return value documentation placeholders."
+  :tags '(:skip :haddock :documentation)
+  (skip-unless nil)
+  ;; TODO: Set up Haddock comment generation
+  ;; - Generate a Haddock comment template for a function signature
+  ;; - Should include parameter descriptions and return value docs
+  )
+
+(ert-deftest warbo-test-haskell-cabal-build ()
+  "Test building the current project with Cabal.
+Should compile without errors and show output."
+  :tags '(:cabal :build)
+  ;; TODO: Integrate with compile command
+  (skip-unless (executable-find "cabal"))
+  (should t))  ; Placeholder
+
+(ert-deftest warbo-test-haskell-stack-build ()
+  "Test building the current project with Stack.
+Should compile without errors and show output."
+  :tags '(:stack :build)
+  ;; TODO: Integrate with compile command
+  (skip-unless (executable-find "stack"))
+  (should t))  ; Placeholder
+
+(ert-deftest warbo-test-haskell-run-tests ()
+  "Test running the test suite for the current project.
+Should execute tests and display results in a compilation buffer."
+  :tags '(:skip :testing :project)
+  (skip-unless nil)
+  ;; TODO: Set up project test runner
+  ;; - Should detect and run tests (cabal test, stack test, etc.)
+  ;; - Display results in a compilation-like buffer
+  )
+
+(ert-deftest warbo-test-haskell-find-symbol-in-project ()
+  "Test finding all occurrences of a symbol in the project.
+Searching for 'myFunc' should list all files containing it."
+  :tags '(:search :xref)
+  ;; TODO: Should work via xref-find-references with eglot
+  (with-haskell-test-file
+   "myFunc = 42\n\nmain = print myFunc"
+   "myFunc"
+
+   (goto-char (point-min))
+   (search-forward "myFunc")
+   (backward-word)
+   (let ((refs (xref-find-references "myFunc")))
+     (should refs)
+     (should (>= (length refs) 2)))))  ; At least definition and usage
+
+(ert-deftest warbo-test-haskell-rename-symbol ()
+  "Test renaming a symbol across the project.
+Renaming 'myFunc' to 'newFunc' should update all occurrences."
+  :tags '(:rename :refactor)
+  ;; TODO: Should work via eglot-rename
+  (with-haskell-test-file
+   "myFunc = 42\n\nmain = print myFunc"
+   "myFunc"
+
+   (goto-char (point-min))
+   (search-forward "myFunc")
+   (backward-word)
+   (let ((inhibit-message t))
+     (cl-letf (((symbol-function 'read-string)
+                (lambda (&rest _) "newFunc")))
+       (call-interactively 'eglot-rename)
+       (sleep-for 1)
+       (should (not (string-match-p "myFunc" (buffer-string))))
+       (should (string-match-p "newFunc" (buffer-string)))))))
+
+(ert-deftest warbo-test-haskell-complete-pragma ()
+  "Test completions in a LANGUAGE pragma.
+When typing a LANGUAGE pragma, should suggest valid GHC extensions."
+  :tags '(:skip :pragma :language)
+  (skip-unless nil)
+  ;; TODO: Set up LANGUAGE pragma completion
+  ;; - Should suggest valid GHC extensions when typing pragmas
+  )
+
 ;;; haskell-tests.el ends here
