@@ -294,6 +294,9 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
   (smartparens-global-mode 1)
   (sp-use-paredit-bindings)
+  ;; sp-use-paredit-bindings binds M-? to sp-convolute-sexp, which conflicts
+  ;; with xref-find-references (the standard M-? binding).  Unbind it.
+  (define-key smartparens-mode-map (kbd "M-?") nil)
 
   (declare-function prelude-wrap-with "warbo-generic")
   (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
