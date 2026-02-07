@@ -17,6 +17,30 @@
 (defvar warbo-haskell-test-timeout 60
   "Timeout in seconds for waiting on HLS operations.")
 
+(defun warbo-haskell-test-cleanup-sessions ()
+  "Kill all haskell-mode sessions and their buffers without prompting.
+This prevents stale sessions from leaking between tests and triggering
+interactive prompts that hang in batch mode:
+- \"Choose Haskell session:\" (from `haskell-session-choose', via
+  `haskell-completing-read-function' which defaults to `ido-completing-read')
+- \"Kill the whole session?\" (from `haskell-interactive-kill', which is
+  on `kill-buffer-hook' of interactive buffers)
+We manipulate `haskell-sessions' directly rather than calling
+`haskell-session-kill', since that calls `(haskell-session)' which
+can itself prompt."
+  (when (boundp 'haskell-sessions)
+    (dolist (session haskell-sessions)
+      (ignore-errors (haskell-kill-session-process session))
+      (ignore-errors
+        (let ((ibuf (haskell-session-get session 'interactive-buffer)))
+          (when (and ibuf (buffer-live-p ibuf))
+            ;; Remove kill-buffer-hook to avoid "Kill the whole session?"
+            ;; prompt from `haskell-interactive-kill'
+            (with-current-buffer ibuf
+              (remove-hook 'kill-buffer-hook #'haskell-interactive-kill t))
+            (kill-buffer ibuf)))))
+    (setq haskell-sessions nil)))
+
 (defun warbo-haskell-test-poll (predicate timeout _message)
   "Poll PREDICATE until true or TIMEOUT seconds elapse.
 MESSAGE describes what we're waiting for.  Returns predicate result or nil."
@@ -220,6 +244,7 @@ HLS is started and ready before BODY runs."
                                    (with-current-buffer events-buf
                                      (buffer-string)))))))
            ,@body)
+       (warbo-haskell-test-cleanup-sessions)
        (when-let ((buf (find-buffer-visiting file)))
          (with-current-buffer buf
            (when (eglot-current-server)
@@ -442,6 +467,7 @@ This verifies HLS can navigate to definitions in sibling packages."
             (should (string-match-p "pkg1.*Lib\\.hs" buffer-file-name))))
 
       ;; Cleanup
+      (warbo-haskell-test-cleanup-sessions)
       (dolist (file (list file1 file2))
         (when-let ((buf (find-buffer-visiting file)))
           (with-current-buffer buf
@@ -541,6 +567,7 @@ Revisit this when the next stable Nixpkgs comes out."
                       "documentation in stack project")))
             (should doc)))
 
+      (warbo-haskell-test-cleanup-sessions)
       (when-let ((buf (find-buffer-visiting file)))
         (with-current-buffer buf
           (when (eglot-current-server)
@@ -618,40 +645,56 @@ the interactive 'Hit space to flush' prompts that block on user input."
    (require 'haskell-interactive-mode)
    (require 'haskell-process)
 
-   ;; In batch mode, haskell-process-load-file may prompt "Choose Haskell session:"
-   ;; Auto-select the first (and likely only) session to avoid hanging.
-   (let ((completing-read-function
+   (warbo-haskell-test-cleanup-sessions)
+
+   ;; In batch mode, haskell-process-load-file may still prompt if creating
+   ;; a new session.  The "Choose Haskell session:" prompt goes through
+   ;; `haskell-completing-read-function' (default: `ido-completing-read'),
+   ;; not `completing-read', so we must override both.  Also disable the
+   ;; y-or-n-p prompt from `haskell-session-new-assume-from-cabal'.
+   (let ((haskell-completing-read-function
           (lambda (_prompt collection &rest _args)
-            (car (all-completions "" collection)))))
-     (haskell-process-load-file)
+            (or (car (all-completions "" collection))
+                (car collection)
+                "")))
+         (haskell-process-load-or-reload-prompt nil))
+     (cl-letf (((symbol-function 'completing-read)
+                (lambda (_prompt collection &rest _args)
+                  (or (car (all-completions "" collection))
+                      (car collection)
+                      "")))
+               ((symbol-function 'ido-completing-read)
+                (lambda (_prompt choices &rest _args)
+                  (car choices))))
+       (haskell-process-load-file)
 
-     (let ((proc-ready
-            (warbo-haskell-test-poll
-             (lambda ()
-               (and (haskell-session-maybe)
-                    (haskell-process-process (haskell-process))))
-             10
-             "GHCi process")))
-       (unless proc-ready
-         (ert-fail "GHCi process failed to start"))
+       (let ((proc-ready
+              (warbo-haskell-test-poll
+               (lambda ()
+                 (and (haskell-session-maybe)
+                      (haskell-process-process (haskell-process))))
+               10
+               "GHCi process")))
+         (unless proc-ready
+           (ert-fail "GHCi process failed to start"))
 
-       (let* ((result-output nil)
-              (process (haskell-process)))
-         (haskell-process-queue-command
-          process
-          (make-haskell-command
-           :state nil
-           :go (lambda (_) (haskell-process-send-string (haskell-process) "1 + 2"))
-           :complete (lambda (_ response) (setq result-output response))))
+         (let* ((result-output nil)
+                (process (haskell-process)))
+           (haskell-process-queue-command
+            process
+            (make-haskell-command
+             :state nil
+             :go (lambda (_) (haskell-process-send-string (haskell-process) "1 + 2"))
+             :complete (lambda (_ response) (setq result-output response))))
 
-         (let ((got-result
-                (warbo-haskell-test-poll
-                 (lambda () result-output)
-                 10
-                 "REPL evaluation")))
-           (unless got-result
-             (ert-fail "REPL evaluation returned no result"))
-           (should (string-match-p "3" got-result))))))))
+           (let ((got-result
+                  (warbo-haskell-test-poll
+                   (lambda () result-output)
+                   10
+                   "REPL evaluation")))
+             (unless got-result
+               (ert-fail "REPL evaluation returned no result"))
+             (should (string-match-p "3" got-result)))))))))
 
 (ert-deftest warbo-test-haskell-documentation-lookup ()
   "Test accessing documentation via eldoc-doc-buffer.
@@ -826,6 +869,7 @@ Verifies HLS can provide info about imported library functions."
                       "documentation for external function")))
             (should doc)))
 
+      (warbo-haskell-test-cleanup-sessions)
       (when-let ((buf (find-buffer-visiting file)))
         (with-current-buffer buf
           (when (eglot-current-server)
@@ -912,6 +956,7 @@ Verifies jump-to-definition works across local module boundaries."
             (should (string-match-p "Utils\\.hs" buffer-file-name))))
 
       ;; Cleanup
+      (warbo-haskell-test-cleanup-sessions)
       (dolist (file (list file1 file2))
         (when-let ((buf (find-buffer-visiting file)))
           (with-current-buffer buf
@@ -1090,12 +1135,21 @@ Should open a buffer running GHCi with the project loaded."
    "main = putStrLn \"Hello\""
    "putStrLn"
 
-   (call-interactively 'haskell-interactive-switch)
-   (sleep-for 2)
-   (let ((repl-buffer (get-buffer "*haskell*")))
-     (should repl-buffer)
-     (with-current-buffer repl-buffer
-       (should (string-match-p "GHCi" (buffer-string)))))))
+   ;; Override session-choosing prompts that hang in batch mode.
+   ;; `haskell-completing-read-function' defaults to `ido-completing-read',
+   ;; not `completing-read', so we must handle both.
+   (let ((haskell-completing-read-function
+          (lambda (_prompt collection &rest _args)
+            (or (car (all-completions "" collection))
+                (car collection)
+                "")))
+         (haskell-process-load-or-reload-prompt nil))
+     (call-interactively 'haskell-interactive-switch)
+     (sleep-for 2)
+     (let ((repl-buffer (get-buffer "*haskell*")))
+       (should repl-buffer)
+       (with-current-buffer repl-buffer
+         (should (string-match-p "GHCi" (buffer-string))))))))
 
 (ert-deftest warbo-test-haskell-send-region-to-ghci ()
   "Test sending selected code to GHCi for evaluation.
@@ -1107,15 +1161,22 @@ Selecting '2 + 2' and sending to REPL should show '4'."
    "x = 2 + 2"
    "x"
 
-   (call-interactively 'haskell-interactive-switch)
-   (sleep-for 1)
-   (goto-char (point-min))
-   (set-mark (point))
-   (end-of-line)
-   (call-interactively 'haskell-interactive-mode-eval-region)
-   (sleep-for 1)
-   (with-current-buffer (get-buffer "*haskell*")
-     (should (string-match-p "4" (buffer-string))))))
+   ;; Override session-choosing prompts that hang in batch mode
+   (let ((haskell-completing-read-function
+          (lambda (_prompt collection &rest _args)
+            (or (car (all-completions "" collection))
+                (car collection)
+                "")))
+         (haskell-process-load-or-reload-prompt nil))
+     (call-interactively 'haskell-interactive-switch)
+     (sleep-for 1)
+     (goto-char (point-min))
+     (set-mark (point))
+     (end-of-line)
+     (call-interactively 'haskell-interactive-mode-eval-region)
+     (sleep-for 1)
+     (with-current-buffer (get-buffer "*haskell*")
+       (should (string-match-p "4" (buffer-string)))))))
 
 (ert-deftest warbo-test-haskell-ghci-reload-on-save ()
   "Test that saving a Haskell file automatically reloads it in GHCi."
