@@ -1,0 +1,31 @@
+From: Chris Warburton
+Date: Sat, 07 Feb 2026 20:10:05 +0000
+Subject: Re: comment
+Message-Id: <a4a5f62ef36f8183-dcacf8c7905da943-artemis@nixos-framework>
+References: <a4a5f62ef36f8183-0-artemis@nixos-framework>
+In-Reply-To: <a4a5f62ef36f8183-0-artemis@nixos-framework>
+
+Expanded tests/issues-tests.el from 12 to 48 tests with robust coverage.
+
+New tests added:
+- issue-parse-line edge cases: zero comments, high count, empty status, garbage input, index always 0
+- issue-parse-comment: message-id extraction, date-string format, zero-padding
+- issues-timestamp-to-iso: zero-padding edge case
+- issues-make-sort-key: issue itself (index 0), last comment (index=count), ordering correctness across issues and comments
+- issues-compare-numeric: basic numeric string comparison
+- issue-get-line: returns nil for missing ID
+- issue-get-comment: first post (index 0) content
+- issue-comment-count: correct counts for all three example issues
+- issue-comments: excludes first post, correct indices
+- issue-chain: correct entry counts, sequential indices, parsed dates
+- issue-chain-raw: sequential indices starting at 0
+- issue-last-updated: returns newest date for multi-comment and no-comment issues
+- issue-all-details: status propagation, empty descriptions for comments, non-empty for issues, sort ordering, comment-count propagation
+- issues-root-directory and issues-issue-directory: correct path construction
+- issues-read-message-id: middle segment extraction for comments and first post
+- issues-file-map: correct entry count and structure
+- issues-append-sort-key: adds sort-key while preserving existing fields
+- list-issues: buffer creation, mode, entry count, 7 columns per entry
+- Mode definitions and keybindings
+
+Also fixed a bug in the mock: warbo-issues-mock-insert-file-contents was using wrong index to extract issue-id from path (off by one due to /new/ subdirectory in path).
