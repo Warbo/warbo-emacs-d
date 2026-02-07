@@ -1,0 +1,15 @@
+From: Chris Warburton
+Date: Sat, 07 Feb 2026 16:36:00 +0000
+State: new
+Subject: Don't attempt to start eglot if LSP binary isn't found
+Message-Id: <99a7bf889a5748ee-0-artemis@nixos-framework>
+
+Some of our eglot setup is deferred to .dir-locals.el files, to avoid
+hard-coding things which should be project-specific; and we use direnv to ensure
+project-specific binaries defined in shell.nix are available in PATH.
+
+However, we sometimes just want to load a file that's not in such a
+project.  This causes eglot to bail out, since the executable isn't
+found (e.g. haskell-language-server-wrapper, when opening a .hs file).
+That's naff: we should just keep eglot disabled, in that case (giving a
+message to say what's happened).

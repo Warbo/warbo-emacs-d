@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Sat, 07 Feb 2026 16:41:23 +0000
+State: new
+Subject: issues mode (artemis) is SLOW
+Message-Id: <a4a5f62ef36f8183-0-artemis@nixos-framework>
+
+The slowness seems to be caused by running git-artemis commands over and over,
+e.g. to inspect each field of each issue.
+
+We can probably consolidate a bunch of those calls (e.g. getting lots of info
+from a single call); and maybe even parallelise the rest (e.g. via GNU Parallel)
