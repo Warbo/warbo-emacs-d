@@ -130,38 +130,64 @@
                                               (issues-timestamp-to-iso y)))))))
 
 (defun issue-all-details ()
-  "Return all details of all artemis issues, including comments."
-  (apply
-   'append
-   (mapcar
-    (lambda (id)
-      (let* ((updated     (issue-last-updated id))
-             (issue-line  (issue-get-line     id))
-             (raw-details (car   (issue-chain id)))
-             (issue-details
-              (issues-append-sort-key
-               (append issue-line
-                       `(issue ,id
-                         index 0
-                         updated ,updated
-                         date  ,(plist-get (cadr raw-details) 'date-string)))))
-             (comments
-              (mapcar
-               (lambda (comment)
-                 (let ((index   (car  comment))
-                       (details (cadr comment)))
-                   (issues-append-sort-key
-                    `(id            ,(plist-get       details 'message-id   )
-                      date          ,(plist-get       details 'date-string  )
-                      status        ,(plist-get issue-details 'status       )
-                      issue         ,(plist-get issue-details 'id           )
-                      updated       ,(plist-get issue-details 'updated      )
-                      comment-count ,(plist-get issue-details 'comment-count)
-                      index         ,index
-                      description   ""))))
-               (issue-comments id))))
-        (cons issue-details comments)))
-    (issue-list-ids))))
+  "Return all details of all artemis issues, including comments.
+
+Does one `artemis list' call and one `artemis show' per comment (plus the issue
+itself).  All derived data (last-updated, sort keys, etc.) is computed from
+those results without further subprocess calls."
+  (let* (;; Single artemis list call: parse all issue lines up front
+         (parsed-lines (mapcar 'issue-parse-line
+                               (seq-filter (lambda (line) (not (string= "" line)))
+                                           (issue-artemis-list)))))
+    (apply
+     'append
+     (mapcar
+      (lambda (issue-line)
+        (let* ((id    (plist-get issue-line 'id))
+               (count (plist-get issue-line 'comment-count))
+               ;; Single set of artemis show calls per issue: fetch each
+               ;; comment exactly once and parse the results
+               (chain (mapcar
+                       (lambda (index)
+                         (list index
+                               (issue-parse-comment
+                                (issue-get-comment id index))))
+                       (number-sequence 0 count)))
+               ;; Compute last-updated from the already-fetched chain
+               (timestamps (mapcar (lambda (entry)
+                                     (plist-get (cadr entry) 'date))
+                                   chain))
+               (updated (car (sort timestamps
+                                   (lambda (x y)
+                                     (string-greaterp
+                                      (issues-timestamp-to-iso x)
+                                      (issues-timestamp-to-iso y))))))
+               (raw-details (car chain))
+               (issue-details
+                (issues-append-sort-key
+                 (append issue-line
+                         `(issue   ,id
+                           index   0
+                           updated ,updated
+                           date    ,(plist-get (cadr raw-details)
+                                              'date-string)))))
+               (comments
+                (mapcar
+                 (lambda (comment)
+                   (let ((index   (car  comment))
+                         (details (cadr comment)))
+                     (issues-append-sort-key
+                      `(id            ,(plist-get       details 'message-id   )
+                        date          ,(plist-get       details 'date-string  )
+                        status        ,(plist-get issue-details 'status       )
+                        issue         ,(plist-get issue-details 'id           )
+                        updated       ,(plist-get issue-details 'updated      )
+                        comment-count ,(plist-get issue-details 'comment-count)
+                        index         ,index
+                        description   ""))))
+                 (cdr chain))))
+          (cons issue-details comments)))
+      parsed-lines))))
 
 (defun issues-compare-numeric (x y)
   "Compare strings X and Y containing numbers."
@@ -257,6 +283,28 @@ Any timezone information is ignored; we assume the timestamp is UTC."
            (details (issues-parse-comment (buffer-string))))
        (list issue (plist-get details 'message-id))))))
 
+(defun issues-add-issue ()
+  "Create a new artemis issue, prompting for subject and body."
+  (interactive)
+  (let* ((subject (read-string "Subject: "))
+         (body    (read-string "Body: "))
+         (editor  (make-temp-file "issues-editor" nil ".sh")))
+    (unwind-protect
+        (progn
+          (with-temp-file editor
+            (insert "#!/usr/bin/env bash\n"
+                    "sed -i "
+                    "'s/brief description/" subject "/; "
+                    "s/Detailed description\\./" body  "/' "
+                    "\"$1\"\n"))
+          (set-file-modes editor #o755)
+          (let ((process-environment
+                 (cons (concat "EDITOR=" editor) process-environment)))
+            (with-temp-buffer
+              (call-process "artemis" nil t nil "add")
+              (buffer-string))))
+      (delete-file editor))))
+
 (defun issues-add-comment ()
   "Run `artemis add XXX', taking the issue ID from the current context."
   (interactive)
@@ -273,9 +321,10 @@ Any timezone information is ignored; we assume the timestamp is UTC."
 
 (defvar issues-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET"    ) 'issues-show-issue )
-    (define-key map (kbd "C-c C-c") 'issues-add-comment)
-    (define-key map (kbd "C-c C-k") 'issues-close)
+    (define-key map (kbd "RET"    ) 'issues-show-issue  )
+    (define-key map (kbd "C-c C-n") 'issues-add-issue   )
+    (define-key map (kbd "C-c C-c") 'issues-add-comment )
+    (define-key map (kbd "C-c C-k") 'issues-close       )
     map)
   "Keymap for `issues-mode'.")
 
@@ -324,6 +373,16 @@ Any timezone information is ignored; we assume the timestamp is UTC."
   (pop-to-buffer "*issues*" nil)
   (issues-mode)
   (use-local-map issues-mode-map)
+  (setq header-line-format
+        (concat (propertize "[Add issue]"
+                            'face 'link
+                            'mouse-face 'highlight
+                            'keymap (let ((map (make-sparse-keymap)))
+                                      (define-key map [header-line mouse-1]
+                                                  'issues-add-issue)
+                                      map)
+                            'help-echo "mouse-1: Create a new issue (C-c C-n)")
+                "  "))
   (setq tabulated-list-entries
         (mapcar
          (lambda (details)

@@ -490,6 +490,33 @@ and comments appear in index order within their issue."
     (should (equal (plist-get result 'comment-count) 2))
     (should (equal (plist-get result 'index) 0))))
 
+;; Test that issue-all-details makes the minimum number of subprocess calls
+
+(ert-deftest warbo-issues-all-details-minimal-subprocess-calls ()
+  "issue-all-details should call artemis list once and artemis show once per
+comment/issue-post, not redundantly."
+  (let ((call-counts (list (cons "artemis-list" 0)
+                           (cons "artemis-show" 0))))
+    (cl-letf (((symbol-function 'shell-command-to-string)
+               (lambda (command &rest args)
+                 (cond
+                  ((string= command "artemis list -a -o latest")
+                   (cl-incf (cdr (assoc "artemis-list" call-counts)))
+                   (warbo-issues-mock-shell-command-to-string
+                    warbo-issues-examples command))
+                  ((string-prefix-p "artemis show " command)
+                   (cl-incf (cdr (assoc "artemis-show" call-counts)))
+                   (warbo-issues-mock-shell-command-to-string
+                    warbo-issues-examples command))
+                  (t (warbo-issues-mock-shell-command-to-string
+                      warbo-issues-examples command))))))
+      (issue-all-details)
+      ;; Should call "artemis list" exactly once
+      (should (equal (cdr (assoc "artemis-list" call-counts)) 1))
+      ;; Should call "artemis show" once per issue+comment:
+      ;; Issue 1: 4 (index 0,1,2,3), Issue 2: 3 (0,1,2), Issue 3: 1 (0) = 8
+      (should (equal (cdr (assoc "artemis-show" call-counts)) 8)))))
+
 ;; Test the top-level invocation
 
 (ert-deftest warbo-issues-defined ()
@@ -533,15 +560,250 @@ and comments appear in index order within their issue."
      (kill-buffer buf))))
 
 (ert-deftest warbo-issues-list-keybindings-work ()
-  "The issues-mode keymap should have RET and C-c C-c bound."
+  "The issues-mode keymap should have the expected bindings."
   (with-examples
    (list-issues)
    (let ((buf (get-buffer "*issues*")))
      (with-current-buffer buf
-       ;; RET should be bound to issues-show-issue
-       (should (eq (lookup-key issues-mode-map (kbd "RET")) 'issues-show-issue))
-       ;; C-c C-c should be bound to issues-add-comment
+       (should (eq (lookup-key issues-mode-map (kbd "RET"))     'issues-show-issue))
+       (should (eq (lookup-key issues-mode-map (kbd "C-c C-n")) 'issues-add-issue))
        (should (eq (lookup-key issues-mode-map (kbd "C-c C-c")) 'issues-add-comment))
-       ;; C-c C-k should be bound to issues-close
        (should (eq (lookup-key issues-mode-map (kbd "C-c C-k")) 'issues-close)))
      (kill-buffer buf))))
+
+(ert-deftest warbo-issues-add-issue-defined ()
+  "issues-add-issue should be an interactive command."
+  (should (fboundp 'issues-add-issue))
+  (should (commandp 'issues-add-issue)))
+
+(ert-deftest warbo-issues-list-has-header-button ()
+  "list-issues should set a header-line with an [Add issue] button."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       (should header-line-format)
+       (should (string-match-p "Add issue" header-line-format)))
+     (kill-buffer buf))))
+
+;; Integration tests: these call the real artemis CLI against a temporary repo
+
+(defvar warbo-issues-test-repo nil
+  "Path to temporary git repo used by integration tests.")
+
+(defun warbo-issues-integration-setup ()
+  "Create a temporary git repo with known test issues.
+Returns the repo directory path."
+  (let* ((dir (make-temp-file "issues-test-" t))
+         (default-directory (file-name-as-directory dir))
+         (editor (expand-file-name "fake-editor.sh" dir)))
+    ;; Initialise git repo
+    (call-process "git" nil nil nil "init")
+    (call-process "git" nil nil nil "config" "user.name" "Test")
+    (call-process "git" nil nil nil "config" "user.email" "test@test")
+    ;; Write a fake editor script that replaces the artemis placeholders
+    ;; with values from $ISSUE_SUBJECT and $ISSUE_BODY env vars
+    (with-temp-file editor
+      (insert "#!/usr/bin/env bash\n"
+              "sed -i \"s/brief description/${ISSUE_SUBJECT}/\" \"$1\"\n"
+              "sed -i \"s/Detailed description\\./${ISSUE_BODY}/\" \"$1\"\n"))
+    (set-file-modes editor #o755)
+    ;; Create test issues using the real artemis CLI
+    (let ((process-environment
+           (append (list (concat "EDITOR=" editor)
+                         "ISSUE_SUBJECT=First test issue"
+                         "ISSUE_BODY=Body of first issue")
+                   process-environment)))
+      (call-process "artemis" nil nil nil "add"))
+    (let ((process-environment
+           (append (list (concat "EDITOR=" editor)
+                         "ISSUE_SUBJECT=Second test issue"
+                         "ISSUE_BODY=Body of second issue")
+                   process-environment)))
+      (call-process "artemis" nil nil nil "add"))
+    ;; Add a comment to the first issue
+    (let* ((list-output (let ((default-directory (file-name-as-directory dir)))
+                          (shell-command-to-string "artemis list -a -o latest")))
+           (first-id (car (split-string list-output " "))))
+      (let ((process-environment
+             (append (list (concat "EDITOR=" editor)
+                           "ISSUE_SUBJECT=unused"
+                           "ISSUE_BODY=A comment on the first issue")
+                     process-environment)))
+        (call-process "artemis" nil nil nil "add" first-id)))
+    dir))
+
+(defun warbo-issues-integration-teardown (dir)
+  "Remove the temporary test repo at DIR."
+  (when (and dir (file-directory-p dir))
+    (delete-directory dir t)))
+
+(defmacro with-test-repo (&rest body)
+  "Run BODY with `default-directory' set to a temporary artemis repo."
+  `(let* ((warbo-issues-test-repo (warbo-issues-integration-setup))
+          (default-directory (file-name-as-directory warbo-issues-test-repo)))
+     (unwind-protect
+         (progn ,@body)
+       (warbo-issues-integration-teardown warbo-issues-test-repo))))
+
+(ert-deftest warbo-issues-integration-artemis-list-returns-lines ()
+  "issue-artemis-list should return non-empty output from the real CLI."
+  :tags '(integration)
+  (with-test-repo
+   (let ((lines (issue-artemis-list)))
+     (should (listp lines))
+     (should (> (length lines) 0))
+     ;; At least some lines should be non-empty
+     (should (> (length (seq-filter (lambda (l) (not (string= "" l))) lines)) 0)))))
+
+(ert-deftest warbo-issues-integration-parse-real-lines ()
+  "Every non-empty line from `artemis list' should parse successfully."
+  :tags '(integration)
+  (with-test-repo
+   (let ((lines (seq-filter (lambda (l) (not (string= "" l)))
+                            (issue-artemis-list))))
+     (should (= (length lines) 2))
+     (dolist (line lines)
+       (let ((parsed (issue-parse-line line)))
+         (should parsed)
+         (should (stringp (plist-get parsed 'id)))
+         (should (= (length (plist-get parsed 'id)) 16))
+         (should (numberp (plist-get parsed 'comment-count)))
+         (should (>= (plist-get parsed 'comment-count) 0))
+         (should (stringp (plist-get parsed 'status)))
+         (should (stringp (plist-get parsed 'description))))))))
+
+(ert-deftest warbo-issues-integration-list-ids-are-hex ()
+  "issue-list-ids should return 16-char hex strings."
+  :tags '(integration)
+  (with-test-repo
+   (let ((ids (issue-list-ids)))
+     (should (= (length ids) 2))
+     (dolist (id ids)
+       (should (string-match-p "^[0-9a-f]\\{16\\}$" id))))))
+
+(ert-deftest warbo-issues-integration-get-comment-returns-headers ()
+  "issue-get-comment should return text with Date and Message-Id headers."
+  :tags '(integration)
+  (with-test-repo
+   (let* ((ids (issue-list-ids))
+          (id  (car ids))
+          (raw (issue-get-comment id 0)))
+     (should (stringp raw))
+     (should (string-match-p "Date:" raw))
+     (should (string-match-p "Message-Id:" raw)))))
+
+(ert-deftest warbo-issues-integration-parse-real-comment ()
+  "issue-parse-comment should extract valid fields from a real comment."
+  :tags '(integration)
+  (with-test-repo
+   (let* ((ids    (issue-list-ids))
+          (id     (car ids))
+          (raw    (issue-get-comment id 0))
+          (parsed (issue-parse-comment raw)))
+     ;; date should be a parsed-time list with year > 2000
+     (should (listp (plist-get parsed 'date)))
+     (should (> (nth 5 (plist-get parsed 'date)) 2000))
+     ;; date-string should look like YYYY-MM-DD
+     (should (string-match-p "^[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}$"
+                             (plist-get parsed 'date-string)))
+     ;; message-id should be a non-empty string
+     (should (stringp (plist-get parsed 'message-id)))
+     (should (> (length (plist-get parsed 'message-id)) 0)))))
+
+(ert-deftest warbo-issues-integration-chain-length-matches-comment-count ()
+  "issue-chain should return 1 + comment-count entries for a real issue."
+  :tags '(integration)
+  (with-test-repo
+   (let* ((lines (issue-artemis-lines))
+          ;; Pick an issue that has at least one comment
+          (with-comments (car (seq-filter
+                               (lambda (l) (> (plist-get l 'comment-count) 0))
+                               lines))))
+     (should with-comments)
+     (let* ((id    (plist-get with-comments 'id))
+            (count (plist-get with-comments 'comment-count))
+            (chain (issue-chain id)))
+       (should (equal (length chain) (1+ count)))
+       ;; Indices should be 0..count
+       (should (equal (mapcar 'car chain)
+                      (number-sequence 0 count)))))))
+
+(ert-deftest warbo-issues-integration-all-details-structure ()
+  "issue-all-details should return well-formed plists from real data."
+  :tags '(integration)
+  (with-test-repo
+   (let ((details (issue-all-details)))
+     (should (> (length details) 0))
+     (dolist (entry details)
+       ;; Every entry must have these fields
+       (should (plist-get entry 'status))
+       (should (plist-get entry 'sort-key))
+       (should (plist-get entry 'date))
+       ;; Issue entries (index 0) should have an id; comments may not
+       (when (equal (plist-get entry 'index) 0)
+         (should (plist-get entry 'id)))
+       ;; index must be a non-negative integer
+       (should (numberp (plist-get entry 'index)))
+       (should (>= (plist-get entry 'index) 0))
+       ;; comment-count must be a non-negative integer
+       (should (numberp (plist-get entry 'comment-count)))
+       (should (>= (plist-get entry 'comment-count) 0))))))
+
+(ert-deftest warbo-issues-integration-all-details-count ()
+  "issue-all-details should return one entry per issue + one per comment."
+  :tags '(integration)
+  (with-test-repo
+   (let* ((lines   (issue-artemis-lines))
+          (expected (apply '+ (mapcar
+                               (lambda (l) (1+ (plist-get l 'comment-count)))
+                               lines)))
+          (details (issue-all-details)))
+     (should (equal (length details) expected)))))
+
+(ert-deftest warbo-issues-integration-list-issues-populates-buffer ()
+  "list-issues should create a buffer with real issue data."
+  :tags '(integration)
+  (with-test-repo
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (unwind-protect
+         (with-current-buffer buf
+           (should (eq major-mode 'issues-mode))
+           (should (> (length tabulated-list-entries) 0))
+           ;; Each entry should have 7 columns
+           (dolist (entry tabulated-list-entries)
+             (should (= (length (cadr entry)) 7)))
+           ;; The buffer should contain rendered text
+           (should (> (buffer-size) 0)))
+       (kill-buffer buf)))))
+
+(ert-deftest warbo-issues-integration-statuses-are-known ()
+  "All issue statuses from the real repo should be recognisable values."
+  :tags '(integration)
+  (with-test-repo
+   (let* ((lines    (issue-artemis-lines))
+          (statuses (seq-uniq (mapcar (lambda (l) (plist-get l 'status)) lines))))
+     ;; Every status should be a non-empty string (all new in our test repo)
+     (dolist (s statuses)
+       (should (stringp s))
+       (should (> (length s) 0))))))
+
+(ert-deftest warbo-issues-integration-add-issue ()
+  "issues-add-issue should create a new issue visible in the listing."
+  :tags '(integration)
+  (with-test-repo
+   (let ((count-before (length (issue-list-ids))))
+     ;; Simulate the interactive prompts
+     (cl-letf (((symbol-function 'read-string)
+                (lambda (prompt &rest _)
+                  (pcase prompt
+                    ("Subject: " "Brand new issue")
+                    ("Body: "    "Created by test")))))
+       (issues-add-issue))
+     (let ((count-after (length (issue-list-ids))))
+       (should (equal count-after (1+ count-before)))
+       ;; The new issue should appear in the listing
+       (let* ((lines (issue-artemis-lines))
+              (descs (mapcar (lambda (l) (plist-get l 'description)) lines)))
+         (should (member "Brand new issue" descs)))))))
