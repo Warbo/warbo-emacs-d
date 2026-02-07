@@ -18,27 +18,19 @@
   "Timeout in seconds for waiting on HLS operations.")
 
 (defun warbo-haskell-test-cleanup-sessions ()
-  "Kill all haskell-mode sessions and their buffers without prompting.
+  "Kill all haskell-mode session processes and clear the session list.
 This prevents stale sessions from leaking between tests and triggering
-interactive prompts that hang in batch mode:
-- \"Choose Haskell session:\" (from `haskell-session-choose', via
-  `haskell-completing-read-function' which defaults to `ido-completing-read')
-- \"Kill the whole session?\" (from `haskell-interactive-kill', which is
-  on `kill-buffer-hook' of interactive buffers)
-We manipulate `haskell-sessions' directly rather than calling
-`haskell-session-kill', since that calls `(haskell-session)' which
-can itself prompt."
+the interactive \"Choose Haskell session:\" prompt (which hangs in batch
+mode).  We manipulate `haskell-sessions' directly rather than calling
+`haskell-session-kill', since that calls `(haskell-session)' which can
+itself prompt.
+We do NOT kill interactive buffers here, since they have a
+`kill-buffer-hook' (`haskell-interactive-kill') that prompts
+\"Kill the whole session?\".  Leaving them around is harmless once the
+session is removed from `haskell-sessions'."
   (when (boundp 'haskell-sessions)
     (dolist (session haskell-sessions)
-      (ignore-errors (haskell-kill-session-process session))
-      (ignore-errors
-        (let ((ibuf (haskell-session-get session 'interactive-buffer)))
-          (when (and ibuf (buffer-live-p ibuf))
-            ;; Remove kill-buffer-hook to avoid "Kill the whole session?"
-            ;; prompt from `haskell-interactive-kill'
-            (with-current-buffer ibuf
-              (remove-hook 'kill-buffer-hook #'haskell-interactive-kill t))
-            (kill-buffer ibuf)))))
+      (ignore-errors (haskell-kill-session-process session)))
     (setq haskell-sessions nil)))
 
 (defun warbo-haskell-test-poll (predicate timeout _message)
