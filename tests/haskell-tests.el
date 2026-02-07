@@ -618,35 +618,40 @@ the interactive 'Hit space to flush' prompts that block on user input."
    (require 'haskell-interactive-mode)
    (require 'haskell-process)
 
-   (haskell-process-load-file)
+   ;; In batch mode, haskell-process-load-file may prompt "Choose Haskell session:"
+   ;; Auto-select the first (and likely only) session to avoid hanging.
+   (let ((completing-read-function
+          (lambda (_prompt collection &rest _args)
+            (car (all-completions "" collection)))))
+     (haskell-process-load-file)
 
-   (let ((proc-ready
-          (warbo-haskell-test-poll
-           (lambda ()
-             (and (haskell-session-maybe)
-                  (haskell-process-process (haskell-process))))
-           10
-           "GHCi process")))
-     (unless proc-ready
-       (ert-fail "GHCi process failed to start"))
+     (let ((proc-ready
+            (warbo-haskell-test-poll
+             (lambda ()
+               (and (haskell-session-maybe)
+                    (haskell-process-process (haskell-process))))
+             10
+             "GHCi process")))
+       (unless proc-ready
+         (ert-fail "GHCi process failed to start"))
 
-     (let* ((result-output nil)
-            (process (haskell-process)))
-       (haskell-process-queue-command
-        process
-        (make-haskell-command
-         :state nil
-         :go (lambda (_) (haskell-process-send-string (haskell-process) "1 + 2"))
-         :complete (lambda (_ response) (setq result-output response))))
+       (let* ((result-output nil)
+              (process (haskell-process)))
+         (haskell-process-queue-command
+          process
+          (make-haskell-command
+           :state nil
+           :go (lambda (_) (haskell-process-send-string (haskell-process) "1 + 2"))
+           :complete (lambda (_ response) (setq result-output response))))
 
-       (let ((got-result
-              (warbo-haskell-test-poll
-               (lambda () result-output)
-               10
-               "REPL evaluation")))
-         (unless got-result
-           (ert-fail "REPL evaluation returned no result"))
-         (should (string-match-p "3" got-result)))))))
+         (let ((got-result
+                (warbo-haskell-test-poll
+                 (lambda () result-output)
+                 10
+                 "REPL evaluation")))
+           (unless got-result
+             (ert-fail "REPL evaluation returned no result"))
+           (should (string-match-p "3" got-result))))))))
 
 (ert-deftest warbo-test-haskell-documentation-lookup ()
   "Test accessing documentation via eldoc-doc-buffer.
