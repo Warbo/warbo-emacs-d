@@ -1,0 +1,20 @@
+From: Chris Warburton
+Date: Sat, 07 Feb 2026 16:02:31 +0000
+Subject: Re: Test Haskell setup
+Message-Id: <e9cbc4d1d87f6e7f-ccfe6f2094f8f977-artemis@nixos-framework>
+References: <e9cbc4d1d87f6e7f-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <e9cbc4d1d87f6e7f-0-artemis@TRAC-AAD-5340>
+
+Written a bunch of tests, and got many of them running.
+
+Some failures remain, which can be addressed as-and-when.
+
+Some are stubs, which are skipped, to act as placeholders for
+functionality that we haven't set up yet.
+
+One is skipped due to a bug in the stack binary in the Nixpkgs version
+we're using.
+
+It took a while to get these all running without prompting the user (and hence
+hanging). Now that they're all at least running to completion, I'm closing this
+overall issue.
