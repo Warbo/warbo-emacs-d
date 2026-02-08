@@ -148,12 +148,16 @@ If in a mistty buffer, create another with same context but new number."
 
 (use-package mistty
   :ensure t
+  :init
+  (defun warbo-mistty-no-whitespace-mode ()
+    (whitespace-mode -1))
   :bind ((:map mistty-prompt-map
                ("C-<up>"   . mistty-send-C-p)
                ("C-<down>" . mistty-send-C-n)
                ("C-a"      . mistty-beginning-of-line))
          (:map mistty-mode-map
-               ("C-a"      . smart-line-beginning))))
+               ("C-a"      . smart-line-beginning)))
+  :hook ((mistty . warbo-mistty-no-whitespace-mode)))
 
 (use-package shx
   :ensure t
