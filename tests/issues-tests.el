@@ -492,30 +492,25 @@ and comments appear in index order within their issue."
 
 ;; Test that issue-all-details makes the minimum number of subprocess calls
 
-(ert-deftest warbo-issues-all-details-minimal-subprocess-calls ()
-  "issue-all-details should call artemis list once and artemis show once per
-comment/issue-post, not redundantly."
-  (let ((call-counts (list (cons "artemis-list" 0)
-                           (cons "artemis-show" 0))))
+(ert-deftest warbo-issues-all-details-no-artemis-show-calls ()
+  "issue-all-details should read .issues/ files directly, not call artemis show."
+  (let ((show-called nil))
     (cl-letf (((symbol-function 'shell-command-to-string)
                (lambda (command &rest args)
-                 (cond
-                  ((string= command "artemis list -a -o latest")
-                   (cl-incf (cdr (assoc "artemis-list" call-counts)))
-                   (warbo-issues-mock-shell-command-to-string
-                    warbo-issues-examples command))
-                  ((string-prefix-p "artemis show " command)
-                   (cl-incf (cdr (assoc "artemis-show" call-counts)))
-                   (warbo-issues-mock-shell-command-to-string
-                    warbo-issues-examples command))
-                  (t (warbo-issues-mock-shell-command-to-string
-                      warbo-issues-examples command))))))
+                 (when (string-prefix-p "artemis show " command)
+                   (setq show-called t))
+                 (warbo-issues-mock-shell-command-to-string
+                  warbo-issues-examples command)))
+              ((symbol-function 'directory-files-and-attributes)
+               (lambda (dir &rest args)
+                 (apply 'warbo-issues-mock-directory-files-and-attributes
+                        warbo-issues-examples dir args)))
+              ((symbol-function 'insert-file-contents)
+               (lambda (file &rest args)
+                 (apply 'warbo-issues-mock-insert-file-contents
+                        warbo-issues-examples file args))))
       (issue-all-details)
-      ;; Should call "artemis list" exactly once
-      (should (equal (cdr (assoc "artemis-list" call-counts)) 1))
-      ;; Should call "artemis show" once per issue+comment:
-      ;; Issue 1: 4 (index 0,1,2,3), Issue 2: 3 (0,1,2), Issue 3: 1 (0) = 8
-      (should (equal (cdr (assoc "artemis-show" call-counts)) 8)))))
+      (should-not show-called))))
 
 ;; Test the top-level invocation
 

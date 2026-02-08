@@ -2,32 +2,15 @@
 
 ;;; Commentary:
 
-;; Provide a 'list-issues' command for interacting with Artemis within Emacs
+;; Provide a 'list-issues' command for interacting with Artemis within Emacs.
+;; Issue data is read directly from .issues/ files, rather than invoking the
+;; artemis CLI for each comment.
 
 (require 'seq)
 
 ;;; Code:
 
 (declare-function issues-parse-comment "warbo-issues")
-
-(defvar issue-artemis-command-output nil
-  "The output of `artemis list -a'.
-
-   We use dynamic scope to look this up, as a form of dependency injection.
-   This lets us test functions without invoking commands.")
-
-;; These macros can be used for dependency injection: they set the variable
-;; 'issue-artemis-command-output' to either a string or the result of an
-;; 'artemis list' command.
-
-(defmacro issue-with-artemis-strings (strs &rest body)
-  "Use the list of strings STRS as artemis command output and run BODY."
-  `(let ((issue-artemis-command-output ,strs))
-     ,@body))
-
-(defun issue-artemis-list ()
-  "Get the output of an actual `artemis list' command."
-  (split-string (shell-command-to-string "artemis list -a -o latest") "\n"))
 
 ;; Parse artemis command output into useful datastructures
 
@@ -55,6 +38,10 @@
             status        ,status
             description   ,description)))))
 
+(defun issue-artemis-list ()
+  "Get the output of an actual `artemis list' command."
+  (split-string (shell-command-to-string "artemis list -a -o latest") "\n"))
+
 (defun issue-artemis-lines ()
   "Parse all of the lines from an `artemis list' command."
   (mapcar 'issue-parse-line
@@ -79,19 +66,21 @@
   (plist-get (issue-get-line id) 'comment-count))
 
 (defun issue-get-comment (id index)
-  "Return the comment of issue ID with INDEX."
-  (shell-command-to-string
-   (concat "artemis show " id " " (number-to-string index))))
+  "Return the comment of issue ID with INDEX, read from .issues/ files."
+  (cadr (nth index (issues-issue-files id))))
 
 (defun issue-comments (id)
   "Return a list of all comments on the issue with the given ID."
   (cdr (issue-chain id)))
 
 (defun issue-chain-raw (id)
-  "Return a list of the issue with the given ID and each of its comments."
-  (let ((range (number-sequence 0 (issue-comment-count id)))
-        (cmd   (lambda (index) (list index (issue-get-comment id index)))))
-    (mapcar cmd range)))
+  "Return a list of the issue with the given ID and each of its comments.
+Reads directly from .issues/ files rather than invoking artemis show."
+  (let ((i 0))
+    (mapcar (lambda (file)
+              (prog1 (list i (cadr file))
+                (setq i (1+ i))))
+            (issues-issue-files id))))
 
 (defun issue-parse-comment (str)
   "Pull details out of raw issue/comment text STR."
@@ -132,9 +121,9 @@
 (defun issue-all-details ()
   "Return all details of all artemis issues, including comments.
 
-Does one `artemis list' call and one `artemis show' per comment (plus the issue
-itself).  All derived data (last-updated, sort keys, etc.) is computed from
-those results without further subprocess calls."
+Does one `artemis list' call, then reads .issues/ files directly for each issue.
+All derived data (last-updated, sort keys, etc.) is computed from those results
+without further subprocess calls."
   (let* (;; Single artemis list call: parse all issue lines up front
          (parsed-lines (mapcar 'issue-parse-line
                                (seq-filter (lambda (line) (not (string= "" line)))
@@ -145,14 +134,15 @@ those results without further subprocess calls."
       (lambda (issue-line)
         (let* ((id    (plist-get issue-line 'id))
                (count (plist-get issue-line 'comment-count))
-               ;; Single set of artemis show calls per issue: fetch each
-               ;; comment exactly once and parse the results
-               (chain (mapcar
-                       (lambda (index)
-                         (list index
-                               (issue-parse-comment
-                                (issue-get-comment id index))))
-                       (number-sequence 0 count)))
+               ;; Read all files for this issue at once
+               (files (issues-issue-files id))
+               (chain (let ((i 0))
+                        (mapcar
+                         (lambda (file)
+                           (prog1
+                               (list i (issue-parse-comment (cadr file)))
+                             (setq i (1+ i))))
+                         files)))
                ;; Compute last-updated from the already-fetched chain
                (timestamps (mapcar (lambda (entry)
                                      (plist-get (cadr entry) 'date))

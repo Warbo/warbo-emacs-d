@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 07 Feb 2026 16:41:23 +0000
-State: new
+State: resolved
 Subject: issues mode (artemis) is SLOW
 Message-Id: <a4a5f62ef36f8183-0-artemis@nixos-framework>
+resolution: fixed
 
 The slowness seems to be caused by running git-artemis commands over and over,
 e.g. to inspect each field of each issue.

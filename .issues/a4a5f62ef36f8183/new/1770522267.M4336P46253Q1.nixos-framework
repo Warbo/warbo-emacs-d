@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Sun, 08 Feb 2026 03:44:09 +0000
+Subject: Re: issues mode (artemis) is SLOW
+Message-Id: <a4a5f62ef36f8183-9434dc81f3643465-artemis@nixos-framework>
+References: <a4a5f62ef36f8183-0-artemis@nixos-framework>
+In-Reply-To: <a4a5f62ef36f8183-0-artemis@nixos-framework>
+
+Read files directly (much quicker)
