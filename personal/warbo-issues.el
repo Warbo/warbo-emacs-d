@@ -330,13 +330,13 @@ Any timezone information is ignored; we assume the timestamp is UTC."
 
 (define-derived-mode issues-mode tabulated-list-mode "issues-mode"
   "Major mode issues-mode for interacting with Artemis issues."
-  (setq tabulated-list-format [("Sort"        4  t                      )
-                               ("Date"        10 t                      )
-                               ("Status"      8  t                      )
-                               ("Issue"       16 t                      )
-                               ("ID"          3  t                      )
-                               ("Index"       5  'issues-compare-numeric)
-                               ("Description" 0  nil                    )])
+  (setq tabulated-list-format [("Sort"        4  t                     )
+                               ("Date"        10 t                     )
+                               ("Status"      8  t                     )
+                               ("Issue"       16 t                     )
+                               ("ID"          3  t                     )
+                               ("Index"       5  issues-compare-numeric)
+                               ("Description" 0  nil                   )])
   (setq tabulated-list-padding 2)
   (setq tabulated-list-sort-key (cons "Sort" t))
   (tabulated-list-init-header))
@@ -373,16 +373,6 @@ Any timezone information is ignored; we assume the timestamp is UTC."
   (pop-to-buffer "*issues*" nil)
   (issues-mode)
   (use-local-map issues-mode-map)
-  (setq header-line-format
-        (concat (propertize "[Add issue]"
-                            'face 'link
-                            'mouse-face 'highlight
-                            'keymap (let ((map (make-sparse-keymap)))
-                                      (define-key map [header-line mouse-1]
-                                                  'issues-add-issue)
-                                      map)
-                            'help-echo "mouse-1: Create a new issue (C-c C-n)")
-                "  "))
   (setq tabulated-list-entries
         (mapcar
          (lambda (details)

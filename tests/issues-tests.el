@@ -576,14 +576,224 @@ comment/issue-post, not redundantly."
   (should (fboundp 'issues-add-issue))
   (should (commandp 'issues-add-issue)))
 
-(ert-deftest warbo-issues-list-has-header-button ()
-  "list-issues should set a header-line with an [Add issue] button."
+(ert-deftest warbo-issues-list-shows-expected-headers ()
+  "The issues list should display the correct column headers."
   (with-examples
    (list-issues)
    (let ((buf (get-buffer "*issues*")))
      (with-current-buffer buf
-       (should header-line-format)
-       (should (string-match-p "Add issue" header-line-format)))
+       ;; Check that tabulated-list-format contains the expected headers
+       ;; tabulated-list-format is a vector where each element is a list (NAME WIDTH SORT)
+       (let ((headers (mapcar (lambda (i) (car (elt tabulated-list-format i)))
+                              (number-sequence 0 (1- (length tabulated-list-format))))))
+         (should (equal headers '("Sort" "Date" "Status" "Issue" "ID" "Index" "Description")))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-list-all-columns-configured ()
+  "All expected columns should be present with correct configuration."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Verify we have exactly 7 columns
+       (should (= (length tabulated-list-format) 7))
+
+       ;; Verify each column's configuration
+       (let ((sort-col   (elt tabulated-list-format 0))
+             (date-col   (elt tabulated-list-format 1))
+             (status-col (elt tabulated-list-format 2))
+             (issue-col  (elt tabulated-list-format 3))
+             (id-col     (elt tabulated-list-format 4))
+             (index-col  (elt tabulated-list-format 5))
+             (desc-col   (elt tabulated-list-format 6)))
+
+         ;; Sort column: sortable with default comparison
+         (should (equal (car sort-col) "Sort"))
+         (should (eq (nth 2 sort-col) t))
+
+         ;; Date column: sortable with default comparison
+         (should (equal (car date-col) "Date"))
+         (should (eq (nth 2 date-col) t))
+
+         ;; Status column: sortable with default comparison
+         (should (equal (car status-col) "Status"))
+         (should (eq (nth 2 status-col) t))
+
+         ;; Issue column: sortable with default comparison
+         (should (equal (car issue-col) "Issue"))
+         (should (eq (nth 2 issue-col) t))
+
+         ;; ID column: sortable with default comparison
+         (should (equal (car id-col) "ID"))
+         (should (eq (nth 2 id-col) t))
+
+         ;; Index column: sortable with numeric comparison
+         (should (equal (car index-col) "Index"))
+         ;; The sort predicate should be the issues-compare-numeric symbol
+         (should (eq (nth 2 index-col) 'issues-compare-numeric))
+
+         ;; Description column: not sortable
+         (should (equal (car desc-col) "Description"))
+         (should (eq (nth 2 desc-col) nil))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-list-column-sorting-by-date ()
+  "Date column should be sortable (has sort predicate set to t)."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Check that Date column (index 1) has a sort predicate
+       (let ((date-col-spec (elt tabulated-list-format 1)))
+         (should (equal (car date-col-spec) "Date"))
+         ;; Third element is sort predicate; t means use default string comparison
+         (should (eq (nth 2 date-col-spec) t))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-list-column-sorting-by-status ()
+  "Status column should be sortable (has sort predicate set to t)."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Check that Status column (index 2) has a sort predicate
+       (let ((status-col-spec (elt tabulated-list-format 2)))
+         (should (equal (car status-col-spec) "Status"))
+         (should (eq (nth 2 status-col-spec) t))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-list-column-sorting-by-index ()
+  "Index column should use numeric comparison for sorting."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Check that Index column (index 5) has a custom numeric sort predicate
+       (let ((index-col-spec (elt tabulated-list-format 5)))
+         (should (equal (car index-col-spec) "Index"))
+         ;; Should have issues-compare-numeric as the sort function
+         (should (eq (nth 2 index-col-spec) 'issues-compare-numeric))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-list-default-sort-is-by-sort-column ()
+  "The list should default to sorting by the Sort column, descending."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Default sort should be by "Sort" column, descending (t means descending)
+       (should (equal tabulated-list-sort-key '("Sort" . t))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-list-can-change-sort-column ()
+  "Changing tabulated-list-sort-key should affect the displayed order."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Get initial order (sorted by Sort descending)
+       (let ((initial-order (mapcar #'car tabulated-list-entries)))
+
+         ;; Change to sort by Date ascending
+         (setq tabulated-list-sort-key '("Date" . nil))
+         (tabulated-list-print t)
+         (let ((date-order (mapcar #'car tabulated-list-entries)))
+           ;; Order should be different
+           (should-not (equal initial-order date-order))
+
+           ;; Dates should be in ascending order
+           (let ((dates (mapcar (lambda (entry)
+                                  (aref (cadr entry) 1))
+                                tabulated-list-entries)))
+             (should (equal dates (sort (copy-sequence dates) 'string<)))))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-comments-appear-below-their-issue ()
+  "Comments should always appear directly below their parent issue, in index order."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Test with default sort (by "Sort" descending)
+       (should (equal tabulated-list-sort-key '("Sort" . t)))
+
+       ;; Verify comment grouping and ordering
+       (let ((entries tabulated-list-entries)
+             (current-issue nil)
+             (expected-index 0))
+         (dolist (entry entries)
+           (let* ((row (cadr entry))
+                  (issue-id (aref row 3))  ; Issue column (column 3)
+                  (index (string-to-number (aref row 5)))) ; Index column (column 5)
+             (if (= index 0)
+                 ;; This is an issue (index 0), start tracking this issue
+                 (progn
+                   (setq current-issue issue-id)
+                   (setq expected-index 0))
+               ;; This is a comment (index > 0), verify it belongs to current issue
+               ;; and has the expected index
+               (should (equal issue-id current-issue))
+               (should (= index expected-index)))
+             ;; Next entry should have the next index
+             (setq expected-index (1+ index))))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-comments-below-issue-after-date-sort ()
+  "Comments should appear below their issue even when sorted by Date."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Sort by Date ascending
+       (setq tabulated-list-sort-key '("Date" . nil))
+       (tabulated-list-print t)
+
+       ;; Verify that comments still follow their issues in order
+       (let ((entries tabulated-list-entries)
+             (current-issue nil)
+             (expected-index 0))
+         (dolist (entry entries)
+           (let* ((row (cadr entry))
+                  (issue-id (aref row 3))
+                  (index (string-to-number (aref row 5))))
+             (if (= index 0)
+                 ;; This is an issue, start tracking
+                 (progn
+                   (setq current-issue issue-id)
+                   (setq expected-index 0))
+               ;; This is a comment, verify it's under the current issue
+               (should (equal issue-id current-issue))
+               (should (= index expected-index)))
+             (setq expected-index (1+ index))))))
+     (kill-buffer buf))))
+
+(ert-deftest warbo-issues-comments-below-issue-after-status-sort ()
+  "Comments should appear below their issue even when sorted by Status."
+  (with-examples
+   (list-issues)
+   (let ((buf (get-buffer "*issues*")))
+     (with-current-buffer buf
+       ;; Sort by Status ascending
+       (setq tabulated-list-sort-key '("Status" . nil))
+       (tabulated-list-print t)
+
+       ;; Verify that comments still follow their issues in order
+       (let ((entries tabulated-list-entries)
+             (current-issue nil)
+             (expected-index 0))
+         (dolist (entry entries)
+           (let* ((row (cadr entry))
+                  (issue-id (aref row 3))
+                  (index (string-to-number (aref row 5))))
+             (if (= index 0)
+                 ;; This is an issue, start tracking
+                 (progn
+                   (setq current-issue issue-id)
+                   (setq expected-index 0))
+               ;; This is a comment, verify it's under the current issue
+               (should (equal issue-id current-issue))
+               (should (= index expected-index)))
+             (setq expected-index (1+ index))))))
      (kill-buffer buf))))
 
 ;; Integration tests: these call the real artemis CLI against a temporary repo
@@ -594,7 +804,7 @@ comment/issue-post, not redundantly."
 (defun warbo-issues-integration-setup ()
   "Create a temporary git repo with known test issues.
 Returns the repo directory path."
-  (let* ((dir (make-temp-file "issues-test-" t))
+  (let* ((dir (make-temp-file (format "issues-test-%d-" (emacs-pid)) t))
          (default-directory (file-name-as-directory dir))
          (editor (expand-file-name "fake-editor.sh" dir)))
     ;; Initialise git repo
@@ -754,6 +964,9 @@ Returns the repo directory path."
   "issue-all-details should return one entry per issue + one per comment."
   :tags '(integration)
   (with-test-repo
+   ;; Verify the test repo is set up correctly
+   (should (file-directory-p default-directory))
+   (should (file-directory-p (concat default-directory ".git")))
    (let* ((lines   (issue-artemis-lines))
           (expected (apply '+ (mapcar
                                (lambda (l) (1+ (plist-get l 'comment-count)))
@@ -765,8 +978,12 @@ Returns the repo directory path."
   "list-issues should create a buffer with real issue data."
   :tags '(integration)
   (with-test-repo
+   ;; Clean up any existing *issues* buffer first
+   (when (get-buffer "*issues*")
+     (kill-buffer "*issues*"))
    (list-issues)
    (let ((buf (get-buffer "*issues*")))
+     (should buf)
      (unwind-protect
          (with-current-buffer buf
            (should (eq major-mode 'issues-mode))
@@ -776,7 +993,8 @@ Returns the repo directory path."
              (should (= (length (cadr entry)) 7)))
            ;; The buffer should contain rendered text
            (should (> (buffer-size) 0)))
-       (kill-buffer buf)))))
+       (when (buffer-live-p buf)
+         (kill-buffer buf))))))
 
 (ert-deftest warbo-issues-integration-statuses-are-known ()
   "All issue statuses from the real repo should be recognisable values."
