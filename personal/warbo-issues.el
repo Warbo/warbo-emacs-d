@@ -357,24 +357,27 @@ Any timezone information is ignored; we assume the timestamp is UTC."
     (find-file first)
     (issues-read-mode)))
 
+(defun issues-fetch-entries ()
+  "Fetch and return tabulated-list entries for all artemis issues."
+  (mapcar
+   (lambda (details)
+     (let ((id (plist-get details 'id)))
+       `(,id [,(plist-get details 'sort-key)
+              ,(plist-get details 'date    )
+              ,(plist-get details 'status  )
+              ,(plist-get details 'issue   )
+              ,id
+              ,(number-to-string (plist-get details 'index))
+              ,(plist-get details 'description)])))
+   (issue-all-details)))
+
 (defun list-issues ()
   "Entry point for artemis UI."
   (interactive)
   (pop-to-buffer "*issues*" nil)
   (issues-mode)
   (use-local-map issues-mode-map)
-  (setq tabulated-list-entries
-        (mapcar
-         (lambda (details)
-           (let ((id (plist-get details 'id)))
-             `(,id [,(plist-get details 'sort-key)
-                    ,(plist-get details 'date    )
-                    ,(plist-get details 'status  )
-                    ,(plist-get details 'issue   )
-                    ,id
-                    ,(number-to-string (plist-get details 'index))
-                    ,(plist-get details 'description)])))
-         (issue-all-details)))
+  (setq tabulated-list-entries #'issues-fetch-entries)
   (tabulated-list-print t))
 
 (provide 'warbo-issues)
