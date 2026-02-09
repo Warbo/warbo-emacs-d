@@ -115,54 +115,76 @@ Body")
   (should (equal "0001-01-01T00:00:00Z"
                  (issues-timestamp-to-iso '(0 0 0 1 1 1 nil nil nil)))))
 
+(ert-deftest warbo-issues-status-sort-prefix ()
+  "New issues get prefix '1', resolved get '0'."
+  (should (equal (issues-status-sort-prefix "new")      "1"))
+  (should (equal (issues-status-sort-prefix "resolved") "0"))
+  (should (equal (issues-status-sort-prefix "unknown")  "0")))
+
 (ert-deftest warbo-issues-sort-key ()
   (should (equal (issues-make-sort-key
-                  '(updated       (12 23 4 5 6 2020 nil nil nil)
+                  '(status        "new"
+                    updated       (12 23 4 5 6 2020 nil nil nil)
                     date          "2020-08-09"
                     comment-count 3
                     index         1))
-                 "2020-06-05T04:23:12Z02")))
+                 "12020-06-05T04:23:12Z02")))
+
+(ert-deftest warbo-issues-sort-key-resolved ()
+  "Resolved issues should get a '0' status prefix."
+  (should (equal (issues-make-sort-key
+                  '(status        "resolved"
+                    updated       (12 23 4 5 6 2020 nil nil nil)
+                    date          "2020-08-09"
+                    comment-count 3
+                    index         1))
+                 "02020-06-05T04:23:12Z02")))
 
 (ert-deftest warbo-issues-sort-key-issue-itself ()
   "For index 0 (the issue itself), the trailing order should be the comment count."
   (should (equal (issues-make-sort-key
-                  '(updated       (0 0 0 1 1 2020 nil nil nil)
+                  '(status        "new"
+                    updated       (0 0 0 1 1 2020 nil nil nil)
                     comment-count 5
                     index         0))
-                 "2020-01-01T00:00:00Z05")))
+                 "12020-01-01T00:00:00Z05")))
 
 (ert-deftest warbo-issues-sort-key-last-comment ()
   "For the last comment, the trailing order should be 00."
   (should (equal (issues-make-sort-key
-                  '(updated       (0 0 0 1 1 2020 nil nil nil)
+                  '(status        "new"
+                    updated       (0 0 0 1 1 2020 nil nil nil)
                     comment-count 5
                     index         5))
-                 "2020-01-01T00:00:00Z00")))
+                 "12020-01-01T00:00:00Z00")))
 
 (ert-deftest warbo-issues-sort-key-ordering ()
-  "Sort keys should order issues by update time descending, with comments in
-index order beneath their issue."
-  (let* ((newer-issue (issues-make-sort-key
-                       '(updated (0 0 0 2 1 2020 nil nil nil)
+  "Sort keys should order issues by status (new before resolved), then by
+update time descending, with comments in index order beneath their issue."
+  (let* ((new-newer   (issues-make-sort-key
+                       '(status "new" updated (0 0 0 2 1 2020 nil nil nil)
                          comment-count 2 index 0)))
-         (newer-c1    (issues-make-sort-key
-                       '(updated (0 0 0 2 1 2020 nil nil nil)
-                         comment-count 2 index 1)))
-         (newer-c2    (issues-make-sort-key
-                       '(updated (0 0 0 2 1 2020 nil nil nil)
-                         comment-count 2 index 2)))
-         (older-issue (issues-make-sort-key
-                       '(updated (0 0 0 1 1 2020 nil nil nil)
+         (new-newer-c1 (issues-make-sort-key
+                        '(status "new" updated (0 0 0 2 1 2020 nil nil nil)
+                          comment-count 2 index 1)))
+         (new-older   (issues-make-sort-key
+                       '(status "new" updated (0 0 0 1 1 2020 nil nil nil)
                          comment-count 1 index 0)))
-         (older-c1    (issues-make-sort-key
-                       '(updated (0 0 0 1 1 2020 nil nil nil)
-                         comment-count 1 index 1)))
+         (new-older-c1 (issues-make-sort-key
+                        '(status "new" updated (0 0 0 1 1 2020 nil nil nil)
+                          comment-count 1 index 1)))
+         (res-newest  (issues-make-sort-key
+                       '(status "resolved" updated (0 0 0 3 1 2020 nil nil nil)
+                         comment-count 0 index 0)))
          ;; Sort descending (reverse lexicographic) like the UI does
-         (sorted (sort (list older-c1 newer-c2 older-issue newer-issue newer-c1)
+         (sorted (sort (list res-newest new-older-c1 new-newer-c1
+                             new-older new-newer)
                        'string-greaterp)))
-    ;; Newer issue and its comments should come first
-    (should (equal sorted (list newer-issue newer-c1 newer-c2
-                                older-issue older-c1)))))
+    ;; New issues come first (even though resolved one is newest),
+    ;; then within same status, newer updates come first
+    (should (equal sorted (list new-newer new-newer-c1
+                                new-older new-older-c1
+                                res-newest)))))
 
 (ert-deftest warbo-issues-compare-numeric ()
   "issues-compare-numeric should compare stringified numbers numerically."
@@ -421,18 +443,19 @@ index order beneath their issue."
        (should (not (equal (plist-get i 'description) "")))))))
 
 (ert-deftest warbo-issues-all-details-sorted-by-sort-key ()
-  "When sorted by sort-key descending, issues with newer updates come first,
-and comments appear in index order within their issue."
+  "When sorted by sort-key descending, new issues come before resolved ones,
+and within the same status, newer updates come first.  Comments appear in
+index order within their issue."
   (with-examples
    (let* ((details (issue-all-details))
           (sorted  (sort (copy-sequence details)
                          (lambda (a b)
                            (string-greaterp (plist-get a 'sort-key)
                                             (plist-get b 'sort-key))))))
-     ;; Check that issue 3 (updated 2020-03-01) comes before issue 2 (2020-02-03)
-     ;; which comes before issue 1 (2020-01-04)
+     ;; Issue 3 (new, 2020-03-01) comes first, then issue 1 (new, 2020-01-04),
+     ;; then issue 2 (resolved, 2020-02-03) — status takes priority over date
      (let ((issue-order (seq-uniq (mapcar (lambda (d) (plist-get d 'issue)) sorted))))
-       (should (equal issue-order '("0000000000000003" "0000000000000002" "0000000000000001"))))
+       (should (equal issue-order '("0000000000000003" "0000000000000001" "0000000000000002"))))
      ;; Within each issue group, indices should be in order 0, 1, 2, ...
      (dolist (issue-id '("0000000000000001" "0000000000000002" "0000000000000003"))
        (let ((indices (mapcar (lambda (d) (plist-get d 'index))
@@ -590,7 +613,7 @@ and comments appear in index order within their issue."
        ;; tabulated-list-format is a vector where each element is a list (NAME WIDTH SORT)
        (let ((headers (mapcar (lambda (i) (car (elt tabulated-list-format i)))
                               (number-sequence 0 (1- (length tabulated-list-format))))))
-         (should (equal headers '("Sort" "Date" "Status" "Issue" "ID" "Index" "Description")))))
+         (should (equal headers '("Updated" "Date" "Status" "Issue" "ID" "Index" "Description")))))
      (kill-buffer buf))))
 
 (ert-deftest warbo-issues-list-all-columns-configured ()
@@ -611,8 +634,8 @@ and comments appear in index order within their issue."
              (index-col  (elt tabulated-list-format 5))
              (desc-col   (elt tabulated-list-format 6)))
 
-         ;; Sort column: sortable with default comparison
-         (should (equal (car sort-col) "Sort"))
+         ;; Updated column: sortable with default comparison
+         (should (equal (car sort-col) "Updated"))
          (should (eq (nth 2 sort-col) t))
 
          ;; Date column: sortable with default comparison
@@ -680,13 +703,13 @@ and comments appear in index order within their issue."
      (kill-buffer buf))))
 
 (ert-deftest warbo-issues-list-default-sort-is-by-sort-column ()
-  "The list should default to sorting by the Sort column, descending."
+  "The list should default to sorting by the Updated column, descending."
   (with-examples
    (list-issues)
    (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
-       ;; Default sort should be by "Sort" column, descending (t means descending)
-       (should (equal tabulated-list-sort-key '("Sort" . t))))
+       ;; Default sort should be by "Updated" column, descending (t means descending)
+       (should (equal tabulated-list-sort-key '("Updated" . t))))
      (kill-buffer buf))))
 
 (ert-deftest warbo-issues-list-can-change-sort-column ()
@@ -695,7 +718,7 @@ and comments appear in index order within their issue."
    (list-issues)
    (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
-       ;; Get initial order (sorted by Sort descending)
+       ;; Get initial order (sorted by Updated descending)
        (let ((initial-lines
               (split-string (buffer-substring-no-properties (point-min)
                                                             (point-max))
@@ -727,8 +750,8 @@ and comments appear in index order within their issue."
    (list-issues)
    (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
-       ;; Test with default sort (by "Sort" descending)
-       (should (equal tabulated-list-sort-key '("Sort" . t)))
+       ;; Test with default sort (by "Updated" descending)
+       (should (equal tabulated-list-sort-key '("Updated" . t)))
 
        ;; Verify comment grouping and ordering
        (let ((entries (get-entries))

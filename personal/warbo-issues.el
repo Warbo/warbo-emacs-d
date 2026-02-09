@@ -183,15 +183,25 @@ without further subprocess calls."
   "Compare strings X and Y containing numbers."
   (<= (string-to-number x) (string-to-number y)))
 
+(defun issues-status-sort-prefix (status)
+  "Return a sort prefix for STATUS.
+\"new\" gets \"1\" so it sorts above \"resolved\" (\"0\") in descending order."
+  (if (equal status "new") "1" "0"))
+
 (defun issues-make-sort-key (details)
   "Given DETAILS of an item, return a sorting key.
 When sorted lexicographically, these keys should put issues in order of
-last-updated-time, whilst keeping comments in index order beneath their issue."
-  (let* ((index   (plist-get details 'index        ))
+status (new before resolved), then last-updated-time, whilst keeping comments
+in index order beneath their issue."
+  (let* ((status  (plist-get details 'status       ))
+         (index   (plist-get details 'index        ))
          (total   (plist-get details 'comment-count))
          (updated (plist-get details 'updated      ))
          (order   (- total index)))
-    (format "%s%0.2d" (issues-timestamp-to-iso updated) order)))
+    (format "%s%s%0.2d"
+            (issues-status-sort-prefix status)
+            (issues-timestamp-to-iso updated)
+            order)))
 
 (defun issues-append-sort-key (details)
   "Send DETAILS into `issues-make-sort-key' and append the result."
@@ -309,7 +319,7 @@ Any timezone information is ignored; we assume the timestamp is UTC."
 
 (define-derived-mode issues-mode tabulated-list-mode "issues-mode"
   "Major mode issues-mode for interacting with Artemis issues."
-  (setq tabulated-list-format [("Sort"        4  t                     )
+  (setq tabulated-list-format [("Updated"     4  t                     )
                                ("Date"        10 t                     )
                                ("Status"      8  t                     )
                                ("Issue"       16 t                     )
@@ -317,7 +327,7 @@ Any timezone information is ignored; we assume the timestamp is UTC."
                                ("Index"       5  issues-compare-numeric)
                                ("Description" 0  nil                   )])
   (setq tabulated-list-padding 2)
-  (setq tabulated-list-sort-key (cons "Sort" t))
+  (setq tabulated-list-sort-key (cons "Updated" t))
   (tabulated-list-init-header))
 
 (defvar issues-read-mode-map
