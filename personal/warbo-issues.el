@@ -274,26 +274,9 @@ Any timezone information is ignored; we assume the timestamp is UTC."
        (list issue (plist-get details 'message-id))))))
 
 (defun issues-add-issue ()
-  "Create a new artemis issue, prompting for subject and body."
+  "Create a new artemis issue."
   (interactive)
-  (let* ((subject (read-string "Subject: "))
-         (body    (read-string "Body: "))
-         (editor  (make-temp-file "issues-editor" nil ".sh")))
-    (unwind-protect
-        (progn
-          (with-temp-file editor
-            (insert "#!/usr/bin/env bash\n"
-                    "sed -i "
-                    "'s/brief description/" subject "/; "
-                    "s/Detailed description\\./" body  "/' "
-                    "\"$1\"\n"))
-          (set-file-modes editor #o755)
-          (let ((process-environment
-                 (cons (concat "EDITOR=" editor) process-environment)))
-            (with-temp-buffer
-              (call-process "artemis" nil t nil "add")
-              (buffer-string))))
-      (delete-file editor))))
+  (start-process "artemis" nil "artemis" "add"))
 
 (defun issues-add-comment ()
   "Run `artemis add XXX', taking the issue ID from the current context."
@@ -307,14 +290,20 @@ Any timezone information is ignored; we assume the timestamp is UTC."
   (let ((issue (car (issues-current-issue))))
     (call-process "artemis" nil 0 nil "close" issue)))
 
+(defun issues-refresh ()
+  "Refresh the list of issues."
+  (interactive)
+  (tabulated-list-print t t))
+
 ;;; Modes
 
 (defvar issues-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET"    ) 'issues-show-issue  )
-    (define-key map (kbd "C-c C-n") 'issues-add-issue   )
-    (define-key map (kbd "C-c C-c") 'issues-add-comment )
-    (define-key map (kbd "C-c C-k") 'issues-close       )
+    (define-key map (kbd "RET"    ) 'issues-show-issue )
+    (define-key map (kbd "C-c C-n") 'issues-add-issue  )
+    (define-key map (kbd "C-c C-c") 'issues-add-comment)
+    (define-key map (kbd "C-c C-k") 'issues-close      )
+    (define-key map (kbd "g"      ) 'issues-refresh    )
     map)
   "Keymap for `issues-mode'.")
 
@@ -374,7 +363,9 @@ Any timezone information is ignored; we assume the timestamp is UTC."
 (defun list-issues ()
   "Entry point for artemis UI."
   (interactive)
-  (pop-to-buffer "*issues*" nil)
+  (pop-to-buffer
+   (string-join `("issues" ,(file-name-nondirectory (magit-toplevel))) ": ")
+   nil)
   (issues-mode)
   (use-local-map issues-mode-map)
   (setq tabulated-list-entries #'issues-fetch-entries)

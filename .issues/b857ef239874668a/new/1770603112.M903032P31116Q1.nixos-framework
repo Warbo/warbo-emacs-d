@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 02:11:18 +0000
+State: resolved
+Subject: warbo-issues should refresh on "g"
+Message-Id: <b857ef239874668a-0-artemis@nixos-framework>
+resolution: fixed
+
+Pressing "g" in list-issues buffer should refresh the list.

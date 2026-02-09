@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 01:45:12 +0000
+State: resolved
+Subject: warbo-issues: creating issue should use EDITOR
+Message-Id: <99a2b1317f64bbb1-0-artemis@nixos-framework>
+resolution: fixed
+
+Don't prompt for subject and body, just allow EDITOR to be invoked.

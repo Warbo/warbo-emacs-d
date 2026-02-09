@@ -534,11 +534,19 @@ and comments appear in index order within their issue."
   (with-examples
    (list-issues)))
 
+(defun this-issues-buffer-name ()
+  "Calculate the name of an issues buffer for the current dir."
+  (concat "issues: " (file-name-nondirectory default-directory)))
+
+(defun this-issues-buffer ()
+  "Buffer for current directory's issues."
+  (get-buffer (this-issues-buffer-name)))
+
 (ert-deftest warbo-issues-list-creates-buffer ()
-  "list-issues should create a *issues* buffer with tabulated-list content."
+  "`list-issues' should create an 'issues:' buffer with tabulated-list content."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (should buf)
      (with-current-buffer buf
        (should (eq major-mode 'issues-mode))
@@ -552,7 +560,7 @@ and comments appear in index order within their issue."
   "Each tabulated-list entry should have 7 columns matching the format spec."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        (dolist (entry (get-entries))
          (let ((row (cadr entry)))
@@ -564,7 +572,7 @@ and comments appear in index order within their issue."
   "The issues-mode keymap should have the expected bindings."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        (should (eq (lookup-key issues-mode-map (kbd "RET"))     'issues-show-issue))
        (should (eq (lookup-key issues-mode-map (kbd "C-c C-n")) 'issues-add-issue))
@@ -572,16 +580,11 @@ and comments appear in index order within their issue."
        (should (eq (lookup-key issues-mode-map (kbd "C-c C-k")) 'issues-close)))
      (kill-buffer buf))))
 
-(ert-deftest warbo-issues-add-issue-defined ()
-  "issues-add-issue should be an interactive command."
-  (should (fboundp 'issues-add-issue))
-  (should (commandp 'issues-add-issue)))
-
 (ert-deftest warbo-issues-list-shows-expected-headers ()
   "The issues list should display the correct column headers."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Check that tabulated-list-format contains the expected headers
        ;; tabulated-list-format is a vector where each element is a list (NAME WIDTH SORT)
@@ -594,7 +597,7 @@ and comments appear in index order within their issue."
   "All expected columns should be present with correct configuration."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Verify we have exactly 7 columns
        (should (= (length tabulated-list-format) 7))
@@ -642,7 +645,7 @@ and comments appear in index order within their issue."
   "Date column should be sortable (has sort predicate set to t)."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Check that Date column (index 1) has a sort predicate
        (let ((date-col-spec (elt tabulated-list-format 1)))
@@ -655,7 +658,7 @@ and comments appear in index order within their issue."
   "Status column should be sortable (has sort predicate set to t)."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Check that Status column (index 2) has a sort predicate
        (let ((status-col-spec (elt tabulated-list-format 2)))
@@ -667,7 +670,7 @@ and comments appear in index order within their issue."
   "Index column should use numeric comparison for sorting."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Check that Index column (index 5) has a custom numeric sort predicate
        (let ((index-col-spec (elt tabulated-list-format 5)))
@@ -680,7 +683,7 @@ and comments appear in index order within their issue."
   "The list should default to sorting by the Sort column, descending."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Default sort should be by "Sort" column, descending (t means descending)
        (should (equal tabulated-list-sort-key '("Sort" . t))))
@@ -690,7 +693,7 @@ and comments appear in index order within their issue."
   "Changing tabulated-list-sort-key should affect the displayed order."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Get initial order (sorted by Sort descending)
        (let ((initial-lines
@@ -722,7 +725,7 @@ and comments appear in index order within their issue."
   "Comments should always appear directly below their parent issue, in index order."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Test with default sort (by "Sort" descending)
        (should (equal tabulated-list-sort-key '("Sort" . t)))
@@ -752,7 +755,7 @@ and comments appear in index order within their issue."
   "Comments should appear below their issue even when sorted by Date."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Sort by Date ascending
        (setq tabulated-list-sort-key '("Date" . nil))
@@ -781,7 +784,7 @@ and comments appear in index order within their issue."
   "Comments should appear below their issue even when sorted by Status."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (with-current-buffer buf
        ;; Sort by Status ascending
        (setq tabulated-list-sort-key '("Status" . nil))
@@ -988,11 +991,11 @@ Returns the repo directory path."
   "list-issues should create a buffer with real issue data."
   :tags '(integration)
   (with-test-repo
-   ;; Clean up any existing *issues* buffer first
-   (when (get-buffer "*issues*")
-     (kill-buffer "*issues*"))
+   ;; Clean up any existing 'issues:' buffer first
+   (when (this-issues-buffer)
+     (kill-buffer (this-issues-buffer-name)))
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (should buf)
      (unwind-protect
          (with-current-buffer buf
@@ -1021,20 +1024,33 @@ Returns the repo directory path."
   "issues-add-issue should create a new issue visible in the listing."
   :tags '(integration)
   (with-test-repo
-   (let ((count-before (length (issue-list-ids))))
-     ;; Simulate the interactive prompts
-     (cl-letf (((symbol-function 'read-string)
-                (lambda (prompt &rest _)
-                  (pcase prompt
-                    ("Subject: " "Brand new issue")
-                    ("Body: "    "Created by test")))))
+   (let* ((ids-before (issue-list-ids))
+          (count-before (length ids-before))
+          (dir (make-temp-file (format "issues-test-%d-" (emacs-pid)) t))
+          (editor (expand-file-name "fake-editor.sh" dir)))
+     (with-temp-file editor
+       (insert "#!/usr/bin/env bash\n"
+               "sed -i \"s/brief description/Dummy subject/\" \"$1\"\n"
+               "sed -i \"s/Detailed description\\./Dummy body/\" \"$1\"\n"))
+     (set-file-modes editor #o755)
+     (let ((process-environment (cons (string-join `("EDITOR" ,editor) "=")
+                                      process-environment)))
        (issues-add-issue))
-     (let ((count-after (length (issue-list-ids))))
-       (should (equal count-after (1+ count-before)))
-       ;; The new issue should appear in the listing
-       (let* ((lines (issue-artemis-lines))
-              (descs (mapcar (lambda (l) (plist-get l 'description)) lines)))
-         (should (member "Brand new issue" descs)))))))
+     (sleep-for 0.5)
+     ;; Ensure we're back in the test repo, since the async process and
+     ;; execute-kbd-macro may have changed the current buffer/directory.
+     (let ((default-directory (file-name-as-directory warbo-issues-test-repo)))
+       (let* ((ids-after (issue-list-ids))
+              (count-after (length ids-after)))
+         (unless (equal count-after (1+ count-before))
+           (message "%s" `((ids-before . ,ids-before)
+                           (ids-after . ,ids-after)
+                           ())))
+         (should (equal count-after (1+ count-before)))
+         ;; The new issue should appear in the listing
+         (let* ((lines (issue-artemis-lines))
+                (descs (mapcar (lambda (l) (plist-get l 'description)) lines)))
+           (should (member "Dummy subject" descs))))))))
 
 ;; Tests for refresh (pressing 'g') behaviour
 
@@ -1042,7 +1058,7 @@ Returns the repo directory path."
   "tabulated-list-entries should be set to a function, not a static list."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (unwind-protect
          (with-current-buffer buf
            (should (functionp tabulated-list-entries)))
@@ -1061,8 +1077,8 @@ Returns the repo directory path."
        (should (vectorp (cadr entry)))
        (should (equal (length (cadr entry)) 7))))))
 
-(ert-deftest warbo-issues-revert-refreshes-data ()
-  "Reverting the *issues* buffer should pick up changes to the underlying data."
+(ert-deftest warbo-issues-refresh-refreshes-data ()
+  "Refreshing the 'issues:' buffer should pick up changes to the underlying data."
   (let* ((examples-v1 warbo-issues-examples)
          ;; Create a second version with an extra issue
          (extra-line  '(id "0000000000000004" comment-count 0
@@ -1079,22 +1095,22 @@ Returns the repo directory path."
     ;; Initial list with v1
     (inject-examples examples-v1
       (list-issues))
-    (let ((buf (get-buffer "*issues*")))
+    (let ((buf (this-issues-buffer)))
       (unwind-protect
           (with-current-buffer buf
             ;; Should have 8 entries from v1 (4+3+1)
             (inject-examples examples-v1
               (should (equal (length (funcall tabulated-list-entries)) 8)))
 
-            ;; Revert with v2 data
+            ;; Refresh with v2 data
             (inject-examples examples-v2
-              (revert-buffer)
+              (execute-kbd-macro (kbd "g"))
               ;; Should now have 9 entries (4+3+1+1)
               (should (equal (length (funcall tabulated-list-entries)) 9))))
         (kill-buffer buf)))))
 
-(ert-deftest warbo-issues-revert-picks-up-removed-issues ()
-  "Reverting should reflect issues that have been removed."
+(ert-deftest warbo-issues-refresh-picks-up-removed-issues ()
+  "Refreshing should reflect issues that have been removed."
   (let* ((examples-full warbo-issues-examples)
          ;; Version with only the first issue
          (examples-one (list 'lines (list (car (plist-get examples-full 'lines)))
@@ -1104,51 +1120,39 @@ Returns the repo directory path."
                                            "0000000000000001")))))
     (inject-examples examples-full
       (list-issues))
-    (let ((buf (get-buffer "*issues*")))
+    (let ((buf (this-issues-buffer)))
       (unwind-protect
           (with-current-buffer buf
             (inject-examples examples-full
               (should (equal (length (funcall tabulated-list-entries)) 8)))
-            ;; Revert with reduced data
+            ;; Refresh with reduced data
             (inject-examples examples-one
-              (revert-buffer)
+              (execute-kbd-macro (kbd "g"))
               ;; Only issue 1 with 3 comments = 4 entries
               (should (equal (length (funcall tabulated-list-entries)) 4))))
         (kill-buffer buf)))))
 
-(ert-deftest warbo-issues-g-key-triggers-revert ()
-  "Pressing 'g' in issues-mode should be bound to `revert-buffer'."
+(ert-deftest warbo-issues-refresh-preserves-mode ()
+  "Refreshing the issues buffer should keep it in issues-mode."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
-     (unwind-protect
-         (with-current-buffer buf
-           ;; tabulated-list-mode binds 'g' to revert-buffer
-           (let ((binding (key-binding (kbd "g"))))
-             (should (memq binding '(revert-buffer tabulated-list-revert)))))
-       (kill-buffer buf)))))
-
-(ert-deftest warbo-issues-revert-preserves-mode ()
-  "Reverting the issues buffer should keep it in issues-mode."
-  (with-examples
-   (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (unwind-protect
          (with-current-buffer buf
            (inject-examples warbo-issues-examples
-             (revert-buffer))
+             (execute-kbd-macro (kbd "g")))
            (should (eq major-mode 'issues-mode)))
        (kill-buffer buf)))))
 
-(ert-deftest warbo-issues-revert-preserves-sort-key ()
-  "Reverting should preserve the current sort column setting."
+(ert-deftest warbo-issues-refresh-preserves-sort-key ()
+  "Refreshing should preserve the current sort column setting."
   (with-examples
    (list-issues)
-   (let ((buf (get-buffer "*issues*")))
+   (let ((buf (this-issues-buffer)))
      (unwind-protect
          (with-current-buffer buf
            (setq tabulated-list-sort-key '("Date" . nil))
            (inject-examples warbo-issues-examples
-             (revert-buffer))
+             (execute-kbd-macro (kbd "g")))
            (should (equal tabulated-list-sort-key '("Date" . nil))))
        (kill-buffer buf)))))
