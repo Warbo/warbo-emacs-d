@@ -1,5 +1,11 @@
 ;; Test our pure functions
 
+(defmacro get-entries ()
+  "Return a list of `tabulated-list-entries' (calling it, if it's a function)."
+  '(if (functionp tabulated-list-entries)
+       (funcall tabulated-list-entries)
+     tabulated-list-entries))
+
 (ert-deftest warbo-issues-can-parse-line ()
   (let* ((id            "ead7eaa500b8d729")
          (comment-count 1)
@@ -537,9 +543,9 @@ and comments appear in index order within their issue."
      (with-current-buffer buf
        (should (eq major-mode 'issues-mode))
        ;; Should have entries in the tabulated list
-       (should (> (length tabulated-list-entries) 0))
+       (should (> (length (get-entries)) 0))
        ;; Should have 8 entries total (4+3+1)
-       (should (equal (length tabulated-list-entries) 8)))
+       (should (equal (length (get-entries)) 8)))
      (kill-buffer buf))))
 
 (ert-deftest warbo-issues-list-entries-have-seven-columns ()
@@ -548,7 +554,7 @@ and comments appear in index order within their issue."
    (list-issues)
    (let ((buf (get-buffer "*issues*")))
      (with-current-buffer buf
-       (dolist (entry tabulated-list-entries)
+       (dolist (entry (get-entries))
          (let ((row (cadr entry)))
            (should (vectorp row))
            (should (equal (length row) 7)))))
@@ -687,27 +693,30 @@ and comments appear in index order within their issue."
    (let ((buf (get-buffer "*issues*")))
      (with-current-buffer buf
        ;; Get initial order (sorted by Sort descending)
-       (let ((initial-order (mapcar #'car tabulated-list-entries)))
+       (let ((initial-lines
+              (split-string (buffer-substring-no-properties (point-min)
+                                                            (point-max))
+                            "\n"
+                            t)))
 
          ;; Change to sort by Date ascending
          (setq tabulated-list-sort-key '("Date" . nil))
          (tabulated-list-print t)
-         (let ((date-order (mapcar #'car tabulated-list-entries)))
+         (let ((date-lines
+                (split-string (buffer-substring-no-properties (point-min)
+                                                              (point-max))
+                              "\n"
+                              t)))
            ;; Order should be different
-           (should-not (equal initial-order date-order))
+           (should-not (equal initial-lines date-lines))
 
            ;; Dates should be in ascending order
-           (let ((dates (mapcar (lambda (entry)
-                                  (aref (cadr entry) 1))
-                                tabulated-list-entries)))
+           (let ((dates
+                  (mapcar (lambda (line)
+                            (nth 1 (split-string (string-trim line) " " t)))
+                          date-lines)))
              (should (equal dates (sort (copy-sequence dates) 'string<)))))))
      (kill-buffer buf))))
-
-(defmacro get-entries ()
-  "Return a list of `tabulated-list-entries' (calling it, if it's a function)."
-  '(if (functionp tabulated-list-entries)
-       (funcall tabulated-list-entries)
-     tabulated-list-entries))
 
 (ert-deftest warbo-issues-comments-appear-below-their-issue ()
   "Comments should always appear directly below their parent issue, in index order."
