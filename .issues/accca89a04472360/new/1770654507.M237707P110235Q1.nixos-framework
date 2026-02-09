@@ -1,0 +1,169 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:27 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-cbe4b998f99dde9a-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 8: Research Tools and Advanced Synthesis
+
+Integration with research-level program synthesis tools.
+
+### Djinn (Type-directed synthesis):
+
+**Installation:**
+Add to `shell.nix`:
+```nix
+pkgs.haskellPackages.djinn
+```
+
+**Emacs integration:**
+```elisp
+(defun my/djinn-synthesize ()
+  "Synthesize function from type signature at point."
+  (interactive)
+  (let* ((type-sig (my/extract-type-signature))
+         (result (shell-command-to-string
+                  (format "echo '%s' | djinn" type-sig))))
+    (when (not (string-match "cannot" result))
+      (end-of-line)
+      (newline)
+      (insert result))))
+
+(defun my/extract-type-signature ()
+  "Extract type signature from current line."
+  (save-excursion
+    (beginning-of-line)
+    (when (re-search-forward "::\\s-*\\(.*\\)$" (line-end-position) t)
+      (match-string 1))))
+```
+
+**GHCi-based approach:**
+```elisp
+(defun my/djinn-via-ghci (type-sig)
+  "Use Djinn through GHCi."
+  (interactive "sType: ")
+  (let ((cmd (format ":!djinn \"%s\"" type-sig)))
+    (haskell-interactive-mode-run-expr cmd)))
+```
+
+### QuickSpec (Property discovery):
+
+**Installation:**
+```nix
+pkgs.haskellPackages.quickspec
+```
+
+**Usage from REPL:**
+```elisp
+(defun my/quickspec-discover ()
+  "Discover properties for current module."
+  (interactive)
+  (let* ((module (file-name-base buffer-file-name))
+         (code (format "import %s\nimport QuickSpec\nquickSpec signature"
+                       module)))
+    (with-temp-file "/tmp/quickspec-test.hs"
+      (insert code))
+    (compile "runhaskell /tmp/quickspec-test.hs")))
+```
+
+### MagicHaskeller:
+
+**Installation challenges:**
+- Not in standard Nixpkgs
+- May need to build from source
+- Research prototype
+
+**If available:**
+```nix
+# In shell.nix, if available
+pkgs.haskellPackages.MagicHaskeller
+```
+
+```elisp
+(defun my/magic-haskeller-search (examples)
+  "Search using MagicHaskeller with examples."
+  (interactive "sExamples (e.g., f 1 = 2, f 3 = 6): ")
+  (let ((result (shell-command-to-string
+                 (format "mhs --examples='%s'" examples))))
+    (with-help-window "*MagicHaskeller*"
+      (princ result))))
+```
+
+### Hoogle+ (Example-based synthesis):
+
+**Status:** Research prototype, may not be readily available
+
+**Concept:**
+- Combines type-based and example-based search
+- Requires special Hoogle+ binary
+- Alternative: Use regular Hoogle with manual filtering
+
+### Spectacular (Test generation):
+
+**Status:** Research tool, limited availability
+
+**Alternative approach using Template Haskell:**
+```haskell
+{-# LANGUAGE TemplateHaskell #-}
+import Test.QuickCheck.All
+
+prop_reverse_idempotent :: [Int] -> Bool
+prop_reverse_idempotent xs = reverse (reverse xs) == xs
+
+-- Generate tests for all properties
+return []
+runTests = $quickCheckAll
+```
+
+### SmallCheck integration:
+
+More practical than Spectacular:
+```elisp
+(defun my/generate-smallcheck-test ()
+  "Generate SmallCheck test template."
+  (interactive)
+  (let ((fname (read-string "Function name: ")))
+    (insert (format "
+prop_%s_smallcheck :: Property
+prop_%s_smallcheck =
+  forAll $ \\x y ->
+    %s x y == {- expected -}
+" fname fname fname))))
+```
+
+### Practical recommendations:
+
+**For type-directed synthesis:**
+- Djinn is most practical and available
+- Works well for simple types
+- Good for generating boilerplate
+
+**For property discovery:**
+- QuickSpec is useful but requires setup
+- Manual property writing often more practical
+- Use QuickCheck directly with templates
+
+**For test generation:**
+- Template Haskell approach more practical
+- Hspec/QuickCheck integration sufficient
+- Research tools often not production-ready
+
+**Reality check:**
+- Most research tools are prototypes
+- Integration effort often outweighs benefit
+- Focus on practical tools (Djinn, QuickCheck)
+- Manual test writing with good templates may be best
+
+### Advantages:
+- Cutting-edge research techniques
+- Can discover non-obvious properties
+- Automated synthesis reduces boilerplate
+
+### Limitations:
+- Limited availability
+- Often unmaintained
+- Complex setup
+- May not work with modern GHC
+- Research quality vs production quality
+- Time investment may not be worthwhile

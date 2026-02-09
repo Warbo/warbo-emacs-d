@@ -1,0 +1,134 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:26 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-b98ad66eeed19294-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 6: Template and Snippet Systems
+
+Use yasnippet and similar tools for boilerplate generation.
+
+### Yasnippet for Haddock comments:
+
+Create `~/.emacs.d/snippets/haskell-mode/haddock`:
+```snippet
+# -*- mode: snippet -*-
+# name: haddock
+# key: hd
+# --
+-- | ${1:Description}
+--
+-- ${2:Details}
+--
+-- >>> ${3:example}
+-- ${4:expected output}
+$0
+```
+
+### LANGUAGE pragma snippet:
+
+`~/.emacs.d/snippets/haskell-mode/language`:
+```snippet
+# -*- mode: snippet -*-
+# name: language
+# key: lang
+# --
+{-# LANGUAGE ${1:$$(yas-choose-value my/ghc-extensions)} #-}
+$0
+```
+
+### Function with type signature:
+
+`~/.emacs.d/snippets/haskell-mode/function`:
+```snippet
+# -*- mode: snippet -*-
+# name: function
+# key: fn
+# --
+-- | ${1:Description}
+${2:functionName} :: ${3:Type}
+$2 ${4:args} = ${5:undefined}
+$0
+```
+
+### QuickCheck property template:
+
+`~/.emacs.d/snippets/haskell-mode/prop`:
+```snippet
+# -*- mode: snippet -*-
+# name: property
+# key: prop
+# --
+prop_${1:propertyName} :: ${2:Type} -> Bool
+prop_$1 ${3:args} =
+  ${4:condition}
+$0
+```
+
+### Test suite template:
+
+`~/.emacs.d/snippets/haskell-mode/test`:
+```snippet
+# -*- mode: snippet -*-
+# name: test
+# key: test
+# --
+import Test.Hspec
+import Test.QuickCheck
+
+main :: IO ()
+main = hspec $ do
+  describe "${1:Module}" $ do
+    it "${2:description}" $ do
+      ${3:test body}
+
+    prop "${4:property}" $ \\${5:args} ->
+      ${6:property}
+$0
+```
+
+### Auto-expanding snippets:
+
+Configure yasnippet to expand automatically:
+```elisp
+(use-package yasnippet
+  :config
+  (yas-global-mode 1))
+
+(use-package haskell-snippets
+  :after yasnippet)
+
+;; Custom snippets directory
+(add-to-list 'yas-snippet-dirs
+             "~/.emacs.d/my-snippets/haskell-mode")
+```
+
+### Skeleton templates:
+
+Alternative to yasnippet using built-in skeleton:
+```elisp
+(define-skeleton my/haskell-haddock-skeleton
+  "Insert a Haddock comment skeleton."
+  "Function name: "
+  "-- | " _ "\n"
+  "-- \n"
+  "-- Examples:\n"
+  "-- \n"
+  "-- >>> " str " example\n"
+  "-- expected\n")
+```
+
+### Advantages:
+- Quick boilerplate generation
+- Easy to customize templates
+- Built-in Emacs feature (skeleton)
+- yasnippet is well-supported
+- Good for documentation patterns
+
+### Limitations:
+- Only handles static templates
+- No logic or computation
+- Can't replace intelligent tools
+- Manual expansion required
+- Doesn't provide linting, navigation, etc.

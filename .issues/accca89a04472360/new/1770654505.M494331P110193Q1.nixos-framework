@@ -1,0 +1,73 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:25 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-f4d1459962f38f51-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 2: Existing Emacs Packages
+
+Several Emacs packages already provide Haskell IDE features.
+
+### Hoogle integration:
+
+**helm-hoogle:**
+- `M-x helm-hoogle` for interactive search
+- Integrates with helm completion framework
+- Can lookup symbol at point
+
+**haskell-hoogle (part of haskell-mode):**
+- `haskell-hoogle-lookup-from-local` for offline search
+- `haskell-hoogle-lookup-from-website` for online
+- Bound to `C-c C-h` in haskell-mode
+
+**counsel-hoogle (if using ivy/counsel):**
+- Ivy-based interface for Hoogle
+
+### Flycheck integration:
+
+**flycheck-haskell:**
+- Adds hlint checker to flycheck
+- Auto-configures for cabal/stack projects
+- Can run alongside HLS diagnostics
+
+### Haskell-mode features:
+
+**haskell-mode built-ins:**
+- `haskell-mode-stylish-buffer` for formatting imports
+- `haskell-add-import` for adding imports
+- `haskell-navigate-imports` for import navigation
+- Documentation lookup functions
+
+**dante (alternative to HLS):**
+- Full IDE features via GHCi
+- May provide some features HLS lacks
+- Could run alongside HLS for specific features
+
+### Yasnippet:
+
+**haskell-snippets package:**
+- Provides snippets for common patterns
+- Can add custom Haddock comment templates
+- LANGUAGE pragma snippets
+
+### Installation:
+
+Most available via MELPA:
+```elisp
+(use-package helm-hoogle)
+(use-package flycheck-haskell
+  :after flycheck haskell-mode)
+(use-package haskell-snippets
+  :after yasnippet)
+```
+
+### Advantages:
+- Well-maintained packages
+- Easy to install from MELPA
+- Good integration with Emacs ecosystem
+
+### Limitations:
+- May overlap/conflict with HLS
+- Requires managing multiple packages
+- Some packages may be unmaintained

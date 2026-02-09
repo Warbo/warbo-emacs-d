@@ -1,0 +1,57 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:25 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-c4e623aedaeb9645-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 1: HLS Configuration and Plugins
+
+The Haskell Language Server can provide many of these features through its plugin system and configuration settings.
+
+### What HLS can provide:
+
+**HLint integration:**
+- Enable `haskell.plugin.hlint.globalOn` in HLS settings
+- HLS runs hlint and reports diagnostics via LSP
+- Hlint suggestions appear as code actions (quickfix)
+
+**Import management:**
+- HLS provides "Organize imports" code action
+- Can add missing imports via code actions
+- Remove unused imports automatically
+- Some versions support qualifying imports
+
+**Haddock/Documentation:**
+- HLS hover already shows some documentation
+- May integrate with Haddock for fuller docs
+
+**LANGUAGE pragma completion:**
+- HLS may already provide completion for pragmas
+- Check if eglot completion shows GHC extensions
+
+### Configuration approach:
+
+In Emacs config, set eglot/HLS settings:
+```elisp
+(setq-default eglot-workspace-configuration
+  '((:haskell . (:plugin (:hlint (:globalOn t))))))
+```
+
+Or in a `.hls.yaml` file in project root:
+```yaml
+hls:
+  plugin:
+    hlint:
+      globalOn: true
+```
+
+### Advantages:
+- Already using HLS, so no extra dependencies
+- LSP-native integration with eglot
+- Consistent with our existing setup
+
+### Limitations:
+- Not all features available in HLS plugins
+- Some features depend on HLS version
+- Synthesis tools (Djinn, QuickSpec) not available

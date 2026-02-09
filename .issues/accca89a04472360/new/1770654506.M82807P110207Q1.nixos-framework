@@ -1,0 +1,116 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:26 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-e5801c2689a8681a-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 4: Formatter Integration
+
+Use external formatters for code quality and import management.
+
+### Available formatters:
+
+**ormolu:**
+- Opinionated Haskell formatter
+- Formats entire files including imports
+- Config via `ormolu.yaml`
+```bash
+ormolu --mode inplace Main.hs
+```
+
+**fourmolu:**
+- Fork of ormolu with more configuration
+- Allows import styling customization
+- Four-space indentation by default
+
+**stylish-haskell:**
+- Specialized for import formatting
+- Configurable import grouping/sorting
+- Config via `.stylish-haskell.yaml`
+- Can format just imports or whole file
+
+**brittany:**
+- Flexible Haskell formatter
+- Highly configurable layout rules
+
+### Integration strategies:
+
+**1. Format-on-save with apheleia:**
+```elisp
+(use-package apheleia
+  :config
+  (setf (alist-get 'ormolu apheleia-formatters)
+        '("ormolu"))
+  (setf (alist-get 'haskell-mode apheleia-mode-alist)
+        'ormolu)
+  :hook (haskell-mode . apheleia-mode))
+```
+
+**2. Manual command:**
+```elisp
+(defun my/format-haskell ()
+  (interactive)
+  (when (eq major-mode 'haskell-mode)
+    (shell-command-on-region
+      (point-min) (point-max)
+      "ormolu"
+      (current-buffer) t)))
+```
+
+**3. Via eglot:**
+HLS can be configured to use specific formatters:
+```yaml
+# .hls.yaml
+hls:
+  formatOnImportOn: true
+  formattingProvider: "ormolu"
+```
+
+**4. Import-only formatting:**
+```elisp
+(defun my/format-imports ()
+  (interactive)
+  (shell-command-on-region
+    (point-min) (point-max)
+    "stylish-haskell --mode inplace"
+    (current-buffer) t))
+```
+
+### Configuration example (stylish-haskell):
+
+Create `.stylish-haskell.yaml` in project:
+```yaml
+steps:
+  - imports:
+      align: group
+      list_align: after_alias
+      pad_module_names: true
+      long_list_align: inline
+      empty_list_align: inherit
+      list_padding: 4
+      separate_lists: true
+      space_surround: false
+  - language_pragmas:
+      style: vertical
+      align: true
+      remove_redundant: true
+  - simple_align:
+      cases: true
+      top_level_patterns: true
+      records: true
+  - trailing_whitespace: {}
+columns: 80
+```
+
+### Advantages:
+- Consistent code style across team
+- Import formatting is main focus
+- Well-maintained tools
+- Configurable per-project
+
+### Limitations:
+- Opinionated formatting (less flexibility)
+- May conflict with personal style
+- Doesn't cover all features (no synthesis, etc.)
+- Requires external tools in shell.nix

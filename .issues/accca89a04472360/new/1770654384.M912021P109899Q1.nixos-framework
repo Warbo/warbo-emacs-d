@@ -1,0 +1,40 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:26:24 +0000
+State: new
+Subject: Missing Haskell IDE functionality from test suite
+Message-Id: <accca89a04472360-0-artemis@nixos-framework>
+
+The haskell-tests.el file contains several skipped tests for functionality we don't have yet. This issue tracks all the missing features:
+
+## Linting and Code Quality
+1. **HLint integration** - On-the-fly hlint diagnostics showing style issues
+2. **HLint code actions** - Applying hlint suggestions via quickfix
+
+## Documentation and Search
+3. **Hoogle online search** - Search Hoogle database for functions
+4. **Hoogle lookup at point** - Look up identifier under cursor in Hoogle
+5. **Hoogle local database** - Generate and use offline Hoogle database
+6. **Hoogle project-specific search** - Scope Hoogle to project dependencies
+7. **Hoogle import insertion** - Use Hoogle to identify and add missing imports
+8. **View Haddock documentation** - Display Haddock docs for symbols
+9. **Generate Haddock comments** - Create Haddock comment skeletons
+
+## Program Synthesis
+10. **Djinn synthesis** - Synthesize function implementations from type signatures
+11. **Djinn at point** - Invoke Djinn on type signature at cursor
+12. **MagicHaskeller search** - Synthesize implementations from examples
+13. **Hoogle+ synthesis** - Program synthesis from types and examples
+
+## Testing and Property Generation
+14. **QuickSpec property generation** - Auto-discover algebraic properties
+15. **Spectacular test generation** - Generate QuickCheck tests from signatures
+16. **Run test suite** - Execute project tests and display results
+
+## Import Management
+17. **Organize imports** - Sort, group, and remove unused imports
+18. **Qualify imports** - Convert regular imports to qualified imports
+
+## Code Editing
+19. **LANGUAGE pragma completion** - Suggest GHC extensions when typing pragmas
+
+See individual comments below for different approaches to implementing these features.

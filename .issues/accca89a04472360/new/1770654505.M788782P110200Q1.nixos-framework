@@ -1,0 +1,94 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:25 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-a19885689a7a7426-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 3: External Shell Commands
+
+Call external Haskell tools directly from Emacs.
+
+### HLint:
+
+Run hlint as external command:
+```elisp
+(defun my/hlint-buffer ()
+  (interactive)
+  (compile (format "hlint %s" buffer-file-name)))
+```
+
+Or create flymake backend:
+```elisp
+(defun my/flymake-hlint-backend (report-fn &rest _args)
+  ;; Run hlint and parse output for diagnostics
+  ...)
+```
+
+### Hoogle:
+
+**Online search:**
+```elisp
+(defun my/hoogle-search (query)
+  (interactive "sHoogle: ")
+  (browse-url (format "https://hoogle.haskell.org/?hoogle=%s"
+                      (url-hexify-string query))))
+```
+
+**Local database:**
+```elisp
+(defun my/hoogle-local (query)
+  (interactive (list (thing-at-point 'symbol)))
+  (let ((results (shell-command-to-string
+                  (format "hoogle %s" query))))
+    (with-help-window "*Hoogle*"
+      (princ results))))
+```
+
+**Generate database:**
+```bash
+hoogle generate  # Run in shell.nix environment
+```
+
+### Import formatters:
+
+**stylish-haskell:**
+```elisp
+(defun my/stylish-haskell ()
+  (interactive)
+  (let ((output (shell-command-to-string
+                 (format "stylish-haskell %s" buffer-file-name))))
+    (erase-buffer)
+    (insert output)))
+```
+
+**Or use apheleia for format-on-save:**
+```elisp
+(use-package apheleia
+  :config
+  (add-to-list 'apheleia-formatters
+    '(stylish-haskell . ("stylish-haskell")))
+  (add-to-list 'apheleia-mode-alist
+    '(haskell-mode . stylish-haskell)))
+```
+
+### Test running:
+
+```elisp
+(defun my/haskell-test ()
+  (interactive)
+  (let ((default-directory (project-root (project-current))))
+    (compile "cabal test")))  ;; or "stack test"
+```
+
+### Advantages:
+- Simple and direct
+- Full control over tool invocation
+- Easy to customize
+- Works with any tool in PATH
+
+### Limitations:
+- Manual integration work
+- Need to handle output parsing
+- Less seamless than LSP integration
+- Async handling for responsiveness

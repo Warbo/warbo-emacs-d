@@ -1,0 +1,138 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:26 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-ea5966f632baa6ba-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 7: Compilation Mode Integration
+
+Use Emacs compilation-mode for build, test, and external tool integration.
+
+### Test runner integration:
+
+```elisp
+(defun my/haskell-test ()
+  "Run Haskell test suite."
+  (interactive)
+  (let* ((root (project-root (project-current t)))
+         (default-directory root))
+    (compile (my/haskell-test-command))))
+
+(defun my/haskell-test-command ()
+  "Determine appropriate test command for project."
+  (cond
+   ((file-exists-p "stack.yaml") "stack test --fast")
+   ((file-exists-p "cabal.project") "cabal test --test-show-details=streaming")
+   (t "cabal test")))
+
+;; Keybinding
+(define-key haskell-mode-map (kbd "C-c C-t") #'my/haskell-test)
+```
+
+### Smart compile command:
+
+```elisp
+(defun my/haskell-compile ()
+  "Build current Haskell project."
+  (interactive)
+  (let ((default-directory (project-root (project-current t))))
+    (compile (my/haskell-build-command))))
+
+(defun my/haskell-build-command ()
+  "Determine build command."
+  (cond
+   ((file-exists-p "stack.yaml") "stack build --fast")
+   ((file-exists-p "cabal.project") "cabal build")
+   (t "cabal build")))
+
+(define-key haskell-mode-map (kbd "C-c C-c") #'my/haskell-compile)
+```
+
+### Error navigation:
+
+Compilation mode automatically parses GHC errors:
+```elisp
+;; Ensure GHC errors are recognized
+(require 'compile)
+
+;; Custom error patterns if needed
+(add-to-list 'compilation-error-regexp-alist 'haskell)
+(add-to-list 'compilation-error-regexp-alist-alist
+  '(haskell
+    "^\\([^:\n]+\\):\\([0-9]+\\):\\([0-9]+\\):"
+    1 2 3))
+```
+
+### Quick recompile:
+
+```elisp
+;; Rerun last compilation with g
+(define-key haskell-mode-map (kbd "C-c C-r") #'recompile)
+```
+
+### Integration with projectile:
+
+```elisp
+(use-package projectile
+  :config
+  (projectile-register-project-type
+   'haskell-stack
+   :project-file "stack.yaml"
+   :compile "stack build"
+   :test "stack test"
+   :run "stack exec")
+
+  (projectile-register-project-type
+   'haskell-cabal
+   :project-file "cabal.project"
+   :compile "cabal build"
+   :test "cabal test"
+   :run "cabal run"))
+
+;; Then use projectile commands:
+;; C-c p c - projectile-compile-project
+;; C-c p P - projectile-test-project
+```
+
+### Running individual tests:
+
+```elisp
+(defun my/haskell-test-at-point ()
+  "Run test at point (requires hspec/tasty)."
+  (interactive)
+  (let* ((test-name (my/haskell-test-name-at-point))
+         (cmd (format "stack test --test-arguments='--match \"%s\"'"
+                      test-name)))
+    (compile cmd)))
+
+(defun my/haskell-test-name-at-point ()
+  "Extract test name from 'it' or 'describe' block."
+  (save-excursion
+    (re-search-backward "\\(it\\|describe\\)\\s-+\"\\([^\"]+\\)\"")
+    (match-string 2)))
+```
+
+### Async shell commands:
+
+For tools that don't need error parsing:
+```elisp
+(defun my/hlint-project ()
+  "Run hlint on entire project."
+  (interactive)
+  (let ((default-directory (project-root (project-current t))))
+    (async-shell-command "hlint .")))
+```
+
+### Advantages:
+- Built-in Emacs feature
+- Automatic error navigation
+- Async execution
+- Buffer management handled
+- Works with standard tools
+
+### Limitations:
+- Only for command-line tools
+- UI is basic (compilation buffer)
+- No inline annotations (unlike LSP)
+- Manual integration needed

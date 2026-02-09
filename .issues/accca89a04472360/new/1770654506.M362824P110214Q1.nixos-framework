@@ -1,0 +1,134 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 16:28:26 +0000
+Subject: Re: comment
+Message-Id: <accca89a04472360-ec18359f1a31d5b3-artemis@nixos-framework>
+References: <accca89a04472360-0-artemis@nixos-framework>
+In-Reply-To: <accca89a04472360-0-artemis@nixos-framework>
+
+## Approach 5: Custom Elisp Functions
+
+Write custom Emacs Lisp to implement features from scratch.
+
+### Hoogle import insertion:
+
+```elisp
+(defun my/hoogle-add-import ()
+  "Look up undefined symbol in Hoogle and add import."
+  (interactive)
+  (let* ((symbol (thing-at-point 'symbol))
+         (results (shell-command-to-string
+                   (format "hoogle --count=5 %s" symbol)))
+         (module (my/parse-hoogle-module results)))
+    (when module
+      (save-excursion
+        (goto-char (point-min))
+        (if (re-search-forward "^import " nil t)
+            (forward-line 0)
+          (goto-char (point-min)))
+        (insert (format "import %s\n" module))))))
+
+(defun my/parse-hoogle-module (results)
+  "Extract first module name from hoogle output."
+  (when (string-match "\\([A-Z][A-Za-z0-9.]*\\)\\s-+::" results)
+    (match-string 1 results)))
+```
+
+### Organize imports:
+
+```elisp
+(defun my/organize-imports ()
+  "Sort and deduplicate imports."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((import-start (and (re-search-forward "^import " nil t)
+                             (line-beginning-position)))
+          (import-end))
+      (when import-start
+        ;; Find end of import block
+        (while (and (not (eobp))
+                    (or (looking-at "^import ")
+                        (looking-at "^\\s-*$")))
+          (forward-line))
+        (setq import-end (point))
+        ;; Sort imports
+        (sort-lines nil import-start import-end)
+        ;; Remove duplicates
+        (delete-duplicate-lines import-start import-end)))))
+```
+
+### LANGUAGE pragma completion:
+
+```elisp
+(defconst my/ghc-extensions
+  '("AllowAmbiguousTypes" "BangPatterns" "BlockArguments"
+    "ConstraintKinds" "DataKinds" "DeriveAnyClass"
+    "DeriveFunctor" "DeriveGeneric" "DerivingStrategies"
+    "FlexibleContexts" "FlexibleInstances" "GADTs"
+    "GeneralizedNewtypeDeriving" "InstanceSigs"
+    "LambdaCase" "MultiParamTypeClasses" "OverloadedStrings"
+    "RankNTypes" "ScopedTypeVariables" "StandaloneDeriving"
+    "TemplateHaskell" "TupleSections" "TypeApplications"
+    "TypeFamilies" "TypeOperators" "ViewPatterns")
+  "Common GHC language extensions.")
+
+(defun my/complete-pragma ()
+  "Complete LANGUAGE pragma extensions."
+  (when (looking-back "{-# LANGUAGE \\([A-Za-z]*\\)" nil)
+    (let ((prefix (match-string 1)))
+      (list (match-beginning 1)
+            (match-end 1)
+            (completion-table-dynamic
+             (lambda (_)
+               (seq-filter
+                 (lambda (ext) (string-prefix-p prefix ext))
+                 my/ghc-extensions)))))))
+
+(add-hook 'completion-at-point-functions
+          #'my/complete-pragma nil t)
+```
+
+### Haddock comment generation:
+
+```elisp
+(defun my/generate-haddock ()
+  "Generate Haddock comment for function at point."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (when (looking-at "\\([a-z][a-zA-Z0-9']*\\)\\s-*::\\s-*\\(.*\\)")
+      (let ((fname (match-string 1))
+            (type-sig (match-string 2)))
+        (forward-line 0)
+        (insert "-- | \n")
+        (forward-char -1)
+        (message "Haddock comment inserted for %s" fname)))))
+```
+
+### Run project tests:
+
+```elisp
+(defun my/haskell-run-tests ()
+  "Run test suite for current Haskell project."
+  (interactive)
+  (let* ((root (project-root (project-current t)))
+         (default-directory root)
+         (cmd (cond
+               ((file-exists-p "stack.yaml") "stack test")
+               ((file-exists-p "cabal.project") "cabal test")
+               (t "cabal test"))))
+    (compile cmd)))
+```
+
+### Advantages:
+- Complete control over behavior
+- No external package dependencies
+- Customize exactly to your workflow
+- Learn Elisp in the process
+
+### Limitations:
+- Significant development effort
+- Need to maintain code yourself
+- May reinvent the wheel
+- More complex features (synthesis) impractical
+- Less robust than established tools
