@@ -1,0 +1,17 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 02:58:29 +0000
+Subject: Re: comment
+Message-Id: <99a7bf889a5748ee-c7a0094800be6f69-artemis@nixos-framework>
+References: <99a7bf889a5748ee-0-artemis@nixos-framework>
+In-Reply-To: <99a7bf889a5748ee-0-artemis@nixos-framework>
+
+Fixed the cl-no-applicable-method error by improving the wrapper function to:
+1. Look up the server program directly from eglot-server-programs
+2. Only call eglot-ensure if both a server is configured AND its binary exists in PATH
+3. Wrap everything in condition-case to catch and gracefully handle any errors
+4. Show friendly messages instead of failing loudly
+
+This prevents eglot from attempting to start when:
+- The LSP binary isn't in PATH (e.g., when opening a .hs file without haskell-language-server-wrapper)
+- No server is configured for the mode
+- Any other error occurs during eglot startup

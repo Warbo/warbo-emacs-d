@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 03:03:03 +0000
+Subject: Re: comment
+Message-Id: <99a7bf889a5748ee-b2b8eed6c727c270-artemis@nixos-framework>
+References: <99a7bf889a5748ee-0-artemis@nixos-framework>
+In-Reply-To: <99a7bf889a5748ee-0-artemis@nixos-framework>
+
+Also fixed Haskell-specific issue with hasktags:
+
+Modified `warbo-haskell-tags` and `warbo-haskell-setup` to check if hasktags binary exists before attempting to use it. Now:
+- warbo-haskell-tags: Only runs if hasktags is in PATH
+- warbo-haskell-setup: Only sets up TAGS generation and after-save-hook if hasktags is available
+
+This prevents the "file-missing Searching for program No such file or directory hasktags" error when opening Haskell files without hasktags installed.

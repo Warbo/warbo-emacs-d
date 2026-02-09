@@ -1,0 +1,15 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 03:01:16 +0000
+Subject: Re: comment
+Message-Id: <99a7bf889a5748ee-cfb26b63191e8af5-artemis@nixos-framework>
+References: <99a7bf889a5748ee-0-artemis@nixos-framework>
+In-Reply-To: <99a7bf889a5748ee-0-artemis@nixos-framework>
+
+Further improved the fix to catch ALL attempts to start eglot:
+
+1. Created `warbo-eglot-check-binary-exists` helper function that checks if the LSP binary exists in PATH
+2. Added advice to `eglot-ensure` itself that intercepts ANY call to it (from hooks, .dir-locals.el, or direct invocation)
+3. The advice prevents eglot from starting and shows a helpful message when the binary doesn't exist
+
+This comprehensive approach ensures that no matter how eglot-ensure is invoked, it won't fail with an error when the LSP binary isn't available. Instead, users will see:
+"eglot: LSP binary 'haskell-language-server-wrapper' not found in PATH - not starting"

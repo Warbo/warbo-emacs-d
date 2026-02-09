@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 07 Feb 2026 16:36:00 +0000
-State: new
+State: resolved
 Subject: Don't attempt to start eglot if LSP binary isn't found
 Message-Id: <99a7bf889a5748ee-0-artemis@nixos-framework>
+resolution: fixed
 
 Some of our eglot setup is deferred to .dir-locals.el files, to avoid
 hard-coding things which should be project-specific; and we use direnv to ensure

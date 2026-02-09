@@ -193,24 +193,26 @@ Use in .dir-locals.el: (eglot-server-programs . ((haskell-mode . ,warbo-haskell-
 Use in .dir-locals.el: (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-args)))")
 
 (defun warbo-haskell-tags ()
-  "Run command to generate TAGS file in root directory of current repo."
-  (let ((default-directory (vc-root-dir)))
-    (when default-directory
-      (start-process "hasktags" nil "hasktags" "--etags" "."))))
+  "Run command to generate TAGS file in root directory of current repo.
+Only runs if hasktags is available in PATH."
+  (when (executable-find "hasktags")
+    (let ((default-directory (vc-root-dir)))
+      (when default-directory
+        (start-process "hasktags" nil "hasktags" "--etags" ".")))))
 
 (defun warbo-haskell-setup ()
   "Custom hook to setup `haskell-mode'."
-  ;; Generate TAGS if they don't exist yet
-  (let* ((root (vc-root-dir))
-         (tags-file (when root (expand-file-name "TAGS" root))))
-    (when (and tags-file (not (file-exists-p tags-file)))
-      (warbo-haskell-tags)))
-  ;; Keep TAGS updated when we save
-  (add-hook 'after-save-hook 'warbo-haskell-tags nil t))
+  (when (executable-find "hasktags")
+    ;; Generate TAGS if they don't exist yet
+    (let* ((root (vc-root-dir))
+           (tags-file (when root (expand-file-name "TAGS" root))))
+      (when (and tags-file (not (file-exists-p tags-file)))
+        (warbo-haskell-tags)))
+    ;; Keep TAGS updated when we save
+    (add-hook 'after-save-hook 'warbo-haskell-tags nil t)))
 
 (use-package haskell-mode
   :ensure t
-  :hook (haskell-mode . eglot-ensure)
   :config
   (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
 
@@ -536,17 +538,98 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package s
   :ensure t)
 
+(defun warbo-eglot-check-binary-exists ()
+  "Check if the LSP binary for the current mode exists in PATH.
+Returns the binary name if found, nil otherwise."
+  (let* ((mode-server (or
+                       ;; Check for exact match first
+                       (assoc major-mode eglot-server-programs)
+                       ;; Then check if any entry matches (for derived modes)
+                       (cl-find-if (lambda (entry)
+                                     (let ((modes (car entry)))
+                                       (or (eq modes major-mode)
+                                           (and (listp modes)
+                                                (memq major-mode modes)))))
+                                   eglot-server-programs)))
+         (contact (cdr mode-server)))
+    (when contact
+      (let* ((program (cond
+                       ((stringp contact) contact)
+                       ((and (consp contact) (stringp (car contact)))
+                        (car contact))
+                       (t nil))))
+        (and program (executable-find program) program)))))
+
+(defun warbo-eglot-ensure-if-binary-exists ()
+  "Start eglot only if the LSP binary for the current mode is available.
+Checks if the LSP server program is in PATH before calling `eglot-ensure'.
+If the binary isn't found or eglot fails to start, displays a message."
+  (condition-case err
+      (if (warbo-eglot-check-binary-exists)
+          (eglot-ensure)
+        (let* ((mode-server (or
+                             (assoc major-mode eglot-server-programs)
+                             (cl-find-if (lambda (entry)
+                                           (let ((modes (car entry)))
+                                             (or (eq modes major-mode)
+                                                 (and (listp modes)
+                                                      (memq major-mode modes)))))
+                                         eglot-server-programs)))
+               (contact (cdr mode-server))
+               (program (when contact
+                          (cond
+                           ((stringp contact) contact)
+                           ((and (consp contact) (stringp (car contact)))
+                            (car contact))
+                           (t nil)))))
+          (if program
+              (message "eglot: LSP binary '%s' not found in PATH for %s - not starting"
+                       program major-mode)
+            (message "eglot: No LSP server configured for %s - not starting"
+                     major-mode))))
+    (error
+     ;; Catch any errors from eglot and just report them
+     (message "eglot: Failed to start for %s: %s" major-mode (error-message-string err)))))
+
 (use-package eglot
   :ensure t
   :commands eglot-ensure eglot
-  :hook ((vue-mode . eglot-ensure)
-         (c-mode-common . eglot-ensure)
-         (c-ts-base-mode . eglot-ensure)
-         (js-base-mode . eglot-ensure)
-         (typescript-mode . eglot-ensure)
-         (typescript-ts-base-mode . eglot-ensure))
+  :hook ((vue-mode . warbo-eglot-ensure-if-binary-exists)
+         (c-mode-common . warbo-eglot-ensure-if-binary-exists)
+         (c-ts-base-mode . warbo-eglot-ensure-if-binary-exists)
+         (js-base-mode . warbo-eglot-ensure-if-binary-exists)
+         (typescript-mode . warbo-eglot-ensure-if-binary-exists)
+         (typescript-ts-base-mode . warbo-eglot-ensure-if-binary-exists)
+         (haskell-mode . warbo-eglot-ensure-if-binary-exists))
   :config
   (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
+
+  ;; Add advice to prevent eglot from starting when binary doesn't exist
+  ;; This catches calls from .dir-locals.el and other sources
+  (define-advice eglot-ensure (:around (orig-fun &rest args) check-binary-exists)
+    "Only start eglot if the LSP binary exists in PATH.
+This prevents eglot from failing when the binary isn't available."
+    (if (warbo-eglot-check-binary-exists)
+        (apply orig-fun args)
+      (let* ((mode-server (or
+                           (assoc major-mode eglot-server-programs)
+                           (cl-find-if (lambda (entry)
+                                         (let ((modes (car entry)))
+                                           (or (eq modes major-mode)
+                                               (and (listp modes)
+                                                    (memq major-mode modes)))))
+                                       eglot-server-programs)))
+             (contact (cdr mode-server))
+             (program (when contact
+                        (cond
+                         ((stringp contact) contact)
+                         ((and (consp contact) (stringp (car contact)))
+                          (car contact))
+                         (t nil)))))
+        (when program
+          (message "eglot: LSP binary '%s' not found in PATH - not starting"
+                   program)))))
+
   ;; From https://gluer.org/blog/improving-eglot-performance/
   (define-advice jsonrpc--log-event (:override (&rest _))
     "Silence jsonrpc logging to improve performance.")

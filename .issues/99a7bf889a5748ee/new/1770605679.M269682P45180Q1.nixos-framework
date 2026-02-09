@@ -1,0 +1,15 @@
+From: Chris Warburton
+Date: Mon, 09 Feb 2026 02:54:39 +0000
+Subject: Re: comment
+Message-Id: <99a7bf889a5748ee-c23cb0d78136a60b-artemis@nixos-framework>
+References: <99a7bf889a5748ee-0-artemis@nixos-framework>
+In-Reply-To: <99a7bf889a5748ee-0-artemis@nixos-framework>
+
+Fixed by creating a wrapper function `warbo-eglot-ensure-if-binary-exists` that:
+1. Uses eglot's internal functions to determine which LSP binary would be needed
+2. Checks if that binary exists in PATH using `executable-find`
+3. Only calls `eglot-ensure` if the binary is available
+4. Shows a helpful message if the binary isn't found, explaining why eglot wasn't started
+
+Updated all eglot hooks to use this wrapper instead of calling eglot-ensure directly.
+Also removed duplicate hook from haskell-mode configuration.
