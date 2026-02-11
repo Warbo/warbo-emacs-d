@@ -38,6 +38,13 @@ Only runs if hasktags is available in PATH."
   :config
   (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
 
+;; When HLS isn't available, flycheck provides hlint diagnostics as a fallback.
+;; flycheck-haskell configures flycheck's Haskell checkers with the correct
+;; cabal settings, GHC options, language extensions, and source directories.
+(use-package flycheck-haskell
+  :ensure t
+  :hook (haskell-mode . flycheck-haskell-setup))
+
 ;; ghcid integration: run ghcid in a shell buffer with nice error highlighting
 (use-package warbo-rolling-shell
   :config

@@ -443,14 +443,25 @@ with the string S. Unlike `replace-region-contents' this maintains text
                   flymake-allowed-file-name-masks))))
 
 (use-package flycheck
-  ;; Non-eglot/LSP modes should use flycheck as it's more powerful than flymake
+  ;; Non-eglot/LSP modes should use flycheck as it's more powerful than flymake.
+  ;; For eglot-managed buffers, flycheck gets disabled in favour of flymake (see
+  ;; warbo-flycheck-disable-for-eglot on eglot-managed-mode-hook below).
   :ensure t
   :init
   (defun warbo-maybe-enable-flycheck ()
     "Enable flycheck only if eglot is not managing this buffer."
     (unless (bound-and-true-p eglot--managed-mode)
       (flycheck-mode 1)))
-  :hook (prog-mode . warbo-maybe-enable-flycheck)
+
+  (defun warbo-flycheck-disable-for-eglot ()
+    "Disable flycheck when eglot starts managing a buffer.
+Eglot feeds diagnostics to flymake, so flycheck would be redundant.
+If eglot disconnects, flycheck gets re-enabled via `prog-mode-hook'
+next time the buffer's mode is set."
+    (when (bound-and-true-p flycheck-mode)
+      (flycheck-mode -1)))
+  :hook ((prog-mode . warbo-maybe-enable-flycheck)
+         (eglot-managed-mode . warbo-flycheck-disable-for-eglot))
   :config
   (add-to-list 'flycheck-checkers 'nix))
 

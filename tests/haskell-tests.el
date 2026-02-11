@@ -963,47 +963,130 @@ Verifies jump-to-definition works across local module boundaries."
 
 (ert-deftest warbo-test-haskell-hlint-on-the-fly ()
   "Test that opening a Haskell file with style issues shows hlint diagnostics.
-For example, unnecessary parentheses or use of 'return ()' instead of 'pure ()'."
+HLS's hlint plugin reports suggestions as flymake diagnostics.  We use
+'putStrLn (show ...)' which hlint flags as 'Use print'."
   :tags '(:hlint :linter)
-  ;; TODO: Implement hlint integration with flymake or flycheck
-  ;; - Option 1: Configure HLS to run hlint (check haskell.plugin.hlint.globalOn)
-  ;; - Option 2: Use flycheck-haskell with hlint checker
-  ;; - Option 3: Use apheleia or similar for on-save hlint fixes
   (with-haskell-test-file
-      "main = return ()"
-      "return"
+      "module Main where\n\nmain :: IO ()\nmain = putStrLn (show (1 + 1))"
+      "putStrLn"
 
-   (flymake-start)
-   (with-timeout (10 (ert-fail "Timed out waiting for hlint diagnostics"))
-     (while (not (seq-find (lambda (d)
-                            (string-match-p "hlint\\|redundant\\|use.*pure"
-                                          (downcase (flymake-diagnostic-text d))))
-                          (flymake-diagnostics)))
-       (accept-process-output nil 0.5)))
-   (let ((hlint-diag (seq-find (lambda (d)
-                                 (string-match-p "hlint\\|redundant\\|use.*pure"
-                                               (downcase (flymake-diagnostic-text d))))
-                               (flymake-diagnostics))))
-     (should hlint-diag)
-     (message "Found hlint diagnostic: %s" (flymake-diagnostic-text hlint-diag)))))
+   (let ((hlint-diag
+          (warbo-haskell-test-poll
+           (lambda ()
+             (seq-find (lambda (d)
+                         (string-match-p
+                          "hlint\\|Use print"
+                          (flymake-diagnostic-text d)))
+                       (flymake-diagnostics)))
+           warbo-haskell-test-timeout
+           "hlint diagnostics")))
+     (unless hlint-diag
+       (ert-fail (format "No hlint diagnostic found. All diagnostics: %s"
+                         (mapcar #'flymake-diagnostic-text
+                                 (flymake-diagnostics)))))
+     (should (string-match-p "print" (flymake-diagnostic-text hlint-diag))))))
 
 (ert-deftest warbo-test-haskell-hlint-apply-suggestion ()
-  "Test applying an hlint suggestion using code actions.
-Should replace 'return ()' with 'pure ()' when invoking quickfix."
-  :tags '(:hlint :code-action)
-  ;; TODO: Test that code actions from hlint can be applied
-  (with-haskell-test-file
-      "main :: IO ()\nmain = return ()"
-      "return"
+  "Test applying an hlint code action via eglot.
+Uses 'putStrLn (show ...)' which hlint suggests replacing with 'print'.
+Waits for the hlint diagnostic, then applies the code action.
 
-   (sleep-for 3)
-   (goto-char (point-min))
-   (search-forward "return")
-   (let ((before (buffer-string)))
-     (call-interactively 'eglot-code-action-quickfix)
-     (sleep-for 1)
-     (should (not (string= before (buffer-string))))
-     (should (string-match-p "pure" (buffer-string))))))
+Note: HLS requires the 'apply-refact' tool in PATH to provide hlint
+code actions.  Diagnostics work without it (HLS bundles the hlint
+library), but code actions need apply-refact to rewrite the source."
+  :tags '(:hlint :code-action)
+  (with-haskell-test-file
+      "module Main where\n\nmain :: IO ()\nmain = putStrLn (show (1 + 1))"
+      "putStrLn"
+
+   ;; Wait for hlint diagnostic to appear
+   (let ((hlint-diag
+          (warbo-haskell-test-poll
+           (lambda ()
+             (seq-find (lambda (d)
+                         (string-match-p
+                          "hlint\\|Use print"
+                          (flymake-diagnostic-text d)))
+                       (flymake-diagnostics)))
+           warbo-haskell-test-timeout
+           "hlint diagnostics")))
+     (unless hlint-diag
+       (ert-fail (format "No hlint diagnostic. All diagnostics: %s"
+                         (mapcar #'flymake-diagnostic-text
+                                 (flymake-diagnostics)))))
+
+     ;; Position point on "putStrLn" where the diagnostic is
+     (goto-char (point-min))
+     (search-forward "putStrLn")
+     (goto-char (match-beginning 0))
+
+     ;; HLS needs apply-refact in PATH for hlint code actions.
+     ;; apply-refact is currently broken in nixpkgs (marked as broken),
+     ;; so code actions may not be available even though diagnostics are.
+     (let ((actions (eglot-code-actions (point) (point))))
+       (unless actions
+         (ert-skip "No code actions available (apply-refact likely missing)"))
+       (let ((before (buffer-string)))
+         (eglot-code-action-quickfix (point) (point))
+         (accept-process-output nil 1.0)
+         (should (not (string= before (buffer-string))))
+         (should (string-match-p "print" (buffer-string))))))))
+
+(ert-deftest warbo-test-haskell-hlint-flycheck-fallback ()
+  "Test that flycheck runs hlint when HLS is not available.
+When the LSP binary is missing, eglot should not start and flycheck
+should provide hlint diagnostics as a fallback.  Uses 'putStrLn (show
+...)' which hlint flags as 'Use print'."
+  :tags '(:hlint :flycheck :fallback)
+  (let* ((dir (make-temp-file "haskell-test-" t))
+         (file (expand-file-name "Main.hs" dir)))
+    (unwind-protect
+        (progn
+          (warbo-haskell-test-setup-project dir)
+          (with-temp-file file
+            (insert "module Main where\n\nmain :: IO ()\nmain = putStrLn (show (1 + 1))"))
+          (find-file file)
+
+          ;; Load direnv environment so hlint is in PATH
+          (when (fboundp 'direnv-update-environment)
+            (direnv-update-environment default-directory))
+          (skip-unless (executable-find "hlint"))
+
+          ;; Block eglot from starting, simulating HLS being unavailable
+          (let ((eglot-server-programs nil))
+            (run-hooks 'post-command-hook)
+            ;; flycheck should be active (no eglot to take over)
+            (unless (bound-and-true-p flycheck-mode)
+              (flycheck-mode 1))
+
+            ;; Select the hlint checker directly (normally chains from
+            ;; haskell-ghc, but GHC checking isn't what we're testing)
+            (flycheck-select-checker 'haskell-hlint)
+            (flycheck-buffer)
+
+            (let ((found (warbo-haskell-test-poll
+                          (lambda ()
+                            (and (not (eq (flycheck-get-checker-state
+                                          'haskell-hlint)
+                                         'running))
+                                 (flycheck-current-errors)))
+                          warbo-haskell-test-timeout
+                          "flycheck hlint errors")))
+              (unless found
+                (ert-fail
+                 (format "No flycheck hlint errors.  State: %s, checker: %s"
+                         (flycheck-get-checker-state 'haskell-hlint)
+                         flycheck-checker)))
+              (let ((msgs (mapcar #'flycheck-error-message found)))
+                (should (cl-some (lambda (m) (string-match-p "print" m))
+                                 msgs))))))
+      ;; Cleanup
+      (warbo-haskell-test-cleanup-sessions)
+      (when-let ((buf (find-buffer-visiting file)))
+        (with-current-buffer buf
+          (set-buffer-modified-p nil))
+        (kill-buffer buf))
+      (delete-directory dir t))))
 
 (ert-deftest warbo-test-haskell-hoogle-search-online ()
   "Test searching Hoogle online for a function and getting results.
