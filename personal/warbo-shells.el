@@ -287,6 +287,13 @@ If in a mistty buffer, create another with same context but new number."
   (face-remap-set-base 'comint-highlight-prompt :inherit nil))
 
 (use-package shell
+  :custom
+  (comint-completion-addsuffix t)
+  (comint-completion-autolist t)
+  (comint-input-ignoredups t)
+  (comint-move-point-for-output nil)
+  (comint-scroll-show-maximum-output t)
+  (comint-scroll-to-bottom-on-input nil)
   :hook
   (shell-mode . warbo-shell-mode-hook))
 
