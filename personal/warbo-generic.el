@@ -408,6 +408,11 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   ;; Otherwise, enable everywhere else
   (global-whitespace-cleanup-mode))
 
+;; Used by pi-coding-agent
+(use-package phscroll
+  :quelpa (phscroll :fetcher github
+                    :repo "misohena/phscroll"))
+
 (require 'cl-lib)
 (cl-macrolet
     ((use-package-here (name &rest args)
