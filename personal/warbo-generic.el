@@ -75,6 +75,10 @@
   (declare-function untabify@with-region-or-buffer "crux")
   (declare-function kill-region@with-region-or-line "crux"))
 
+(use-package dired
+  :custom
+  (dired-dwim-target t))
+
 (use-package diff-hl
   :ensure t
   :config
