@@ -86,6 +86,9 @@ can find it without prompting \"Visit tags table\"."
   ;; created. Otherwise we're not testing our Emacs config!
   (let* ((root (or (vc-root-dir) default-directory))
          (tags-file (expand-file-name "TAGS" root)))
+    ;; Load direnv environment so hasktags is available
+    (when (fboundp 'direnv-update-environment)
+      (direnv-update-environment root))
     ;; Generate TAGS synchronously if not already present
     (unless (file-exists-p tags-file)
       (let ((default-directory root))
@@ -1476,5 +1479,74 @@ When typing a LANGUAGE pragma, should suggest valid GHC extensions."
   ;; TODO: Set up LANGUAGE pragma completion
   ;; - Should suggest valid GHC extensions when typing pragmas
   )
+
+(ert-deftest warbo-test-haskell-jump-to-definition-with-prompt ()
+  "Test C-u M-. (jump to definition with prompt) works from whitespace.
+Regression test for issue ba19a9bd56efb1af: calling haskell-mode-jump-to-tag
+with a prefix argument (C-u M-.) was giving \"Wrong type argument: stringp, nil\"
+when point was on whitespace or no identifier was at point.
+
+This test verifies that we can successfully jump to a definition when:
+1. Point is on whitespace (no identifier at point)
+2. Prefix arg is given (to request prompting)
+3. User provides an identifier at the prompt
+
+The expected outcome is that we jump to the definition line."
+  :tags '(:jump-to-definition :regression)
+  (with-haskell-test-file
+      "myFunc :: Int\nmyFunc = 42\n\nmain = print myFunc"
+      "myFunc"
+
+   ;; First verify that etags backend can find myFunc at all
+   (let ((etags-xrefs (xref-backend-definitions 'etags "myFunc")))
+     (unless etags-xrefs
+       (ert-fail (format "etags found no definitions for myFunc. tags-file-name: %s, exists: %s, xref-backend-functions: %s"
+                         tags-file-name
+                         (and tags-file-name (file-exists-p tags-file-name))
+                         xref-backend-functions))))
+
+   ;; Position on the blank line where there's no identifier at point
+   (goto-char (point-min))
+   (search-forward "= 42")
+   (forward-line 1)
+   (beginning-of-line)
+   ;; Verify we're on a blank line (haskell-ident-at-point should return nil)
+   (should-not (haskell-ident-at-point))
+   (let ((start-line (line-number-at-pos))
+         (start-pos (point)))
+
+     ;; Our advice prompts via completing-read, then xref-find-definitions
+     ;; may also prompt via xref-show-definitions-completing-read if there
+     ;; are multiple results.  Mock completing-read to handle both:
+     ;; - First call (our advice): return "myFunc"
+     ;; - Subsequent calls (xref picking a result): pick the first candidate
+     (let ((xref-show-definitions-function
+            #'xref-show-definitions-completing-read)
+           (xref-show-xrefs-function
+            #'xref-show-definitions-completing-read)
+           (completing-read-function
+            (lambda (_prompt collection &rest _args)
+              (if (and collection (not (functionp collection)))
+                  ;; xref is asking us to pick from results: take the first
+                  (car (all-completions "" collection))
+                ;; Our advice is asking for the identifier to search for
+                "myFunc"))))
+       ;; Call with prefix arg (t for next-p parameter)
+       ;; This used to crash with "Wrong type argument: stringp, nil"
+       (haskell-mode-jump-to-tag t)
+       (accept-process-output nil 0.5)
+
+       ;; Verify we jumped to the definition
+       (let ((end-line (line-number-at-pos))
+             (end-pos (point)))
+         ;; Should have moved from start position
+         (should (not (= end-pos start-pos)))
+         ;; Should be on line 1 or 2 (the definition lines)
+         (should (<= end-line 2))
+         ;; Should have "myFunc" on the current line
+         (should (string-match-p "myFunc"
+                                 (buffer-substring-no-properties
+                                  (line-beginning-position)
+                                  (line-end-position)))))))))
 
 ;;; haskell-tests.el ends here
