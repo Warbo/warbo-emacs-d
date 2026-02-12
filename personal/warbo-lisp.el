@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-(declare-function defer "generic")
+(declare-function defer "warbo-preload-generic")
 
 ;; Make parentheses dimmer when editing LISP
 ;; (defface paren-face

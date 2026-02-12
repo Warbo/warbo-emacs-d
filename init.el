@@ -104,7 +104,7 @@
          :load-path
          ,(expand-file-name "personal" user-emacs-directory)
          ,@args)))
-  (in-personal bytecode
+  (in-personal warbo-bytecode
                :config
                (warbo-bytecode-compile-directory
                 (expand-file-name "personal" user-emacs-directory)

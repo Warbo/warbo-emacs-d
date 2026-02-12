@@ -1,4 +1,4 @@
-;;; warbo-emacs-packages --- Load packages at startup -*- lexical-binding: t; -*-
+;;; warbo-prelude-packages --- Load packages at startup -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;;
 ;;; This file lists a bunch of packages that I used to have installed, at one
@@ -165,3 +165,7 @@
 ;; "sunrise-x-buttons"
 ;; "sunrise-x-loop"
 ;; "sunrise-x-modeline"
+
+(provide 'warbo-preload-packages)
+
+;;; warbo-preload-packages.el ends here

@@ -1,4 +1,4 @@
-;;; bytecode.el --- Sensible byte-compilation for personal config -*- lexical-binding: t; -*-
+;;; warbo-bytecode.el --- Sensible byte-compilation for personal config -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;;
@@ -37,6 +37,6 @@
       ;; Compile all .el files in the source directory
       (native-compile-async source-dir t t))))
 
-(provide 'bytecode)
+(provide 'warbo-bytecode)
 
-;;; bytecode.el ends here
+;;; warbo-bytecode.el ends here

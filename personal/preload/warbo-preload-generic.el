@@ -1,4 +1,4 @@
-;;; generic --- Core things required before others -*- lexical-binding: t; -*-
+;;; warbo-preload-generic --- Core things required before others -*- lexical-binding: t; -*-
 ;;;
 ;;; Commentary:
 ;;; Provides things that must be in place before we start loading the rest of
@@ -83,5 +83,5 @@
 ;; an issue with tabs, since they show the buffer names :)
 (tab-bar-mode 1)
 
-(provide 'generic)
-;;; generic.el ends here
+(provide 'warbo-preload-generic)
+;;; warbo-preload-generic.el ends here

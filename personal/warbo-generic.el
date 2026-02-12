@@ -9,7 +9,7 @@
 ;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
 ;; TODO: Ensure functions are defined at runtime: sp-pair, prelude-wrap-with, sp-wrap-with-pair, smartrep-define-key, ov-set
 
-(declare-function thinkpad-only "generic")
+(declare-function thinkpad-only "warbo-preload-generic")
 (declare-function crux-smart-open-line-above "crux")
 
 ;; Resize windows with Shift-Control-Arrow-Cursor
