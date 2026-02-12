@@ -4,6 +4,7 @@
 
 ;; Declare functions defined in other files
 (declare-function command-in-rolling-buffer "warbo-rolling-shell")
+(declare-function warbo-haskell-jump-to-tag-fix "warbo-haskell")
 
 (defvar warbo-haskell-eglot-args
   '("haskell-language-server" "lsp"

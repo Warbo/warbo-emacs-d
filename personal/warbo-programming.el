@@ -5,7 +5,7 @@
 ;; Declare functions defined in other files
 (declare-function command-in-rolling-buffer "warbo-rolling-shell")
 (declare-function pretty-sha-path-mode "pretty-sha-path")
-(declare-function warbo-vertico-sort-prefer-exact "warbo-vertico")
+(declare-function warbo-vertico-sort-prefer-exact "warbo-programming")
 (declare-function vertico-sort-history-length-alpha "vertico")
 (declare-function eglot-ensure@check-binary-exists "warbo-programming")
 (declare-function nix-repl-completion-at-point@warbo-filter-bel "warbo-programming")

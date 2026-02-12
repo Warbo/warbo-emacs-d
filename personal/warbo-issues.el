@@ -8,11 +8,11 @@
 
 (require 'seq)
 
-(declare-function magit-toplevel "magit-git")
+(declare-function magit-toplevel "magit")
 
 ;;; Code:
 
-(declare-function issues-parse-comment "warbo-issues")
+(declare-function issue-parse-comment "warbo-issues")
 
 ;; Parse artemis command output into useful datastructures
 
