@@ -36,7 +36,51 @@ Only runs if hasktags is available in PATH."
 (use-package haskell-mode
   :ensure t
   :config
-  (add-hook 'haskell-mode-hook 'warbo-haskell-setup))
+  (add-hook 'haskell-mode-hook 'warbo-haskell-setup)
+
+  ;; Fix for issue ba19a9bd56efb1af: haskell-mode-jump-to-tag with prefix arg
+  ;; (C-u M-.) was giving "Wrong type argument: stringp, nil" when there's no
+  ;; identifier at point.  The bug is that the original function bails out
+  ;; entirely when haskell-ident-at-point returns nil, even when the user
+  ;; asked to be prompted (via prefix arg).  The fix: when prompting was
+  ;; requested or there's no identifier, prompt for one ourselves (with
+  ;; TAGS completion) and pass the string to xref-find-definitions.
+  ;; xref-union ensures etags can find it even if eglot can't (eglot's
+  ;; backend ignores the identifier string and looks at cursor position).
+  (defun warbo-haskell-jump-to-tag-fix (orig-fun &optional next-p)
+    "Fix for haskell-mode-jump-to-tag to handle nil identifier.
+If NEXT-P is non-nil or there's no identifier at point, prompt
+for an identifier then jump to its definition.  Otherwise call
+ORIG-FUN."
+    (let* ((raw-ident (haskell-ident-at-point))
+           (ident (when raw-ident
+                    (haskell-string-drop-qualifier raw-ident)))
+           (ident-valid (and ident
+                             (not (string= ""
+                                           (haskell-string-trim ident))))))
+      (if (and ident-valid (not next-p))
+          ;; Normal case: valid identifier, no prompting requested
+          (funcall orig-fun next-p)
+        ;; No valid identifier or prompting requested: prompt the user
+        ;; for an identifier, then search for it in the TAGS file.
+        (let* ((tags-file-dir (haskell-cabal--find-tags-dir))
+               (tags-file-name (when tags-file-dir
+                                 (concat tags-file-dir "TAGS")))
+               (tags-revert-without-query t)
+               (prompted-ident
+                (completing-read
+                 (if ident-valid
+                     (format "Find definition (default %s): " ident)
+                   "Find definition: ")
+                 (when (and tags-file-name (file-exists-p tags-file-name))
+                   (tags-completion-table))
+                 nil nil nil nil
+                 (when ident-valid ident))))
+          (when (and prompted-ident
+                     (not (string= "" prompted-ident)))
+            (xref-find-definitions prompted-ident))))))
+
+  (advice-add 'haskell-mode-jump-to-tag :around #'warbo-haskell-jump-to-tag-fix))
 
 ;; When HLS isn't available, flycheck provides hlint diagnostics as a fallback.
 ;; flycheck-haskell configures flycheck's Haskell checkers with the correct

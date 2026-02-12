@@ -1,0 +1,18 @@
+From: Chris Warburton
+Date: Thu, 12 Feb 2026 12:32:39 +0000
+Subject: Re: comment
+Message-Id: <ba19a9bd56efb1af-d86d35f73266aea7-artemis@nixos-framework>
+References: <ba19a9bd56efb1af-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <ba19a9bd56efb1af-0-artemis@TRAC-AAD-5340>
+
+Fixed by adding advice to haskell-mode-jump-to-tag in personal/warbo-haskell.el.
+
+The issue was that when C-u M-. (jump to definition with prompt) was called with no identifier at point, the function would try to pass nil to xref-find-definitions, which expects a string argument, causing the "Wrong type argument: stringp, nil" error.
+
+The fix uses :around advice to intercept calls when:
+1. A prefix argument is given (next-p is non-nil), OR
+2. There's no identifier at point (haskell-ident-at-point returns nil or empty string)
+
+In these cases, we call xref-find-definitions interactively, allowing it to prompt for the identifier itself. Otherwise, the original function behavior is preserved.
+
+A regression test was added in tests/haskell-tests.el that verifies the fix works by calling haskell-mode-jump-to-tag with a prefix argument while point is on whitespace.
