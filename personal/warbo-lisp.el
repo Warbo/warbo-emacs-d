@@ -2,6 +2,8 @@
 ;;; Commentary:
 ;;; Code:
 
+(declare-function defer "generic")
+
 ;; Make parentheses dimmer when editing LISP
 ;; (defface paren-face
 ;;   '((((class color) (background dark))

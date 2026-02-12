@@ -9,6 +9,9 @@
 ;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
 ;; TODO: Ensure functions are defined at runtime: sp-pair, prelude-wrap-with, sp-wrap-with-pair, smartrep-define-key, ov-set
 
+(declare-function thinkpad-only "generic")
+(declare-function crux-smart-open-line-above "crux")
+
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
 (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)

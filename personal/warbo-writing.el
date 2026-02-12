@@ -2,6 +2,8 @@
 ;;; Commentary:
 ;;; Code:
 
+(declare-function fci-mode "fill-column-indicator")
+
 (use-package ebib
   :ensure t)
 

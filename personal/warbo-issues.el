@@ -8,6 +8,8 @@
 
 (require 'seq)
 
+(declare-function magit-toplevel "magit-git")
+
 ;;; Code:
 
 (declare-function issues-parse-comment "warbo-issues")
