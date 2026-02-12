@@ -66,8 +66,6 @@
 
 ;; (use-package iedit)
 
-;; (use-package jabber)
-
 ;; (use-package json-reformat)
 
 ;; (use-package json-snatcher)
