@@ -6,8 +6,6 @@
 
 ;;; Code:
 
-(declare-function thinkpad-only "warbo-preload-generic")
-
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
 (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
@@ -462,20 +460,9 @@ If point is already at the beginning of text, move it to the beginning of line."
 ;; Allow commands to use Nix
 (when (file-exists-p "/nix/var/nix/daemon-socket/socket")
  (setenv "NIX_REMOTE" "daemon"))
-(thinkpad-only
- (setenv "NIX_PATH"
-         (replace-regexp-in-string
-          (rx (* (any " \t\n")) eos)
-          ""
-          (shell-command-to-string
-           "/run/current-system/sw/bin/bash -l -c 'echo \"$NIX_PATH\"'"))))
 
 ;; Enable fill-column-indicator when editing files
 (setq-default fill-column 80)
-
-;; Allow invoked programs to use pulseaudio
-(thinkpad-only
-  (setenv "PULSE_SERVER" "/var/run/pulse/native"))
 
 ;; Wrap the display of long lines, without altering the text itself
 (global-visual-line-mode)

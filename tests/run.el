@@ -1,8 +1,7 @@
 (require 'files)
-;; Prevent async native compilation during tests.  The async subprocess
-;; doesn't have macros from personal/preload/ (e.g. `thinkpad-only'),
-;; producing broken .eln files whose load-time sentinel errors crash batch
-;; mode before ERT can report results.
+;; Prevent async native compilation during tests.  The async subprocess doesn't
+;; have macros from personal/preload, producing broken .eln files whose
+;; load-time sentinel errors crash batch mode before ERT can report results.
 (advice-add 'native-compile-async :override #'ignore)
 (let ((default-directory user-emacs-directory))
   (load-file "early-init.el")

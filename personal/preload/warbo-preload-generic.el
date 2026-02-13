@@ -43,11 +43,6 @@
 (dbg "Set machine-id to %s" machine-id)
 
 ;; See which per-machine options we should enable
-(defmacro thinkpad-only (&rest body)
-  "Only evaluate BODY iff on thinkpad."
-  `(when (equal machine-id 'thinkpad)
-     ,@body))
-
 (defmacro manjaro-only (&rest body)
   "Only evaluate BODY iff on manjaro."
   `(when (equal machine-id 'manjaro)
