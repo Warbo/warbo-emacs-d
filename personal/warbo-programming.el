@@ -23,7 +23,8 @@
 ;; variables; and that causes a warning if they're not at the top-level!
 
 (use-package reformatter
-  :ensure t)
+  :ensure t
+  :defines (cue-format nix-format scala-format sh-format xmllint-format yamlfix-format))
 
 (reformatter-define cue-format
   :program "cue"
@@ -117,6 +118,7 @@
 (use-package direnv
   :ensure t
   :functions (direnv-mode direnv-update-environment warbo-direnv-update-environment)
+  :defines (direnv-non-file-modes)
   :init
   (defun warbo-direnv-update-environment ()
     "Update direnv environment, but only for local files.
@@ -163,6 +165,7 @@ Avoids errors when visiting remote files via TRAMP."
 (use-package xref-union
   :ensure t
   :hook (haskell-mode . xref-union-mode)
+  :defines (tags-revert-without-query)
   :config
   (setq tags-revert-without-query 1)
 
@@ -291,6 +294,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package magit
   :ensure t
   :functions (magit-log-setup-buffer magit-log-arguments)
+  :defines (magit-diff-paint-whitespace magit-diff-highlight-trailing magit-tramp-pipe-stty-settings)
   :bind (("C-x g" . magit-status)
          ("s-m m" . magit-status)
          ("s-m l" . magit-log)
@@ -358,6 +362,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package nix-mode
   :ensure t
   :after reformatter
+  :defines (nix-nixfmt-bin)
   :config
   (add-hook 'nix-mode-hook 'nix-format-on-save-mode)
   ;; nix-mode can run nixfmt, but it can't specify commandline args like "-w 80"
@@ -467,6 +472,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
   ;; warbo-flycheck-disable-for-eglot on eglot-managed-mode-hook below).
   :ensure t
   :functions (flycheck-mode)
+  :defines (flycheck-checkers)
   :init
   (defun warbo-maybe-enable-flycheck ()
     "Enable flycheck only if eglot is not managing this buffer."
@@ -591,6 +597,7 @@ This prevents eglot from failing when the binary isn't available."
 (use-package vertico
   :ensure t
   :functions (vertico-mode vertico-sort-history-length-alpha vertico--metadata-get)
+  :defines (vertico-map vertico-sort-override-function)
   :init
   (vertico-mode)
   (keymap-set vertico-map "TAB" #'minibuffer-complete)
@@ -651,6 +658,7 @@ by history/length/alpha."
   (corfu-preselect 'prompt)
 
   :functions (global-corfu-mode corfu-popupinfo-mode)
+  :defines (corfu-margin-formatters)
 
   :config
   ;; "Cycling" causes TAB to go through the list of suggestions; but I prefer it
@@ -671,6 +679,7 @@ by history/length/alpha."
 (use-package yasnippet
   :ensure t
   :functions (yas-expand yas-reload-all)
+  :defines (yas-minor-mode)
   :config
   (yas-reload-all)
   (add-hook 'prog-mode-hook 'yas-minor-mode)

@@ -6,6 +6,12 @@
 
 ;;; Code:
 
+;; Declare variables used in this file
+(defvar file-notify-descriptors nil
+  "Built-in variable for file notification watches.")
+(defvar machine-id nil
+  "Machine identifier, set in warbo-shells.el")
+
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
 (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
@@ -124,7 +130,8 @@
 
 (use-package fill-column-indicator
   :ensure t
-  :functions (fci-mode turn-on-fci-mode))
+  :functions (fci-mode turn-on-fci-mode)
+  :defines (fci-mode))
 
 (use-package git-timemachine
   :ensure t)
@@ -194,7 +201,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   ;; http://emacs.stackexchange.com/a/17579/5391
   (projectile-mode-line "Projectile")
 
-  :defines (prelude-savefile-dir)
+  :defines (prelude-savefile-dir projectile-cache-file)
   :functions (projectile-mode)
   :config
   ;; projectile is a project management mode
@@ -224,6 +231,8 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 (use-package undo-tree
   :ensure t
   :functions (global-undo-tree-mode)
+  :defines (undo-tree-visualizer-timestamps undo-tree-history-directory-alist
+            undo-tree-auto-save-history undo-tree-visualizer-lazy-drawing)
   :config
   (progn
     (setq undo-tree-visualizer-timestamps t
@@ -244,6 +253,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
 (use-package zenburn-theme
   :ensure t
+  :defines (zenburn-override-colors-alist)
   :config
   (setq zenburn-override-colors-alist
         '(("zenburn-bg-2"  . "#000000")
@@ -299,6 +309,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
               sp-wrap-with-pair
               sp-pair
               sp-use-paredit-bindings)
+  :defines (smartparens-mode-map)
   :custom
   (sp-base-key-bindings 'paredit)
   (sp-autoskip-closing-pair 'always)
