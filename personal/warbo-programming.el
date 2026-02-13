@@ -12,51 +12,47 @@
 (declare-function xterm-color-filter "xterm-color")
 (declare-function case-sensitive-xref-find-definitions-advice "warbo-programming")
 (declare-function warbo-direnv-update-environment "warbo-direnv")
-(declare-function yamlfix-format-region "warbo-programming")
-(declare-function xmllint-format-region "warbo-programming")
-(declare-function sh-format-region "warbo-programming")
-(declare-function scala-format-region "warbo-programming")
-(declare-function nix-format-region "warbo-programming")
-(declare-function cue-format-region "warbo-programming")
 (declare-function corfu-popupinfo-mode "corfu-popupinfo")
 (declare-function check-expansion "warbo-programming")
 (declare-function do-yas-expand "warbo-programming")
 
-;; Define some reformatters, used by various modes below
+;; Define some reformatters, used by various modes below. Annoyingly, the
+;; reformatter-define macro creates minor modes, which declare buffer-local
+;; variables; and that causes a warning if they're not at the top-level!
 
 (use-package reformatter
-  :ensure t
-  :config
-  (reformatter-define cue-format
-    :program "cue"
-    :args '("fmt" "-")
-    :group 'reformatter)
+  :ensure t)
 
-  (reformatter-define nix-format
-    :program "nixfmt"
-    :args '("-w" "80")
-    :group 'reformatter)
+(reformatter-define cue-format
+  :program "cue"
+  :args '("fmt" "-")
+  :group 'reformatter)
 
-  (reformatter-define scala-format
-    :program "scalafmt"
-    :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
-            "--stdin"
-            "--stdout")
-    :group 'reformatter)
+(reformatter-define nix-format
+  :program "nixfmt"
+  :args '("-w" "80")
+  :group 'reformatter)
 
-  (reformatter-define sh-format
-    :program "shfmt"
-    :group 'reformatter)
+(reformatter-define scala-format
+  :program "scalafmt"
+  :args '("--config-str" "version = \"3.4.3\", runner.dialect = \"scala212\""
+          "--stdin"
+          "--stdout")
+  :group 'reformatter)
 
-  (reformatter-define xmllint-format
-    :program "xmllint"
-    :args '("--format" "-")
-    :group 'reformatter)
+(reformatter-define sh-format
+  :program "shfmt"
+  :group 'reformatter)
 
-  (reformatter-define yamlfix-format
-    :program "yamlfix"
-    :args '("-")
-    :group 'reformatter))
+(reformatter-define xmllint-format
+  :program "xmllint"
+  :args '("--format" "-")
+  :group 'reformatter)
+
+(reformatter-define yamlfix-format
+  :program "yamlfix"
+  :args '("-")
+  :group 'reformatter)
 
 ;; These modes are built-in, so we don't need use-package to run add-hook
 (add-hook 'sh-mode-hook 'sh-format-on-save-mode)
