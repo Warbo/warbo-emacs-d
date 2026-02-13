@@ -2,7 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-;; Declare functions defined in other files
 (declare-function command-in-rolling-buffer "warbo-rolling-shell")
 (declare-function warbo-haskell-jump-to-tag-fix "warbo-haskell")
 
@@ -13,7 +12,8 @@
                :checkProject :json-false
                :sessionLoading "multipleComponents")))
   "Eglot server program entry for haskell-mode.
-Use in .dir-locals.el: (eglot-server-programs . ((haskell-mode . ,warbo-haskell-eglot-args)))")
+Use in .dir-locals.el like:
+    (eglot-server-programs . ((haskell-mode . ,warbo-haskell-eglot-args)))")
 
 (defun warbo-haskell-tags ()
   "Run command to generate TAGS file in root directory of current repo.
@@ -100,7 +100,7 @@ ORIG-FUN."
     (when (get-buffer "ghcid")
       (let ((kill-buffer-query-functions nil)) ;; Don't ask
         (kill-buffer "ghcid")))
-    (let ((shell-mode-hook nil))  ;; Avoid warbo-shell-hook's colour mangling
+    (dlet ((shell-mode-hook nil))  ;; Avoid warbo-shell-hook's colour mangling
       (let ((buf (command-in-rolling-buffer
                   (list "ghcid" default-directory ". ~/GHCID")
                   ghcid-height)))
