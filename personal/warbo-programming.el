@@ -14,7 +14,6 @@
                   "warbo-programming")
 (declare-function corfu-popupinfo-mode "corfu-popupinfo")
 (declare-function check-expansion "warbo-programming")
-(declare-function do-yas-expand "warbo-programming")
 (declare-function reformatter--do-region "reformatter")
 (declare-function reformatter--make-temp-file "reformatter")
 
@@ -672,7 +671,7 @@ by history/length/alpha."
   (defun yasnippet-or-completion ()
     "Try to expand a yasnippet snippet, otherwise invoke completion."
     (interactive)
-    (or (do-yas-expand)
+    (or (yas-expand)
         (completion-at-point)))
 
   (defun check-expansion ()
@@ -686,11 +685,6 @@ after `::'."
           (backward-char 1)
           (if (looking-at "::") t nil)))))
 
-  (defun do-yas-expand ()
-    "Try to expand a yasnippet snippet, returning nil on failure."
-    (let ((yas-fallback-behavior 'return-nil))
-      (yas-expand)))
-
   (defun tab-indent-or-complete ()
     "Indent the current line, or complete the current symbol.
 If the minibuffer is active, then completion is performed.  Otherwise,
@@ -701,7 +695,7 @@ invoked.  Otherwise, the current line is indented."
     (if (minibufferp)
         (minibuffer-complete)
       (if (or (not yas-minor-mode)
-              (null (do-yas-expand)))
+              (null (yas-expand)))
           (if (check-expansion)
               (completion-at-point)
             (indent-for-tab-command))))))
