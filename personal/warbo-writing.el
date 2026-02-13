@@ -5,7 +5,16 @@
 (declare-function fci-mode "fill-column-indicator")
 
 (use-package ebib
-  :ensure t)
+  :ensure t
+  :config
+  ;; Open our master Bibtex file in ebib
+  (setq ebib-hide-cursor nil)
+  (setq ebib-file-associations '(("pdf" . "mupdf-x11") ("ps" . "gv")))
+  (defun bib ()
+    "Opens our main Bibtex file."
+    (interactive)
+    (ebib "~/Writing/Bibtex.bib"))
+)
 
 (use-package markdown-mode
   :ensure t)
@@ -13,7 +22,7 @@
 (defun compile-with-make ()
   "Run COMPILE, without prompting for a command."
   (interactive)
-  (let ((compilation-read-command nil))
+  (dlet ((compilation-read-command nil))
     (compile (cond
               ((file-exists-p "render.sh")   "render.sh")
               ((file-exists-p "Makefile")    "make -k ")
@@ -56,7 +65,7 @@
                                                               lines)))
                                                 whitespace-style))
                       (whitespace-mode 1))))
-
+  :functions (org-latex-export-to-pdf)
   :init
   (setq org-disputed-keys '(([(meta return)] . [(control meta return)])
                             ([(control shift right)] . [(meta shift +)])
@@ -98,14 +107,6 @@
   (when (file-directory-p dir)
     (unless (get-buffer "PhDThesis")
       (save-excursion (dired dir)))))
-
-;; Open our master Bibtex file in ebib
-(setq ebib-hide-cursor nil)
-(setq ebib-file-associations '(("pdf" . "mupdf-x11") ("ps" . "gv")))
-(defun bib ()
-  "Opens our main Bibtex file."
-  (interactive)
-  (ebib "~/Writing/Bibtex.bib"))
 
 (use-package epresent
   :ensure t

@@ -23,6 +23,7 @@
 
 (use-package beacon
   :ensure t
+  :functions (beacon-mode)
   :config
   (beacon-mode +1))
 

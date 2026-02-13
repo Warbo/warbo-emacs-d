@@ -16,6 +16,7 @@
 (declare-function check-expansion "warbo-programming")
 (declare-function reformatter--do-region "reformatter")
 (declare-function reformatter--make-temp-file "reformatter")
+(declare-function magit-toplevel "magit-git")
 
 ;; Define some reformatters, used by various modes below. Annoyingly, the
 ;; reformatter-define macro creates minor modes, which declare buffer-local
@@ -320,6 +321,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 (use-package make-mode
   ;; makefile-mode is built-in, so doesn't need downloading
+  :defines (whitespace-style)
   :init
   (progn
     (add-to-list 'auto-mode-alist '("\\Makefile\\'" . makefile-mode))

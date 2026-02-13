@@ -40,6 +40,7 @@ Only runs if hasktags is available in PATH."
 
 (use-package haskell-mode
   :ensure t
+  :functions (tags-completion-table)
   :config
   (add-hook 'haskell-mode-hook 'warbo-haskell-setup)
 

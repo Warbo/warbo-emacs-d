@@ -186,6 +186,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   ;; http://emacs.stackexchange.com/a/17579/5391
   (projectile-mode-line "Projectile")
 
+  :defines (prelude-savefile-dir)
   :config
   ;; projectile is a project management mode
   (unless noninteractive

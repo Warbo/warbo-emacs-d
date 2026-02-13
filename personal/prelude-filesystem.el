@@ -68,6 +68,7 @@
   (recentf-max-saved-items 500)
   (recentf-max-menu-items 15)
   (recentf-auto-cleanup 'never)
+  :defines (prelude-savefile-dir)
   :config
   (defun prelude-recentf-exclude-p (file)
     "A predicate to decide whether to exclude FILE from recentf."

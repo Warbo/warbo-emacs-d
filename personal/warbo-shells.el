@@ -10,6 +10,7 @@
 ;; handling, e.g. (ansi-color-for-comint-mode-on), since that's SLOW
 (use-package xterm-color
   :ensure t
+  :defines (comint-preoutput-filter-functions comint-input-filter-functions)
   :config
   ;; Switch comint's output filters from ansi-color to xterm-color.
   ;; Ensure xterm-color's preoutput handler is in place and remove 't'
@@ -113,39 +114,6 @@ Format: repo@host.mistty<N> or repo.mistty<N> for local."
                        bufs)))
     (if nums (1+ (apply #'max nums)) 2)))
 
-(defun warbo-mistty-switch-or-create ()
-  "Switch to or create a mistty buffer based on current context.
-If in a mistty buffer, create another with same context but new number."
-  (interactive)
-  (let* ((ctx (warbo-mistty-context))
-         (host (car ctx))
-         (repo-or-dir (cdr ctx))
-         (existing (warbo-mistty-find-buffers host repo-or-dir))
-         (in-matching-mistty (and (derived-mode-p 'mistty-mode)
-                                  (member (current-buffer) existing))))
-    (cond
-     ;; Already in a matching mistty buffer: create new one with next number
-     (in-matching-mistty
-      (let* ((num (warbo-mistty-next-number host repo-or-dir))
-             (name (warbo-mistty-buffer-name host repo-or-dir num)))
-        (mistty-create nil nil)
-        (rename-buffer name t)))
-     ;; Multiple existing buffers: choose interactively
-     ((> (length existing) 1)
-      (let ((chosen (completing-read "Switch to mistty: "
-                                     (mapcar #'buffer-name existing)
-                                     nil t)))
-        (switch-to-buffer chosen)))
-     ;; One existing buffer: switch to it
-     ((= (length existing) 1)
-      (switch-to-buffer (car existing)))
-     ;; No existing buffers: create one
-     (t
-      (let ((name (warbo-mistty-buffer-name host repo-or-dir nil)))
-        (mistty-create nil nil)
-        (rename-buffer name t))))))
-
-(global-set-key (kbd "<f2>") #'warbo-mistty-switch-or-create)
 
 (use-package mistty
   :ensure t
@@ -158,7 +126,42 @@ If in a mistty buffer, create another with same context but new number."
                ("C-a"      . mistty-beginning-of-line))
          (:map mistty-mode-map
                ("C-a"      . smart-line-beginning)))
-  :hook ((mistty . warbo-mistty-no-whitespace-mode)))
+  :hook ((mistty . warbo-mistty-no-whitespace-mode))
+  :functions (warbo-mistty-switch-or-create)
+  :config
+  (defun warbo-mistty-switch-or-create ()
+    "Switch to or create a mistty buffer based on current context.
+If in a mistty buffer, create another with same context but new number."
+    (interactive)
+    (let* ((ctx (warbo-mistty-context))
+           (host (car ctx))
+           (repo-or-dir (cdr ctx))
+           (existing (warbo-mistty-find-buffers host repo-or-dir))
+           (in-matching-mistty (and (derived-mode-p 'mistty-mode)
+                                    (member (current-buffer) existing))))
+      (cond
+       ;; Already in a matching mistty buffer: create new one with next number
+       (in-matching-mistty
+        (let* ((num (warbo-mistty-next-number host repo-or-dir))
+               (name (warbo-mistty-buffer-name host repo-or-dir num)))
+          (mistty-create nil nil)
+          (rename-buffer name t)))
+       ;; Multiple existing buffers: choose interactively
+       ((> (length existing) 1)
+        (let ((chosen (completing-read "Switch to mistty: "
+                                       (mapcar #'buffer-name existing)
+                                       nil t)))
+          (switch-to-buffer chosen)))
+       ;; One existing buffer: switch to it
+       ((= (length existing) 1)
+        (switch-to-buffer (car existing)))
+       ;; No existing buffers: create one
+       (t
+        (let ((name (warbo-mistty-buffer-name host repo-or-dir nil)))
+          (mistty-create nil nil)
+          (rename-buffer name t))))))
+
+  (global-set-key (kbd "<f2>") #'warbo-mistty-switch-or-create))
 
 (use-package shx
   :ensure t
@@ -188,20 +191,6 @@ If in a mistty buffer, create another with same context but new number."
             (let ((explicit-shell-file-name found))
               (apply f (list host)))
           (apply f (list host)))))))
-
-(defun extract-directory-from-prompt (s)
-  "Like `comint-osc-process-output' but acts on the given string S."
-  (let ((dir default-directory))
-    (when
-        (save-excursion
-          (with-temp-buffer
-            (insert s)
-            (ansi-osc-apply-on-region (point-min) (point-max))
-            (unless (equal dir default-directory)
-              (setq dir default-directory)
-              t)))
-      (ignore-errors (cd-absolute dir))))
-  s)
 
 (require 'tramp)
 (defvar warbo-shell-want-lowercase-system-name nil
@@ -242,48 +231,6 @@ If in a mistty buffer, create another with same context but new number."
           (setq default-directory (tramp-make-tramp-file-name vec)))))))
 
 (require 'shx)
-(defun warbo-shell-mode-hook ()
-  "Set up a shell-mode buffer nicely."
-  ;; shx-mode is nice, but don't let it mess with cwd
-  (unless shx-mode (shx-mode 1))
-  (advice-remove #'find-file-at-point #'shx--with-shx-cwd)
-  (advice-remove #'ffap-at-mouse #'shx--with-shx-cwd)
-
-  ;; Use xterm-color to turn ANSI escape codes into Emacs text properties
-  ;; (setq comint-preoutput-filter-functions
-  ;;       (cons 'xterm-color-filter
-  ;;             (remove 'xterm-color-filter
-  ;;                     comint-preoutput-filter-functions)))
-
-  ;; Look for an OSC7 escape sequence to keep track of the current directory.
-  ;; This is invisible, machine readable and mostly standard. We must do this
-  ;; before xterm-color-filter is applied, since that will strip out the ANSI.
-  (setq comint-preoutput-filter-functions
-        (cons 'extract-directory-from-prompt
-              (remove 'extract-directory-from-prompt
-                      comint-preoutput-filter-functions)))
-
-  ;; Don't try to keep track of the shell's current directory by looking for
-  ;; 'cd' commands: it's very limited and fragile (use OSC7 instead)
-  (shell-dirtrack-mode -1)
-
-  ;; Don't try to keep track of the shell's current directory by parsing the
-  ;; prompt with a regular expression: it's very limited and fragile (use OSC7)
-  (dirtrack-mode -1)
-
-  ;; Disable font-locking to improve performance. We don't need
-  ;; it since we're using xterm-color
-  (font-lock-mode -1)
-  ;; Prevent font-locking from being re-enabled in this buffer
-  (make-local-variable 'font-lock-function)
-  (setq font-lock-function (lambda (_) nil))
-
-  ;; Wrap at edge of the screen, not at last whitespace
-  (visual-line-mode -1)
-
-  ;; Avoid overriding prompt colours
-  ;; https://stackoverflow.com/a/50776528/884682
-  (face-remap-set-base 'comint-highlight-prompt :inherit nil))
 
 (use-package shell
   :custom
@@ -294,7 +241,65 @@ If in a mistty buffer, create another with same context but new number."
   (comint-scroll-show-maximum-output t)
   (comint-scroll-to-bottom-on-input nil)
   :hook
-  (shell-mode . warbo-shell-mode-hook))
+  (shell-mode . warbo-shell-mode-hook)
+  :functions (shell-dirtrack-mode)
+  :init
+  (defun extract-directory-from-prompt (s)
+    "Like `comint-osc-process-output' but acts on the given string S."
+    (let ((dir default-directory))
+      (when
+          (save-excursion
+            (with-temp-buffer
+              (insert s)
+              (ansi-osc-apply-on-region (point-min) (point-max))
+              (unless (equal dir default-directory)
+                (setq dir default-directory)
+                t)))
+        (ignore-errors (cd-absolute dir))))
+    s)
+
+  (defun warbo-shell-mode-hook ()
+    "Set up a shell-mode buffer nicely."
+    ;; shx-mode is nice, but don't let it mess with cwd
+    (unless shx-mode (shx-mode 1))
+    (advice-remove #'find-file-at-point #'shx--with-shx-cwd)
+    (advice-remove #'ffap-at-mouse #'shx--with-shx-cwd)
+
+    ;; Use xterm-color to turn ANSI escape codes into Emacs text properties
+    ;; (setq comint-preoutput-filter-functions
+    ;;       (cons 'xterm-color-filter
+    ;;             (remove 'xterm-color-filter
+    ;;                     comint-preoutput-filter-functions)))
+
+    ;; Look for an OSC7 escape sequence to keep track of the current directory.
+    ;; This is invisible, machine readable and mostly standard. We must do this
+    ;; before xterm-color-filter is applied, since that will strip out the ANSI.
+    (setq comint-preoutput-filter-functions
+          (cons 'extract-directory-from-prompt
+                (remove 'extract-directory-from-prompt
+                        comint-preoutput-filter-functions)))
+
+    ;; Don't try to keep track of the shell's current directory by looking for
+    ;; 'cd' commands: it's very limited and fragile (use OSC7 instead)
+    (shell-dirtrack-mode -1)
+
+    ;; Don't try to keep track of the shell's current directory by parsing the
+    ;; prompt with a regular expression: it's very limited and fragile (use OSC7)
+    (dirtrack-mode -1)
+
+    ;; Disable font-locking to improve performance. We don't need
+    ;; it since we're using xterm-color
+    (font-lock-mode -1)
+    ;; Prevent font-locking from being re-enabled in this buffer
+    (make-local-variable 'font-lock-function)
+    (setq font-lock-function (lambda (_) nil))
+
+    ;; Wrap at edge of the screen, not at last whitespace
+    (visual-line-mode -1)
+
+    ;; Avoid overriding prompt colours
+    ;; https://stackoverflow.com/a/50776528/884682
+    (face-remap-set-base 'comint-highlight-prompt :inherit nil)))
 
 (require 'esh-mode)
 (use-package eshell
@@ -475,6 +480,7 @@ If in a mistty buffer, create another with same context but new number."
   "Source repos in ~/src.")
 
 (require 's)
+(defvar machine-id)
 (defconst startup-shells
   (pcase machine-id
     ('thinkpad
@@ -517,11 +523,11 @@ If in a mistty buffer, create another with same context but new number."
 
     ('nixos-amd64
      '(("blog" "~/repos/chriswarbo-net")
-      ("nix-config" "~/repos/nix-config")
-      ("nix-helpers" "~/repos/nix-helpers")
-      ("warbo-packages" "~/repos/warbo-packages")
-      ("warbo-utilities" "~/repos/warbo-utilities")
-      ("home" "~")))
+       ("nix-config" "~/repos/nix-config")
+       ("nix-helpers" "~/repos/nix-helpers")
+       ("warbo-packages" "~/repos/warbo-packages")
+       ("warbo-utilities" "~/repos/warbo-utilities")
+       ("home" "~")))
 
     ('framework
      '(("blog" "~/Code/chriswarbo-net")
@@ -562,24 +568,25 @@ If in a mistty buffer, create another with same context but new number."
   (mapc 'shell-named-in startup-shells))
 (open-startup-shells)
 
-(defun command-in-buffer (buf-dir-cmd)
-  "Poor man's comint: BUF-DIR-CMD lists what to run where (e.g. a REPL)."
-  (let* ((name (nth 0 buf-dir-cmd))
-         (dir  (nth 1 buf-dir-cmd))
-         (cmd  (nth 2 buf-dir-cmd))
-         (buf  (get-buffer name)))
-    (unless buf
-      (with-current-buffer (shell-named-in (list name dir))
-        (goto-char (point-max))
-        (insert cmd)
-        (comint-send-input)))
-    (get-buffer name)))
+(with-eval-after-load 'comint
+  (defun command-in-buffer (buf-dir-cmd)
+    "Poor man's comint: BUF-DIR-CMD lists what to run where (e.g. a REPL)."
+    (let* ((name (nth 0 buf-dir-cmd))
+           (dir  (nth 1 buf-dir-cmd))
+           (cmd  (nth 2 buf-dir-cmd))
+           (buf  (get-buffer name)))
+      (unless buf
+        (with-current-buffer (shell-named-in (list name dir))
+          (goto-char (point-max))
+          (insert cmd)
+          (comint-send-input)))
+      (get-buffer name)))
 
-(defconst startup-programs
-  '()
-  "Shell commands to run in particular buffers at startup.")
+  (defconst startup-programs
+    '()
+    "Shell commands to run in particular buffers at startup.")
 
-(mapc 'command-in-buffer startup-programs)
+  (mapc 'command-in-buffer startup-programs))
 
 ;; TODO: Set bindings via use-package
 (add-hook 'eshell-mode-hook
