@@ -38,7 +38,7 @@ Only runs if hasktags is available in PATH."
     ;; Keep TAGS updated when we save
     (add-hook 'after-save-hook 'warbo-haskell-tags nil t)))
 
-(use-package haskell-mode
+(use-package haskell-ts-mode
   :ensure t
   :functions (tags-completion-table)
   :config
