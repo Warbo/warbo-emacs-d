@@ -281,6 +281,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   :hook ((prog-mode . smartparens-mode)
          (smartparens-mode . warbo-smartparens-scroll-keys))
   :functions (crux-smart-open-line-above
+              prelude-wrap-with
               sp-wrap-with-pair
               sp-pair
               sp-use-paredit-bindings)

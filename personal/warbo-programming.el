@@ -114,6 +114,7 @@
 
 (use-package direnv
   :ensure t
+  :functions (warbo-direnv-update-environment)
   :init
   (defun warbo-direnv-update-environment ()
     "Update direnv environment, but only for local files.
@@ -194,7 +195,8 @@ Avoids errors when visiting remote files via TRAMP."
                         :documentSymbol t
                         :documentColor t)))
   "Eglot server program entry for vue-mode.
-Use in .dir-locals.el: (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-args)))")
+Use in .dir-locals.el like:
+  (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-args)))")
 
 (defun replace-region-string (s &optional beg end)
   "Replace the region between BEG and END (default: region, or point-min/max)
