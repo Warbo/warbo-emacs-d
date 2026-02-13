@@ -120,7 +120,6 @@ Avoids errors when visiting remote files via TRAMP."
 
 (use-package xref-union
   :ensure t
-  :hook (haskell-mode . xref-union-mode)
   :defines (tags-revert-without-query)
   :config
   (setq tags-revert-without-query 1)
@@ -182,6 +181,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 (use-package js
   :mode (("\\.js" . js-ts-mode))
+  :hook (js-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(js-mode . js-ts-mode))
   (add-to-list 'major-mode-remap-alist '(js2-mode . js-ts-mode))
@@ -409,13 +409,6 @@ next time the buffer's mode is set."
 (use-package eglot
   :ensure t
   :commands eglot-ensure eglot
-  :hook ((vue-mode . eglot-ensure)
-         (c-mode-common . eglot-ensure)
-         (c-ts-base-mode . eglot-ensure)
-         (js-base-mode . eglot-ensure)
-         (typescript-mode . eglot-ensure)
-         (typescript-ts-base-mode . eglot-ensure)
-         (haskell-mode . eglot-ensure))
   :custom
   (eglot-connect-timeout 300)  ;; Big projects might take a while!
   :functions (warbo-eglot-check-binary-exists)
@@ -485,6 +478,10 @@ This prevents eglot from failing when the binary isn't available."
 ;;   :after eglot
 ;;   :config
 ;;   (eglot-booster-mode))
+
+(use-package c-ts-mode
+  :mode ("\.c\'")
+  :hook (c-ts-mode . eglot-ensure))
 
 (use-package vertico
   :ensure t
@@ -617,6 +614,7 @@ invoked.  Otherwise, the current line is indented."
   :ensure t
   :mode (("\\.ts\\'"  . typescript-ts-mode)
          ("\\.tsx\\'" . tsx-ts-mode))
+  :hook (typescript-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode)))
 

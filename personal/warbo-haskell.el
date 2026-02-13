@@ -17,7 +17,7 @@
                :sessionLoading "multipleComponents")))
   "Eglot server program entry for haskell-mode.
 Use in .dir-locals.el like:
-    (eglot-server-programs . ((haskell-mode . ,warbo-haskell-eglot-args)))")
+    (eglot-server-programs . ((haskell-ts-mode . ,warbo-haskell-eglot-args)))")
 
 (defun warbo-haskell-tags ()
   "Run command to generate TAGS file in root directory of current repo.
@@ -28,7 +28,7 @@ Only runs if hasktags is available in PATH."
         (start-process "hasktags" nil "hasktags" "--etags" ".")))))
 
 (defun warbo-haskell-setup ()
-  "Custom hook to setup `haskell-mode'."
+  "Custom hook to setup `haskell-ts-mode'."
   (when (executable-find "hasktags")
     ;; Generate TAGS if they don't exist yet
     (let* ((root (vc-root-dir))
@@ -40,9 +40,13 @@ Only runs if hasktags is available in PATH."
 
 (use-package haskell-ts-mode
   :ensure t
+  :after xref-union
   :functions (tags-completion-table)
+  :mode ("\.hs\'" "\.lhs'")
+  :hook ((haskell-ts-mode . eglot-ensure)
+         (haskell-ts-mode . xref-union-mode)
+         (haskell-ts-mode . warbo-haskell-setup))
   :config
-  (add-hook 'haskell-mode-hook 'warbo-haskell-setup)
 
   ;; Fix for issue ba19a9bd56efb1af: haskell-mode-jump-to-tag with prefix arg
   ;; (C-u M-.) was giving "Wrong type argument: stringp, nil" when there's no
@@ -93,7 +97,7 @@ ORIG-FUN."
 ;; cabal settings, GHC options, language extensions, and source directories.
 (use-package flycheck-haskell
   :ensure t
-  :hook (haskell-mode . flycheck-haskell-setup))
+  :hook (haskell-ts-mode . flycheck-haskell-setup))
 
 ;; ghcid integration: run ghcid in a shell buffer with nice error highlighting
 (use-package warbo-rolling-shell

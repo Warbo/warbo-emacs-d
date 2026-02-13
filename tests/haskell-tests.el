@@ -9,7 +9,6 @@
 ;;; Code:
 (require 'ert)
 (require 'eglot)
-(require 'haskell-mode)
 (require 'flymake)
 
 ;; Helpers

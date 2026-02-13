@@ -10,6 +10,7 @@
          ("\\.hamlet" . html-ts-mode)
          ("\\.lucius" . html-ts-mode)
          ("\\.julius" . html-ts-mode))
+  :hook (html-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(html-mode . html-ts-mode))
   (add-to-list 'major-mode-remap-alist '(web-mode . html-ts-mode))
@@ -47,6 +48,7 @@
   :quelpa (vue-ts-mode :fetcher github
                        :repo "8uff3r/vue-ts-mode")
   :mode ("\\.vue\\'")
+  :hook (vue-ts-mode . eglot-ensure)
   :config
   (defvar warbo-vue-eglot-args
     '("vue-language-server" "--stdio"
