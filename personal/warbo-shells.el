@@ -127,7 +127,7 @@ Format: repo@host.mistty<N> or repo.mistty<N> for local."
          (:map mistty-mode-map
                ("C-a"      . smart-line-beginning)))
   :hook ((mistty . warbo-mistty-no-whitespace-mode))
-  :functions (warbo-mistty-switch-or-create)
+  :functions (mistty-create warbo-mistty-switch-or-create)
   :config
   (defun warbo-mistty-switch-or-create ()
     "Switch to or create a mistty buffer based on current context.
@@ -242,7 +242,7 @@ If in a mistty buffer, create another with same context but new number."
   (comint-scroll-to-bottom-on-input nil)
   :hook
   (shell-mode . warbo-shell-mode-hook)
-  :functions (shell-dirtrack-mode)
+  :functions (ansi-osc-apply-on-region shell-dirtrack-mode)
   :init
   (defun extract-directory-from-prompt (s)
     "Like `comint-osc-process-output' but acts on the given string S."
@@ -568,25 +568,26 @@ If in a mistty buffer, create another with same context but new number."
   (mapc 'shell-named-in startup-shells))
 (open-startup-shells)
 
-(with-eval-after-load 'comint
-  (defun command-in-buffer (buf-dir-cmd)
-    "Poor man's comint: BUF-DIR-CMD lists what to run where (e.g. a REPL)."
-    (let* ((name (nth 0 buf-dir-cmd))
-           (dir  (nth 1 buf-dir-cmd))
-           (cmd  (nth 2 buf-dir-cmd))
-           (buf  (get-buffer name)))
-      (unless buf
-        (with-current-buffer (shell-named-in (list name dir))
-          (goto-char (point-max))
-          (insert cmd)
-          (comint-send-input)))
-      (get-buffer name)))
+(declare-function comint-send-input "comint")
 
-  (defconst startup-programs
-    '()
-    "Shell commands to run in particular buffers at startup.")
+(defun command-in-buffer (buf-dir-cmd)
+  "Poor man's comint: BUF-DIR-CMD lists what to run where (e.g. a REPL)."
+  (let* ((name (nth 0 buf-dir-cmd))
+         (dir  (nth 1 buf-dir-cmd))
+         (cmd  (nth 2 buf-dir-cmd))
+         (buf  (get-buffer name)))
+    (unless buf
+      (with-current-buffer (shell-named-in (list name dir))
+        (goto-char (point-max))
+        (insert cmd)
+        (comint-send-input)))
+    (get-buffer name)))
 
-  (mapc 'command-in-buffer startup-programs))
+(defconst startup-programs
+  '()
+  "Shell commands to run in particular buffers at startup.")
+
+(mapc 'command-in-buffer startup-programs)
 
 ;; TODO: Set bindings via use-package
 (add-hook 'eshell-mode-hook

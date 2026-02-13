@@ -475,6 +475,8 @@ If point is already at the beginning of text, move it to the beginning of line."
 ;; Turn URLs into buttons
 (global-goto-address-mode 1)
 
+(declare-function file-notify-rm-watch "filenotify")
+
 ;; https://www.blogbyben.com/2022/05/gotcha-emacs-on-mac-os-too-many-files.html
 (defun file-notify-rm-all-watches ()
   "Remove all existing file notification watches from Emacs."
@@ -519,6 +521,8 @@ If point is already at the beginning of text, move it to the beginning of line."
                           (equal part-x part-y)))
                     (split-string x "-")
                     (split-string y "-"))))
+
+(declare-function font-utils-exists-p "font-utils")
 
 (defun set-desired-font ()
   "Choose and set a font, depending on which machine we're on."

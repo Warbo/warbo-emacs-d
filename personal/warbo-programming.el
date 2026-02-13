@@ -23,8 +23,7 @@
 ;; variables; and that causes a warning if they're not at the top-level!
 
 (use-package reformatter
-  :ensure t
-  :defines (cue-format nix-format scala-format sh-format xmllint-format yamlfix-format))
+  :ensure t)
 
 (reformatter-define cue-format
   :program "cue"

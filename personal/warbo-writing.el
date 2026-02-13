@@ -6,6 +6,7 @@
 
 (use-package ebib
   :ensure t
+  :functions (ebib)
   :config
   ;; Open our master Bibtex file in ebib
   (setq ebib-hide-cursor nil)
