@@ -27,6 +27,7 @@
 
 (use-package anzu
   :ensure t
+  :functions (global-anzu-mode)
   :bind (("M-%" . anzu-query-replace)
          ("C-M-%" . anzu-query-replace-regexp))
   :config
@@ -45,6 +46,7 @@
 
 (use-package browse-kill-ring
   :ensure t
+  :functions (browse-kill-ring-default-keybindings)
   :bind (("s-y" . browse-kill-ring))
   :config
   (browse-kill-ring-default-keybindings))
@@ -74,6 +76,7 @@
 
 (use-package diff-hl
   :ensure t
+  :functions (global-diff-hl-mode)
   :config
   (global-diff-hl-mode +1)
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode))
@@ -95,11 +98,13 @@
 
 (use-package deadgrep
   :ensure t
+  :functions (deadgrep)
   :bind
   (("<f5>" . #'deadgrep)))
 
 (use-package embark
   :ensure t
+  :functions (embark-prefix-help-command)
   :bind
   (("C-." . embark-act)
    ("C-;" . embark-dwim)
@@ -118,7 +123,8 @@
   :bind (("C-=" . er/expand-region)))
 
 (use-package fill-column-indicator
-  :ensure t)
+  :ensure t
+  :functions (fci-mode turn-on-fci-mode))
 
 (use-package git-timemachine
   :ensure t)
@@ -144,6 +150,7 @@
 
 (use-package marginalia
   :ensure t
+  :functions (marginalia-mode)
   :init
   (marginalia-mode))
 
@@ -177,6 +184,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
 (use-package pretty-sha-path
   :ensure t
+  :functions (pretty-sha-path-global-mode)
   :config (pretty-sha-path-global-mode))
 
 (use-package projectile
@@ -187,6 +195,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   (projectile-mode-line "Projectile")
 
   :defines (prelude-savefile-dir)
+  :functions (projectile-mode)
   :config
   ;; projectile is a project management mode
   (unless noninteractive
@@ -214,6 +223,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
 (use-package undo-tree
   :ensure t
+  :functions (global-undo-tree-mode)
   :config
   (progn
     (setq undo-tree-visualizer-timestamps t
@@ -225,6 +235,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
 (use-package volatile-highlights
   :ensure t
+  :functions (volatile-highlights-mode)
   :config
   (volatile-highlights-mode t))
 
@@ -274,6 +285,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
 (use-package unicode-fonts
   :ensure t
+  :functions (unicode-fonts-setup)
   :config
   (unicode-fonts-setup))
 
@@ -281,7 +293,8 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   :ensure t
   :hook ((prog-mode . smartparens-mode)
          (smartparens-mode . warbo-smartparens-scroll-keys))
-  :functions (crux-smart-open-line-above
+  :functions (smartparens-global-mode
+              crux-smart-open-line-above
               prelude-wrap-with
               sp-wrap-with-pair
               sp-pair
@@ -402,6 +415,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 ;; diffs and git commits, for example)
 (use-package whitespace-cleanup-mode
   :ensure t
+  :functions (global-whitespace-cleanup-mode)
   :config
   ;; Avoid cleanup in vue-mode, since it can reindent everything weirdly. This
   ;; is probably due to it using mmm-mode to handle mixtures of HTML, JS, etc.

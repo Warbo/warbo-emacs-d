@@ -116,7 +116,7 @@
 
 (use-package direnv
   :ensure t
-  :functions (warbo-direnv-update-environment)
+  :functions (direnv-mode direnv-update-environment warbo-direnv-update-environment)
   :init
   (defun warbo-direnv-update-environment ()
     "Update direnv environment, but only for local files.
@@ -290,6 +290,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 (use-package magit
   :ensure t
+  :functions (magit-log-setup-buffer magit-log-arguments)
   :bind (("C-x g" . magit-status)
          ("s-m m" . magit-status)
          ("s-m l" . magit-log)
@@ -465,6 +466,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
   ;; For eglot-managed buffers, flycheck gets disabled in favour of flymake (see
   ;; warbo-flycheck-disable-for-eglot on eglot-managed-mode-hook below).
   :ensure t
+  :functions (flycheck-mode)
   :init
   (defun warbo-maybe-enable-flycheck ()
     "Enable flycheck only if eglot is not managing this buffer."
@@ -503,7 +505,8 @@ next time the buffer's mode is set."
   :ensure t)
 
 (use-package s
-  :ensure t)
+  :ensure t
+  :functions (s-split))
 
 (use-package eglot
   :ensure t
@@ -587,7 +590,7 @@ This prevents eglot from failing when the binary isn't available."
 
 (use-package vertico
   :ensure t
-  :functions (vertico-sort-history-length-alpha vertico--metadata-get)
+  :functions (vertico-mode vertico-sort-history-length-alpha vertico--metadata-get)
   :init
   (vertico-mode)
   (keymap-set vertico-map "TAB" #'minibuffer-complete)
@@ -647,6 +650,8 @@ by history/length/alpha."
   ;; in which case TAB will insert that, rather than expanding)
   (corfu-preselect 'prompt)
 
+  :functions (global-corfu-mode corfu-popupinfo-mode)
+
   :config
   ;; "Cycling" causes TAB to go through the list of suggestions; but I prefer it
   ;; to expand an unambiguous prefix.
@@ -659,6 +664,7 @@ by history/length/alpha."
 (use-package kind-icon
   :ensure t
   :after corfu
+  :functions (kind-icon-margin-formatter)
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
