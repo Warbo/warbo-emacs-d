@@ -8,7 +8,7 @@
 
 (require 'seq)
 
-(declare-function magit-toplevel "magit")
+(declare-function magit-toplevel "magit-git")
 
 ;;; Code:
 

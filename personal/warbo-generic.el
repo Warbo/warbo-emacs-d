@@ -5,12 +5,8 @@
 ;; Emacs configuration, and generally-useful packages
 
 ;;; Code:
-;; TODO: Fix use-package error for ffap-goto-line (file-name-directory void)
-;; TODO: Fix defcustom for my-global-fci-mode (specify containing group)
-;; TODO: Ensure functions are defined at runtime: sp-pair, prelude-wrap-with, sp-wrap-with-pair, smartrep-define-key, ov-set
 
 (declare-function thinkpad-only "warbo-preload-generic")
-(declare-function crux-smart-open-line-above "crux")
 
 ;; Resize windows with Shift-Control-Arrow-Cursor
 (global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
@@ -66,14 +62,13 @@
   :bind (("C-^" . crux-top-join-line)
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c r" . crux-rename-buffer-and-file))
+  :functions (indent-region@with-region-or-buffer
+              untabify@with-region-or-buffer
+              kill-region@with-region-or-line)
   :config
   (crux-with-region-or-buffer indent-region)
   (crux-with-region-or-buffer untabify)
-  (crux-with-region-or-line kill-region)
-  ;; Declare functions created by crux macros to silence byte-compiler
-  (declare-function indent-region@with-region-or-buffer "crux")
-  (declare-function untabify@with-region-or-buffer "crux")
-  (declare-function kill-region@with-region-or-line "crux"))
+  (crux-with-region-or-line kill-region))
 
 (use-package dired
   :custom
@@ -287,7 +282,10 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   :ensure t
   :hook ((prog-mode . smartparens-mode)
          (smartparens-mode . warbo-smartparens-scroll-keys))
-  :functions (sp-wrap-with-pair sp-pair sp-use-paredit-bindings)
+  :functions (crux-smart-open-line-above
+              sp-wrap-with-pair
+              sp-pair
+              sp-use-paredit-bindings)
   :custom
   (sp-base-key-bindings 'paredit)
   (sp-autoskip-closing-pair 'always)
@@ -310,7 +308,6 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
   ;; with xref-find-references (the standard M-? binding).  Unbind it.
   (define-key smartparens-mode-map (kbd "M-?") nil)
 
-  (declare-function prelude-wrap-with "warbo-generic")
   (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
   ;; FIXME: pick terminal friendly binding
   ;; (define-key prog-mode-map (kbd "M-[") (prelude-wrap-with "["))

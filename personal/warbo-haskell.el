@@ -3,6 +3,10 @@
 ;;; Code:
 
 (declare-function command-in-rolling-buffer "warbo-rolling-shell")
+(declare-function haskell-cabal--find-tags-dir "haskell-cabal")
+(declare-function haskell-ident-at-point "haskell-mode")
+(declare-function haskell-string-drop-qualifier "haskell-string")
+(declare-function haskell-string-trim "haskell-string")
 (declare-function warbo-haskell-jump-to-tag-fix "warbo-haskell")
 
 (defvar warbo-haskell-eglot-args

@@ -6,12 +6,12 @@
 (declare-function command-in-rolling-buffer "warbo-rolling-shell")
 (declare-function pretty-sha-path-mode "pretty-sha-path")
 (declare-function warbo-vertico-sort-prefer-exact "warbo-programming")
-(declare-function vertico-sort-history-length-alpha "vertico")
-(declare-function eglot-ensure@check-binary-exists "warbo-programming")
-(declare-function nix-repl-completion-at-point@warbo-filter-bel "warbo-programming")
+(declare-function eglot-ensure@check-binary-exists "warbo-programming" t t)
+(declare-function nix-repl-completion-at-point@warbo-filter-bel
+                  "warbo-programming" t t)
 (declare-function xterm-color-filter "xterm-color")
-(declare-function case-sensitive-xref-find-definitions-advice "warbo-programming")
-(declare-function warbo-direnv-update-environment "warbo-direnv")
+(declare-function case-sensitive-xref-find-definitions-advice
+                  "warbo-programming")
 (declare-function corfu-popupinfo-mode "corfu-popupinfo")
 (declare-function check-expansion "warbo-programming")
 (declare-function do-yas-expand "warbo-programming")
@@ -612,6 +612,7 @@ This prevents eglot from failing when the binary isn't available."
 
 (use-package vertico
   :ensure t
+  :functions (vertico-sort-history-length-alpha)
   :init
   (vertico-mode)
   (keymap-set vertico-map "TAB" #'minibuffer-complete)

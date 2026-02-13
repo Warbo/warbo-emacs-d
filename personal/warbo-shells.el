@@ -3,8 +3,7 @@
 ;;; Code:
 
 (declare-function eshell/cd "em-dirs")
-(declare-function shx-cmd-ssh "shx")
-(declare-function shx-cmd-ssh@ssh-default-to-bash "warbo-shells")
+(declare-function shx-cmd-ssh@ssh-default-to-bash "warbo-shells" t t)
 
 ;; Interpret and use ansi color codes in shell output windows. We use
 ;; https://github.com/atomontage/xterm-color rather than Emacs's built-in ansi
