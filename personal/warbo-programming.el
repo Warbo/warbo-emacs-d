@@ -502,71 +502,41 @@ next time the buffer's mode is set."
 (use-package s
   :ensure t)
 
-(defun warbo-eglot-check-binary-exists ()
-  "Check if the LSP binary for the current mode exists in PATH.
-Returns the binary name if found, nil otherwise."
-  (let* ((mode-server (or
-                       ;; Check for exact match first
-                       (assoc major-mode eglot-server-programs)
-                       ;; Then check if any entry matches (for derived modes)
-                       (cl-find-if (lambda (entry)
-                                     (let ((modes (car entry)))
-                                       (or (eq modes major-mode)
-                                           (and (listp modes)
-                                                (memq major-mode modes)))))
-                                   eglot-server-programs)))
-         (contact (cdr mode-server)))
-    (when contact
-      (let* ((program (cond
-                       ((stringp contact) contact)
-                       ((and (consp contact) (stringp (car contact)))
-                        (car contact))
-                       (t nil))))
-        (and program (executable-find program) program)))))
-
-(defun warbo-eglot-ensure-if-binary-exists ()
-  "Start eglot only if the LSP binary for the current mode is available.
-Checks if the LSP server program is in PATH before calling `eglot-ensure'.
-If the binary isn't found or eglot fails to start, displays a message."
-  (condition-case err
-      (if (warbo-eglot-check-binary-exists)
-          (eglot-ensure)
-        (let* ((mode-server (or
-                             (assoc major-mode eglot-server-programs)
-                             (cl-find-if (lambda (entry)
-                                           (let ((modes (car entry)))
-                                             (or (eq modes major-mode)
-                                                 (and (listp modes)
-                                                      (memq major-mode modes)))))
-                                         eglot-server-programs)))
-               (contact (cdr mode-server))
-               (program (when contact
-                          (cond
-                           ((stringp contact) contact)
-                           ((and (consp contact) (stringp (car contact)))
-                            (car contact))
-                           (t nil)))))
-          (if program
-              (message "eglot: LSP binary '%s' not found in PATH for %s - not starting"
-                       program major-mode)
-            (message "eglot: No LSP server configured for %s - not starting"
-                     major-mode))))
-    (error
-     ;; Catch any errors from eglot and just report them
-     (message "eglot: Failed to start for %s: %s" major-mode (error-message-string err)))))
-
 (use-package eglot
   :ensure t
   :commands eglot-ensure eglot
-  :hook ((vue-mode . warbo-eglot-ensure-if-binary-exists)
-         (c-mode-common . warbo-eglot-ensure-if-binary-exists)
-         (c-ts-base-mode . warbo-eglot-ensure-if-binary-exists)
-         (js-base-mode . warbo-eglot-ensure-if-binary-exists)
-         (typescript-mode . warbo-eglot-ensure-if-binary-exists)
-         (typescript-ts-base-mode . warbo-eglot-ensure-if-binary-exists)
-         (haskell-mode . warbo-eglot-ensure-if-binary-exists))
+  :hook ((vue-mode . eglot-ensure)
+         (c-mode-common . eglot-ensure)
+         (c-ts-base-mode . eglot-ensure)
+         (js-base-mode . eglot-ensure)
+         (typescript-mode . eglot-ensure)
+         (typescript-ts-base-mode . eglot-ensure)
+         (haskell-mode . eglot-ensure))
+  :custom
+  (eglot-connect-timeout 300)  ;; Big projects might take a while!
+  :functions (warbo-eglot-check-binary-exists)
   :config
-  (setq eglot-connect-timeout 300)  ;; Big projects might take a while!
+  (defun warbo-eglot-check-binary-exists ()
+    "Check if the LSP binary for the current mode exists in PATH.
+Returns the binary name if found, nil otherwise."
+    (let* ((mode-server (or
+                         ;; Check for exact match first
+                         (assoc major-mode eglot-server-programs)
+                         ;; Then check if any entry matches (for derived modes)
+                         (cl-find-if (lambda (entry)
+                                       (let ((modes (car entry)))
+                                         (or (eq modes major-mode)
+                                             (and (listp modes)
+                                                  (memq major-mode modes)))))
+                                     eglot-server-programs)))
+           (contact (cdr mode-server)))
+      (when contact
+        (let* ((program (cond
+                         ((stringp contact) contact)
+                         ((and (consp contact) (stringp (car contact)))
+                          (car contact))
+                         (t nil))))
+          (and program (executable-find program) program)))))
 
   ;; Add advice to prevent eglot from starting when binary doesn't exist
   ;; This catches calls from .dir-locals.el and other sources
