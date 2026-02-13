@@ -15,6 +15,8 @@
 (declare-function corfu-popupinfo-mode "corfu-popupinfo")
 (declare-function check-expansion "warbo-programming")
 (declare-function do-yas-expand "warbo-programming")
+(declare-function reformatter--do-region "reformatter")
+(declare-function reformatter--make-temp-file "reformatter")
 
 ;; Define some reformatters, used by various modes below. Annoyingly, the
 ;; reformatter-define macro creates minor modes, which declare buffer-local
@@ -584,7 +586,7 @@ This prevents eglot from failing when the binary isn't available."
 
 (use-package vertico
   :ensure t
-  :functions (vertico-sort-history-length-alpha)
+  :functions (vertico-sort-history-length-alpha vertico--metadata-get)
   :init
   (vertico-mode)
   (keymap-set vertico-map "TAB" #'minibuffer-complete)
@@ -661,6 +663,7 @@ by history/length/alpha."
 
 (use-package yasnippet
   :ensure t
+  :functions (yas-expand yas-reload-all)
   :config
   (yas-reload-all)
   (add-hook 'prog-mode-hook 'yas-minor-mode)
