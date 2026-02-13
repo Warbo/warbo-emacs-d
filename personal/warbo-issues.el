@@ -132,8 +132,8 @@ without further subprocess calls."
      'append
      (mapcar
       (lambda (issue-line)
-        (let* ((id    (plist-get issue-line 'id))
-               (count (plist-get issue-line 'comment-count))
+        (let* ((id (plist-get issue-line 'id))
+
                ;; Read all files for this issue at once
                (files (issues-issue-files id))
                (chain (let ((i 0))
