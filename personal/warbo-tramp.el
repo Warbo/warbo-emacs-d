@@ -15,10 +15,6 @@
               vc-ignore-dir-regexp
               tramp-file-name-regexp))
 
-;; Try to prevent TRAMP slowdowns, as per
-;; http://emacs.stackexchange.com/a/17579/5391
-(setq projectile-mode-line "Projectile")
-
 ;; From https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
 (setq remote-file-name-inhibit-locks t
       ;; Move things using scp (rather than copying back and forth)

@@ -188,6 +188,11 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
 
 (use-package projectile
   :ensure t
+  :custom
+  ;; Try to prevent TRAMP slowdowns, as per
+  ;; http://emacs.stackexchange.com/a/17579/5391
+  (projectile-mode-line "Projectile")
+
   :config
   ;; projectile is a project management mode
   (unless noninteractive
