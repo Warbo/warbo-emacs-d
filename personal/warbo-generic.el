@@ -419,7 +419,7 @@ OV is the overlay, AFTER indicates post-change.  _BEG, _END, _LENGTH ignored."
        `(progn ;;(message "load-file-name: %S" load-file-name)
                ;;(message "fnd: %S" (file-name-directory load-file-name))
                (use-package ,name
-                 :load-path ,(file-name-directory load-file-name)
+                 :load-path ,(file-name-directory (macroexp-file-name))
                  ,@args))))
   (use-package-here ffap-goto-line
     :functions (ffap-goto-line-mode)

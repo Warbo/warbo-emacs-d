@@ -12,8 +12,6 @@
 
 ;;; Code:
 
-(declare-function issue-parse-comment "warbo-issues")
-
 ;; Parse artemis command output into useful datastructures
 
 (defun issue-parse-line (line)
@@ -282,7 +280,7 @@ Any timezone information is ignored; we assume the timestamp is UTC."
                         (nth 1 (split-string default-directory
                                              (regexp-quote "/.issues/")))
                         "/")))
-           (details (issues-parse-comment (buffer-string))))
+           (details (issue-parse-comment (buffer-string))))
        (list issue (plist-get details 'message-id))))))
 
 (defun issues-add-issue ()
