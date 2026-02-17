@@ -3,13 +3,13 @@
 ;;; Code:
 
 (use-package python
-  :ensure t
-  :mode ("\\.py\\'" . python-mode)
+  :mode ("\\.py\\'" . python-ts-mode)
   :custom
   (python-shell-interpreter "python3")
   (python-shell-buffer-name "Python3")
   :config
   ;;(add-hook 'python-mode-hook 'blacken-mode)
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   )
 
 ;; (use-package pyvenv
@@ -35,6 +35,10 @@
      '("/run/current-system/sw/bin/python3" "-m" "unittest")))
   (add-to-list 'python-shell-completion-native-disabled-interpreters
                "/run/current-system/sw/bin/python3"))
+
+(use-package cython-mode
+  :ensure t
+  :mode ("\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
 
 (provide 'warbo-python)
 ;;; warbo-python.el ends here

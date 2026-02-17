@@ -57,7 +57,11 @@
   :group 'reformatter)
 
 ;; These modes are built-in, so we don't need use-package to run add-hook
-(add-hook 'sh-mode-hook 'sh-format-on-save-mode)
+(use-package sh-script
+  :mode (("\\.sh\\'" . bash-ts-mode))
+  :config
+  (add-hook 'bash-ts-mode-hook 'sh-format-on-save-mode)
+  (add-to-list 'major-mode-remap-alist '(sh-mode . bash-ts-mode)))
 
 ;; Put as much as possible in use-package expressions; roughly alphabetically
 
@@ -69,25 +73,10 @@
   :ensure t
   :mode "\\.latex\\'")
 
-(use-package cask-mode
-  :ensure t
-  :mode "Cask")
-
-(use-package clojure-mode
-  :ensure t
-  :mode "\\.clj\\'")
-
-(use-package cmake-mode
-  :ensure t
-  :mode ("\\.cmake\\'" "CMakeLists\\.txt\\'"))
-
-(use-package coffee-mode
-  :ensure t
-  :mode "\\.coffee\\'")
-
-(use-package css-mode
-  :ensure t
-  :mode "\\.css\\'")
+(use-package cmake-ts-mode
+  :mode ("\\.cmake\\'" "CMakeLists\\.txt\\'")
+  :config
+  (add-to-list 'major-mode-remap-alist '(cmake-mode . cmake-ts-mode)))
 
 (use-package csv-mode
   :ensure t
@@ -101,18 +90,6 @@
   :mode (("\\.cue\\'"  . cue-mode))
   :config
   (add-hook 'cue-mode-hook 'cue-format-on-save-mode))
-
-(use-package cython-mode
-  :ensure t
-  :mode ("\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
-
-(use-package d-mode
-  :ensure t
-  :mode "\\.d\\'")
-
-(use-package dart-mode
-  :ensure t
-  :mode "\\.dart\\'")
 
 (use-package direnv
   :ensure t
@@ -129,41 +106,20 @@ Avoids errors when visiting remote files via TRAMP."
   (add-to-list 'direnv-non-file-modes 'shell-mode)
   (direnv-mode))
 
-(use-package dockerfile-mode
+(use-package dockerfile-ts-mode
   :ensure t
-  :mode "Dockerfile\\'")
+  :mode "Dockerfile\\'"
+  :config
+  (add-to-list 'major-mode-remap-alist '(dockerfile-mode . dockerfile-ts-mode)))
 
-(use-package elixir-mode
+(use-package go-ts-mode
   :ensure t
-  :mode ("\\.ex\\'" "\\.exs\\'" "\\.elixir\\'"))
-
-(use-package elm-mode
-  :ensure t
-  :mode "\\.elm\\'")
-
-(use-package erlang
-  :ensure t
-  :mode "\\.erl\\'")
-
-(use-package feature-mode
-  :ensure t
-  :mode "\\.feature\\'")
-
-(use-package go-mode
-  :ensure t
-  :mode "\\.go\\'")
-
-(use-package groovy-mode
-  :ensure t
-  :mode "\\.groovy\\'")
-
-(use-package haml-mode
-  :ensure t
-  :mode "\\.haml\\'")
+  :mode "\\.go\\'"
+  :config
+  (add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode)))
 
 (use-package xref-union
   :ensure t
-  :hook (haskell-mode . xref-union-mode)
   :defines (tags-revert-without-query)
   :config
   (setq tags-revert-without-query 1)
@@ -180,27 +136,6 @@ Avoids errors when visiting remote files via TRAMP."
               :around #'case-sensitive-xref-find-definitions-advice)
   (advice-add 'xref-find-definitions-other-window
               :around #'case-sensitive-xref-find-definitions-advice))
-
-(defvar warbo-vue-eglot-args
-  '("vue-language-server" "--stdio"
-    :initializationOptions
-    (:typescript (:tsdk "node_modules/typescript/lib")
-     :vue (:hybridMode :json-false)
-     :languageFeatures (:completion
-                        (:defaultTagNameCase "both"
-                         :defaultAttrNameCase "kebabCase"
-                         :getDocumentNameCasesRequest nil
-                         :getDocumentSelectionRequest nil)
-                        :diagnostics
-                        (:getDocumentVersionRequest nil))
-     :documentFeatures (:documentFormatting
-                        (:defaultPrintWidth 100
-                         :getDocumentPrintWidthRequest nil)
-                        :documentSymbol t
-                        :documentColor t)))
-  "Eglot server program entry for vue-mode.
-Use in .dir-locals.el like:
-  (eglot-server-programs . ((vue-mode . ,warbo-vue-eglot-args)))")
 
 (defun replace-region-string (s &optional beg end)
   "Replace the region between BEG and END (default: region, or point-min/max)
@@ -236,7 +171,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
                       ;; Enable a simple prog-mode like json-mode, which will
                       ;; give us rainbow-delimiters and rainbow-identifiers
-                      (json-mode)
+                      (json-ts-mode)
                       (font-lock-ensure)
 
                       (buffer-string)))))
@@ -244,42 +179,28 @@ with the string S. Unlike `replace-region-contents' this maintains text
           (replace-region-string new start end)))
     (message "No region selected")))
 
+(use-package js
+  :mode (("\\.js" . js-ts-mode))
+  :hook (js-ts-mode . eglot-ensure)
+  :config
+  (add-to-list 'major-mode-remap-alist '(js-mode . js-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(js2-mode . js-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(javascript-mode . js-ts-mode)))
 
-
-(use-package js2-mode
-  :ensure t
-  :mode (("\\.js" . js2-mode)
-         ("\\.julius" . web-mode)))
-
-;; (use-package js2-refactor
-;;   :ensure t)
-
+;; FIXME: Is this needed anymore?
 (use-package xref-js2
   :ensure t)
 
-(use-package json-mode
+(use-package json-ts-mode
   :ensure t
-  :mode "\\.json\\'")
+  :mode "\\.json\\'"
+  :config
+  (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(json-js-mode-mode . json-ts-mode)))
 
 (use-package jq-mode
   :ensure t
   :mode ("\\.jq" . jq-mode))
-
-(use-package kotlin-mode
-  :ensure t
-  :mode "\\.kt\\'")
-
-(use-package kivy-mode
-  :ensure t
-  :mode "\\.kv\\'")
-
-(use-package less-css-mode
-  :ensure t
-  :mode "\\.less\\'")
-
-(use-package lua-mode
-  :ensure t
-  :mode "\\.lua\\'")
 
 ;; Unset some conflicting keybindings before binding them to magit
 (global-unset-key (kbd "s-m"))
@@ -348,24 +269,22 @@ with the string S. Unlike `replace-region-contents' this maintains text
                 (setq whitespace-style '(face tab-mark trailing))
                       indent-tabs-mode t))))
 
-(use-package markdown-mode
+(use-package markdown-ts-mode
   :ensure t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
-  (add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode)))
+  :mode ("\\.markdown\\'" "\\.md\\'"))
 
 (defun warbo-remove-bel (text)
   "Remove BEL characters (^G) from TEXT."
   (replace-regexp-in-string "\C-g" "" text))
 
-(use-package nix-mode
+(use-package nix-ts-mode
   :ensure t
   :after reformatter
   :defines (nix-nixfmt-bin)
   :config
-  (add-hook 'nix-mode-hook 'nix-format-on-save-mode)
-  ;; nix-mode can run nixfmt, but it can't specify commandline args like "-w 80"
-  ;; so we prefer reformatter.
+  (add-hook 'nix-ts-mode-hook 'nix-format-on-save-mode)
+  ;; nix-ts-mode can run nixfmt, but it can't specify commandline args like
+  ;; "-w 80" so we prefer reformatter.
   (setq nix-nixfmt-bin nil)
 
   (define-advice nix-repl-completion-at-point (:after () warbo-filter-bel)
@@ -375,8 +294,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
       (while (search-forward "C-g" nil t)
         (replace-match "")))))
 
-(use-package php-mode
-  :ensure t
+(use-package php-ts-mode
   :mode "\\.php\\'")
 
 (use-package pkgbuild-mode
@@ -387,57 +305,32 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :mode "\\.proto\\'")
 
-(use-package puppet-mode
+(use-package rust-ts-mode
   :ensure t
-  :mode "\\.pp\\'")
-
-(use-package rust-mode
-  :ensure t
-  :mode "\\.rs\\'")
-
-(use-package scala-mode
-  :ensure t
-  :mode "\\.scala\\'"
+  :mode "\\.rs\\'"
   :config
-  (add-hook 'scala-mode-hook 'scala-format-on-save-mode))
-
-(use-package sass-mode
-  :ensure t
-  :mode "\\.sass\\'")
-
-(use-package scss-mode
-  :ensure t
-  :mode "\\.scss\\'")
-
-(use-package slim-mode
-  :ensure t
-  :mode "\\.slim\\'")
+  (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode)))
 
 (use-package sws-mode
   :ensure t)
-
-(use-package stylus-mode
-  :ensure t
-  :after sws-mode
-  :mode "\\.styl\\'")
-
-(use-package swift-mode
-  :ensure t
-  :mode "\\.swift\\'")
-
-(use-package textile-mode
-  :ensure t
-  :mode "\\.textile\\'")
 
 (use-package tuareg
   :ensure t
   :mode "\\.ml\\'")
 
-(use-package yaml-mode
+(use-package yaml-ts-mode
   :ensure t
   :mode ("\\.yml\\'" "\\.yaml\\'")
   :config
-  (add-hook 'yaml-mode-hook 'yamlfix-format-on-save-mode))
+  (add-hook 'yaml-ts-mode-hook 'yamlfix-format-on-save-mode)
+  (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode)))
+
+(use-package toml-ts-mode
+  :ensure t
+  :mode ("\\.toml")
+  :config
+  (add-to-list 'major-mode-remap-alist '(toml-mode . toml-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(conf-toml-mode . toml-ts-mode)))
 
 ;; Use the modeline to show the definition of the function at point
 (use-package which-func
@@ -446,7 +339,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
     ;; TODO: Would we rather append major modes to this list as and when they
     ;; benefit from which-func; rather than having it always enabled?
     ;; TODO: Check elisp, haskell, scala, JS, python, etc.
-    ;(setq which-func-modes nil)
+                                        ;(setq which-func-modes nil)
     (which-function-mode 1)))
 
 (use-package flymake
@@ -516,13 +409,6 @@ next time the buffer's mode is set."
 (use-package eglot
   :ensure t
   :commands eglot-ensure eglot
-  :hook ((vue-mode . eglot-ensure)
-         (c-mode-common . eglot-ensure)
-         (c-ts-base-mode . eglot-ensure)
-         (js-base-mode . eglot-ensure)
-         (typescript-mode . eglot-ensure)
-         (typescript-ts-base-mode . eglot-ensure)
-         (haskell-mode . eglot-ensure))
   :custom
   (eglot-connect-timeout 300)  ;; Big projects might take a while!
   :functions (warbo-eglot-check-binary-exists)
@@ -592,6 +478,10 @@ This prevents eglot from failing when the binary isn't available."
 ;;   :after eglot
 ;;   :config
 ;;   (eglot-booster-mode))
+
+(use-package c-ts-mode
+  :mode ("\.c\'")
+  :hook (c-ts-mode . eglot-ensure))
 
 (use-package vertico
   :ensure t
@@ -720,10 +610,13 @@ invoked.  Otherwise, the current line is indented."
 (use-package posframe
   :ensure t)
 
-(use-package typescript-mode
+(use-package typescript-ts-mode
   :ensure t
-  :mode (("\\.ts\\'"  . typescript-mode)
-         ("\\.tsx\\'" . typescript-mode)))
+  :mode (("\\.ts\\'"  . typescript-ts-mode)
+         ("\\.tsx\\'" . tsx-ts-mode))
+  :hook (typescript-ts-mode . eglot-ensure)
+  :config
+  (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode)))
 
 (use-package nxml-mode
   :no-require t
@@ -741,7 +634,7 @@ invoked.  Otherwise, the current line is indented."
 
 (define-derived-mode nix-derivation-mode prog-mode "nix-derivation-mode"
   "Custom major mode, which runs Nix .drv files through `nix show-derivation'.
-The result is JSON, so we derive from json-mode."
+The result is JSON, so we derive from json-ts-mode."
   (setq major-mode 'nix-derivation-mode)
   (setq mode-name "DRV")
 

@@ -27,6 +27,9 @@
 ;; Needs to load early, to provide nspawn TRAMP method
 (use-package warbo-tramp)
 
+;; Should come before we configure the various treesitter modes
+(use-package warbo-treesitter)
+
 (use-package prelude-backup)
 (use-package prelude-filesystem)
 (use-package prelude-search)
@@ -50,7 +53,6 @@
 (use-package warbo-scala)
 (use-package warbo-shells)
 (use-package warbo-spellcheck)
-(use-package warbo-vue)
 (use-package warbo-web)
 (use-package warbo-windows)
 (use-package warbo-writing)

@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Fri, 13 Feb 2026 15:14:19 +0000
+State: new
+Subject: Use eglot for python
+Message-Id: <9b6679d1053f39e6-0-artemis@nixos-framework>
+
+Get rid of elpy, it's obsolete

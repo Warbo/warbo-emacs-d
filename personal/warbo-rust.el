@@ -11,10 +11,11 @@
   :ensure
   :bind (:map rustic-mode-map
               ("C-c C-c l" . flycheck-list-errors))
+  :defines (rustic-major-mode)
   :config
 
-  ;; comment to disable rustfmt on save
   (setq rustic-format-on-save t)
+  (setq rustic-major-mode 'rust-ts-mode)
   (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
 
 (defun rk/rustic-mode-hook ()

@@ -124,8 +124,6 @@
 
 ;; (use-package rich-minority)
 
-;; (use-package ruby-tools)
-
 ;; (use-package seq)
 
 ;; (use-package shadchen)

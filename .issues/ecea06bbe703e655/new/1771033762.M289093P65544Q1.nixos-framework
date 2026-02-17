@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Sat, 14 Feb 2026 01:48:38 +0000
+State: new
+Subject: haskell-tests.el doesn't set eglot server args
+Message-Id: <ecea06bbe703e655-0-artemis@nixos-framework>
+
+Test files should include .dir-locals.el
