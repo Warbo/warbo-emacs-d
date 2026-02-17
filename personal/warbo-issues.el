@@ -373,8 +373,8 @@ Any timezone information is ignored; we assume the timestamp is UTC."
 (defun list-issues ()
   "Entry point for artemis UI."
   (interactive)
-  (pop-to-buffer
-   (string-join `("issues" ,(file-name-nondirectory (magit-toplevel))) ": ")
+  (pop-to-buffer-same-window
+   (string-join `("issues" ,(file-name-nondirectory (directory-file-name (magit-toplevel)))) ": ")
    nil)
   (issues-mode)
   (use-local-map issues-mode-map)
