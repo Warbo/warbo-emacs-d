@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Wed, 18 Feb 2026 00:40:21 +0000
+State: new
+Subject: pi: more robust finding of existing buffers
+Message-Id: <a79d0995b2eb08ea-0-artemis@nixos-framework>
+
+Tolerate minor differences like ~/foo versus /home/me/foo, etc.
+
+Maybe loop though any existing pi-coding-agent buffers and check their
+default-directory?
+
+If not found, do exactly the same as what pi is doing.
