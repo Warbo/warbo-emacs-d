@@ -2,6 +2,16 @@
 ;;; Commentary:
 ;;; Code:
 
+;; Declare external pi-coding-agent functions to suppress byte-compile warnings
+(declare-function pi-coding-agent "pi-coding-agent")
+(declare-function pi-coding-agent-abort "pi-coding-agent")
+(declare-function pi-coding-agent-send "pi-coding-agent")
+
+;; Declare our own functions for forward references (all defined below in :init)
+(declare-function warbo-guess-pi-buffer "warbo-llm")
+(declare-function warbo-pi-look-at-point "warbo-llm")
+(declare-function warbo-show-pi-chat "warbo-llm")
+
 (defun warbo-ignore-pi-whitespace ()
   "Disable `whitespace-mode' in pi chat buffers."
   (whitespace-mode -1))
