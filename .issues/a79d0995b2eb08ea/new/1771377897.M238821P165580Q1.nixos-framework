@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Wed, 18 Feb 2026 01:24:57 +0000
+Subject: Re: comment
+Message-Id: <a79d0995b2eb08ea-f3ed6633abc7f77d-artemis@nixos-framework>
+References: <a79d0995b2eb08ea-0-artemis@nixos-framework>
+In-Reply-To: <a79d0995b2eb08ea-0-artemis@nixos-framework>
+
+Implemented a more robust version of warbo-guess-pi-buffer that:
+
+1. First searches through existing pi-coding-agent buffers and matches by comparing their default-directory (expanded) with the current session directory
+2. Falls back to generating the buffer name the same way pi-coding-agent does (using project-root or default-directory, then abbreviate-file-name)
+
+This now tolerates differences like ~/foo vs /home/me/foo and matches exactly how pi-coding-agent creates buffer names. The function now returns a buffer object (or nil) instead of a buffer name string, and all calling functions have been updated accordingly.

@@ -27,11 +27,27 @@
   (defalias 'pi 'pi-coding-agent)
 
   (defun warbo-guess-pi-buffer (type)
-    (let* ((current-dir (or (vc-root-dir)
-                            default-directory)))
-      (format "*pi-coding-agent-%s:%s*"
-              type
-              (file-name-as-directory current-dir))))
+    "Find or guess the pi-coding-agent buffer name for TYPE (:chat or :input).
+First tries to find an existing buffer matching the current directory.
+Falls back to generating a name the same way pi-coding-agent does."
+    (let* ((session-dir (expand-file-name
+                         (or (when-let ((proj (project-current)))
+                               (project-root proj))
+                             default-directory)))
+           (pattern (format "^\\*pi-coding-agent-%s:" type)))
+      ;; First, try to find an existing buffer with matching default-directory
+      (or (cl-find-if
+           (lambda (buf)
+             (and (string-match-p pattern (buffer-name buf))
+                  (with-current-buffer buf
+                    (equal (expand-file-name default-directory)
+                           session-dir))))
+           (buffer-list))
+          ;; Fall back to generating the name the same way pi does
+          (get-buffer
+           (format "*pi-coding-agent-%s:%s*"
+                   type
+                   (abbreviate-file-name session-dir))))))
 
   (defun warbo-show-pi-chat ()
     "Show pi chat buffer for current repo/dir, maintaining selected window.
@@ -41,12 +57,11 @@ visible. If not, starts a pi session and makes its chat window visible. Makes
 sure the pi chat window has enough space, but otherwise keeps the current buffer
 and window selections as similar as possible."
     (interactive)
-    (let* ((buffer-name (warbo-guess-pi-buffer "chat"))
-           (current-window (selected-window))
-           (pi-buffer (or (get-buffer buffer-name)
+    (let* ((current-window (selected-window))
+           (pi-buffer (or (warbo-guess-pi-buffer "chat")
                           (save-window-excursion
                             (pi-coding-agent)
-                            (get-buffer buffer-name)))))
+                            (warbo-guess-pi-buffer "chat")))))
       (if pi-buffer
           (unless (get-buffer-window pi-buffer 'visible)
             (display-buffer pi-buffer
@@ -56,13 +71,12 @@ and window selections as similar as possible."
                               (window-height . 15)))
             ;; Ensure current buffer remains selected
             (select-window current-window))
-        (error "Error: Did not create pi session for '%s'" buffer-name))))
+        (error "Error: Could not find or create pi chat session"))))
 
   (defun warbo-pi-look-at-point ()
     "Sends a message to the pi coding agent to take a look at current point."
     (interactive)
-    (let* ((input-buffer-name (warbo-guess-pi-buffer "input"))
-           (input-buffer (get-buffer input-buffer-name))
+    (let* ((input-buffer (warbo-guess-pi-buffer "input"))
            (message (format "%s in buffer '%s' and %s"
                             "Please read around the current point"
                             (buffer-name (current-buffer))
@@ -72,13 +86,12 @@ and window selections as similar as possible."
             (goto-char (point-max))
             (insert message)
             (pi-coding-agent-send))
-        (error "No pi coding agent input buffer found for '%s'"
-               input-buffer-name))))
+        (error "No pi coding agent input buffer found"))))
 
   (defun warbo-pi ()
     "If pi chat isn't visible, show/start it. Otherwise have pi look at point."
     (interactive)
-    (let ((chat-buffer (get-buffer (warbo-guess-pi-buffer "chat"))))
+    (let ((chat-buffer (warbo-guess-pi-buffer "chat")))
       (if (and chat-buffer (get-buffer-window chat-buffer 'visible))
           (warbo-pi-look-at-point)
         (warbo-show-pi-chat))))

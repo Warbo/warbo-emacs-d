@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 18 Feb 2026 00:40:21 +0000
-State: new
+State: resolved
 Subject: pi: more robust finding of existing buffers
 Message-Id: <a79d0995b2eb08ea-0-artemis@nixos-framework>
+resolution: fixed
 
 Tolerate minor differences like ~/foo versus /home/me/foo, etc.
 
