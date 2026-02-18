@@ -40,7 +40,7 @@
 
 (defun issue-artemis-list ()
   "Get the output of an actual `artemis list' command."
-  (split-string (shell-command-to-string "artemis list -a -o latest") "\n"))
+  (split-string (shell-command-to-string "git artemis list -a -o latest") "\n"))
 
 (defun issue-artemis-lines ()
   "Parse all of the lines from an `artemis list' command."
