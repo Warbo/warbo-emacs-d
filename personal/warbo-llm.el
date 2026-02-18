@@ -9,8 +9,12 @@
 (use-package pi-coding-agent
   :ensure t
   :hook (pi-coding-agent-chat-mode . warbo-ignore-pi-whitespace)
-  :init (defalias 'pi 'pi-coding-agent)
-  :config
+  ;; Bind warbo-pi globally; pi-coding-agent mode maps will override this.
+  :bind (("C-c C-p" . warbo-pi)
+         :map pi-coding-agent-chat-mode-map
+         ("C-c C-k" . pi-coding-agent-abort))
+  :init
+  (defalias 'pi 'pi-coding-agent)
   (defun warbo-show-pi-chat ()
     "Show pi chat buffer for current repo/dir, maintaining selected window.
 

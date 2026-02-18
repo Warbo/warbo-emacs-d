@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Wed, 18 Feb 2026 00:38:27 +0000
+State: resolved
+Subject: pi: bind C-c C-k to cancel in chat buffers
+Message-Id: <9ca0e1d85237c615-0-artemis@nixos-framework>
+resolution: fixed
+
+We want to be able to cancel from within the chat buffer, not just the
+input buffer.
