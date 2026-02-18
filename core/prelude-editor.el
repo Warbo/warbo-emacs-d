@@ -218,9 +218,15 @@
   (require 'dired-x)) ; dired-x is built-in
 
 (use-package ediff
+  :functions (ediff-setup-windows-plain)
   :config
-  ;; ediff - don't start another frame
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain))
+  ;; ediff - don't start another frame, use a new tab instead
+  (defun prelude-ediff-setup-windows-in-new-tab (buffer-A buffer-B buffer-C control-buffer)
+    "Set up ediff windows in a new tab to avoid disrupting window layout."
+    (tab-bar-new-tab)
+    (ediff-setup-windows-plain buffer-A buffer-B buffer-C control-buffer))
+
+  (setq ediff-window-setup-function 'prelude-ediff-setup-windows-in-new-tab))
 
 (use-package re-builder
   :config
