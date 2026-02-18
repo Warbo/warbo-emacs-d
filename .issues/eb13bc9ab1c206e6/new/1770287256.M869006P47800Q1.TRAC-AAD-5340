@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 05 Feb 2026 10:26:43 +0000
-State: new
+State: resolved
 Subject: Make M-<up> and M-<down> scroll by one line
 Message-Id: <eb13bc9ab1c206e6-0-artemis@TRAC-AAD-5340>
+resolution: fixed
 
 I've tried setting these key bindings globally, but certain other modes seem
 to override them (paredit, smartparens, etc.).

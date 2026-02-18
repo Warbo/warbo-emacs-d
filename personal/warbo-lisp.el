@@ -20,6 +20,7 @@
 ;;         '(emacs-lisp-mode-hook scheme-mode-hook racket-mode-hook))
 
 ;; Force paredit mode in Lisp buffers
+;; Scroll key handling is now done by warbo-scroll-keys.el
 (use-package paredit
   :ensure t
   :init
@@ -29,13 +30,7 @@
                   racket-mode-hook
                   scheme-mode-hook))
     (add-hook hook 'paredit-mode))
-  :hook (paredit-mode . warbo-paredit-scroll-keys)
-  :diminish paredit-mode
-  :config
-  (defun warbo-paredit-scroll-keys ()
-    "Ensure M-<up>/M-<down> are bound to scroll commands in Paredit buffers."
-    (local-set-key (kbd "M-<up>")   #'scroll-up-line)
-    (local-set-key (kbd "M-<down>") #'scroll-down-line)))
+  :diminish paredit-mode)
 
 (use-package rainbow-delimiters
   :ensure t

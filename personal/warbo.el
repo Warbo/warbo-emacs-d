@@ -39,6 +39,7 @@
 (use-package warbo-documents)
 (use-package warbo-fixes)
 (use-package warbo-generic)
+(use-package warbo-scroll-keys)
 (use-package warbo-haskell)
 (use-package warbo-issues)
 (use-package warbo-lisp)

@@ -1,0 +1,24 @@
+From: Chris Warburton
+Date: Wed, 18 Feb 2026 01:31:19 +0000
+Subject: Re: comment
+Message-Id: <eb13bc9ab1c206e6-833826a29bbe4451-artemis@nixos-framework>
+References: <eb13bc9ab1c206e6-0-artemis@TRAC-AAD-5340>
+In-Reply-To: <eb13bc9ab1c206e6-0-artemis@TRAC-AAD-5340>
+
+Implemented a robust solution using a dedicated minor mode (warbo-scroll-keys.el).
+
+The new approach:
+1. Created warbo-scroll-keys-mode - a global minor mode with its own keymap
+2. Minor mode keymaps have higher priority than global/major mode keymaps
+3. Explicitly unbinds M-<up>/M-<down> in paredit/smartparens mode maps
+4. Created comprehensive test suite (test-scroll-keys.el)
+
+Files changed:
+- Created: personal/warbo-scroll-keys.el (new module)
+- Created: personal/test-scroll-keys.el (tests)
+- Created: personal/SCROLL-KEYS-README.md (documentation)
+- Modified: personal/warbo-generic.el (removed old scroll key code)
+- Modified: personal/warbo-lisp.el (removed paredit scroll key hook)
+- Modified: personal/warbo.el (added use-package for warbo-scroll-keys)
+
+This solution ensures M-<up> and M-<down> always scroll by one line, regardless of what modes are active.
