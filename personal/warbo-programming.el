@@ -180,7 +180,9 @@ with the string S. Unlike `replace-region-contents' this maintains text
     (message "No region selected")))
 
 (use-package js
-  :mode (("\\.js" . js-ts-mode))
+  :mode (("\\.js\\'"  . js-ts-mode)
+         ("\\.mjs\\'" . js-ts-mode)
+         ("\\.cjs\\'" . js-ts-mode))
   :hook (js-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(js-mode . js-ts-mode))
@@ -613,8 +615,12 @@ invoked.  Otherwise, the current line is indented."
 
 (use-package typescript-ts-mode
   :ensure t
-  :mode (("\\.ts\\'"  . typescript-ts-mode)
-         ("\\.tsx\\'" . tsx-ts-mode))
+  :mode (("\\.ts\\'"   . typescript-ts-mode)
+         ("\\.tsx\\'"  . tsx-ts-mode)
+         ("\\.mts\\'"  . typescript-ts-mode)
+         ("\\.mtsx\\'" . tsx-ts-mode)
+         ("\\.cts\\'"  . typescript-ts-mode)
+         ("\\.ctsx\\'" . tsx-ts-mode))
   :hook (typescript-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode)))
