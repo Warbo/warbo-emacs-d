@@ -31,9 +31,14 @@
                "nix-build --option sandbox false --show-trace && { killall -HUP mupdf-x11 || true; }")
               (t (error "Couldn't find render.sh, Makefile or default.nix"))))))
 
+(use-package auctex
+  :ensure t)
+
 (use-package latex
   :ensure auctex
-  :mode ("\\.tex\\'" . latex-mode)
+  :mode
+  ("\\.tex\\'"   . latex-mode)
+  ("\\.latex\\'" . latex-mode)
   :bind
   (:map LaTeX-mode-map
         ("<f9>" . compile-with-make))
@@ -44,7 +49,7 @@
   (setq TeX-parse-self t))
 
 (use-package org
-  :mode (("\\.org$" . org-mode))
+  :mode (("\\.org\\'" . org-mode))
   ;:ensure org-plus-contrib
   :bind (("<f9>" . org-save-and-show)
 

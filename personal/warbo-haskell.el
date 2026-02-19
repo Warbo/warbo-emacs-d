@@ -42,7 +42,7 @@ Only runs if hasktags is available in PATH."
   :ensure t
   :after xref-union
   :functions (tags-completion-table)
-  :mode ("\.hs\'" "\.lhs'")
+  :mode ("\\.hs\\'" "\\.lhs\\'" "\\.hsc\\'")
   :hook ((haskell-ts-mode . eglot-ensure)
          (haskell-ts-mode . xref-union-mode)
          (haskell-ts-mode . warbo-haskell-setup))

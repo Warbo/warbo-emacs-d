@@ -14,7 +14,9 @@
 
 (use-package proof-general
   :ensure t
-  :mode ("\\.v\\'" . coq-mode)
+  :mode
+  ("\\.v\\'"  . coq-mode)
+  ("\\.mv\\'" . coq-mode)
   :custom-face
   ;(proof-locked-face ((t (:background "#add8e6"))))
   )

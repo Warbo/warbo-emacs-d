@@ -5,11 +5,7 @@
 ;; Web development
 
 (use-package html-ts-mode
-  :mode (("\\.html" . html-ts-mode)
-         ;; Haskell shakespeare templates
-         ("\\.hamlet" . html-ts-mode)
-         ("\\.lucius" . html-ts-mode)
-         ("\\.julius" . html-ts-mode))
+  :mode ("\\.html\\'" "\\.htm\\'" "\\.html5\\'" "\\.hamlet\\'")
   :hook (html-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(html-mode . html-ts-mode))
@@ -30,7 +26,13 @@
   )
 
 (use-package css-mode
-  :mode (("\\.css\\'" . css-ts-mode))
+  :mode
+  ("\\.css\\'"    . css-ts-mode)
+  ("\\.lucius\\'" . css-ts-mode)
+  ("\\.sass\\'"   . css-ts-mode)
+  ("\\.scss\\'"   . css-ts-mode)
+  ("\\.less\\'"   . css-ts-mode)
+  ("\\.pcss\\'"   . css-ts-mode)
   :config
   (add-to-list 'major-mode-remap-alist '(css-mode . css-ts-mode)))
 
