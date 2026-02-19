@@ -281,6 +281,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :after reformatter
   :defines (nix-nixfmt-bin)
+  :mode ("\\.nix\\'")
   :config
   (add-hook 'nix-ts-mode-hook 'nix-format-on-save-mode)
   ;; nix-ts-mode can run nixfmt, but it can't specify commandline args like
