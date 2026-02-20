@@ -48,11 +48,13 @@
            vc-ignore-dir-regexp
            tramp-file-name-regexp))
   :init
-  ;; Make sure this is set in the same way as a normal shell (in case Emacs was
-  ;; started as a SystemD unit in a different environment)
-  (let ((sock (string-trim (shell-command-to-string "bash -c 'printf \"%s\" \"$SSH_AUTH_SOCK\"'"))))
-    (when (and sock (not (string-empty-p sock)))
-      (setenv "SSH_AUTH_SOCK" sock)))
+  ;; Make sure SSH_AUTH_SOCK is set in Emacs (in case Emacs was started as a
+  ;; SystemD unit without inheriting the shell environment). Try to get it from
+  ;; a login shell that sources ~/.bashrc and ~/.profile.
+  (unless (getenv "SSH_AUTH_SOCK")
+    (let ((sock (string-trim (shell-command-to-string "bash -i -l -c 'printf \"%s\" \"${SSH_AUTH_SOCK:-}\"' 2>/dev/null"))))
+      (when (and sock (not (string-empty-p sock)))
+        (setenv "SSH_AUTH_SOCK" sock))))
 
   :config
   ;; Use direct async processes (should make things faster)
