@@ -77,14 +77,9 @@ and window selections as similar as possible."
     "Sends a message to the pi coding agent to take a look at current point."
     (interactive)
     (let* ((input-buffer (warbo-guess-pi-buffer "input"))
-           (message (string-join
-                     `("Run read with name"
-                       ,(format "`%s`" (buffer-name (current-buffer)))
-                       "and NO pos/line/col, to see what's written at point."
-                       "Action the request/issue/problem described there."
-                       "(If there's no obvious problem or request, try reading"
-                       "backwards a few lines from point, for more context)")
-                     " ")))
+           (message (format
+                     "Action the request/issue/problem at point in buffer '%s'"
+                     (buffer-name (current-buffer)))))
       (if input-buffer
           (with-current-buffer input-buffer
             (goto-char (point-max))
