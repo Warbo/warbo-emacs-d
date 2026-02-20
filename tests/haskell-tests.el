@@ -69,6 +69,11 @@ MESSAGE describes what we're waiting for.  Returns predicate result or nil."
             "    pkgs.haskellPackages.hasktags\n"
             "  ];\n"
             "}\n"))
+  ;; Eglot configuration for haskell-ts-mode (normally lives in .dir-locals.el
+  ;; of real projects; we include it here so the test project resembles one)
+  (with-temp-file (expand-file-name ".dir-locals.el" dir)
+    (insert (format "((haskell-ts-mode . ((eglot-server-programs . ((haskell-ts-mode . %S))))))\n"
+                    warbo-haskell-eglot-args)))
   ;; Direnv integration
   (with-temp-file (expand-file-name ".envrc" dir)
     (insert "use nix\n"))
