@@ -71,14 +71,24 @@ MESSAGE describes what we're waiting for.  Returns predicate result or nil."
             "}\n"))
   ;; Eglot configuration for haskell-ts-mode (normally lives in .dir-locals.el
   ;; of real projects; we include it here so the test project resembles one)
-  (with-temp-file (expand-file-name ".dir-locals.el" dir)
-    (insert (format "((haskell-ts-mode . ((eglot-server-programs . ((haskell-ts-mode . %S))))))\n"
-                    warbo-haskell-eglot-args)))
+  (warbo-haskell-test-setup-eglot-dir-locals dir)
   ;; Direnv integration
   (with-temp-file (expand-file-name ".envrc" dir)
     (insert "use nix\n"))
   (let ((default-directory dir))
     (call-process "direnv" nil nil nil "allow")))
+
+(defun warbo-haskell-test-setup-eglot-dir-locals (dir)
+  "Set up .dir-locals.el for eglot in DIR.
+Emacs 30's built-in eglot only has a global eglot-server-programs
+entry for haskell-mode, NOT haskell-ts-mode.  Without a buffer-local
+override, eglot-ensure in a haskell-ts-mode buffer finds no matching
+entry and silently does nothing — no connection is ever queued.
+This .dir-locals.el is applied when visiting any file under DIR,
+setting eglot-server-programs buffer-locally so eglot-ensure works."
+  (with-temp-file (expand-file-name ".dir-locals.el" dir)
+    (insert (format "((haskell-ts-mode . ((eglot-server-programs . ((haskell-ts-mode . %S))))))\n"
+                    warbo-haskell-eglot-args))))
 
 (defun warbo-haskell-test-wait-for-tags ()
   "Generate TAGS file synchronously for the current project, then visit it.
@@ -517,6 +527,8 @@ This verifies HLS can navigate to definitions in sibling packages."
           (let ((default-directory dir))
             (call-process "direnv" nil nil nil "allow"))
 
+          (warbo-haskell-test-setup-eglot-dir-locals dir)
+
           ;; Test navigation from pkg2 to pkg1
           ;; Open file like a user would (C-x C-f), so direnv and hooks run
           (find-file file2)
@@ -916,6 +928,7 @@ Verifies HLS can provide info about imported library functions."
             (insert "use nix\n"))
           (let ((default-directory dir))
             (call-process "direnv" nil nil nil "allow"))
+          (warbo-haskell-test-setup-eglot-dir-locals dir)
 
           (with-temp-file file
             (insert "import Data.Text (pack)\n\n"
@@ -993,6 +1006,7 @@ Verifies jump-to-definition works across local module boundaries."
             (insert "use nix\n"))
           (let ((default-directory dir))
             (call-process "direnv" nil nil nil "allow"))
+          (warbo-haskell-test-setup-eglot-dir-locals dir)
 
           ;; Utils module with helper function
           (with-temp-file file1
