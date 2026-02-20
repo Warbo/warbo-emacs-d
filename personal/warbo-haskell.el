@@ -43,6 +43,11 @@ Only runs if hasktags is available in PATH."
   :after xref-union
   :functions (tags-completion-table)
   :mode ("\\.hs\\'" "\\.lhs\\'" "\\.hsc\\'")
+  :init
+  ;; Ensures shebangs like '#!/usr/bin/env runhaskell' use haskell-ts-mode
+  ;; TODO: Add a simple test to tests/haskell-tests.el that checks whether a
+  ;; (dummy) file with that shebang will get opened in haskell-ts-mode.
+  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ts-mode))
   :hook ((haskell-ts-mode . eglot-ensure)
          (haskell-ts-mode . xref-union-mode)
          (haskell-ts-mode . warbo-haskell-setup))

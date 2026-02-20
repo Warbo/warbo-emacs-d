@@ -275,6 +275,27 @@ HLS is started and ready before BODY runs."
                                        (expand-file-name (project-root proj)))))))
       (delete-directory dir t))))
 
+(ert-deftest warbo-test-haskell-shebang-opens-ts-mode ()
+  "A .hs file with a runhaskell/runghc shebang opens in haskell-ts-mode.
+Emacs resolves shebangs via `interpreter-mode-alist', which takes priority
+over `auto-mode-alist'.  `major-mode-remap-alist' should swap-out haskell-mode
+for haskell-ts-mode."
+  (dolist (interpreter '("runhaskell" "runghc"))
+    (let* ((dir (make-temp-file "haskell-shebang-" t))
+           (file (expand-file-name "script.hs" dir)))
+      (unwind-protect
+          (progn
+            (with-temp-file file
+              (insert (format "#!/usr/bin/env %s\n" interpreter)
+                      "module Main where\n"
+                      "main = putStrLn \"hello\"\n"))
+            (let ((buf (find-file-noselect file)))
+              (unwind-protect
+                  (with-current-buffer buf
+                    (should (eq major-mode 'haskell-ts-mode)))
+                (kill-buffer buf))))
+        (delete-directory dir t)))))
+
 ;; LSP tests
 
 (ert-deftest warbo-test-haskell-diagnostics-show-type-errors ()
