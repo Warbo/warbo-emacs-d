@@ -18,6 +18,8 @@
   "Eglot server program entry for haskell-ts-mode.
 Use in .dir-locals.el like:
     (eglot-server-programs . ((haskell-ts-mode . ,warbo-haskell-eglot-args)))")
+;; eglot-server-programs is set per-project via .dir-locals.el
+(put 'eglot-server-programs 'safe-local-variable #'listp)
 
 (defun warbo-haskell-tags ()
   "Run command to generate TAGS file in root directory of current repo.
