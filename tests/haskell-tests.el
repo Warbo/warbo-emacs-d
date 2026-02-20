@@ -111,29 +111,76 @@ This simulates what happens interactively when opening a Haskell file:
 1. direnv updates environment
 2. `eglot-ensure' is called
 3. `post-command-hook' fires (triggers actual eglot connection)
-Returns non-nil if HLS connected successfully."
+Returns non-nil if HLS connected successfully.
+On failure, prints diagnostic info to help debug the problem."
   ;; Disable direnv auto-switching to prevent it from unloading the environment
   ;; when post-command-hook runs (direnv-mode hooks into post-command-hook and
   ;; may see a different directory context in batch mode)
-  (let ((direnv-mode-was-on (and (boundp 'direnv-mode) direnv-mode)))
-    (when direnv-mode-was-on
-      (direnv-mode -1))
-    (unwind-protect
-        (progn
-          ;; Step 1: Load direnv environment for this buffer's directory
-          (when (fboundp 'direnv-update-environment)
-            (direnv-update-environment default-directory))
-          ;; Step 2: We rely on Emacs config to start eglot
-          ;; Step 3: Fire post-command-hook to trigger the deferred connection
-          (run-hooks 'post-command-hook)
-          ;; Wait for connection
-          (warbo-haskell-test-poll
-           (lambda () (eglot-current-server))
-           warbo-haskell-test-timeout
-           "HLS to connect"))
-      ;; Restore direnv-mode if it was on
+  (let ((direnv-mode-was-on (and (boundp 'direnv-mode) direnv-mode))
+        (debug-lines nil))
+    (cl-flet ((dbg (fmt &rest args)
+                (push (apply #'format fmt args) debug-lines)))
       (when direnv-mode-was-on
-        (direnv-mode 1)))))
+        (direnv-mode -1))
+      (unwind-protect
+          (progn
+            (dbg "default-directory: %s" default-directory)
+            (dbg "major-mode: %s" major-mode)
+            (dbg "buffer-file-name: %s" buffer-file-name)
+            (dbg "eglot--managed-mode at entry: %S" eglot--managed-mode)
+            (dbg "eglot-current-server at entry: %S" (eglot-current-server))
+            (dbg "eglot-server-programs (buffer-local): %S"
+                 (if (local-variable-p 'eglot-server-programs)
+                     eglot-server-programs
+                   '(not-buffer-local)))
+            (dbg "dir-locals-file: %S"
+                 (and (fboundp 'dir-locals-find-file)
+                      (dir-locals-find-file default-directory)))
+            ;; Step 1: Load direnv environment for this buffer's directory
+            (when (fboundp 'direnv-update-environment)
+              (direnv-update-environment default-directory))
+            (dbg "exec-path after direnv: %S" exec-path)
+            (dbg "haskell-language-server in PATH: %S"
+                 (executable-find "haskell-language-server"))
+            (dbg "haskell-language-server-wrapper in PATH: %S"
+                 (executable-find "haskell-language-server-wrapper"))
+            (dbg "eglot--guess-contact result: %S"
+                 (ignore-errors (eglot--guess-contact)))
+            (dbg "post-command-hook (buffer-local) before eglot-ensure: %S"
+                 (if (local-variable-p 'post-command-hook)
+                     post-command-hook
+                   '(not-buffer-local)))
+            ;; Step 2: (Re-)call eglot-ensure now that PATH is correct.
+            ;; maybe-connect may have already fired prematurely (before direnv
+            ;; loaded the environment) and silently failed, removing itself from
+            ;; post-command-hook.  Calling eglot-ensure again re-queues it.
+            (eglot-ensure)
+            (dbg "post-command-hook (buffer-local) after eglot-ensure: %S"
+                 (if (local-variable-p 'post-command-hook)
+                     post-command-hook
+                   '(not-buffer-local)))
+            ;; Step 3: Fire post-command-hook to trigger the deferred connection
+            (run-hooks 'post-command-hook)
+            (dbg "eglot-current-server immediately after post-command-hook: %S"
+                 (eglot-current-server))
+            ;; Wait for connection
+            (let ((result (warbo-haskell-test-poll
+                           (lambda () (eglot-current-server))
+                           warbo-haskell-test-timeout
+                           "HLS to connect")))
+              (unless result
+                ;; Only emit diagnostics on failure
+                (let ((events-buf (warbo-haskell-test-events-buffer)))
+                  (dbg "eglot events buffer: %S"
+                       (if (and events-buf (buffer-live-p events-buf))
+                           (with-current-buffer events-buf (buffer-string))
+                         'not-found)))
+                (dolist (line (nreverse debug-lines))
+                  (message "HLS-DEBUG: %s" line)))
+              result))
+        ;; Restore direnv-mode if it was on
+        (when direnv-mode-was-on
+          (direnv-mode 1))))))
 
 (defun warbo-haskell-test-events-buffer ()
   "Return the eglot events buffer for the current buffer, or nil."
