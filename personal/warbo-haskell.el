@@ -10,7 +10,7 @@
 (declare-function warbo-haskell-jump-to-tag-fix "warbo-haskell")
 
 (defvar warbo-haskell-eglot-args
-  '("haskell-language-server" "lsp"
+  '("haskell-language-server-wrapper" "--lsp"
     :initializationOptions
     (:haskell (:formattingProvider "fourmolu"
                :checkProject :json-false
