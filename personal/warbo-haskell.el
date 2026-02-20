@@ -15,7 +15,7 @@
     (:haskell (:formattingProvider "fourmolu"
                :checkProject :json-false
                :sessionLoading "multipleComponents")))
-  "Eglot server program entry for haskell-mode.
+  "Eglot server program entry for haskell-ts-mode.
 Use in .dir-locals.el like:
     (eglot-server-programs . ((haskell-ts-mode . ,warbo-haskell-eglot-args)))")
 

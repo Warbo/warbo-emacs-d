@@ -130,6 +130,17 @@ Returns non-nil if HLS connected successfully."
       (when direnv-mode-was-on
         (direnv-mode 1)))))
 
+(defun warbo-haskell-test-events-buffer ()
+  "Return the eglot events buffer for the current buffer, or nil."
+  (let* ((project (project-current))
+         (project-name (when project
+                         (file-name-nondirectory
+                          (directory-file-name (project-root project)))))
+         (mode-name (symbol-name major-mode)))
+    (when project-name
+      (get-buffer (format "*EGLOT (%s/(%s)) events*"
+                          project-name mode-name)))))
+
 (defun warbo-haskell-test-wait-for-indexing ()
   "Wait for HLS to be ready.
 Returns non-nil when ready, nil on timeout.
@@ -224,12 +235,7 @@ HLS is started and ready before BODY runs."
            (search-forward ,point-on)
            (goto-char (match-beginning 0))
            (unless (warbo-haskell-test-wait-for-indexing)
-             (let ((events-buf (get-buffer
-                                ;; FIXME: This assumes we're using haskell-mode.
-                                ;; We should be agnostic.
-                                (format "*EGLOT (%s/(haskell-mode)) events*"
-                                        (file-name-nondirectory
-                                         (directory-file-name dir))))))
+             (let ((events-buf (warbo-haskell-test-events-buffer)))
                (ert-fail (format "HLS not ready within %ds timeout. flymake-diags: %s, eglot-managed: %s, events(full): %S"
                                  warbo-haskell-test-timeout
                                  (flymake-diagnostics)
