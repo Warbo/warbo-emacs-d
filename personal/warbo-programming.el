@@ -275,7 +275,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
     (add-hook 'makefile-mode-hook
               (lambda ()
                 (setq whitespace-style '(face tab-mark trailing))
-                      indent-tabs-mode t))))
+                indent-tabs-mode t))))
 
 (use-package markdown-ts-mode
   :ensure t
