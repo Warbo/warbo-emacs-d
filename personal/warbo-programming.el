@@ -248,6 +248,10 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package magit-popup
   :ensure t)
 
+(use-package majutsu
+  :vc (:url "https://github.com/0WD0/majutsu")
+  :ensure t)
+
 (use-package make-mode
   ;; makefile-mode is built-in, so doesn't need downloading
   :defines (whitespace-style)
