@@ -565,7 +565,7 @@ If point is already at the beginning of text, move it to the beginning of line."
              "EnvyCodeR Nerd Font Mono-11")
 
             ((equal machine-id 'framework)
-             "DroidSansM Nerd Font Mono-11")
+             "DroidSansM Nerd Font Mono-9")
 
             ((font-utils-exists-p "Droid Sans Mono-8")
              "Droid Sans Mono-8")
