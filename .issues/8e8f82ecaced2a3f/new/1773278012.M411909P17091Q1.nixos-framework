@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Thu, 12 Mar 2026 01:10:49 +0000
+State: new
+Subject: C-c C-c in list-issues doesn't work
+Message-Id: <8e8f82ecaced2a3f-0-artemis@nixos-framework>
+
+Should allow us to add a comment; instead gives:
+
+```
+funcall-interactively: Wrong type argument: stringp, ("8656ac98b664a4e2" "0")
+```
+
+There's a test suite for warbo-issues, so we should red/green TDD this
+with a regression test.
