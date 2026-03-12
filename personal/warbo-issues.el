@@ -370,12 +370,14 @@ Any timezone information is ignored; we assume the timestamp is UTC."
               ,(plist-get details 'description)])))
    (issue-all-details)))
 
+(defun issues-buffer-name ()
+  "Return the buffer name for the issues list of the current git repo."
+  (string-join `("issues" ,(file-name-nondirectory (directory-file-name (magit-toplevel)))) ": "))
+
 (defun list-issues ()
   "Entry point for artemis UI."
   (interactive)
-  (pop-to-buffer-same-window
-   (string-join `("issues" ,(file-name-nondirectory (directory-file-name (magit-toplevel)))) ": ")
-   nil)
+  (pop-to-buffer-same-window (issues-buffer-name) nil)
   (issues-mode)
   (use-local-map issues-mode-map)
   (setq tabulated-list-entries #'issues-fetch-entries)

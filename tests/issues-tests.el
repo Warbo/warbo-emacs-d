@@ -559,7 +559,7 @@ index order within their issue."
 
 (defun this-issues-buffer-name ()
   "Calculate the name of an issues buffer for the current dir."
-  (concat "issues: " (file-name-nondirectory default-directory)))
+  (issues-buffer-name))
 
 (defun this-issues-buffer ()
   "Buffer for current directory's issues."
