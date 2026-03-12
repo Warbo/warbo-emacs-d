@@ -19,6 +19,53 @@
 Use in .dir-locals.el like:
     (eglot-server-programs . ((haskell-ts-mode . ,warbo-haskell-eglot-args)))")
 
+(defun haskell-trace ()
+  "Insert `Trace.trace` at point and add import if required."
+  (interactive)
+  (let ((orig-pos (point-marker))
+        (import-line "import qualified Debug.Trace as Trace"))
+    ;; Ensure the marker advances if we insert text exactly at its position
+    ;; (e.g., if we're at the absolute beginning of the file)
+    (set-marker-insertion-type orig-pos t)
+
+    (save-excursion
+      (goto-char (point-min))
+      ;; Check if import already exists
+      (unless (re-search-forward
+               "^import[ \t]+qualified[ \t]+Debug\\.Trace[ \t]+as[ \t]+Trace"
+               nil
+               t)
+        (goto-char (point-min))
+        (cond
+         ;; Case 1: Existing imports, insert before first
+         ((re-search-forward "^import " nil t)
+          (beginning-of-line)
+          (insert import-line "\n"))
+
+         ;; Case 2: No imports, with module declaration; insert after `where`
+         ((re-search-forward "^module[ \t\n]" nil t)
+          (if (re-search-forward "\\<where\\>" nil t)
+              (progn
+                (forward-line 1)
+                (insert "\n" import-line "\n"))
+            ;; Fallback if `where` isn't cleanly found
+            (goto-char (point-min))
+            (insert import-line "\n\n")))
+
+         ;; Case 3: No imports or module declaration. Insert at the top, after
+         ;; {-# ... #-} pragmas (if any).
+         (t
+          (goto-char (point-min))
+          (while (re-search-forward "^{-#\\(?:.\\|\n\\)*?#-}[ \t]*\n*" nil t))
+          (insert import-line "\n\n")))))
+
+    ;; Now insert the `trace` call
+    (goto-char orig-pos)
+    (insert "Trace.trace")
+
+    ;; Clean up marker
+    (set-marker orig-pos nil)))
+
 (defun warbo-haskell-tags ()
   "Run command to generate TAGS file in root directory of current repo.
 Only runs if hasktags is available in PATH."
