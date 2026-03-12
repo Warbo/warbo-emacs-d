@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Thu, 12 Mar 2026 00:26:44 +0000
+Subject: Re: Avoid putting new buffers in "side window"
+Message-Id: <8cde721577d71ff8-802be2d3e07fc0fe-artemis@nixos-framework>
+References: <8cde721577d71ff8-0-artemis@nixos-framework>
+In-Reply-To: <8cde721577d71ff8-0-artemis@nixos-framework>
+
+Fixed by adding `(window-parameters . ((dedicated . t)))` to the `display-buffer-in-side-window` call in `warbo-show-pi-chat` (`personal/warbo-llm.el`).
+
+Diagnosis via `emacs_eval`: the side window had `window-side=bottom` and `window-slot=0` set correctly, but `dedicated=nil`, so `display-buffer` was free to reuse it. Making it dedicated prevents that.
+
+Also applied the fix to the already-open side window immediately via `set-window-dedicated-p`.

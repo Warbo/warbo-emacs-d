@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 11 Mar 2026 11:52:25 +0000
-State: new
+State: resolved
 Subject: Avoid putting new buffers in "side window"
 Message-Id: <8cde721577d71ff8-0-artemis@nixos-framework>
+resolution: fixed
 
 I like the idea of a "side window": a window (pane) which can appear, e.g. on
 the bottom of the frame, dedicated to something that I want to see (like a chat
