@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 12 Mar 2026 01:10:49 +0000
-State: new
+State: resolved
 Subject: C-c C-c in list-issues doesn't work
 Message-Id: <8e8f82ecaced2a3f-0-artemis@nixos-framework>
+resolution: fixed
 
 Should allow us to add a comment; instead gives:
 

@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 12 Mar 2026 02:21:16 +0000
+Subject: Re: corfu errors from dictionaries?
+Message-Id: <f1743c375607a3c4-cd9351f16c421f40-artemis@nixos-framework>
+References: <f1743c375607a3c4-0-artemis@nixos-framework>
+In-Reply-To: <f1743c375607a3c4-0-artemis@nixos-framework>
+
+Should be fixed by nix-config providing wordlists now...
