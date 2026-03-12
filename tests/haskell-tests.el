@@ -364,6 +364,93 @@ for haskell-ts-mode."
                 (kill-buffer buf))))
         (delete-directory dir t)))))
 
+;; Minor-mode / keybinding tests (fast, no HLS required)
+
+(ert-deftest warbo-test-haskell-undo-tree-mode-active ()
+  "Visiting a .hs file should activate undo-tree-mode."
+  (let* ((dir (make-temp-file "haskell-undo-tree-test-" t))
+         (file (expand-file-name "test.hs" dir)))
+    (unwind-protect
+        (progn
+          (with-temp-file file (insert "module Main where\n"))
+          (let ((buf (find-file-noselect file)))
+            (unwind-protect
+                (with-current-buffer buf
+                  (should (bound-and-true-p undo-tree-mode)))
+              (kill-buffer buf))))
+      (delete-directory dir t))))
+
+;; warbo-run-tests is the one function name allowed by the safe-local-variable
+;; check on warbo-run-buffer-tests-function; it's intentionally left undefined
+;; in the main config so each machine/project can supply its own definition.
+;; Here we define it to record that it was called.
+(defvar warbo-test-haskell-f6-runner-called nil
+  "Set to t by `warbo-run-tests' during the f6 keybinding test.")
+
+(defun warbo-run-tests (_arg)
+  "Test definition of `warbo-run-tests': records it was invoked."
+  (setq warbo-test-haskell-f6-runner-called t))
+
+(ert-deftest warbo-test-haskell-f6-bound-to-run-tests ()
+  "Pressing <f6> in a .hs file should invoke warbo-run-buffer-tests-function.
+The function is wired up via .dir-locals.el, as it would be in a real project."
+  (let* ((dir (make-temp-file "haskell-f6-test-" t))
+         (file (expand-file-name "test.hs" dir))
+         (warbo-test-haskell-f6-runner-called nil))
+    (unwind-protect
+        (progn
+          (with-temp-file file (insert "module Main where\n"))
+          (with-temp-file (expand-file-name ".dir-locals.el" dir)
+            (insert "((haskell-ts-mode . ((warbo-run-buffer-tests-function
+                                          . warbo-run-tests))))"))
+          (let ((buf (find-file-noselect file)))
+            (unwind-protect
+                (with-current-buffer buf
+                  (execute-kbd-macro (kbd "<f6>"))
+                  (should warbo-test-haskell-f6-runner-called))
+              (kill-buffer buf))))
+      (delete-directory dir t))))
+
+(ert-deftest warbo-test-haskell-smartparens-auto-close-paren ()
+  "Typing '(' in a .hs file should auto-insert a closing ')'.
+smartparens is configured to run in prog-mode buffers; haskell-ts-mode
+derives from prog-mode."
+  (let* ((dir (make-temp-file "haskell-sp-paren-test-" t))
+         (file (expand-file-name "test.hs" dir)))
+    (unwind-protect
+        (progn
+          (with-temp-file file (insert ""))
+          (let ((buf (find-file-noselect file)))
+            (unwind-protect
+                (with-current-buffer buf
+                  ;; Type '(' and expect smartparens to insert the matching ')'
+                  (execute-kbd-macro (kbd "("))
+                  (should (string= (buffer-string) "()")))
+              (with-current-buffer buf (set-buffer-modified-p nil))
+              (kill-buffer buf))))
+      (delete-directory dir t))))
+
+(ert-deftest warbo-test-haskell-smartparens-wrap-region-with-quotes ()
+  "Pressing \" with a region active in a .hs file should wrap it in double quotes."
+  (let* ((dir (make-temp-file "haskell-sp-wrap-test-" t))
+         (file (expand-file-name "test.hs" dir)))
+    (unwind-protect
+        (progn
+          (with-temp-file file (insert "hello"))
+          (let ((buf (find-file-noselect file)))
+            (unwind-protect
+                (with-current-buffer buf
+                  ;; Select the whole buffer contents
+                  (goto-char (point-min))
+                  (push-mark (point-max) nil t)
+                  (activate-mark)
+                  ;; Pressing " should wrap the region in double quotes
+                  (execute-kbd-macro (kbd "\""))
+                  (should (string= (buffer-string) "\"hello\"")))
+              (with-current-buffer buf (set-buffer-modified-p nil))
+              (kill-buffer buf))))
+      (delete-directory dir t))))
+
 ;; LSP tests
 
 (ert-deftest warbo-test-haskell-diagnostics-show-type-errors ()
@@ -1745,5 +1832,19 @@ The expected outcome is that we jump to the definition line."
                                  (buffer-substring-no-properties
                                   (line-beginning-position)
                                   (line-end-position)))))))))
+
+(ert-deftest warbo-test-flycheck-haskell-supports-cabal-314 ()
+  "The installed flycheck-haskell handles Cabal >= 3.14.
+Cabal 3.14 changed several types from FilePath to SymbolicPath wrappers.
+Any correct fix must guard on MIN_VERSION_Cabal(3, 14, ...).
+We check for that pattern rather than a specific macro name, so this
+passes regardless of how the fix was implemented."
+  (require 'flycheck-haskell)
+  (let ((helper flycheck-haskell-helper))
+    (should (file-exists-p helper))
+    (should
+     (with-temp-buffer
+       (insert-file-contents helper)
+       (re-search-forward "MIN_VERSION_Cabal(3, 14" nil t)))))
 
 ;;; haskell-tests.el ends here

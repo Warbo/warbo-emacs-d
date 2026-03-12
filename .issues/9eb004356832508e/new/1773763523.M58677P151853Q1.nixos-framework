@@ -1,0 +1,276 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 16:04:17 +0000
+State: new
+Subject: Haskell errors
+Message-Id: <9eb004356832508e-0-artemis@nixos-framework>
+
+Getting these in *Messages*:
+
+```
+Reading Haskell configuration failed with exit code 1 and output:
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:375:24: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.AllowAbsolute
+                             Distribution.Utils.Path.Pkg
+                             (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+                     with: [Char]
+      Expected: FilePath
+        Actual: Distribution.Utils.Path.SymbolicPath
+                  Distribution.Utils.Path.Pkg
+                  (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+    • In the first argument of ‘return’, namely ‘defaultDistPref’
+      In the expression: return defaultDistPref
+      In an equation for ‘distDir’:
+          distDir Cabal = return defaultDistPref
+    |
+375 | distDir Cabal = return defaultDistPref
+    |                        ^^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:385:27: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.AllowAbsolute
+                             Distribution.Utils.Path.Pkg
+                             (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+                     with: [Char]
+      Expected: FilePath
+        Actual: Distribution.Utils.Path.SymbolicPath
+                  Distribution.Utils.Path.Pkg
+                  (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+    • In the first argument of ‘(</>)’, namely ‘defaultDistPref’
+      In the second argument of ‘(</>)’, namely
+        ‘defaultDistPref
+           </> display buildPlatform </> "Cabal-" ++ cabalVersion'’
+      In the expression:
+        ".stack-work"
+          </>
+            defaultDistPref
+              </> display buildPlatform </> "Cabal-" ++ cabalVersion'
+    |
+385 |         ".stack-work" </> defaultDistPref
+    |                           ^^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:452:35: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.AllowAbsolute
+                             Distribution.Utils.Path.Pkg
+                             (Distribution.Utils.Path.Dir Distribution.Utils.Path.Include)
+                     with: [Char]
+      Expected: BuildInfo -> [FilePath]
+        Actual: BuildInfo
+                -> [Distribution.Utils.Path.SymbolicPath
+                      Distribution.Utils.Path.Pkg
+                      (Distribution.Utils.Path.Dir Distribution.Utils.Path.Include)]
+    • In the first argument of ‘concatMap’, namely ‘includeDirs’
+      In the second argument of ‘map’, namely
+        ‘(concatMap includeDirs buildInfo)’
+      In the expression:
+        map (cabalDir </>) (concatMap includeDirs buildInfo)
+    |
+452 |     map (cabalDir </>) (concatMap includeDirs buildInfo)
+    |                                   ^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:627:61: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.OnlyRelative
+                             Distribution.Utils.Path.Source
+                             Distribution.Utils.Path.File
+                     with: [Char]
+      Expected: String
+        Actual: Distribution.Utils.Path.RelativePath
+                  Distribution.Utils.Path.Source Distribution.Utils.Path.File
+    • In the first argument of ‘C8.pack’, namely ‘(modulePath exe)’
+      In the first argument of ‘Just’, namely
+        ‘(C8.pack (modulePath exe))’
+      In the expression: Just (C8.pack (modulePath exe))
+    |
+627 |     [ (CTExecutable, C8.pack (exeName' exe), Just (C8.pack (modulePath exe)), biMods bi)
+    |                                                             ^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:635:57: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.OnlyRelative
+                             Distribution.Utils.Path.Source
+                             Distribution.Utils.Path.File
+                     with: [Char]
+      Expected: String
+        Actual: Distribution.Utils.Path.RelativePath
+                  Distribution.Utils.Path.Source Distribution.Utils.Path.File
+    • In the first argument of ‘C8.pack’, namely ‘path’
+      In the first argument of ‘Just’, namely ‘(C8.pack path)’
+      In the expression: Just (C8.pack path)
+    |
+635 |             TestSuiteExeV10 _ path    -> (Just (C8.pack path), Nothing)
+    |                                                         ^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:645:53: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.OnlyRelative
+                             Distribution.Utils.Path.Source
+                             Distribution.Utils.Path.File
+                     with: [Char]
+      Expected: String
+        Actual: Distribution.Utils.Path.RelativePath
+                  Distribution.Utils.Path.Source Distribution.Utils.Path.File
+    • In the first argument of ‘C8.pack’, namely ‘path’
+      In the first argument of ‘Just’, namely ‘(C8.pack path)’
+      In the expression: Just (C8.pack path)
+    |
+645 |             BenchmarkExeV10 _ path -> Just (C8.pack path)
+    |                                                     ^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:708:5: error: [GHC-83865]
+    • Couldn't match type: Maybe
+                             (Distribution.Utils.Path.SymbolicPath
+                                Distribution.Utils.Path.CWD
+                                (Distribution.Utils.Path.Dir Distribution.Utils.Path.Pkg))
+                     with: [Char]
+      Expected: FilePath -> IO GenericPackageDescription
+        Actual: Maybe
+                  (Distribution.Utils.Path.SymbolicPath
+                     Distribution.Utils.Path.CWD
+                     (Distribution.Utils.Path.Dir Distribution.Utils.Path.Pkg))
+                -> Distribution.Utils.Path.SymbolicPath
+                     Distribution.Utils.Path.Pkg Distribution.Utils.Path.File
+                -> IO GenericPackageDescription
+    • Probable cause: ‘readGenericPackageDescription’ is applied to too few arguments
+      In the expression: readGenericPackageDescription silent
+      In an equation for ‘readGenericPkgDescr’:
+          readGenericPkgDescr = readGenericPackageDescription silent
+    |
+708 |     readGenericPackageDescription silent
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ [2 times]
+Reading Haskell configuration failed with exit code 1 and output:
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:375:24: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.AllowAbsolute
+                             Distribution.Utils.Path.Pkg
+                             (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+                     with: [Char]
+      Expected: FilePath
+        Actual: Distribution.Utils.Path.SymbolicPath
+                  Distribution.Utils.Path.Pkg
+                  (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+    • In the first argument of ‘return’, namely ‘defaultDistPref’
+      In the expression: return defaultDistPref
+      In an equation for ‘distDir’:
+          distDir Cabal = return defaultDistPref
+    |
+375 | distDir Cabal = return defaultDistPref
+    |                        ^^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:385:27: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.AllowAbsolute
+                             Distribution.Utils.Path.Pkg
+                             (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+                     with: [Char]
+      Expected: FilePath
+        Actual: Distribution.Utils.Path.SymbolicPath
+                  Distribution.Utils.Path.Pkg
+                  (Distribution.Utils.Path.Dir Distribution.Utils.Path.Dist)
+    • In the first argument of ‘(</>)’, namely ‘defaultDistPref’
+      In the second argument of ‘(</>)’, namely
+        ‘defaultDistPref
+           </> display buildPlatform </> "Cabal-" ++ cabalVersion'’
+      In the expression:
+        ".stack-work"
+          </>
+            defaultDistPref
+              </> display buildPlatform </> "Cabal-" ++ cabalVersion'
+    |
+385 |         ".stack-work" </> defaultDistPref
+    |                           ^^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:452:35: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.AllowAbsolute
+                             Distribution.Utils.Path.Pkg
+                             (Distribution.Utils.Path.Dir Distribution.Utils.Path.Include)
+                     with: [Char]
+      Expected: BuildInfo -> [FilePath]
+        Actual: BuildInfo
+                -> [Distribution.Utils.Path.SymbolicPath
+                      Distribution.Utils.Path.Pkg
+                      (Distribution.Utils.Path.Dir Distribution.Utils.Path.Include)]
+    • In the first argument of ‘concatMap’, namely ‘includeDirs’
+      In the second argument of ‘map’, namely
+        ‘(concatMap includeDirs buildInfo)’
+      In the expression:
+        map (cabalDir </>) (concatMap includeDirs buildInfo)
+    |
+452 |     map (cabalDir </>) (concatMap includeDirs buildInfo)
+    |                                   ^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:627:61: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.OnlyRelative
+                             Distribution.Utils.Path.Source
+                             Distribution.Utils.Path.File
+                     with: [Char]
+      Expected: String
+        Actual: Distribution.Utils.Path.RelativePath
+                  Distribution.Utils.Path.Source Distribution.Utils.Path.File
+    • In the first argument of ‘C8.pack’, namely ‘(modulePath exe)’
+      In the first argument of ‘Just’, namely
+        ‘(C8.pack (modulePath exe))’
+      In the expression: Just (C8.pack (modulePath exe))
+    |
+627 |     [ (CTExecutable, C8.pack (exeName' exe), Just (C8.pack (modulePath exe)), biMods bi)
+    |                                                             ^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:635:57: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.OnlyRelative
+                             Distribution.Utils.Path.Source
+                             Distribution.Utils.Path.File
+                     with: [Char]
+      Expected: String
+        Actual: Distribution.Utils.Path.RelativePath
+                  Distribution.Utils.Path.Source Distribution.Utils.Path.File
+    • In the first argument of ‘C8.pack’, namely ‘path’
+      In the first argument of ‘Just’, namely ‘(C8.pack path)’
+      In the expression: Just (C8.pack path)
+    |
+635 |             TestSuiteExeV10 _ path    -> (Just (C8.pack path), Nothing)
+    |                                                         ^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:645:53: error: [GHC-83865]
+    • Couldn't match type: Distribution.Utils.Path.SymbolicPathX
+                             Distribution.Utils.Path.OnlyRelative
+                             Distribution.Utils.Path.Source
+                             Distribution.Utils.Path.File
+                     with: [Char]
+      Expected: String
+        Actual: Distribution.Utils.Path.RelativePath
+                  Distribution.Utils.Path.Source Distribution.Utils.Path.File
+    • In the first argument of ‘C8.pack’, namely ‘path’
+      In the first argument of ‘Just’, namely ‘(C8.pack path)’
+      In the expression: Just (C8.pack path)
+    |
+645 |             BenchmarkExeV10 _ path -> Just (C8.pack path)
+    |                                                     ^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell-20241119.1046/get-cabal-configuration.hs:708:5: error: [GHC-83865]
+    • Couldn't match type: Maybe
+                             (Distribution.Utils.Path.SymbolicPath
+                                Distribution.Utils.Path.CWD
+                                (Distribution.Utils.Path.Dir Distribution.Utils.Path.Pkg))
+                     with: [Char]
+      Expected: FilePath -> IO GenericPackageDescription
+        Actual: Maybe
+                  (Distribution.Utils.Path.SymbolicPath
+                     Distribution.Utils.Path.CWD
+                     (Distribution.Utils.Path.Dir Distribution.Utils.Path.Pkg))
+                -> Distribution.Utils.Path.SymbolicPath
+                     Distribution.Utils.Path.Pkg Distribution.Utils.Path.File
+                -> IO GenericPackageDescription
+    • Probable cause: ‘readGenericPackageDescription’ is applied to too few arguments
+      In the expression: readGenericPackageDescription silent
+      In an equation for ‘readGenericPkgDescr’:
+          readGenericPkgDescr = readGenericPackageDescription silent
+    |
+708 |     readGenericPackageDescription silent
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ [2 times]
+```

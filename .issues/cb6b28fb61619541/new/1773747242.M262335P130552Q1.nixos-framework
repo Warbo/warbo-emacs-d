@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 11:31:58 +0000
+Subject: Re: No undo-tree-mode in haskell-ts-mode?
+Message-Id: <cb6b28fb61619541-c2f5ad2c2ea0ed1a-artemis@nixos-framework>
+References: <cb6b28fb61619541-0-artemis@nixos-framework>
+In-Reply-To: <cb6b28fb61619541-0-artemis@nixos-framework>
+
+Yeah, looks like a whole bunch of stuff is missing: not getting <f6> binding for
+running tests; not getting parentheses auto-insert (i.e. when I press '(' I
+should get '()', but it's not); wrapping the region with '"', etc.
+
+Definitely needs looking into!
+
+These can all be validated EASILY using regression tests; so do those FIRST! TDD
