@@ -1,0 +1,20 @@
+From: Chris Warburton
+Date: Wed, 11 Mar 2026 11:52:25 +0000
+State: resolved
+Subject: Avoid putting new buffers in "side window"
+Message-Id: <8cde721577d71ff8-0-artemis@nixos-framework>
+resolution: fixed
+
+I like the idea of a "side window": a window (pane) which can appear, e.g. on
+the bottom of the frame, dedicated to something that I want to see (like a chat
+buffer, which loses its utility when not visible), without interfering too much
+with the existing window layout, and disappears once the thing it contains is
+gone (e.g. leaving the chat).
+
+However, when I have such a "side window" open, Emacs will sometimes put new
+buffers in there; e.g. if I open magit/majutsu, or if I open a diff from within
+them, etc.
+
+It would be nice if those new buffers *don't* go in the side window, since that
+hides its original buffer, which defeats the point of having it in a side
+window!

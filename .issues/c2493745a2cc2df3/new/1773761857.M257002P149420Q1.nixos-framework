@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 15:37:17 +0000
+Subject: Re: Prevent warbo-shell.el causing confusing test failures
+Message-Id: <c2493745a2cc2df3-b6aab92d7d4ce0f3-artemis@nixos-framework>
+References: <c2493745a2cc2df3-0-artemis@nixos-framework>
+In-Reply-To: <c2493745a2cc2df3-0-artemis@nixos-framework>
+
+I've wrapped open-startup-shells in save-excursion. Hopefully that's enough.

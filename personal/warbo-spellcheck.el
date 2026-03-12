@@ -7,7 +7,9 @@
   :config
   ;; flyspell-mode does spell-checking on the fly as you type
   (setq ispell-program-name "aspell" ; use aspell instead of ispell
-        ispell-extra-args '("--sug-mode=ultra"))
+        ispell-extra-args '("--sug-mode=ultra")
+        ;; Plain word list for ispell-completion-at-point (provided by scowl)
+        ispell-alternate-dictionary "/run/current-system/sw/share/dict/wbritish.txt")
 
   (defun prelude-enable-flyspell ()
     "Enable command `flyspell-mode' if `ispell-program-name' is in PATH."

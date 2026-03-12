@@ -565,7 +565,8 @@ If in a mistty buffer, create another with same context but new number."
 (defun open-startup-shells ()
   "Open a new shell for each entry in startup-shells."
   (interactive)
-  (mapc 'shell-named-in startup-shells))
+  (save-excursion
+    (mapc 'shell-named-in startup-shells)))
 (open-startup-shells)
 
 (declare-function comint-send-input "comint")

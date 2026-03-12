@@ -1,0 +1,20 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 11:47:14 +0000
+State: resolved
+Subject: Prevent warbo-shell.el causing confusing test failures
+Message-Id: <c2493745a2cc2df3-0-artemis@nixos-framework>
+resolution: fixed
+
+The warbo-shells.el file opens a bunch of "startup shells". That is good and
+desirable (hence why I wrote it). However when we run tests (via test-runner.sh)
+I sometimes see the contents of those shell buffers in the failure messages;
+e.g. we're trying to write some Python in a temp buffer, and assert that it
+contains 'print("foo")'; but the test fails because the buffer contents is
+'01:24:55 (0s) chris@nixos-framework:~/Code/warbo-utilities$ print("foo")' (so
+presumably a warbo-utilities shell buffer opened, and we got switched to there).
+
+Note that I *DO NOT* want to have different behaviour in tests versus a real
+Emacs, since that would make the tests less realistic.
+
+Perhaps we could make those shell buffers open in the background, or something
+(so they don't replace whatever's visible/focused/etc.)

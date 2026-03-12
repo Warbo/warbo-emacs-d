@@ -38,7 +38,7 @@
 
 (use-package cython-mode
   :ensure t
-  :mode ("\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
+  :mode ("\\.pxd\\'" "\\.pyd\\'" "\\.pyi\\'" "\\.pyx\\'"))
 
 (provide 'warbo-python)
 ;;; warbo-python.el ends here

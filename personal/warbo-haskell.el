@@ -10,14 +10,16 @@
 (declare-function warbo-haskell-jump-to-tag-fix "warbo-haskell")
 
 (defvar warbo-haskell-eglot-args
-  '("haskell-language-server" "lsp"
+  '("haskell-language-server-wrapper" "--lsp"
     :initializationOptions
     (:haskell (:formattingProvider "fourmolu"
                :checkProject :json-false
                :sessionLoading "multipleComponents")))
-  "Eglot server program entry for haskell-mode.
+  "Eglot server program entry for haskell-ts-mode.
 Use in .dir-locals.el like:
     (eglot-server-programs . ((haskell-ts-mode . ,warbo-haskell-eglot-args)))")
+;; eglot-server-programs is set per-project via .dir-locals.el
+(put 'eglot-server-programs 'safe-local-variable #'listp)
 
 (defun haskell-trace ()
   "Insert `Trace.trace` at point and add import if required."
@@ -89,7 +91,12 @@ Only runs if hasktags is available in PATH."
   :ensure t
   :after xref-union
   :functions (tags-completion-table)
-  :mode ("\.hs\'" "\.lhs'")
+  :mode ("\\.hs\\'" "\\.lhs\\'" "\\.hsc\\'")
+  :init
+  ;; Ensures shebangs like '#!/usr/bin/env runhaskell' use haskell-ts-mode
+  ;; TODO: Add a simple test to tests/haskell-tests.el that checks whether a
+  ;; (dummy) file with that shebang will get opened in haskell-ts-mode.
+  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ts-mode))
   :hook ((haskell-ts-mode . eglot-ensure)
          (haskell-ts-mode . xref-union-mode)
          (haskell-ts-mode . warbo-haskell-setup))

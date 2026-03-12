@@ -11,6 +11,7 @@
 (declare-function warbo-guess-pi-buffer "warbo-llm")
 (declare-function warbo-pi-look-at-point "warbo-llm")
 (declare-function warbo-show-pi-chat "warbo-llm")
+(declare-function warbo-pi-send-message "warbo-llm")
 
 (defun warbo-ignore-pi-whitespace ()
   "Disable `whitespace-mode' in pi chat buffers."
@@ -21,6 +22,7 @@
   :hook (pi-coding-agent-chat-mode . warbo-ignore-pi-whitespace)
   ;; Bind warbo-pi globally; pi-coding-agent mode maps will override this.
   :bind (("C-c C-p" . warbo-pi)
+         ("C-c C-P" . warbo-pi-message)
          :map pi-coding-agent-chat-mode-map
          ("C-c C-k" . pi-coding-agent-abort))
   :init
@@ -73,20 +75,33 @@ and window selections as similar as possible."
             (select-window current-window))
         (error "Error: Could not find or create pi chat session"))))
 
-  (defun warbo-pi-look-at-point ()
-    "Sends a message to the pi coding agent to take a look at current point."
-    (interactive)
-    (let* ((input-buffer (warbo-guess-pi-buffer "input"))
-           (message (format "%s in buffer '%s' and %s"
-                            "Please read around the current point"
-                            (buffer-name (current-buffer))
-                            "action the request/issue described there.")))
+  (defun warbo-pi-send-message (message)
+    "Sends MESSAGE to the pi coding agent."
+    (interactive "sMessage: ")
+    (let* ((input-buffer (warbo-guess-pi-buffer "input")))
       (if input-buffer
           (with-current-buffer input-buffer
             (goto-char (point-max))
             (insert message)
             (pi-coding-agent-send))
         (error "No pi coding agent input buffer found"))))
+
+  (defun warbo-pi-message ()
+    "If pi chat isn't visible, show/start it. Otherwise send a message to pi."
+    (interactive)
+    (let ((chat-buffer (warbo-guess-pi-buffer "chat")))
+      (if (and chat-buffer (get-buffer-window chat-buffer 'visible))
+          (call-interactively 'warbo-pi-send-message)
+        (warbo-show-pi-chat)))
+    )
+
+  (defun warbo-pi-look-at-point ()
+    "Ask pi coding agent to take a look at current point."
+    (interactive)
+    (warbo-pi-send-message
+     (format
+      "Action the request/issue/problem at point in buffer '%s'"
+      (buffer-name (current-buffer)))))
 
   (defun warbo-pi ()
     "If pi chat isn't visible, show/start it. Otherwise have pi look at point."

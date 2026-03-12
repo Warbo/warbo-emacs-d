@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Thu, 12 Mar 2026 00:48:33 +0000
+Subject: Re: Avoid putting new buffers in "side window"
+Message-Id: <8cde721577d71ff8-fca50d5e5dc06a7d-artemis@nixos-framework>
+References: <8cde721577d71ff8-0-artemis@nixos-framework>
+In-Reply-To: <8cde721577d71ff8-0-artemis@nixos-framework>
+
+Fixed in `personal/warbo-generic.el`.
+
+Root cause: `display-buffer-fallback-action` includes `display-buffer-use-some-window`, which calls `get-lru-window` without filtering out side windows. Side windows have `window-side` parameter set, but `get-lru-window` doesn't check that — it only skips dedicated and minibuffer windows. Additionally, the `no-other-window` parameter (which `display-buffer-in-side-window` sets) gets cleared when any buffer is displayed in the window.
+
+Fix: replaced `display-buffer-use-some-window` in `display-buffer-fallback-action` with `warbo-display-buffer-use-some-non-side-window`, which does the same thing but `walk-windows` with an explicit `(window-parameter w 'window-side)` check to skip side windows.
+
+Dead ends tried first: `dedicated=t` (gets reset by `window--display-buffer`), `no-other-window` parameter (also gets reset), `some-window` alist entry on `display-buffer-use-some-window` (the parameter was already nil by the time of the call).

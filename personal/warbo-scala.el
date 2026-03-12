@@ -4,7 +4,7 @@
 
 (use-package scala-ts-mode
   :ensure t
-  :mode "\\.s\\(cala\\|bt\\)$"
+  :mode "\\.scala\\'" "\\.sbt\\'"
   :bind (:map scala-ts-mode-map
               ("C-c C-c" . sbt-run-previous-command))
   :config
