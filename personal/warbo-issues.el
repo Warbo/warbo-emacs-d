@@ -292,7 +292,7 @@ Any timezone information is ignored; we assume the timestamp is UTC."
   "Run `artemis add XXX', taking the issue ID from the current context."
   (interactive)
   (let ((issue (issues-current-issue)))
-    (call-process "artemis" nil 0 nil "add" issue)))
+    (call-process "artemis" nil 0 nil "add" (car issue))))
 
 (defun issues-close ()
   "Close the issue under point."

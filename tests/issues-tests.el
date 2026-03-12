@@ -1179,3 +1179,28 @@ Returns the repo directory path."
              (execute-kbd-macro (kbd "g")))
            (should (equal tabulated-list-sort-key '("Date" . nil))))
        (kill-buffer buf)))))
+
+(ert-deftest warbo-issues-add-comment-creates-comment ()
+  "Comments added to an issue should appear in the issues list."
+  :tags '(integration)
+  (with-test-repo
+   (let* ((editor (expand-file-name "comment-editor.sh" warbo-issues-test-repo)))
+     (with-temp-file editor
+       (insert "#!/usr/bin/env bash\n"
+               "sed -i \"s/Detailed description\\./Comment body/\" \"$1\"\n"))
+     (set-file-modes editor #o755)
+     (let* ((id            (car (issue-list-ids)))
+            (count-before  (issue-comment-count id)))
+       (list-issues)
+       (let ((buf (this-issues-buffer)))
+         (unwind-protect
+             (with-current-buffer buf
+               (goto-char (point-min))
+               (forward-line 1) ; skip header
+               (let ((process-environment
+                      (cons (concat "EDITOR=" editor) process-environment)))
+                 (execute-kbd-macro (kbd "C-c C-c")))
+               (sleep-for 1)
+               (should (equal (issue-comment-count id) (1+ count-before))))
+           (when (buffer-live-p buf)
+             (kill-buffer buf))))))))
