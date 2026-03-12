@@ -20,6 +20,7 @@ Prefers nix-build, otherwise make, or falls back to raw mmc command."
 (use-package metal-mercury-mode
   :quelpa (metal-mercury-mode :fetcher github
                               :repo    "ahungry/metal-mercury-mode")
+  ;; TODO: Might be better to trigger a dynamic check based on file magic, etc.
   :mode "\\.m\\'"
   :defer t  ;; Don't access `metal-mercury-mode-map' until the mode's loaded
 

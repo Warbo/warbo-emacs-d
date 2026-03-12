@@ -1,0 +1,28 @@
+From: Chris Warburton
+Date: Thu, 12 Mar 2026 01:13:36 +0000
+State: new
+Subject: corfu errors from dictionaries?
+Message-Id: <f1743c375607a3c4-0-artemis@nixos-framework>
+
+Lots of these appearing in *Messages*:
+
+```
+Corfu detected an error:
+  backtrace-to-string()
+  corfu--debug((error "ispell-lookup-words: No plain word-list found at systemdefault locations.  Customize ‘ispell-alternate-dictionary’ to set yours."))
+  error("ispell-lookup-words: No plain word-list found at systemdefault locations.  Customize `ispell-alternate-dictionary' to set yours.")
+  ispell-lookup-words("test")
+  ispell-completion-at-point()
+  corfu--capf-wrapper(ispell-completion-at-point 1)
+  run-hook-wrapped(corfu--capf-wrapper ispell-completion-at-point 1)
+  #f(compiled-function () #<bytecode 0xe117659b416d6d0>)()
+  #f(compiled-function () #<bytecode -0x107ddc99e8181644>)()
+  handler-bind-1(#f(compiled-function () #<bytecode -0x107ddc99e8181644>) (error) corfu--debug)
+  corfu--protect(#f(compiled-function () #<bytecode 0xe117659b416d6d0>))
+  corfu-auto--complete-deferred()
+  #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_6>()
+  #f(compiled-function () #<bytecode 0x128bfe00fdb35>)()
+  handler-bind-1(#f(compiled-function () #<bytecode 0x128bfe00fdb35>) (error) corfu--debug)
+  corfu--protect(#<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_6>)
+  corfu-auto--post-command()
+```

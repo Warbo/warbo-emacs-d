@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Wed, 11 Mar 2026 10:48:22 +0000
+State: new
+Subject: Some bytes seem to crash Emacs
+Message-Id: <f5c909d8c6ef4190-0-artemis@nixos-framework>
+
+Sometimes I'll end up with binary getting spewed into a buffer, e.g. in
+shell-mode, etc. (e.g. I've been playing with git, and showing a raw tree
+object, which stores the SHA1s of its children as bytes (not hex) can cause
+this).
+
+Some byte sequences seem to cause Emacs to crash. I don't have a reproducer yet,
+but it would be nice to not crash...

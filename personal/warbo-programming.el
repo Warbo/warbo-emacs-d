@@ -58,7 +58,11 @@
 
 ;; These modes are built-in, so we don't need use-package to run add-hook
 (use-package sh-script
-  :mode (("\\.sh\\'" . bash-ts-mode))
+  :mode
+  ("\\.sh\\'"   . bash-ts-mode)
+  ("\\.bash\\'" . bash-ts-mode)
+  ("\\.ksh\\'"  . sh-mode)
+  ("\\.zsh\\'"  . sh-mode)
   :config
   (add-hook 'bash-ts-mode-hook 'sh-format-on-save-mode)
   (add-to-list 'major-mode-remap-alist '(sh-mode . bash-ts-mode)))
@@ -68,10 +72,6 @@
 (use-package rainbow-identifiers
   :ensure t
   :hook (prog-mode . rainbow-identifiers-mode))
-
-(use-package auctex
-  :ensure t
-  :mode "\\.latex\\'")
 
 (use-package cmake-ts-mode
   :mode ("\\.cmake\\'" "CMakeLists\\.txt\\'")
@@ -87,7 +87,7 @@
   :after reformatter
   :quelpa (cue-mode :fetcher github
                     :repo    "russell/cue-mode")
-  :mode (("\\.cue\\'"  . cue-mode))
+  :mode "\\.cue\\'"
   :config
   (add-hook 'cue-mode-hook 'cue-format-on-save-mode))
 
@@ -180,7 +180,11 @@ with the string S. Unlike `replace-region-contents' this maintains text
     (message "No region selected")))
 
 (use-package js
-  :mode (("\\.js" . js-ts-mode))
+  :mode
+  ("\\.js\\'"  . js-ts-mode)
+  ("\\.mjs\\'" . js-ts-mode)
+  ("\\.cjs\\'" . js-ts-mode)
+  ("\\.julius\\'" . js-ts-mode)
   :hook (js-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(js-mode . js-ts-mode))
@@ -193,14 +197,14 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 (use-package json-ts-mode
   :ensure t
-  :mode "\\.json\\'"
+  :mode ("\\.json\\'" "\\.jsonl\\'" "\\.jsonc\\'")
   :config
   (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
   (add-to-list 'major-mode-remap-alist '(json-js-mode-mode . json-ts-mode)))
 
 (use-package jq-mode
   :ensure t
-  :mode ("\\.jq" . jq-mode))
+  :mode "\\.jq\\'")
 
 ;; Unset some conflicting keybindings before binding them to magit
 (global-unset-key (kbd "s-m"))
@@ -244,6 +248,12 @@ with the string S. Unlike `replace-region-contents' this maintains text
 (use-package magit-popup
   :ensure t)
 
+(use-package majutsu
+  :vc (:url "https://github.com/0WD0/majutsu")
+  :ensure t
+  :bind (("C-x j" . majutsu))
+  )
+
 (use-package make-mode
   ;; makefile-mode is built-in, so doesn't need downloading
   :defines (whitespace-style)
@@ -267,11 +277,11 @@ with the string S. Unlike `replace-region-contents' this maintains text
     (add-hook 'makefile-mode-hook
               (lambda ()
                 (setq whitespace-style '(face tab-mark trailing))
-                      indent-tabs-mode t))))
+                indent-tabs-mode t))))
 
 (use-package markdown-ts-mode
   :ensure t
-  :mode ("\\.markdown\\'" "\\.md\\'"))
+  :mode ("\\.markdown\\'" "\\.md\\'" "\\.mdown\\'" "\\.mkd\\'" "\\.mkdn\\'"))
 
 (defun warbo-remove-bel (text)
   "Remove BEL characters (^G) from TEXT."
@@ -281,6 +291,7 @@ with the string S. Unlike `replace-region-contents' this maintains text
   :ensure t
   :after reformatter
   :defines (nix-nixfmt-bin)
+  :mode "\\.nix\\'"
   :config
   (add-hook 'nix-ts-mode-hook 'nix-format-on-save-mode)
   ;; nix-ts-mode can run nixfmt, but it can't specify commandline args like
@@ -295,7 +306,8 @@ with the string S. Unlike `replace-region-contents' this maintains text
         (replace-match "")))))
 
 (use-package php-ts-mode
-  :mode "\\.php\\'")
+  :mode ("\\.php\\'" "\\.phtml\\'" "\\.phar\\'"
+         "\\.php3\\'" "\\.php4\\'" "\\.php5\\'" "\\.php7\\'" "\\.php8\\'"))
 
 (use-package pkgbuild-mode
   :ensure t
@@ -320,14 +332,14 @@ with the string S. Unlike `replace-region-contents' this maintains text
 
 (use-package yaml-ts-mode
   :ensure t
-  :mode ("\\.yml\\'" "\\.yaml\\'")
+  :mode ("\\.yml\\'" "\\.yaml\\'" "\\.yamls\\'")
   :config
   (add-hook 'yaml-ts-mode-hook 'yamlfix-format-on-save-mode)
   (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode)))
 
 (use-package toml-ts-mode
   :ensure t
-  :mode ("\\.toml")
+  :mode ("\\.toml" "Cargo\\.lock\\'")
   :config
   (add-to-list 'major-mode-remap-alist '(toml-mode . toml-ts-mode))
   (add-to-list 'major-mode-remap-alist '(conf-toml-mode . toml-ts-mode)))
@@ -480,7 +492,10 @@ This prevents eglot from failing when the binary isn't available."
 ;;   (eglot-booster-mode))
 
 (use-package c-ts-mode
-  :mode ("\.c\'")
+  :mode ("\\.c\\'" "\\.h\\'"
+         ;; These are C++ rather than C but I don't care enough to configure C++
+         "\\.cpp\\'" "\\.cc\\'" "\\.c++\\'" "\\.cxx\\'"
+         "\\.hpp\\'" "\\.h++\\'" "\\.hxx\\'")
   :hook (c-ts-mode . eglot-ensure))
 
 (use-package vertico
@@ -612,17 +627,21 @@ invoked.  Otherwise, the current line is indented."
 
 (use-package typescript-ts-mode
   :ensure t
-  :mode (("\\.ts\\'"  . typescript-ts-mode)
-         ("\\.tsx\\'" . tsx-ts-mode))
+  :mode
+  ("\\.ts\\'"   . typescript-ts-mode)
+  ("\\.mts\\'"  . typescript-ts-mode)
+  ("\\.cts\\'"  . typescript-ts-mode)
+  ("\\.tsx\\'"  . tsx-ts-mode)
+  ("\\.mtsx\\'" . tsx-ts-mode)
+  ("\\.ctsx\\'" . tsx-ts-mode)
   :hook (typescript-ts-mode . eglot-ensure)
   :config
   (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode)))
 
 (use-package nxml-mode
   :no-require t
-  :mode
-  ("\\.xml$" . nxml-mode)
-  ("\\.pom$" . nxml-mode)
+  :mode ("\\.xml\\'" "\\.xsd\\'" "\\.xsl\\'" "\\.xslt\\'"
+         "\\.pom\\'" "\\.svg\\'")
   :commands (pretty-print-xml-region)
   :init
   ;; Mapping xml to nxml

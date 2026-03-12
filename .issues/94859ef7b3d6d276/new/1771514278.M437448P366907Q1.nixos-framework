@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Thu, 19 Feb 2026 15:16:37 +0000
+Subject: Re: nix-derivation-mode not loading in .html.drv files
+Message-Id: <94859ef7b3d6d276-ae4d0632b4f541f1-artemis@nixos-framework>
+References: <94859ef7b3d6d276-0-artemis@nixos-amd64>
+In-Reply-To: <94859ef7b3d6d276-0-artemis@nixos-amd64>
+
+Fixed. We didn't have an "end of string" anchor in the regex that associates
+web-mode (now html-ts-mode) with ".html" files; so it was matching
+".htmlanything", including ".html.drv".

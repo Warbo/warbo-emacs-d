@@ -565,7 +565,7 @@ If point is already at the beginning of text, move it to the beginning of line."
              "EnvyCodeR Nerd Font Mono-11")
 
             ((equal machine-id 'framework)
-             "DroidSansM Nerd Font Mono-11")
+             "DroidSansM Nerd Font Mono-9")
 
             ((font-utils-exists-p "Droid Sans Mono-8")
              "Droid Sans Mono-8")
@@ -597,6 +597,34 @@ If point is already at the beginning of text, move it to the beginning of line."
 ;; Run now if we're already in a graphical frame (e.g. not started as a daemon)
 (when (display-graphic-p)
   (set-desired-font))
+
+;; display-buffer-use-some-window can pick side windows (window-side != nil).
+;; Replace it in display-buffer-fallback-action with a version that skips them.
+(defun warbo-display-buffer-use-some-non-side-window (buffer alist)
+  "Like `display-buffer-use-some-window' but never use side windows."
+  (let (best-window best-time)
+    (walk-windows
+     (lambda (w)
+       (unless (or (window-parameter w 'window-side)
+                   (window-minibuffer-p w)
+                   (window-dedicated-p w)
+                   (and (cdr (assq 'inhibit-same-window alist))
+                        (eq w (selected-window))))
+         (when (or (null best-window)
+                   (< (window-use-time w) best-time))
+           (setq best-window w
+                 best-time (window-use-time w)))))
+     nil nil)
+    (when best-window
+      (window--display-buffer buffer best-window 'reuse alist))))
+
+(setq display-buffer-fallback-action
+      (cons (mapcar (lambda (fn)
+                      (if (eq fn 'display-buffer-use-some-window)
+                          'warbo-display-buffer-use-some-non-side-window
+                        fn))
+                    (car display-buffer-fallback-action))
+            (cdr display-buffer-fallback-action)))
 
 (provide 'warbo-generic)
 ;;; warbo-generic.el ends here

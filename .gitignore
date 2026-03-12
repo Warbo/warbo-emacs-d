@@ -42,3 +42,4 @@ elpy
 /.yamlfmt
 flycheck_*
 /*.sqlite
+/history
