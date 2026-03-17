@@ -407,6 +407,7 @@ The function is wired up via .dir-locals.el, as it would be in a real project."
           (let ((buf (find-file-noselect file)))
             (unwind-protect
                 (with-current-buffer buf
+                  (switch-to-buffer buf)
                   (execute-kbd-macro (kbd "<f6>"))
                   (should warbo-test-haskell-f6-runner-called))
               (kill-buffer buf))))
@@ -424,6 +425,7 @@ derives from prog-mode."
           (let ((buf (find-file-noselect file)))
             (unwind-protect
                 (with-current-buffer buf
+                  (switch-to-buffer buf)
                   ;; Type '(' and expect smartparens to insert the matching ')'
                   (execute-kbd-macro (kbd "("))
                   (should (string= (buffer-string) "()")))
@@ -441,6 +443,7 @@ derives from prog-mode."
           (let ((buf (find-file-noselect file)))
             (unwind-protect
                 (with-current-buffer buf
+                  (switch-to-buffer buf)
                   ;; Select the whole buffer contents
                   (goto-char (point-min))
                   (push-mark (point-max) nil t)
