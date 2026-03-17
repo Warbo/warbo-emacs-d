@@ -1,0 +1,42 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 17:15:58 +0000
+Subject: Re: Haskell errors
+Message-Id: <9eb004356832508e-b68597f04691755a-artemis@nixos-framework>
+References: <9eb004356832508e-0-artemis@nixos-framework>
+In-Reply-To: <9eb004356832508e-0-artemis@nixos-framework>
+
+Tried the updated commit, but it still gives:
+
+```
+Reading Haskell configuration failed with exit code 1 and output:
+/home/chrisw/.emacs.d/elpa/flycheck-haskell/get-cabal-configuration.hs:42:59: error: [GHC-61689]
+    Module ‘Distribution.PackageDescription’ does not export ‘testEnabled’.
+   |
+42 |         usedExtensions, allLanguages, hcOptions, exeName, testEnabled,
+   |                                                           ^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell/get-cabal-configuration.hs:43:25: error: [GHC-61689]
+    Module ‘Distribution.PackageDescription’ does not export ‘benchmarkEnabled’.
+   |
+43 |         condTestSuites, benchmarkEnabled, condBenchmarks)
+   |                         ^^^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell/get-cabal-configuration.hs:45:9: error: [GHC-61689]
+    Module ‘Distribution.PackageDescription.Configuration’ does not export ‘finalizePackageDescription’.
+    Suggested fix: Perhaps use ‘flattenPackageDescription’
+   |
+45 |        (finalizePackageDescription, mapTreeData)
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/home/chrisw/.emacs.d/elpa/flycheck-haskell/get-cabal-configuration.hs:46:1: error: [GHC-61948]
+    Could not find module ‘Distribution.PackageDescription.Parse’.
+    Perhaps you meant
+      Distribution.PackageDescription.Parsec (from Cabal-syntax-3.14.1.0)
+      Distribution.PackageDescription.Check (from Cabal-3.14.1.0)
+      Distribution.PackageDescription.Utils (from Cabal-syntax-3.14.1.0)
+    Use :set -v to see a list of the files searched for.
+   |
+46 | import Distribution.PackageDescription.Parse (readPackageDescription)
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ [2 times]
+```

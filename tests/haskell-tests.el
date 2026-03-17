@@ -1833,6 +1833,8 @@ The expected outcome is that we jump to the definition line."
                                   (line-beginning-position)
                                   (line-end-position)))))))))
 
+
+
 (ert-deftest warbo-test-flycheck-haskell-supports-cabal-314 ()
   "The installed flycheck-haskell handles Cabal >= 3.14.
 Cabal 3.14 changed several types from FilePath to SymbolicPath wrappers.

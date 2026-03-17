@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 17 Mar 2026 16:04:17 +0000
-State: new
+State: resolved
 Subject: Haskell errors
 Message-Id: <9eb004356832508e-0-artemis@nixos-framework>
+resolution: fixed
 
 Getting these in *Messages*:
 
