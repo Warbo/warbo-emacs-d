@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 18:28:08 +0000
+Subject: Re: No undo-tree-mode in haskell-ts-mode?
+Message-Id: <cb6b28fb61619541-ed5644160c70c804-artemis@nixos-framework>
+References: <cb6b28fb61619541-0-artemis@nixos-framework>
+In-Reply-To: <cb6b28fb61619541-0-artemis@nixos-framework>
+
+Fixed. It was caused by flycheck-haskell barfing, and seemingly
+preventing any of our normal modes from starting up in Haskell buffers.
+
+Fixed by forking and patching flycheck-haskell to support Cabal 3.14
+See https://github.com/flycheck/flycheck-haskell/pull/121

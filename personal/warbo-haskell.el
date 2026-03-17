@@ -92,6 +92,8 @@ Only runs if hasktags is available in PATH."
   :after xref-union
   :functions (tags-completion-table)
   :mode ("\\.hs\\'" "\\.lhs\\'" "\\.hsc\\'")
+  :bind (:map haskell-ts-mode-map
+              ("C-c d" . haskell-hoogle))
   :init
   ;; Ensures shebangs like '#!/usr/bin/env runhaskell' use haskell-ts-mode
   ;; TODO: Add a simple test to tests/haskell-tests.el that checks whether a

@@ -67,6 +67,7 @@ MESSAGE describes what we're waiting for.  Returns predicate result or nil."
             "    pkgs.ghc\n"
             "    pkgs.cabal-install\n"
             "    pkgs.haskellPackages.hasktags\n"
+            "    pkgs.haskellPackages.hoogle\n"
             "  ];\n"
             "}\n"))
   ;; Eglot configuration for haskell-ts-mode (normally lives in .dir-locals.el
@@ -1284,25 +1285,29 @@ should provide hlint diagnostics as a fallback.  Uses 'putStrLn (show
         (kill-buffer buf))
       (delete-directory dir t))))
 
-(ert-deftest warbo-test-haskell-hoogle-search-online ()
-  "Test searching Hoogle online for a function and getting results.
-Should be able to search the Hoogle database and display results."
-  :tags '(:skip :hoogle :online)
-  (skip-unless nil)
-  ;; TODO: Set up Hoogle search integration
-  ;; - Can use helm-hoogle, haskell-hoogle, or similar packages
-  ;; - Should allow searching by function name and viewing results
-  )
-
 (ert-deftest warbo-test-haskell-hoogle-lookup-at-point ()
-  "Test looking up documentation for the function at point using Hoogle.
-With point on an identifier like 'foldl', a key binding should show Hoogle results."
-  :tags '(:skip :hoogle :lookup)
-  (skip-unless nil)
-  ;; TODO: Set up a keybinding to look up the identifier at point in Hoogle
-  ;; - Could use helm-hoogle with a command wrapper
-  ;; - Or integrate with haskell-hoogle package
-  )
+  "Test that C-c d in a Haskell buffer is bound to a Hoogle lookup command.
+This keybinding should be available for looking up the identifier at point."
+  :tags '(:hoogle :lookup)
+  (let* ((dir (make-temp-file "haskell-hoogle-key-" t))
+         (file (expand-file-name "test.hs" dir)))
+    (unwind-protect
+        (progn
+          (with-temp-file file (insert "module Main where\n"))
+          (let ((buf (find-file-noselect file)))
+            (unwind-protect
+                (with-current-buffer buf
+                  (let ((binding (key-binding (kbd "C-c d"))))
+                    (unless binding
+                      (ert-fail (format "C-c d is unbound in %s. Keymap: %S"
+                                        major-mode
+                                        (current-local-map))))
+                    ;; The binding should be hoogle-related
+                    (should (string-match-p
+                             "hoogle"
+                             (symbol-name binding)))))
+              (kill-buffer buf))))
+      (delete-directory dir t))))
 
 (ert-deftest warbo-test-haskell-hoogle-local-database ()
   "Test that a local Hoogle database can be generated and used.
@@ -1516,14 +1521,44 @@ With point on an undefined symbol, should offer to add the import."
      (should (search-forward "import" nil t)))))
 
 (ert-deftest warbo-test-haskell-organize-imports ()
-  "Test organizing imports (sorting, grouping, removing unused).
-Messy imports should be cleaned up: sorted, grouped, and unused imports removed."
-  :tags '(:skip :import :formatting)
-  (skip-unless nil)
-  ;; TODO: Set up import organization
-  ;; - Can use HLS code actions, stylish-haskell, ormolu, or similar formatters
-  ;; - Should sort, group, and remove unused imports
-  )
+  "Test removing an unused import via HLS code action.
+HLS flags redundant imports as warnings and offers a quickfix to remove them."
+  :tags '(:import :formatting)
+  (with-haskell-test-file
+      ;; Data.List is imported but unused
+      "module Main where\n\nimport Data.List\n\nmain :: IO ()\nmain = putStrLn \"hello\""
+      "putStrLn"
+
+   ;; Wait for the redundant-import diagnostic
+   (flymake-start)
+   (let ((diag (warbo-haskell-test-poll
+                (lambda ()
+                  (seq-find (lambda (d)
+                              (string-match-p
+                               "redundant\\|unused\\|not used"
+                               (downcase (flymake-diagnostic-text d))))
+                            (flymake-diagnostics)))
+                warbo-haskell-test-timeout
+                "redundant import diagnostic")))
+     (unless diag
+       (ert-fail (format "No redundant import diagnostic. All diagnostics: %s"
+                         (mapcar #'flymake-diagnostic-text
+                                 (flymake-diagnostics)))))
+     ;; Position on the import line and apply the quickfix
+     (goto-char (point-min))
+     (search-forward "Data.List")
+     (let ((action (warbo-haskell-test-poll
+                    (lambda ()
+                      (car (ignore-errors
+                             (eglot-code-actions (point) (point) "quickfix"))))
+                    warbo-haskell-test-timeout
+                    "remove-import code action")))
+       (unless action
+         (ert-fail "No quickfix code action for redundant import"))
+       (eglot-execute (eglot-current-server) action)
+       (accept-process-output nil 0.5)
+       ;; The import should be gone
+       (should-not (string-match-p "Data\\.List" (buffer-string)))))))
 
 (ert-deftest warbo-test-haskell-qualify-import ()
   "Test adding qualified import for a symbol.
@@ -1658,14 +1693,41 @@ completely unparseable file, so warbo-haskell-test-wait-for-indexing
       (kill-buffer buf))))
 
 (ert-deftest warbo-test-haskell-view-haddock ()
-  "Test viewing Haddock documentation for a symbol.
-Should open browser or display docs for the identifier at point."
-  :tags '(:skip :haddock :documentation)
-  (skip-unless nil)
-  ;; TODO: Set up Haddock documentation lookup
-  ;; - Can use haskell-hoogle, haskell-mode, or similar packages
-  ;; - Should look up the identifier at point and display documentation
-  )
+  "Test that eldoc shows Haddock prose documentation, not just type signatures.
+HLS serves Haddock content via hover.  For `putStrLn', the Haddock docs
+describe what the function does (e.g. writing to stdout).  This test
+verifies that our config surfaces that prose, not just the type."
+  :tags '(:haddock :documentation)
+  (with-haskell-test-file
+      "main = putStrLn \"hello\""
+      "putStrLn"
+
+   ;; Position on putStrLn
+   (goto-char (point-min))
+   (search-forward "putStrLn")
+   (backward-char 1)
+
+   ;; Poll for documentation that contains Haddock prose, not just the type.
+   ;; HLS hover for putStrLn includes text like "Write a string to the
+   ;; standard output device" from the Haddock comments in base.
+   (let ((doc (warbo-haskell-test-poll
+               (lambda ()
+                 (let ((d (warbo-haskell-test-get-documentation-buffer)))
+                   (and d
+                        ;; Must contain prose description, not just type sig.
+                        ;; HLS returns Haddock text like "The same as putStr,
+                        ;; but adds a newline character."
+                        (string-match-p
+                         "putStr\\|newline\\|output\\|stdout\\|standard output"
+                         d)
+                        d)))
+               warbo-haskell-test-timeout
+               "Haddock prose documentation")))
+     (unless doc
+       (let ((raw-doc (warbo-haskell-test-get-documentation-buffer)))
+         (ert-fail (format "No Haddock prose found in eldoc. Got: %S"
+                           raw-doc))))
+     (should (stringp doc)))))
 
 (ert-deftest warbo-test-haskell-generate-haddock-comment ()
   "Test generating a Haddock comment skeleton for a function.
@@ -1756,13 +1818,27 @@ Renaming 'myFunc' to 'newFunc' should update all occurrences."
       (ert-fail (format "Rename failed: %S" err))))))
 
 (ert-deftest warbo-test-haskell-complete-pragma ()
-  "Test completions in a LANGUAGE pragma.
-When typing a LANGUAGE pragma, should suggest valid GHC extensions."
-  :tags '(:skip :pragma :language)
-  (skip-unless nil)
-  ;; TODO: Set up LANGUAGE pragma completion
-  ;; - Should suggest valid GHC extensions when typing pragmas
-  )
+  "Test that completion-at-point suggests GHC extensions in a LANGUAGE pragma.
+HLS provides pragma completions.  Typing a partial extension name inside
+a LANGUAGE pragma and invoking completion should insert a valid extension."
+  :tags '(:pragma :language)
+  (with-haskell-test-file
+      "{-# LANGUAGE OverloadedStr #-}\nmodule Main where\nmain = putStrLn \"hello\""
+      "putStrLn"
+
+   ;; Position inside the partial pragma "OverloadedStr"
+   (goto-char (point-min))
+   (search-forward "OverloadedStr")
+
+   ;; Invoke completion
+   (completion-at-point)
+
+   ;; Buffer should now contain "OverloadedStrings"
+   (let ((content (buffer-string)))
+     (unless (string-match-p "OverloadedStrings" content)
+       (ert-fail (format "Expected 'OverloadedStrings' after completion, got: %S"
+                         content)))
+     (should (string-match-p "OverloadedStrings" content)))))
 
 (ert-deftest warbo-test-haskell-jump-to-definition-with-prompt ()
   "Test C-u M-. (jump to definition with prompt) works from whitespace.

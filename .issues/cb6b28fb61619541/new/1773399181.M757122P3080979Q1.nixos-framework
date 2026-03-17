@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 13 Mar 2026 10:50:48 +0000
-State: new
+State: resolved
 Subject: No undo-tree-mode in haskell-ts-mode?
 Message-Id: <cb6b28fb61619541-0-artemis@nixos-framework>
+resolution: fixed
 
 Not sure why this isn't enabled, when it's in basically every other mode.
 
