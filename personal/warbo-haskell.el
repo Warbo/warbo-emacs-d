@@ -152,18 +152,20 @@ ORIG-FUN."
 (use-package flycheck-haskell
   :vc (:url "https://github.com/Warbo/flycheck-haskell.git")
   :init
-  ;; If an old ELPA-versioned flycheck-haskell directory exists alongside the
-  ;; VC-installed one, it may take precedence and lack Cabal >= 3.14 support.
-  ;; We can't remove it declaratively; warn the user to do it manually.
-  (let ((old (seq-filter
-              (lambda (d) (string-match-p "\\`flycheck-haskell-[0-9]" d))
-              (directory-files (expand-file-name "elpa" user-emacs-directory)))))
-    (when old
-      (warn (concat "Old ELPA flycheck-haskell package(s) found: %s\n"
-                    "These may shadow the VC-installed version and lack "
-                    "Cabal >= 3.14 support.\n"
-                    "Remove with: M-x package-delete RET flycheck-haskell RET")
-            old)))
+  ;; Warn if the installed flycheck-haskell lacks Cabal >= 3.14 support.
+  ;; This happens when the package was installed from the original upstream
+  ;; rather than the Warbo fork; use-package :vc won't reinstall automatically.
+  (with-temp-buffer
+    (ignore-errors
+      (insert-file-contents (locate-file "get-cabal-configuration.hs"
+                                         (list (file-name-directory
+                                                (locate-library "flycheck-haskell"))))))
+    (unless (search-forward "Cabal314OrLater" nil t)
+      (warn (concat "flycheck-haskell lacks Cabal >= 3.14 support.\n"
+                    "Reinstall from the fixed fork with:\n"
+                    "  (package-vc-install"
+                    " \"https://github.com/Warbo/flycheck-haskell.git\""
+                    " nil nil 'flycheck-haskell)"))))
   :hook (haskell-ts-mode . flycheck-haskell-setup))
 
 ;; ghcid integration: run ghcid in a shell buffer with nice error highlighting

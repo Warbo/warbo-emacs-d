@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 17:29:03 +0000
+Subject: Re: Haskell errors
+Message-Id: <9eb004356832508e-ddb8d2881d99254e-artemis@nixos-framework>
+References: <9eb004356832508e-0-artemis@nixos-framework>
+In-Reply-To: <9eb004356832508e-0-artemis@nixos-framework>
+
+Second failure had a different root cause: the remote machine had a stale saved customisation of `flycheck-haskell-runghc-command` (the old short form without `-packageCabal` flags). Without those flags GHC has no Cabal package in scope during CPP, so `MIN_VERSION_Cabal` is never defined and all version guards silently fall through to the oldest pre-Cabal-2.0 branches, which fail against Cabal 3.14.
+
+Fix added to `warbo-haskell.el` `:config`: `(unless (member "-packageCabal" flycheck-haskell-runghc-command) (custom-reevaluate-setting 'flycheck-haskell-runghc-command))`. This resets any stale saved customisation to the current computed default (which includes the necessary `-packageCabal` flags) without affecting machines that have the correct value.
