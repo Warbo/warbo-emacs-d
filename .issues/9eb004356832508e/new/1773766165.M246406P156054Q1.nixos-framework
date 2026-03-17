@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Tue, 17 Mar 2026 16:49:25 +0000
+Subject: Re: Haskell errors
+Message-Id: <9eb004356832508e-dd1bc57a13ff62de-artemis@nixos-framework>
+References: <9eb004356832508e-0-artemis@nixos-framework>
+In-Reply-To: <9eb004356832508e-0-artemis@nixos-framework>
+
+Root cause: `get-cabal-configuration.hs` didn't handle Cabal ≥ 3.14, which changed several types from plain `FilePath` to typed `SymbolicPath`/`RelativePath` wrappers (`defaultDistPref`, `includeDirs`, `modulePath`, test/bench path fields) and added an extra argument to `readGenericPackageDescription`.
+
+No upstream fix exists (repo has had zero commits since 2024-11-19, no open PRs, no forks addressing it).
+
+Fix: forked to github.com/Warbo/flycheck-haskell, added `Cabal314OrLater` CPP guard following the existing pattern, with `getSymbolicPath`/`unsafeMakeSymbolicPath` wrappers in the affected spots. Tested against both Cabal 3.12.1.0 (GHC 9.10) and 3.14.1.0 (GHC 9.12).
+
+`use-package` block updated to use `:vc` pointing at the fork.

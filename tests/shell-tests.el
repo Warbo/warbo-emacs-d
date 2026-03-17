@@ -267,3 +267,21 @@
    (goto-char (point-max))
    (execute-kbd-macro (kbd "C-a"))
    (should (= (point) (+ (line-beginning-position) 2)))))
+
+(ert-deftest warbo-startup-shells-dont-steal-current-buffer ()
+  "The shells opened by open-startup-shells should be in the background."
+  (sleep-for 2)
+  (when (get-buffer "home")
+    ;; Suppress the "there is currently a running process" prompt
+    (let ((kill-buffer-query-functions nil))
+      (kill-buffer (get-buffer "home"))))
+  (should-not (get-buffer "home"))
+  (let ((old-buf (current-buffer)))
+    (open-startup-shells)
+    (sleep-for 2)
+    (let ((home (get-buffer "home")))
+      (should home)
+      (should-not (eq (current-buffer) home))
+      (should (eq (current-buffer) old-buf))
+      (with-current-buffer home
+        (should (eq major-mode 'shell-mode))))))
