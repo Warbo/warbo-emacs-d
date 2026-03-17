@@ -92,6 +92,7 @@ Only runs if hasktags is available in PATH."
   :after xref-union
   :functions (tags-completion-table)
   :mode ("\\.hs\\'" "\\.lhs\\'" "\\.hsc\\'")
+  :custom (haskell-ts-use-indent t)
   :bind (:map haskell-ts-mode-map
               ("C-c d" . haskell-hoogle))
   :init

@@ -1646,54 +1646,70 @@ For 'f x = x + 1', should insert 'f :: Num a => a -> a'."
      (should (search-forward "f ::" nil t)))))
 
 (ert-deftest warbo-test-haskell-smart-indent ()
-  "Test that pressing TAB correctly indents Haskell code.
-An unindented 'where' clause should indent to the correct level.
-haskell-ts-mode uses tree-sitter for indentation, which does not require
-HLS.  We therefore test in a plain buffer rather than a full project.
-
-The original version used with-haskell-test-file with the content
-  \"f x = g x\\nwhere\\ng y = y + 1\"
-This is a Haskell parse error: a bare 'where' at column 0 is illegal
-under the layout rule (it must be indented inside the function body it
-belongs to).  HLS cannot produce diagnostics or hover responses for a
-completely unparseable file, so warbo-haskell-test-wait-for-indexing
-(which waits for either) always hit the 60s timeout."
+  "Test that pressing TAB correctly indents various Haskell constructs.
+All cases live in one .hs file opened as haskell-ts-mode (via auto-mode-alist),
+so indentation is driven by tree-sitter — no HLS needed."
   :tags '(:indent :editing)
-  (let ((buf (generate-new-buffer "*haskell-indent-test*")))
+  (let* ((dir (make-temp-file "haskell-indent-test-" t))
+         (file (expand-file-name "test.hs" dir)))
     (unwind-protect
-        (with-current-buffer buf
-          ;; FIXME: We MUST use the results provided by the Emacs config under
-          ;; test. A test which switches on major modes, etc. is not checking
-          ;; that Emacs config, it's pissing around with hypotheticals!
+        (progn
+          (with-temp-file file
+            (insert (string-join
+                     '("fWhere x = gWhere x"
+                       "  where"
+                       "       gWhere y = y + 1"
+                       ""
+                       "mainDo = do"
+                       "          putStrLn \"hello\""
+                       ""
+                       "fGuards x"
+                       "  | x > 0 = 1"
+                       "        | True = 0"
+                       ""
+                       "fCase x = case x of"
+                       "      Just y -> y"
+                       "                Nothing -> 0"
+                       ""
+                       "fWhereMulti x = gMulti x + hMulti x"
+                       "  where"
+                       "    gMulti y = y + 1"
+                       "     hMulti y = y - 1"
+                       "")
+                     "\n")))
+          (let ((buf (find-file-noselect file)))
+            (unwind-protect
+                (with-current-buffer buf
+                  (switch-to-buffer buf)
+                  (pcase-dolist
+                      (`(,marker ,pattern ,msg)
+                       '(("gWhere y"
+                          "^    gWhere y"
+                          "where-binding should align with where-body")
+                         ("putStrLn \"hello\""
+                          "^  putStrLn"
+                          "do-block statement should align with do-body")
+                         ("True = 0"
+                          "^  | True"
+                          "second guard should align with first guard")
+                         ("Nothing"
+                          "^        Nothing"
+                          "second case alt should align with first (Just)")
+                         ("hMulti y"
+                          "^      hMulti y"
+                          "second where-binding should align with first (gMulti)")))
+                    (goto-char (point-min))
+                    (search-forward marker)
+                    (execute-kbd-macro (kbd "TAB"))
+                    (let ((line (buffer-substring-no-properties
+                                 (line-beginning-position) (line-end-position))))
+                      (unless (string-match-p pattern line)
+                        (message "%s" `((msg ,msg) (line ,line)))
+                        (ert-fail "Line did not match expected"))))
 
-          ;; Start with a properly-indented function so tree-sitter can parse
-          ;; the file and provide indentation context.  The where-clause and
-          ;; its binding begin at column 0 (unindented) and should be moved
-          ;; right by TAB.
-          (insert "f x = g x\n  where\n    g y = y + 1\n")
-          ;; Now re-insert the where/g lines at column 0 so we can test TAB
-          ;; FIXME: This seems akward and unrealistic. How about inserting the
-          ;; 'f x = g x' line on its own, then separately writing/inserting the
-          ;; 'where' and 'g y = y + 1' lines.
-          (goto-char (point-min))
-          (search-forward "  where")
-          (beginning-of-line)
-          (delete-region (line-beginning-position) (line-end-position))
-          (insert "where")
-          (forward-line)
-          (delete-region (line-beginning-position) (line-end-position))
-          (insert "g y = y + 1")
-          ;; Now test that TAB indents correctly
-          (goto-char (point-min))
-          (search-forward "where")
-          (beginning-of-line)
-          (indent-for-tab-command)
-          (should (looking-at "  where"))    ; Should be indented by 2
-          (forward-line)
-          (beginning-of-line)
-          (indent-for-tab-command)
-          (should (looking-at "    g")))     ; Should be indented by 4
-      (kill-buffer buf))))
+              (with-current-buffer buf (set-buffer-modified-p nil)))
+              (kill-buffer buf))))
+      (delete-directory dir t))))
 
 (ert-deftest warbo-test-haskell-view-haddock ()
   "Test that eldoc shows Haddock prose documentation, not just type signatures.
