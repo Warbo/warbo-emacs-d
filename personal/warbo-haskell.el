@@ -150,7 +150,7 @@ ORIG-FUN."
 ;; flycheck-haskell configures flycheck's Haskell checkers with the correct
 ;; cabal settings, GHC options, language extensions, and source directories.
 (use-package flycheck-haskell
-  :vc (:url "https://github.com/Warbo/flycheck-haskell.git")
+  :vc (:url "https://github.com/Warbo/flycheck-haskell.git" :rev :newest)
   :init
   ;; Warn if the installed flycheck-haskell lacks Cabal >= 3.14 support.
   ;; This happens when the package was installed from the original upstream
